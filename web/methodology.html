@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Methodology - A股风险温度计</title>
+    <link rel="stylesheet" href="./assets/app.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./index.html"><span class="brand-mark">RT</span><span><strong>A股风险温度计</strong><small>Methodology</small></span></a>
+      <nav><a href="./index.html">Dashboard</a><a href="./data.html">Data</a></nav>
+    </header>
+    <main class="content-page">
+      <h1>Methodology</h1>
+      <p>本系统不是官方 AVIX / QVIX。历史 AVIX 使用沪深300股指期权历史收盘价做 VIX-style 方差复制；实时 AVIX 使用 bid/ask midpoint；QVIX 只做方向一致性、极端区间一致性与滚动相关性验证。</p>
+      <section>
+        <h2>Composite Risk Temperature</h2>
+        <p>最终温度由 AVIX 两年分位、AVIX 一年 z-score、AVIX 5 日变化、QVIX confirmation、沪深300实现波动率、回撤压力、全A宽度压力和成交压力合成，权重由 <code>config/scoring.yml</code> 管理。</p>
+      </section>
+      <section>
+        <h2>Data Limits</h2>
+        <p>免费源缺少历史 bid/ask、结算价和历史持仓量，因此历史序列称为 <code>AVIX_CLOSE_REPLICA</code>，不声称复刻官方指数。数据源失败时不会静默覆盖旧数据，输出会降级 quality。</p>
+      </section>
+      <section>
+        <h2>Temperature Zones</h2>
+        <table>
+          <thead><tr><th>温度</th><th>状态</th><th>解释</th></tr></thead>
+          <tbody>
+            <tr><td>0-20</td><td>平静</td><td>波动低，恐慌不足，反身机会弱。</td></tr>
+            <tr><td>20-40</td><td>正常</td><td>普通震荡，风险信号不强。</td></tr>
+            <tr><td>40-60</td><td>警戒</td><td>波动和回撤开始上升。</td></tr>
+            <tr><td>60-75</td><td>高风险</td><td>市场进入防守区。</td></tr>
+            <tr><td>75-90</td><td>恐慌区</td><td>可能出现错杀和反身修复窗口。</td></tr>
+            <tr><td>90-100</td><td>极端恐慌</td><td>系统性风险或极端波动，需要强确认信号。</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </main>
+  </body>
+</html>

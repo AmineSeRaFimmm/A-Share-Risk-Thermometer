@@ -1,0 +1,1 @@
+"""Risk thermometer calculation core."""

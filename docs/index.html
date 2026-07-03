@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A股风险温度计</title>
+    <link rel="stylesheet" href="./assets/app.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="./index.html" aria-label="A股风险温度计首页">
+        <span class="brand-mark">RT</span>
+        <span>
+          <strong>A股风险温度计</strong>
+          <small>A-Share Risk Thermometer</small>
+        </span>
+      </a>
+      <nav>
+        <a href="./methodology.html">Methodology</a>
+        <a href="./data.html">Data</a>
+      </nav>
+    </header>
+
+    <main class="page-shell">
+      <section class="summary-grid" aria-label="今日风险摘要">
+        <article class="temperature-panel" id="temperaturePanel">
+          <div class="panel-label">A股风险温度</div>
+          <div class="temperature-readout"><span id="riskTemperature">--</span><em>/ 100</em></div>
+          <div class="regime-row">
+            <span id="regime" class="regime">--</span>
+            <span id="quality" class="quality">--</span>
+          </div>
+          <dl class="meta-grid">
+            <div><dt>交易日</dt><dd id="tradeDate">--</dd></div>
+            <div><dt>更新时间</dt><dd id="updateTime">--</dd></div>
+          </dl>
+        </article>
+
+        <article class="explain-panel">
+          <h1 id="headline">市场风险温度加载中</h1>
+          <p id="summary">正在读取最新数据。</p>
+          <div class="posture">
+            <span>当前姿态</span>
+            <strong id="posture">--</strong>
+          </div>
+          <p class="disclaimer">本工具基于免费公开数据源构建，仅用于市场风险观察和研究。它不是官方 AVIX / QVIX，不构成投资建议。</p>
+        </article>
+
+        <article class="components-panel">
+          <div class="section-head">
+            <h2>组件贡献</h2>
+            <span>8 factors</span>
+          </div>
+          <div id="componentsChart" class="chart compact"></div>
+        </article>
+      </section>
+
+      <section class="chart-row">
+        <article class="chart-panel wide">
+          <div class="section-head">
+            <h2>温度历史曲线</h2>
+            <span>60 / 75 / 90 风险区间</span>
+          </div>
+          <div id="historyChart" class="chart large"></div>
+        </article>
+      </section>
+
+      <section class="chart-grid">
+        <article class="chart-panel">
+          <div class="section-head">
+            <h2>AVIX vs QVIX</h2>
+            <span>复制值与验证源</span>
+          </div>
+          <div id="avixQvixChart" class="chart"></div>
+        </article>
+
+        <article class="chart-panel">
+          <div class="section-head">
+            <h2>沪深300与风险温度</h2>
+            <span>价格与风险状态</span>
+          </div>
+          <div id="hs300Chart" class="chart"></div>
+        </article>
+      </section>
+
+      <section class="health-panel">
+        <div class="section-head">
+          <h2>数据健康</h2>
+          <span id="lastSuccessfulUpdate">--</span>
+        </div>
+        <div class="health-grid" id="healthGrid"></div>
+      </section>
+    </main>
+
+    <script src="./vendor/echarts.min.js"></script>
+    <script src="./assets/charts.js"></script>
+    <script src="./assets/app.js"></script>
+  </body>
+</html>

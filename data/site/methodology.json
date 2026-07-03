@@ -1,0 +1,14 @@
+{
+  "title": "A-Share Risk Thermometer methodology",
+  "not_official": true,
+  "avix_history": "AVIX_CLOSE_REPLICA uses historical close prices.",
+  "avix_realtime": "AVIX_REALTIME_MID uses bid/ask midpoint when available.",
+  "qvix_role": "QVIX is validation and confirmation only.",
+  "weights": "Weights are configured in config/scoring.yml.",
+  "limitations": [
+    "No historical bid/ask",
+    "No historical settlement price",
+    "No historical open interest",
+    "Free sources may fail or change"
+  ]
+}

@@ -1,0 +1,16 @@
+weights:
+  avix_percentile_2y: 0.28
+  avix_zscore_1y: 0.14
+  avix_5d_change: 0.08
+  qvix_confirmation: 0.12
+  realized_vol_percentile: 0.12
+  drawdown_pressure: 0.12
+  market_breadth_pressure: 0.10
+  turnover_stress: 0.04
+temperature_zones:
+  calm: [0, 20]
+  normal: [20, 40]
+  caution: [40, 60]
+  high_risk: [60, 75]
+  panic: [75, 90]
+  extreme_panic: [90, 100]

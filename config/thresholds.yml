@@ -1,0 +1,15 @@
+quality:
+  min_options_per_term: 8
+  preferred_options_per_term: 12
+  max_raw_clean_diff: 2.0
+  min_qvix_corr_60: 0.60
+  min_history_days_for_percentile: 120
+avix:
+  fixed_warning_level: 22
+  fixed_panic_level: 25
+  percentile_warning: 0.80
+  percentile_panic: 0.90
+breadth:
+  weak_advancing_ratio: 0.35
+  panic_advancing_ratio: 0.20
+  extreme_down_ratio: 0.08

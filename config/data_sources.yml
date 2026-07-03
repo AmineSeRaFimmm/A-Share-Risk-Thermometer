@@ -1,0 +1,11 @@
+akshare:
+  retry_times: 3
+  retry_sleep_seconds: 5
+  request_gap_seconds: 0.5
+storage:
+  keep_raw: true
+  keep_normalized: true
+  keep_calculated: true
+site:
+  max_history_points: 900
+  latest_file: "data/site/latest.json"

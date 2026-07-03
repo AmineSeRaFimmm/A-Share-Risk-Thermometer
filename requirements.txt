@@ -1,0 +1,10 @@
+akshare
+pandas
+numpy<2
+scipy
+requests
+python-dateutil
+pydantic
+pyyaml
+pyarrow==15.0.2
+tqdm

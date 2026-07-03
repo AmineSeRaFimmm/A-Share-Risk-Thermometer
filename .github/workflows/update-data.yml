@@ -1,0 +1,73 @@
+name: Update Risk Thermometer Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "update mode"
+        required: true
+        default: "daily"
+        type: choice
+        options:
+          - daily
+          - rebuild_recent
+          - rebuild_all
+  schedule:
+    - cron: "37 7 * * 1-5"
+    - cron: "17 8 * * 1-5"
+    - cron: "37 9 * * 1-5"
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: risk-thermometer-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run update
+        run: |
+          MODE="${{ github.event.inputs.mode || 'daily' }}"
+          if [ "$MODE" = "rebuild_all" ]; then
+            python scripts/bootstrap_history.py --full
+          elif [ "$MODE" = "rebuild_recent" ]; then
+            python scripts/bootstrap_history.py --recent-days 120
+          else
+            python scripts/update_daily.py
+          fi
+      - name: Build site data
+        run: |
+          python scripts/build_site_data.py
+      - name: Validate data
+        run: |
+          python scripts/validate_data.py
+          python scripts/smoke_test.py
+      - name: Commit data updates
+        run: |
+          git config user.name "risk-thermometer-bot"
+          git config user.email "actions@github.com"
+          git add data docs
+          git diff --cached --quiet || git commit -m "Update risk thermometer data"
+          git push
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v4

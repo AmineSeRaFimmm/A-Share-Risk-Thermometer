@@ -1,0 +1,28 @@
+indices:
+  hs300:
+    symbol: "sh000300"
+    name: "沪深300"
+    role: "primary_underlying"
+  sse:
+    symbol: "sh000001"
+    name: "上证指数"
+    role: "market_proxy"
+  csi500:
+    symbol: "sh000905"
+    name: "中证500"
+    role: "midcap_proxy"
+  csi1000:
+    symbol: "sh000852"
+    name: "中证1000"
+    role: "smallcap_proxy"
+  chinext:
+    symbol: "sz399006"
+    name: "创业板指"
+    role: "growth_proxy"
+options:
+  product: "IO"
+  underlying: "沪深300股指期权"
+  start_date: "2019-12-23"
+  target_days: 30
+  min_dte: 7
+  max_dte: 180
