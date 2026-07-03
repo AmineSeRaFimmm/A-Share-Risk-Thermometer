@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-07-02",
-  "update_time": "2026-07-03T21:06:29+08:00",
+  "update_time": "2026-07-03T22:16:17+08:00",
   "risk_temperature": 73.0,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
@@ -25,7 +25,11 @@
   "avix": {
     "avix_clean_close": 24.3304,
     "avix_raw_close": 24.3304,
-    "avix_realtime_mid": 91.5237,
+    "avix_realtime_mid": 22.4575,
+    "avix_realtime_quality": "OK",
+    "avix_realtime_note": "normal two-term interpolation",
+    "avix_realtime_usable": true,
+    "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
     "avix_percentile_2y": 0.8966,
     "quality": "OK"
   },

@@ -2,16 +2,21 @@
   "trade_date": "2026-07-02",
   "data_health": {
     "options_history": "OK",
-    "options_realtime": "WARN",
+    "options_realtime": "OK",
     "qvix": "WARN",
     "indices": "OK",
     "breadth": "WARN",
     "shibor": "OK"
   },
+  "realtime_avix": {
+    "quality": "OK",
+    "usable": true,
+    "note": "normal two-term interpolation",
+    "avix_mid": 22.4575
+  },
   "warnings": [
     "WARN_BREADTH_MISSING",
-    "WARN_QVIX_MISSING",
-    "WARN_NOT_BRACKET_30D"
+    "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-03T21:06:29+08:00"
+  "last_successful_update": "2026-07-03T22:16:17+08:00"
 }
