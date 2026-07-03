@@ -12,9 +12,11 @@ from src.data_sources.akshare_options import fetch_option_realtime_months
 from src.core.calendar import trading_days_from_index
 from src.core.realtime_avix import calculate_realtime_avix
 
+
 def latest_trade_date(index_history: pd.DataFrame) -> str:
     hs = index_history[index_history["symbol"] == "sh000300"].copy()
     return str(hs.sort_values("date").iloc[-1]["date"])
+
 
 def latest_clean_avix(trade_date: str) -> float | None:
     df = read_csv(CALCULATED / "avix_clean_close.csv")
@@ -24,6 +26,7 @@ def latest_clean_avix(trade_date: str) -> float | None:
     df["avix_clean"] = pd.to_numeric(df["avix_clean"], errors="coerce")
     df = df.dropna(subset=["avix_clean"]).sort_values("trade_date")
     return None if df.empty else float(df.iloc[-1]["avix_clean"])
+
 
 def main() -> None:
     ensure_dirs()
@@ -54,10 +57,13 @@ def main() -> None:
 
     if (CALCULATED / "risk_components.csv").exists():
         from scripts.build_site_data import main as build_site
+        from scripts.write_active_components import main as write_active_components
         build_site()
+        write_active_components()
 
     row = result.iloc[-1].to_dict()
     print(f"Realtime AVIX updated: {trade_date} quality={row.get('quality')} avix_mid={row.get('avix_mid')}")
+
 
 if __name__ == "__main__":
     main()
