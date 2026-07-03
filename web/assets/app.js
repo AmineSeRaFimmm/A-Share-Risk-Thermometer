@@ -33,6 +33,7 @@ function appendMetaItem(label, id) {
 }
 
 function ensureRealtimeMeta() {
+  appendMetaItem('温度口径', 'temperatureMode');
   appendMetaItem('实时AVIX', 'realtimeAvix');
   appendMetaItem('实时质量', 'realtimeAvixQuality');
 }
@@ -56,10 +57,11 @@ function renderRealtimeAvix(avix) {
 function renderLatest(latest) {
   setText('riskTemperature', latest.risk_temperature);
   setText('regime', latest.regime_cn);
-  const displayQuality = latest.quality === 'OK' ? 'OK' : 'WARN_PARTIAL_DATA';
+  const modeLabel = latest.temperature_mode_cn || (latest.is_final === false ? '盘中估算' : '收盘正式');
   const qualityEl = document.getElementById('quality');
-  qualityEl.textContent = displayQuality;
-  qualityEl.title = latest.quality || displayQuality;
+  qualityEl.textContent = modeLabel;
+  qualityEl.title = latest.quality || modeLabel;
+  setText('temperatureMode', modeLabel);
   setText('tradeDate', latest.trade_date);
   const update = latest.update_time ? new Date(latest.update_time).toLocaleString('zh-CN', { hour12: false }) : '--';
   setText('updateTime', update);
