@@ -2,6 +2,7 @@ from __future__ import annotations
 from datetime import datetime
 import re
 import pandas as pd
+import requests
 
 CONTRACT_RE = re.compile(r"(?i)io(?P<yy>\d{2})(?P<mm>\d{2})(?P<cp>[CP])(?P<strike>\d+)")
 
@@ -16,13 +17,24 @@ def parse_contract(contract: str) -> dict:
     }
 
 def fetch_option_daily(symbol: str) -> pd.DataFrame:
-    import akshare as ak
-
-    df = ak.option_cffex_hs300_daily_sina(symbol=symbol)
-    if df is None or df.empty:
+    today = datetime.now()
+    url = (
+        f"https://stock.finance.sina.com.cn/futures/api/jsonp.php/var%20_{symbol}"
+        f"{today.year}_{today.month}_{today.day}=/FutureOptionAllService.getOptionDayline"
+    )
+    response = requests.get(url, params={"symbol": symbol}, timeout=10)
+    response.raise_for_status()
+    data_text = response.text
+    start = data_text.find("[")
+    end = data_text.rfind("]")
+    if start < 0 or end < start:
         return pd.DataFrame()
+    records = eval(data_text[start : end + 1], {"__builtins__": {}})
+    df = pd.DataFrame(records)
+    if df.empty:
+        return pd.DataFrame()
+    df.columns = ["open", "high", "low", "close", "volume", "date"]
     meta = parse_contract(symbol)
-    df = df.rename(columns={c: c.lower() for c in df.columns})
     for col in ["date", "open", "high", "low", "close", "volume"]:
         if col not in df.columns:
             df[col] = pd.NA

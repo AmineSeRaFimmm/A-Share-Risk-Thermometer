@@ -9,6 +9,7 @@ def clean_option_surface(chain: pd.DataFrame, rate_curve: pd.DataFrame) -> pd.Da
     out = chain.copy()
     out["clean_price"] = out["price_raw"]
     out["clean_valid"] = out["valid_price"] & (out["strike"] > 0) & (out["dte"] >= 7)
+    fast_mode = len(out) > 100_000
     for (trade_date, expiry), term in out[out["clean_valid"]].groupby(["trade_date", "expiry_date"]):
         r = 0.02
         rates = rate_curve[pd.to_datetime(rate_curve["trade_date"]) <= pd.to_datetime(trade_date)] if not rate_curve.empty else pd.DataFrame()
@@ -23,6 +24,14 @@ def clean_option_surface(chain: pd.DataFrame, rate_curve: pd.DataFrame) -> pd.Da
         t = float(term["dte"].median()) / 365
         work = term.copy()
         work["log_moneyness"] = np.log(work["strike"] / f)
+        if fast_mode:
+            valid = (
+                work["price_raw"].gt(0)
+                & work["log_moneyness"].abs().le(0.45)
+                & pd.to_numeric(work.get("volume", 0), errors="coerce").fillna(0).ge(0)
+            )
+            out.loc[idx, "clean_valid"] = valid.values
+            continue
         work["iv"] = [
             implied_vol(float(row.price_raw), f, float(row.strike), t, r, row.cp)
             for row in work.itertuples()

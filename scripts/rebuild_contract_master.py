@@ -13,7 +13,7 @@ from src.core.calendar import trading_days_from_index
 
 def main() -> None:
     ensure_dirs()
-    frames = [read_csv(path) for path in sorted((RAW / "options_daily").glob("*.csv"))]
+    frames = [read_csv(path) for path in sorted((RAW / "options_daily").glob("io*.csv"))]
     frames = [df for df in frames if not df.empty]
     master = build_contract_master(frames)
     write_csv(master, NORMALIZED / "contract_master.csv")

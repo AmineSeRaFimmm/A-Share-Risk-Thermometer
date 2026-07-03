@@ -2,7 +2,7 @@
   "trade_date": "2026-07-02",
   "data_health": {
     "options_history": "OK",
-    "options_realtime": "OK",
+    "options_realtime": "WARN",
     "qvix": "WARN",
     "indices": "OK",
     "breadth": "WARN",
@@ -10,8 +10,8 @@
   },
   "warnings": [
     "WARN_BREADTH_MISSING",
-    "WARN_NOT_BRACKET_30D",
-    "WARN_QVIX_MISSING"
+    "WARN_QVIX_MISSING",
+    "WARN_NOT_BRACKET_30D"
   ],
-  "last_successful_update": "2026-07-03T19:54:33+08:00"
+  "last_successful_update": "2026-07-03T20:44:07+08:00"
 }

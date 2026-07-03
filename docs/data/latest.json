@@ -1,14 +1,14 @@
 {
   "trade_date": "2026-07-02",
-  "update_time": "2026-07-03T19:54:33+08:00",
-  "risk_temperature": 78.2,
-  "regime": "PANIC",
-  "regime_cn": "恐慌区",
-  "quality": "WARN_BREADTH_MISSING|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
+  "update_time": "2026-07-03T20:44:07+08:00",
+  "risk_temperature": 73.0,
+  "regime": "HIGH_RISK",
+  "regime_cn": "高风险",
+  "quality": "WARN_BREADTH_MISSING|WARN_QVIX_MISSING",
   "components": {
-    "avix_percentile_2y": 100.0,
+    "avix_percentile_2y": 89.662,
     "avix_zscore_1y": 100.0,
-    "avix_5d_change": 100.0,
+    "avix_5d_change": 70.8109,
     "qvix_confirmation": 50.0,
     "realized_vol": 91.6667,
     "drawdown_pressure": 43.6275,
@@ -23,16 +23,16 @@
     "big_down_ratio": null
   },
   "avix": {
-    "avix_clean_close": 23.3811,
-    "avix_raw_close": 23.5088,
-    "avix_realtime_mid": null,
-    "avix_percentile_2y": 1.0,
-    "quality": "WARN_NOT_BRACKET_30D"
+    "avix_clean_close": 24.3304,
+    "avix_raw_close": 24.3304,
+    "avix_realtime_mid": 91.5237,
+    "avix_percentile_2y": 0.8966,
+    "quality": "OK"
   },
   "interpretation": {
-    "headline": "市场风险温度 78.2，处于恐慌区",
-    "summary": "AVIX分位、QVIX确认、实现波动率、回撤压力、市场宽度和成交压力共同给出 78.2/100 的风险温度。",
-    "posture": "防守 + 观察反身修复",
+    "headline": "市场风险温度 73.0，处于高风险",
+    "summary": "AVIX异常程度、实现波动率、AVIX两年分位是当前风险温度的主要驱动；多因子合成后给出 73.0/100。",
+    "posture": "防守 + 等待风险释放",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
 }

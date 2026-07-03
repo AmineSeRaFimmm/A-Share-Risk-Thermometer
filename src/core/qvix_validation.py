@@ -8,9 +8,21 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
     av = avix_clean[["trade_date", "avix_clean"]].copy()
     if qvix.empty:
         av["qvix_close"] = np.nan
+        av["avix_change_1d"] = av["avix_clean"].diff()
+        av["qvix_change_1d"] = np.nan
+        av["direction_match"] = False
+        av["spread"] = np.nan
+        av["spread_zscore_252"] = np.nan
+        av["rolling_corr_60"] = np.nan
+        av["rolling_corr_120"] = np.nan
+        av["extreme_match"] = False
         av["qvix_confirmation"] = 50.0
         av["quality"] = "WARN_QVIX_MISSING"
-        return av
+        return av[[
+            "trade_date", "avix_clean", "qvix_close", "avix_change_1d", "qvix_change_1d",
+            "direction_match", "spread", "spread_zscore_252", "rolling_corr_60",
+            "rolling_corr_120", "extreme_match", "qvix_confirmation", "quality",
+        ]]
     q = qvix.rename(columns={"date": "trade_date", "close": "qvix_close"})[["trade_date", "qvix_close"]].copy()
     q["qvix_close"] = pd.to_numeric(q["qvix_close"], errors="coerce")
     df = av.merge(q, on="trade_date", how="left").sort_values("trade_date")
@@ -35,4 +47,8 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
         return 30.0
     df["qvix_confirmation"] = df.apply(score, axis=1)
     df["quality"] = df["qvix_close"].isna().map(lambda missing: "WARN_QVIX_MISSING" if missing else "OK")
-    return df
+    return df[[
+        "trade_date", "avix_clean", "qvix_close", "avix_change_1d", "qvix_change_1d",
+        "direction_match", "spread", "spread_zscore_252", "rolling_corr_60",
+        "rolling_corr_120", "extreme_match", "qvix_confirmation", "quality",
+    ]]

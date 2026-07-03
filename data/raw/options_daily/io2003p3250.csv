@@ -1,0 +1,3 @@
+date,open,high,low,close,volume,contract,month,cp,strike,source,fetch_time
+2020-03-19,0.6,5.2,0.2,0.2,335,io2003p3250,2020-03,P,3250,SINA_AKSHARE,2026-07-03T10:31:24
+2020-03-20,0.2,0.2,0.2,0.2,17,io2003p3250,2020-03,P,3250,SINA_AKSHARE,2026-07-03T10:31:24

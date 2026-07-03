@@ -38,7 +38,23 @@ def interpretation(temp: float, regime_cn: str, row: pd.Series) -> dict:
         "恐慌区": "防守 + 观察反身修复",
         "极端恐慌": "强确认后再行动",
     }.get(regime_cn, "观察")
-    summary = f"AVIX分位、QVIX确认、实现波动率、回撤压力、市场宽度和成交压力共同给出 {temp:.1f}/100 的风险温度。"
+    component_names = {
+        "avix_percentile_2y": "AVIX两年分位",
+        "avix_zscore_1y": "AVIX异常程度",
+        "avix_5d_change": "AVIX短期变化",
+        "qvix_confirmation": "QVIX确认",
+        "realized_vol_percentile": "实现波动率",
+        "drawdown_pressure": "回撤压力",
+        "market_breadth_pressure": "市场宽度",
+        "turnover_stress": "成交压力",
+    }
+    scores = []
+    for key, name in component_names.items():
+        value = row.get(key)
+        if pd.notna(value):
+            scores.append((float(value), name))
+    top = "、".join(name for _, name in sorted(scores, reverse=True)[:3])
+    summary = f"{top}是当前风险温度的主要驱动；多因子合成后给出 {temp:.1f}/100。"
     return {
         "headline": f"市场风险温度 {temp:.1f}，处于{regime_cn}",
         "summary": summary,

@@ -88,19 +88,25 @@ def components_payload(risk: pd.DataFrame) -> dict:
         ],
     }
 
-def audit_payload(risk: pd.DataFrame) -> dict:
+def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None) -> dict:
     row = risk.sort_values("trade_date").iloc[-1]
     quality = row.quality
+    realtime_quality = None
+    if realtime is None or realtime.empty:
+        realtime_quality = "LOW_NO_REALTIME_CHAIN"
+    else:
+        realtime_quality = str(realtime.sort_values("valuation_time").iloc[-1].get("quality", "OK"))
+    options_realtime_health = "OK" if realtime_quality == "OK" else ("WARN" if realtime_quality.startswith("WARN") else "LOW")
     return {
         "trade_date": row.trade_date,
         "data_health": {
             "options_history": "LOW" if "AVIX" in quality or "NO_CHAIN" in quality else "OK",
-            "options_realtime": "OK",
+            "options_realtime": options_realtime_health,
             "qvix": "WARN" if "QVIX" in quality else "OK",
             "indices": "OK",
             "breadth": "WARN" if "BREADTH" in quality else "OK",
             "shibor": "WARN" if "RATE" in quality else "OK",
         },
-        "warnings": [] if quality == "OK" else quality.split("|"),
+        "warnings": ([] if quality == "OK" else quality.split("|")) + ([] if realtime_quality == "OK" else [realtime_quality]),
         "last_successful_update": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
     }

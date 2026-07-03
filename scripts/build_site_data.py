@@ -15,12 +15,13 @@ def main() -> None:
     ensure_dirs()
     risk = read_csv(CALCULATED / "risk_components.csv")
     raw = read_csv(CALCULATED / "avix_raw_close.csv")
+    realtime = read_csv(CALCULATED / "avix_realtime_mid.csv")
     if risk.empty:
         raise SystemExit("risk_components.csv is missing or empty")
-    write_json(latest_payload(risk, raw), SITE / "latest.json")
+    write_json(latest_payload(risk, raw, realtime), SITE / "latest.json")
     write_json(history_payload(risk), SITE / "history.json")
     write_json(components_payload(risk), SITE / "components.json")
-    write_json(audit_payload(risk), SITE / "audit.json")
+    write_json(audit_payload(risk, realtime), SITE / "audit.json")
     write_json({
         "title": "A-Share Risk Thermometer methodology",
         "not_official": True,

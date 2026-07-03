@@ -17,6 +17,11 @@
       <section>
         <h2>Composite Risk Temperature</h2>
         <p>最终温度由 AVIX 两年分位、AVIX 一年 z-score、AVIX 5 日变化、QVIX confirmation、沪深300实现波动率、回撤压力、全A宽度压力和成交压力合成，权重由 <code>config/scoring.yml</code> 管理。</p>
+        <p><code>Risk Temperature = 0.28 * AVIX percentile + 0.14 * AVIX z-score + 0.08 * AVIX 5d change + 0.12 * QVIX confirmation + 0.12 * realized volatility + 0.12 * drawdown pressure + 0.10 * market breadth + 0.04 * turnover stress</code></p>
+      </section>
+      <section>
+        <h2>Quality Rules</h2>
+        <p>期权链不足、无法夹住 30 天、Shibor 过期、QVIX 缺失、全 A 宽度缺失、实时链缺失都会写入 quality。缺失源不会被静默当成正常数据；温度可在降级质量下继续生成，但页面和 audit 会显示对应 WARN/LOW。</p>
       </section>
       <section>
         <h2>Data Limits</h2>
