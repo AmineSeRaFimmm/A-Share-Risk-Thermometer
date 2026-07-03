@@ -72,3 +72,11 @@ main().catch(err => {
   document.body.classList.add('error');
   console.error(err);
 });
+
+const AUTO_REFRESH_MS = 30 * 60 * 1000;
+
+setInterval(() => {
+  if (!document.hidden) {
+    window.location.reload();
+  }
+}, AUTO_REFRESH_MS);
