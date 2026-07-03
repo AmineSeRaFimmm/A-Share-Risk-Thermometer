@@ -1,6 +1,7 @@
 from __future__ import annotations
 from datetime import datetime
 import re
+import time
 import pandas as pd
 import requests
 
@@ -51,10 +52,94 @@ def fetch_option_daily(symbol: str) -> pd.DataFrame:
 def fetch_option_realtime(symbol: str = "io") -> pd.DataFrame:
     import akshare as ak
 
+    if str(symbol).strip().lower() == "io":
+        df, _manifest = fetch_option_realtime_months()
+        return df
+
     df = ak.option_cffex_hs300_spot_sina(symbol=symbol)
     if df is None or df.empty:
         return pd.DataFrame()
     df = df.copy()
+    df["month_symbol"] = str(symbol).strip().lower()
     df["source"] = "SINA_AKSHARE_REALTIME"
     df["fetch_time"] = datetime.now().isoformat(timespec="seconds")
     return df
+
+def _extract_realtime_month_symbols(month_payload) -> list[str]:
+    if isinstance(month_payload, dict):
+        values = list(month_payload.values())
+        raw_months = values[0] if values else []
+    elif isinstance(month_payload, pd.DataFrame):
+        raw_months = month_payload.iloc[:, 0].dropna().astype(str).tolist()
+    else:
+        raise ValueError(f"Unsupported realtime option month list format: {type(month_payload)}")
+
+    symbols: list[str] = []
+    for item in raw_months:
+        if isinstance(item, (list, tuple, set)):
+            candidates = item
+        else:
+            candidates = [item]
+        for candidate in candidates:
+            symbol = str(candidate).strip().lower()
+            if not symbol:
+                continue
+            if re.fullmatch(r"\d{4}", symbol):
+                symbol = f"io{symbol}"
+            if re.fullmatch(r"io\d{4}", symbol) and symbol not in symbols:
+                symbols.append(symbol)
+    return symbols
+
+def fetch_option_realtime_months(sleep_seconds: float = 0.15) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Fetch HS300 index option realtime chains month by month.
+
+    The legacy Sina/AKShare aggregate symbol can mix terms without reliable expiry
+    metadata. This function keeps the month symbol on every row so realtime AVIX
+    can calculate each term's expiry and DTE independently.
+    """
+    import akshare as ak
+
+    fetched_at = datetime.now().isoformat(timespec="seconds")
+    month_payload = ak.option_cffex_hs300_list_sina()
+    month_symbols = _extract_realtime_month_symbols(month_payload)
+    frames: list[pd.DataFrame] = []
+    manifest_rows: list[dict[str, object]] = []
+
+    for month_symbol in month_symbols:
+        try:
+            raw = ak.option_cffex_hs300_spot_sina(symbol=month_symbol)
+            if raw is None or raw.empty:
+                manifest_rows.append({
+                    "month_symbol": month_symbol,
+                    "status": "EMPTY",
+                    "last_error": "",
+                    "last_try": fetched_at,
+                    "rows": 0,
+                })
+                continue
+            df = raw.copy()
+            df["month_symbol"] = month_symbol
+            df["source"] = "SINA_AKSHARE_REALTIME_MONTH"
+            df["fetch_time"] = fetched_at
+            frames.append(df)
+            manifest_rows.append({
+                "month_symbol": month_symbol,
+                "status": "OK",
+                "last_error": "",
+                "last_try": fetched_at,
+                "rows": len(df),
+            })
+        except Exception as exc:  # noqa: BLE001
+            manifest_rows.append({
+                "month_symbol": month_symbol,
+                "status": "ERROR",
+                "last_error": str(exc),
+                "last_try": fetched_at,
+                "rows": 0,
+            })
+        if sleep_seconds:
+            time.sleep(sleep_seconds)
+
+    combined = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
+    manifest = pd.DataFrame(manifest_rows)
+    return combined, manifest
