@@ -18,6 +18,41 @@ function setText(id, value) {
   if (el) el.textContent = value ?? '--';
 }
 
+function appendMetaItem(label, id) {
+  const grid = document.querySelector('#temperaturePanel .meta-grid');
+  if (!grid || document.getElementById(id)) return;
+  const box = document.createElement('div');
+  const dt = document.createElement('dt');
+  const dd = document.createElement('dd');
+  dt.textContent = label;
+  dd.id = id;
+  dd.textContent = '--';
+  box.appendChild(dt);
+  box.appendChild(dd);
+  grid.appendChild(box);
+}
+
+function ensureRealtimeMeta() {
+  appendMetaItem('实时AVIX', 'realtimeAvix');
+  appendMetaItem('实时质量', 'realtimeAvixQuality');
+}
+
+function formatRealtimeAvix(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric.toFixed(2) : '--';
+}
+
+function renderRealtimeAvix(avix) {
+  ensureRealtimeMeta();
+  const realtimeMid = avix?.avix_realtime_mid;
+  const realtimeQuality = avix?.avix_realtime_quality;
+  const realtimeUsable = avix?.avix_realtime_usable;
+  setText('realtimeAvix', formatRealtimeAvix(realtimeMid));
+  setText('realtimeAvixQuality', realtimeQuality ? `${realtimeQuality}${realtimeUsable === false ? ' / NOT USABLE' : ''}` : '--');
+  const qualityEl = document.getElementById('realtimeAvixQuality');
+  if (qualityEl) qualityEl.title = [avix?.avix_realtime_note, avix?.avix_realtime_source].filter(Boolean).join(' | ');
+}
+
 function renderLatest(latest) {
   setText('riskTemperature', latest.risk_temperature);
   setText('regime', latest.regime_cn);
@@ -28,6 +63,7 @@ function renderLatest(latest) {
   setText('tradeDate', latest.trade_date);
   const update = latest.update_time ? new Date(latest.update_time).toLocaleString('zh-CN', { hour12: false }) : '--';
   setText('updateTime', update);
+  renderRealtimeAvix(latest.avix || {});
   setText('headline', latest.interpretation?.headline);
   setText('summary', latest.interpretation?.summary);
   setText('posture', latest.interpretation?.posture);
