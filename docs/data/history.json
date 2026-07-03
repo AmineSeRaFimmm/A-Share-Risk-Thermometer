@@ -11,10 +11,10 @@
   },
   {
     "date": "2026-04-21",
-    "risk_temperature": 47.6,
+    "risk_temperature": 45.2,
     "regime": "CAUTION",
     "avix_clean": 15.2839,
-    "qvix": null,
+    "qvix": 0.0,
     "hs300_close": 4767.997,
     "drawdown_pressure": 6.9943,
     "breadth_pressure": 50.0
@@ -71,10 +71,10 @@
   },
   {
     "date": "2026-04-29",
-    "risk_temperature": 45.3,
+    "risk_temperature": 42.9,
     "regime": "CAUTION",
     "avix_clean": 15.5599,
-    "qvix": null,
+    "qvix": 0.0,
     "hs300_close": 4810.347,
     "drawdown_pressure": 5.385,
     "breadth_pressure": 50.0
@@ -261,10 +261,10 @@
   },
   {
     "date": "2026-05-29",
-    "risk_temperature": 68.3,
+    "risk_temperature": 65.9,
     "regime": "HIGH_RISK",
     "avix_clean": 17.6119,
-    "qvix": null,
+    "qvix": 21.19,
     "hs300_close": 4892.121,
     "drawdown_pressure": 24.7006,
     "breadth_pressure": 50.0
