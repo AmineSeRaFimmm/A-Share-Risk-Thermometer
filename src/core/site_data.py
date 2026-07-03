@@ -2,6 +2,8 @@ from __future__ import annotations
 import math
 import pandas as pd
 from src.core.risk_temperature import WEIGHTS, interpretation
+from src.core.realtime_risk_temperature import realtime_nowcast_payload
+
 
 def finite(v):
     if v is None:
@@ -13,13 +15,13 @@ def finite(v):
     except Exception:
         return v
 
+
 def _latest_realtime(realtime: pd.DataFrame | None):
     if realtime is None or realtime.empty:
         return None
     out = realtime.copy()
-    if "valuation_time" in out.columns:
-        return out.sort_values("valuation_time").iloc[-1]
-    return out.iloc[-1]
+    return out.sort_values("valuation_time").iloc[-1] if "valuation_time" in out.columns else out.iloc[-1]
+
 
 def _realtime_health(quality: str) -> str:
     if quality == "OK":
@@ -30,35 +32,72 @@ def _realtime_health(quality: str) -> str:
         return "LOW"
     return "WARN"
 
+
+def _official_components(row: pd.Series) -> dict:
+    return {
+        "avix_percentile_2y": row.avix_percentile_2y,
+        "avix_zscore_1y": row.avix_zscore_1y,
+        "avix_5d_change": row.avix_5d_change,
+        "qvix_confirmation": row.qvix_confirmation,
+        "realized_vol_percentile": row.realized_vol_percentile,
+        "drawdown_pressure": row.drawdown_pressure,
+        "market_breadth_pressure": row.market_breadth_pressure,
+        "turnover_stress": row.turnover_stress,
+    }
+
+
+def _latest_component_summary(comps: dict) -> dict:
+    return {
+        "avix_percentile_2y": finite(comps.get("avix_percentile_2y")),
+        "avix_zscore_1y": finite(comps.get("avix_zscore_1y")),
+        "avix_5d_change": finite(comps.get("avix_5d_change")),
+        "qvix_confirmation": finite(comps.get("qvix_confirmation")),
+        "realized_vol": finite(comps.get("realized_vol_percentile")),
+        "drawdown_pressure": finite(comps.get("drawdown_pressure")),
+        "breadth_pressure": finite(comps.get("market_breadth_pressure")),
+        "turnover_stress": finite(comps.get("turnover_stress")),
+    }
+
+
+def _active_view(risk: pd.DataFrame, realtime: pd.DataFrame | None):
+    official = risk.sort_values("trade_date").iloc[-1]
+    nowcast = realtime_nowcast_payload(risk, realtime)
+    if nowcast:
+        comps = nowcast["components"]
+        return nowcast, comps, pd.Series(comps)
+    comps = _official_components(official)
+    return None, comps, official
+
+
 def latest_payload(risk: pd.DataFrame, avix_raw: pd.DataFrame, realtime: pd.DataFrame | None = None) -> dict:
     row = risk.sort_values("trade_date").iloc[-1]
     raw = avix_raw[avix_raw["trade_date"] == row.trade_date].iloc[-1] if not avix_raw.empty and row.trade_date in set(avix_raw["trade_date"]) else None
     realtime_row = _latest_realtime(realtime)
     realtime_quality = "LOW_NO_REALTIME_CHAIN" if realtime_row is None else str(realtime_row.get("quality", "OK"))
-    comps = {
-        "avix_percentile_2y": finite(row.avix_percentile_2y),
-        "avix_zscore_1y": finite(row.avix_zscore_1y),
-        "avix_5d_change": finite(row.avix_5d_change),
-        "qvix_confirmation": finite(row.qvix_confirmation),
-        "realized_vol": finite(row.realized_vol_percentile),
-        "drawdown_pressure": finite(row.drawdown_pressure),
-        "breadth_pressure": finite(row.market_breadth_pressure),
-        "turnover_stress": finite(row.turnover_stress),
-    }
+    nowcast, comps, interp_row = _active_view(risk, realtime)
+    temp = nowcast["risk_temperature"] if nowcast else row.risk_temperature
+    regime = nowcast["regime"] if nowcast else row.regime
+    regime_cn = nowcast["regime_cn"] if nowcast else row.regime_cn
+    quality = nowcast["quality"] if nowcast else row.quality
+    trade_date = nowcast["trade_date"] if nowcast else row.trade_date
     return {
-        "trade_date": row.trade_date,
+        "trade_date": trade_date,
         "update_time": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
-        "risk_temperature": finite(row.risk_temperature),
-        "regime": row.regime,
-        "regime_cn": row.regime_cn,
-        "quality": row.quality,
-        "components": comps,
+        "risk_temperature": finite(temp),
+        "regime": regime,
+        "regime_cn": regime_cn,
+        "quality": quality,
+        "temperature_mode": "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
+        "temperature_mode_cn": "盘中估算" if nowcast else "收盘正式",
+        "is_final": nowcast is None,
+        "components": _latest_component_summary(comps),
         "market": {
             "hs300_close": finite(row.get("sh000300_close")),
             "hs300_ret_1d": None,
             "hs300_drawdown_60d": finite(row.get("sh000300_dd60")),
             "advancing_ratio": finite(row.get("advancing_ratio")),
             "big_down_ratio": finite(row.get("big_down_ratio")),
+            "as_of_trade_date": row.trade_date,
         },
         "avix": {
             "avix_clean_close": finite(row.get("avix_clean")),
@@ -68,31 +107,49 @@ def latest_payload(risk: pd.DataFrame, avix_raw: pd.DataFrame, realtime: pd.Data
             "avix_realtime_note": None if realtime_row is None else realtime_row.get("note"),
             "avix_realtime_usable": realtime_quality == "OK",
             "avix_realtime_source": None if realtime_row is None else realtime_row.get("source"),
-            "avix_percentile_2y": finite(row.avix_percentile_2y / 100),
+            "avix_percentile_2y": finite(comps.get("avix_percentile_2y") / 100 if comps.get("avix_percentile_2y") is not None else None),
             "quality": row.get("avix_quality", "OK"),
         },
-        "interpretation": interpretation(float(row.risk_temperature), row.regime_cn, row),
+        "official_close": {
+            "trade_date": row.trade_date,
+            "risk_temperature": finite(row.risk_temperature),
+            "regime": row.regime,
+            "regime_cn": row.regime_cn,
+            "quality": row.quality,
+        },
+        "nowcast": None if nowcast is None else {
+            "trade_date": nowcast["trade_date"],
+            "risk_temperature": finite(nowcast["risk_temperature"]),
+            "regime": nowcast["regime"],
+            "regime_cn": nowcast["regime_cn"],
+            "quality": nowcast["quality"],
+            "baseline_trade_date": nowcast["baseline_trade_date"],
+            "official_risk_temperature": finite(nowcast["official_risk_temperature"]),
+            "realtime_avix": finite(nowcast["realtime_avix"]),
+            "realtime_valuation_time": nowcast["realtime_valuation_time"],
+            "method": nowcast["method"],
+        },
+        "interpretation": interpretation(float(temp), regime_cn, interp_row),
     }
 
-def history_payload(risk: pd.DataFrame, max_points: int = 900) -> list[dict]:
-    cols = ["trade_date", "risk_temperature", "regime", "avix_clean", "qvix_close", "sh000300_close", "drawdown_pressure", "market_breadth_pressure"]
-    out = risk.tail(max_points).copy()
-    rows = []
-    for r in out.itertuples():
-        rows.append({
-            "date": r.trade_date,
-            "risk_temperature": finite(r.risk_temperature),
-            "regime": r.regime,
-            "avix_clean": finite(getattr(r, "avix_clean", None)),
-            "qvix": finite(getattr(r, "qvix_close", None)),
-            "hs300_close": finite(getattr(r, "sh000300_close", None)),
-            "drawdown_pressure": finite(getattr(r, "drawdown_pressure", None)),
-            "breadth_pressure": finite(getattr(r, "market_breadth_pressure", None)),
-        })
-    return rows
 
-def components_payload(risk: pd.DataFrame) -> dict:
+def history_payload(risk: pd.DataFrame, max_points: int = 900) -> list[dict]:
+    out = risk.tail(max_points).copy()
+    return [{
+        "date": r.trade_date,
+        "risk_temperature": finite(r.risk_temperature),
+        "regime": r.regime,
+        "avix_clean": finite(getattr(r, "avix_clean", None)),
+        "qvix": finite(getattr(r, "qvix_close", None)),
+        "hs300_close": finite(getattr(r, "sh000300_close", None)),
+        "drawdown_pressure": finite(getattr(r, "drawdown_pressure", None)),
+        "breadth_pressure": finite(getattr(r, "market_breadth_pressure", None)),
+    } for r in out.itertuples()]
+
+
+def components_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None) -> dict:
     row = risk.sort_values("trade_date").iloc[-1]
+    nowcast, comps, _ = _active_view(risk, realtime)
     names = {
         "avix_percentile_2y": "AVIX两年分位",
         "avix_zscore_1y": "AVIX Z-score",
@@ -104,25 +161,30 @@ def components_payload(risk: pd.DataFrame) -> dict:
         "turnover_stress": "成交压力",
     }
     return {
-        "trade_date": row.trade_date,
+        "trade_date": nowcast["trade_date"] if nowcast else row.trade_date,
+        "temperature_mode": "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
         "components": [
-            {"name": names[k], "score": finite(row[k]), "weight": w, "contribution": finite(row[k] * w)}
+            {"name": names[k], "score": finite(comps.get(k)), "weight": w, "contribution": finite(comps.get(k) * w if comps.get(k) is not None else None)}
             for k, w in WEIGHTS.items()
         ],
     }
+
 
 def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None) -> dict:
     row = risk.sort_values("trade_date").iloc[-1]
     quality = row.quality
     realtime_row = _latest_realtime(realtime)
     realtime_quality = "LOW_NO_REALTIME_CHAIN" if realtime_row is None else str(realtime_row.get("quality", "OK"))
-    options_realtime_health = _realtime_health(realtime_quality)
+    nowcast = realtime_nowcast_payload(risk, realtime)
     warnings = ([] if quality == "OK" else quality.split("|")) + ([] if realtime_quality == "OK" else realtime_quality.split("|"))
+    if nowcast and nowcast["quality"] != "OK_NOWCAST":
+        warnings += nowcast["quality"].split("|")
     return {
-        "trade_date": row.trade_date,
+        "trade_date": nowcast["trade_date"] if nowcast else row.trade_date,
+        "temperature_mode": "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
         "data_health": {
             "options_history": "LOW" if "AVIX" in quality or "NO_CHAIN" in quality else "OK",
-            "options_realtime": options_realtime_health,
+            "options_realtime": _realtime_health(realtime_quality),
             "qvix": "WARN" if "QVIX" in quality else "OK",
             "indices": "OK",
             "breadth": "WARN" if "BREADTH" in quality else "OK",
@@ -133,6 +195,13 @@ def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None) -> d
             "usable": realtime_quality == "OK",
             "note": None if realtime_row is None else realtime_row.get("note"),
             "avix_mid": None if realtime_row is None else finite(realtime_row.get("avix_mid")),
+        },
+        "nowcast": None if nowcast is None else {
+            "active": True,
+            "quality": nowcast["quality"],
+            "risk_temperature": finite(nowcast["risk_temperature"]),
+            "baseline_trade_date": nowcast["baseline_trade_date"],
+            "method": nowcast["method"],
         },
         "warnings": sorted(set(warnings)),
         "last_successful_update": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
