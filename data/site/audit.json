@@ -13,7 +13,7 @@
     "quality": "OK",
     "usable": true,
     "note": "normal two-term interpolation",
-    "avix_mid": 21.6564
+    "avix_mid": 21.6587
   },
   "nowcast": {
     "active": true,
@@ -27,5 +27,5 @@
     "WARN_BREADTH_MISSING",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-06T14:11:57+08:00"
+  "last_successful_update": "2026-07-06T14:45:57+08:00"
 }
