@@ -18,7 +18,7 @@
   "nowcast": {
     "active": true,
     "quality": "OK_NOWCAST|WARN_BREADTH_PROXY|WARN_QVIX_MISSING",
-    "risk_temperature": 68.7,
+    "risk_temperature": 69.6,
     "baseline_trade_date": "2026-07-02",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
@@ -32,5 +32,5 @@
     "WARN_BREADTH_PROXY",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-07T16:31:50+08:00"
+  "last_successful_update": "2026-07-07T18:45:55+08:00"
 }

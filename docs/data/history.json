@@ -12,13 +12,13 @@
   },
   {
     "date": "2022-10-18",
-    "risk_temperature": 47.0,
+    "risk_temperature": 46.5,
     "regime": "CAUTION",
     "avix_clean": 19.4801,
     "qvix": 21.251,
     "hs300_close": 3838.267,
     "drawdown_pressure": 80.9828,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -45,13 +45,13 @@
   },
   {
     "date": "2022-10-21",
-    "risk_temperature": 62.0,
+    "risk_temperature": 62.8,
     "regime": "HIGH_RISK",
     "avix_clean": 21.3579,
     "qvix": 21.04,
     "hs300_close": 3742.893,
     "drawdown_pressure": 92.2227,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -111,13 +111,13 @@
   },
   {
     "date": "2022-10-31",
-    "risk_temperature": 81.9,
+    "risk_temperature": 81.4,
     "regime": "PANIC",
     "avix_clean": 26.3662,
     "qvix": 24.35,
     "hs300_close": 3508.703,
     "drawdown_pressure": 100.0,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -144,13 +144,13 @@
   },
   {
     "date": "2022-11-03",
-    "risk_temperature": 72.2,
+    "risk_temperature": 71.5,
     "regime": "HIGH_RISK",
     "avix_clean": 22.4755,
     "qvix": 22.08,
     "hs300_close": 3647.897,
     "drawdown_pressure": 96.8535,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -221,13 +221,13 @@
   },
   {
     "date": "2022-11-14",
-    "risk_temperature": 74.6,
+    "risk_temperature": 74.8,
     "regime": "HIGH_RISK",
     "avix_clean": 23.4112,
     "qvix": 22.9,
     "hs300_close": 3794.017,
     "drawdown_pressure": 77.5602,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -254,79 +254,79 @@
   },
   {
     "date": "2022-11-17",
-    "risk_temperature": 65.5,
+    "risk_temperature": 66.0,
     "regime": "HIGH_RISK",
     "avix_clean": 22.4914,
     "qvix": 22.27,
     "hs300_close": 3818.664,
     "drawdown_pressure": 65.4636,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-11-18",
-    "risk_temperature": 66.5,
+    "risk_temperature": 65.5,
     "regime": "HIGH_RISK",
     "avix_clean": 21.8533,
     "qvix": 21.82,
     "hs300_close": 3801.569,
     "drawdown_pressure": 69.5135,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-11-21",
-    "risk_temperature": 66.8,
+    "risk_temperature": 67.0,
     "regime": "HIGH_RISK",
     "avix_clean": 22.3674,
     "qvix": 22.9,
     "hs300_close": 3769.127,
     "drawdown_pressure": 75.1559,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-11-22",
-    "risk_temperature": 61.3,
+    "risk_temperature": 61.8,
     "regime": "HIGH_RISK",
     "avix_clean": 22.3753,
     "qvix": 22.2,
     "hs300_close": 3769.573,
     "drawdown_pressure": 72.0338,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-11-23",
-    "risk_temperature": 64.9,
+    "risk_temperature": 65.4,
     "regime": "HIGH_RISK",
     "avix_clean": 22.2682,
     "qvix": 22.09,
     "hs300_close": 3773.529,
     "drawdown_pressure": 63.9074,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-11-24",
-    "risk_temperature": 65.7,
+    "risk_temperature": 66.2,
     "regime": "HIGH_RISK",
     "avix_clean": 22.4699,
     "qvix": 22.42,
     "hs300_close": 3756.808,
     "drawdown_pressure": 66.9753,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-11-25",
-    "risk_temperature": 63.5,
+    "risk_temperature": 64.0,
     "regime": "HIGH_RISK",
     "avix_clean": 21.932,
     "qvix": 21.98,
     "hs300_close": 3775.776,
     "drawdown_pressure": 62.482,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -353,13 +353,13 @@
   },
   {
     "date": "2022-11-30",
-    "risk_temperature": 63.3,
+    "risk_temperature": 62.8,
     "regime": "HIGH_RISK",
     "avix_clean": 22.3853,
     "qvix": 22.72,
     "hs300_close": 3853.037,
     "drawdown_pressure": 46.9564,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -375,57 +375,57 @@
   },
   {
     "date": "2022-12-02",
-    "risk_temperature": 55.9,
+    "risk_temperature": 55.2,
     "regime": "CAUTION",
     "avix_clean": 21.064,
     "qvix": 21.71,
     "hs300_close": 3870.948,
     "drawdown_pressure": 43.9729,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-12-05",
-    "risk_temperature": 52.9,
+    "risk_temperature": 53.9,
     "regime": "CAUTION",
     "avix_clean": 21.1981,
     "qvix": 22.44,
     "hs300_close": 3946.876,
     "drawdown_pressure": 28.0823,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-12-06",
-    "risk_temperature": 50.4,
+    "risk_temperature": 49.9,
     "regime": "CAUTION",
     "avix_clean": 20.518,
     "qvix": 21.99,
     "hs300_close": 3968.198,
     "drawdown_pressure": 24.9908,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-12-07",
-    "risk_temperature": 50.9,
+    "risk_temperature": 50.2,
     "regime": "CAUTION",
     "avix_clean": 20.4323,
     "qvix": 21.74,
     "hs300_close": 3958.441,
     "drawdown_pressure": 27.5623,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-12-08",
-    "risk_temperature": 48.7,
+    "risk_temperature": 49.0,
     "regime": "CAUTION",
     "avix_clean": 20.0326,
     "qvix": 21.54,
     "hs300_close": 3959.18,
     "drawdown_pressure": 27.666,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -463,35 +463,35 @@
   },
   {
     "date": "2022-12-14",
-    "risk_temperature": 41.3,
+    "risk_temperature": 41.8,
     "regime": "CAUTION",
     "avix_clean": 19.6608,
     "qvix": 21.3,
     "hs300_close": 3954.886,
     "drawdown_pressure": 13.8256,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-12-15",
-    "risk_temperature": 38.0,
+    "risk_temperature": 37.5,
     "regime": "NORMAL",
     "avix_clean": 19.0637,
     "qvix": 21.1,
     "hs300_close": 3951.989,
     "drawdown_pressure": 10.8467,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-12-16",
-    "risk_temperature": 34.2,
+    "risk_temperature": 34.5,
     "regime": "NORMAL",
     "avix_clean": 18.0977,
     "qvix": 20.39,
     "hs300_close": 3954.227,
     "drawdown_pressure": 10.5939,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -518,24 +518,24 @@
   },
   {
     "date": "2022-12-21",
-    "risk_temperature": 47.9,
+    "risk_temperature": 48.2,
     "regime": "CAUTION",
     "avix_clean": 19.5953,
     "qvix": 19.48,
     "hs300_close": 3830.538,
     "drawdown_pressure": 37.9266,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-12-22",
-    "risk_temperature": 45.7,
+    "risk_temperature": 45.9,
     "regime": "CAUTION",
     "avix_clean": 19.105,
     "qvix": 19.11,
     "hs300_close": 3836.028,
     "drawdown_pressure": 38.4311,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -584,24 +584,24 @@
   },
   {
     "date": "2022-12-29",
-    "risk_temperature": 35.0,
+    "risk_temperature": 34.0,
     "regime": "NORMAL",
     "avix_clean": 18.0246,
     "qvix": 18.99,
     "hs300_close": 3856.701,
     "drawdown_pressure": 33.6154,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2022-12-30",
-    "risk_temperature": 26.1,
+    "risk_temperature": 27.1,
     "regime": "NORMAL",
     "avix_clean": 17.3133,
     "qvix": 18.2,
     "hs300_close": 3871.634,
     "drawdown_pressure": 29.984,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -617,13 +617,13 @@
   },
   {
     "date": "2023-01-04",
-    "risk_temperature": 28.8,
+    "risk_temperature": 29.3,
     "regime": "NORMAL",
     "avix_clean": 17.2962,
     "qvix": 18.43,
     "hs300_close": 3892.948,
     "drawdown_pressure": 23.6752,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -661,13 +661,13 @@
   },
   {
     "date": "2023-01-10",
-    "risk_temperature": 30.9,
+    "risk_temperature": 30.6,
     "regime": "NORMAL",
     "avix_clean": 18.2223,
     "qvix": 19.47,
     "hs300_close": 4017.474,
     "drawdown_pressure": 4.018,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -716,24 +716,24 @@
   },
   {
     "date": "2023-01-17",
-    "risk_temperature": 31.0,
+    "risk_temperature": 30.5,
     "regime": "NORMAL",
     "avix_clean": 19.0767,
     "qvix": 19.01,
     "hs300_close": 4137.242,
     "drawdown_pressure": 0.4129,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-01-18",
-    "risk_temperature": 36.2,
+    "risk_temperature": 36.9,
     "regime": "NORMAL",
     "avix_clean": 19.5569,
     "qvix": 19.87,
     "hs300_close": 4130.314,
     "drawdown_pressure": 1.3746,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -771,13 +771,13 @@
   },
   {
     "date": "2023-01-31",
-    "risk_temperature": 32.4,
+    "risk_temperature": 32.9,
     "regime": "NORMAL",
     "avix_clean": 18.4943,
     "qvix": 19.82,
     "hs300_close": 4156.858,
     "drawdown_pressure": 7.4292,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -793,13 +793,13 @@
   },
   {
     "date": "2023-02-02",
-    "risk_temperature": 31.8,
+    "risk_temperature": 32.5,
     "regime": "NORMAL",
     "avix_clean": 18.8641,
     "qvix": 20.41,
     "hs300_close": 4181.149,
     "drawdown_pressure": 2.8041,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -826,13 +826,13 @@
   },
   {
     "date": "2023-02-07",
-    "risk_temperature": 34.2,
+    "risk_temperature": 35.2,
     "regime": "NORMAL",
     "avix_clean": 18.9894,
     "qvix": 20.29,
     "hs300_close": 4094.234,
     "drawdown_pressure": 18.3028,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -881,24 +881,24 @@
   },
   {
     "date": "2023-02-14",
-    "risk_temperature": 19.5,
-    "regime": "CALM",
+    "risk_temperature": 20.5,
+    "regime": "NORMAL",
     "avix_clean": 18.0576,
     "qvix": 17.86,
     "hs300_close": 4145.29,
     "drawdown_pressure": 7.7829,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-02-15",
-    "risk_temperature": 23.4,
+    "risk_temperature": 23.6,
     "regime": "NORMAL",
     "avix_clean": 17.6621,
     "qvix": 17.45,
     "hs300_close": 4123.689,
     "drawdown_pressure": 11.9473,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -936,35 +936,35 @@
   },
   {
     "date": "2023-02-21",
-    "risk_temperature": 24.3,
+    "risk_temperature": 25.3,
     "regime": "NORMAL",
     "avix_clean": 18.1162,
     "qvix": 18.72,
     "hs300_close": 4144.354,
     "drawdown_pressure": 7.9129,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-02-22",
-    "risk_temperature": 26.8,
+    "risk_temperature": 27.0,
     "regime": "NORMAL",
     "avix_clean": 17.8709,
     "qvix": 18.58,
     "hs300_close": 4106.951,
     "drawdown_pressure": 14.5011,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-02-23",
-    "risk_temperature": 25.6,
+    "risk_temperature": 24.6,
     "regime": "NORMAL",
     "avix_clean": 17.5219,
     "qvix": 17.9,
     "hs300_close": 4103.646,
     "drawdown_pressure": 15.2931,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -1024,24 +1024,24 @@
   },
   {
     "date": "2023-03-03",
-    "risk_temperature": 21.6,
+    "risk_temperature": 21.3,
     "regime": "NORMAL",
     "avix_clean": 17.1439,
     "qvix": 15.78,
     "hs300_close": 4130.551,
     "drawdown_pressure": 9.8294,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-03-06",
-    "risk_temperature": 22.0,
+    "risk_temperature": 21.5,
     "regime": "NORMAL",
     "avix_clean": 17.1402,
     "qvix": 15.8,
     "hs300_close": 4109.01,
     "drawdown_pressure": 13.3941,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -1057,24 +1057,24 @@
   },
   {
     "date": "2023-03-08",
-    "risk_temperature": 24.5,
+    "risk_temperature": 25.0,
     "regime": "NORMAL",
     "avix_clean": 17.2064,
     "qvix": 16.48,
     "hs300_close": 4034.108,
     "drawdown_pressure": 27.289,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-03-09",
-    "risk_temperature": 24.1,
+    "risk_temperature": 24.4,
     "regime": "NORMAL",
     "avix_clean": 17.007,
     "qvix": 16.36,
     "hs300_close": 4019.851,
     "drawdown_pressure": 29.9133,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -1090,13 +1090,13 @@
   },
   {
     "date": "2023-03-13",
-    "risk_temperature": 24.8,
+    "risk_temperature": 25.8,
     "regime": "NORMAL",
     "avix_clean": 17.4639,
     "qvix": 17.12,
     "hs300_close": 4008.686,
     "drawdown_pressure": 32.1303,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -1112,13 +1112,13 @@
   },
   {
     "date": "2023-03-15",
-    "risk_temperature": 22.0,
+    "risk_temperature": 23.0,
     "regime": "NORMAL",
     "avix_clean": 16.9056,
     "qvix": 16.87,
     "hs300_close": 3986.902,
     "drawdown_pressure": 35.6399,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -1134,13 +1134,13 @@
   },
   {
     "date": "2023-03-17",
-    "risk_temperature": 22.0,
+    "risk_temperature": 23.0,
     "regime": "NORMAL",
     "avix_clean": 16.7353,
     "qvix": 16.63,
     "hs300_close": 3958.819,
     "drawdown_pressure": 40.69,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -1189,24 +1189,24 @@
   },
   {
     "date": "2023-03-24",
-    "risk_temperature": 26.2,
+    "risk_temperature": 25.4,
     "regime": "NORMAL",
     "avix_clean": 15.2366,
     "qvix": 15.98,
     "hs300_close": 4027.046,
     "drawdown_pressure": 29.8553,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-03-27",
-    "risk_temperature": 26.2,
+    "risk_temperature": 25.7,
     "regime": "NORMAL",
     "avix_clean": 15.7785,
     "qvix": 16.72,
     "hs300_close": 4012.477,
     "drawdown_pressure": 33.1632,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -1222,13 +1222,13 @@
   },
   {
     "date": "2023-03-29",
-    "risk_temperature": 26.8,
+    "risk_temperature": 26.0,
     "regime": "NORMAL",
     "avix_clean": 15.736,
     "qvix": 16.86,
     "hs300_close": 4006.144,
     "drawdown_pressure": 35.0646,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -1266,24 +1266,24 @@
   },
   {
     "date": "2023-04-04",
-    "risk_temperature": 26.6,
+    "risk_temperature": 27.1,
     "regime": "NORMAL",
     "avix_clean": 16.0427,
     "qvix": 17.55,
     "hs300_close": 4103.105,
     "drawdown_pressure": 15.0673,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-04-06",
-    "risk_temperature": 25.0,
+    "risk_temperature": 24.8,
     "regime": "NORMAL",
     "avix_clean": 16.2277,
     "qvix": 17.76,
     "hs300_close": 4096.64,
     "drawdown_pressure": 15.9587,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -1310,24 +1310,24 @@
   },
   {
     "date": "2023-04-11",
-    "risk_temperature": 14.0,
+    "risk_temperature": 14.5,
     "regime": "CALM",
     "avix_clean": 15.2404,
     "qvix": 17.07,
     "hs300_close": 4100.148,
     "drawdown_pressure": 15.3866,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-04-12",
-    "risk_temperature": 11.9,
+    "risk_temperature": 12.6,
     "regime": "CALM",
     "avix_clean": 14.918,
     "qvix": 16.81,
     "hs300_close": 4097.288,
     "drawdown_pressure": 14.5569,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -1354,24 +1354,24 @@
   },
   {
     "date": "2023-04-17",
-    "risk_temperature": 21.1,
+    "risk_temperature": 20.9,
     "regime": "NORMAL",
     "avix_clean": 15.1354,
     "qvix": 17.19,
     "hs300_close": 4149.384,
     "drawdown_pressure": 7.2145,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-04-18",
-    "risk_temperature": 21.0,
+    "risk_temperature": 21.5,
     "regime": "NORMAL",
     "avix_clean": 14.5837,
     "qvix": 16.8,
     "hs300_close": 4162.032,
     "drawdown_pressure": 5.4584,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -1431,13 +1431,13 @@
   },
   {
     "date": "2023-04-26",
-    "risk_temperature": 36.9,
+    "risk_temperature": 36.4,
     "regime": "NORMAL",
     "avix_clean": 16.9136,
     "qvix": 17.57,
     "hs300_close": 3959.232,
     "drawdown_pressure": 44.3321,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -1464,13 +1464,13 @@
   },
   {
     "date": "2023-05-04",
-    "risk_temperature": 25.6,
+    "risk_temperature": 26.6,
     "regime": "NORMAL",
     "avix_clean": 15.5052,
     "qvix": 16.77,
     "hs300_close": 4030.247,
     "drawdown_pressure": 22.2607,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -1508,24 +1508,24 @@
   },
   {
     "date": "2023-05-10",
-    "risk_temperature": 30.4,
+    "risk_temperature": 29.7,
     "regime": "NORMAL",
     "avix_clean": 16.3847,
     "qvix": 17.28,
     "hs300_close": 3996.87,
     "drawdown_pressure": 29.8512,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-05-11",
-    "risk_temperature": 33.1,
+    "risk_temperature": 32.1,
     "regime": "NORMAL",
     "avix_clean": 15.9626,
     "qvix": 16.99,
     "hs300_close": 3990.664,
     "drawdown_pressure": 31.5693,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -1563,46 +1563,46 @@
   },
   {
     "date": "2023-05-17",
-    "risk_temperature": 36.4,
+    "risk_temperature": 36.9,
     "regime": "NORMAL",
     "avix_clean": 16.8504,
     "qvix": 17.76,
     "hs300_close": 3960.165,
     "drawdown_pressure": 38.0812,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-05-18",
-    "risk_temperature": 32.0,
+    "risk_temperature": 32.7,
     "regime": "NORMAL",
     "avix_clean": 16.3727,
     "qvix": 17.33,
     "hs300_close": 3956.07,
     "drawdown_pressure": 37.4986,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-05-19",
-    "risk_temperature": 31.4,
+    "risk_temperature": 30.7,
     "regime": "NORMAL",
     "avix_clean": 15.67,
     "qvix": 16.74,
     "hs300_close": 3944.54,
     "drawdown_pressure": 40.3321,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-05-22",
-    "risk_temperature": 27.8,
+    "risk_temperature": 27.3,
     "regime": "NORMAL",
     "avix_clean": 14.9635,
     "qvix": 15.98,
     "hs300_close": 3969.328,
     "drawdown_pressure": 35.7156,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -1640,24 +1640,24 @@
   },
   {
     "date": "2023-05-26",
-    "risk_temperature": 30.1,
+    "risk_temperature": 31.1,
     "regime": "NORMAL",
     "avix_clean": 15.6217,
     "qvix": 17.52,
     "hs300_close": 3850.951,
     "drawdown_pressure": 59.7265,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-05-29",
-    "risk_temperature": 36.8,
+    "risk_temperature": 37.1,
     "regime": "NORMAL",
     "avix_clean": 16.0408,
     "qvix": 18.09,
     "hs300_close": 3833.942,
     "drawdown_pressure": 61.32,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -1706,13 +1706,13 @@
   },
   {
     "date": "2023-06-05",
-    "risk_temperature": 28.4,
+    "risk_temperature": 28.9,
     "regime": "NORMAL",
     "avix_clean": 15.8754,
     "qvix": 16.41,
     "hs300_close": 3844.249,
     "drawdown_pressure": 58.9041,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -1728,24 +1728,24 @@
   },
   {
     "date": "2023-06-07",
-    "risk_temperature": 37.5,
+    "risk_temperature": 38.0,
     "regime": "NORMAL",
     "avix_clean": 16.6693,
     "qvix": 18.1,
     "hs300_close": 3789.342,
     "drawdown_pressure": 69.6643,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-06-08",
-    "risk_temperature": 36.1,
+    "risk_temperature": 36.6,
     "regime": "NORMAL",
     "avix_clean": 16.1293,
     "qvix": 17.29,
     "hs300_close": 3820.187,
     "drawdown_pressure": 63.9426,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -1761,13 +1761,13 @@
   },
   {
     "date": "2023-06-12",
-    "risk_temperature": 25.0,
+    "risk_temperature": 24.8,
     "regime": "NORMAL",
     "avix_clean": 15.4268,
     "qvix": 16.69,
     "hs300_close": 3844.432,
     "drawdown_pressure": 59.1971,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -1783,13 +1783,13 @@
   },
   {
     "date": "2023-06-14",
-    "risk_temperature": 23.4,
+    "risk_temperature": 23.9,
     "regime": "NORMAL",
     "avix_clean": 14.8424,
     "qvix": 17.36,
     "hs300_close": 3864.025,
     "drawdown_pressure": 56.4374,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -1816,24 +1816,24 @@
   },
   {
     "date": "2023-06-19",
-    "risk_temperature": 32.8,
+    "risk_temperature": 33.0,
     "regime": "NORMAL",
     "avix_clean": 14.999,
     "qvix": 15.8,
     "hs300_close": 3930.908,
     "drawdown_pressure": 44.6936,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-06-20",
-    "risk_temperature": 30.6,
+    "risk_temperature": 29.8,
     "regime": "NORMAL",
     "avix_clean": 14.5667,
     "qvix": 15.71,
     "hs300_close": 3924.238,
     "drawdown_pressure": 46.9929,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -1882,13 +1882,13 @@
   },
   {
     "date": "2023-06-29",
-    "risk_temperature": 33.8,
+    "risk_temperature": 34.0,
     "regime": "NORMAL",
     "avix_clean": 15.5172,
     "qvix": 17.84,
     "hs300_close": 3821.844,
     "drawdown_pressure": 66.4678,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -2003,13 +2003,13 @@
   },
   {
     "date": "2023-07-14",
-    "risk_temperature": 33.0,
+    "risk_temperature": 33.5,
     "regime": "NORMAL",
     "avix_clean": 14.8115,
     "qvix": 17.26,
     "hs300_close": 3899.103,
     "drawdown_pressure": 50.7512,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -2036,13 +2036,13 @@
   },
   {
     "date": "2023-07-19",
-    "risk_temperature": 35.2,
+    "risk_temperature": 35.5,
     "regime": "NORMAL",
     "avix_clean": 15.5751,
     "qvix": 18.2,
     "hs300_close": 3850.866,
     "drawdown_pressure": 54.5145,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -2058,13 +2058,13 @@
   },
   {
     "date": "2023-07-21",
-    "risk_temperature": 33.8,
+    "risk_temperature": 33.1,
     "regime": "NORMAL",
     "avix_clean": 15.3575,
     "qvix": 16.91,
     "hs300_close": 3821.91,
     "drawdown_pressure": 54.6499,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -2135,13 +2135,13 @@
   },
   {
     "date": "2023-08-01",
-    "risk_temperature": 45.8,
+    "risk_temperature": 46.0,
     "regime": "CAUTION",
     "avix_clean": 17.9218,
     "qvix": 19.25,
     "hs300_close": 3998.001,
     "drawdown_pressure": 18.4791,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -2234,13 +2234,13 @@
   },
   {
     "date": "2023-08-14",
-    "risk_temperature": 53.6,
+    "risk_temperature": 54.1,
     "regime": "CAUTION",
     "avix_clean": 18.9888,
     "qvix": 20.14,
     "hs300_close": 3855.906,
     "drawdown_pressure": 34.6346,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -2366,13 +2366,13 @@
   },
   {
     "date": "2023-08-30",
-    "risk_temperature": 44.6,
+    "risk_temperature": 45.4,
     "regime": "CAUTION",
     "avix_clean": 18.8205,
     "qvix": 21.58,
     "hs300_close": 3788.51,
     "drawdown_pressure": 47.6994,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -2388,13 +2388,13 @@
   },
   {
     "date": "2023-09-01",
-    "risk_temperature": 41.6,
+    "risk_temperature": 42.6,
     "regime": "CAUTION",
     "avix_clean": 17.6288,
     "qvix": 19.21,
     "hs300_close": 3791.491,
     "drawdown_pressure": 47.6215,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -2421,13 +2421,13 @@
   },
   {
     "date": "2023-09-06",
-    "risk_temperature": 39.9,
-    "regime": "NORMAL",
+    "risk_temperature": 40.6,
+    "regime": "CAUTION",
     "avix_clean": 16.781,
     "qvix": 18.39,
     "hs300_close": 3812.028,
     "drawdown_pressure": 42.3785,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -2443,13 +2443,13 @@
   },
   {
     "date": "2023-09-08",
-    "risk_temperature": 47.9,
+    "risk_temperature": 48.4,
     "regime": "CAUTION",
     "avix_clean": 17.7753,
     "qvix": 19.5,
     "hs300_close": 3739.993,
     "drawdown_pressure": 56.5999,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -2465,13 +2465,13 @@
   },
   {
     "date": "2023-09-12",
-    "risk_temperature": 42.7,
+    "risk_temperature": 43.0,
     "regime": "CAUTION",
     "avix_clean": 16.6642,
     "qvix": 18.51,
     "hs300_close": 3760.605,
     "drawdown_pressure": 51.7552,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -2487,24 +2487,24 @@
   },
   {
     "date": "2023-09-14",
-    "risk_temperature": 36.7,
+    "risk_temperature": 36.9,
     "regime": "NORMAL",
     "avix_clean": 16.2569,
     "qvix": 19.05,
     "hs300_close": 3733.508,
     "drawdown_pressure": 56.6445,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-09-15",
-    "risk_temperature": 35.5,
+    "risk_temperature": 36.0,
     "regime": "NORMAL",
     "avix_clean": 16.3486,
     "qvix": 18.34,
     "hs300_close": 3708.777,
     "drawdown_pressure": 61.0355,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -2597,13 +2597,13 @@
   },
   {
     "date": "2023-09-28",
-    "risk_temperature": 33.4,
+    "risk_temperature": 34.1,
     "regime": "NORMAL",
     "avix_clean": 16.9892,
     "qvix": 19.95,
     "hs300_close": 3689.517,
     "drawdown_pressure": 64.4924,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -2630,13 +2630,13 @@
   },
   {
     "date": "2023-10-11",
-    "risk_temperature": 25.4,
+    "risk_temperature": 25.1,
     "regime": "NORMAL",
     "avix_clean": 15.6927,
     "qvix": 19.05,
     "hs300_close": 3667.548,
     "drawdown_pressure": 70.553,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -2674,13 +2674,13 @@
   },
   {
     "date": "2023-10-17",
-    "risk_temperature": 33.9,
+    "risk_temperature": 33.6,
     "regime": "NORMAL",
     "avix_clean": 16.3663,
     "qvix": 19.56,
     "hs300_close": 3639.402,
     "drawdown_pressure": 74.2228,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -2740,13 +2740,13 @@
   },
   {
     "date": "2023-10-25",
-    "risk_temperature": 54.8,
+    "risk_temperature": 55.8,
     "regime": "CAUTION",
     "avix_clean": 17.933,
     "qvix": 19.43,
     "hs300_close": 3504.458,
     "drawdown_pressure": 98.8899,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -2795,13 +2795,13 @@
   },
   {
     "date": "2023-11-01",
-    "risk_temperature": 45.3,
+    "risk_temperature": 45.5,
     "regime": "CAUTION",
     "avix_clean": 16.6559,
     "qvix": 18.0,
     "hs300_close": 3571.027,
     "drawdown_pressure": 89.403,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -2839,35 +2839,35 @@
   },
   {
     "date": "2023-11-07",
-    "risk_temperature": 45.9,
+    "risk_temperature": 46.4,
     "regime": "CAUTION",
     "avix_clean": 16.6528,
     "qvix": 17.74,
     "hs300_close": 3619.759,
     "drawdown_pressure": 71.473,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-11-08",
-    "risk_temperature": 42.1,
+    "risk_temperature": 41.3,
     "regime": "CAUTION",
     "avix_clean": 16.5866,
     "qvix": 17.75,
     "hs300_close": 3611.072,
     "drawdown_pressure": 72.1395,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-11-09",
-    "risk_temperature": 47.2,
+    "risk_temperature": 47.7,
     "regime": "CAUTION",
     "avix_clean": 16.8082,
     "qvix": 17.98,
     "hs300_close": 3612.826,
     "drawdown_pressure": 71.7986,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -2883,24 +2883,24 @@
   },
   {
     "date": "2023-11-13",
-    "risk_temperature": 43.1,
+    "risk_temperature": 42.9,
     "regime": "CAUTION",
     "avix_clean": 16.9905,
     "qvix": 18.25,
     "hs300_close": 3579.414,
     "drawdown_pressure": 54.2775,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-11-14",
-    "risk_temperature": 41.0,
+    "risk_temperature": 42.0,
     "regime": "CAUTION",
     "avix_clean": 16.9099,
     "qvix": 18.13,
     "hs300_close": 3582.058,
     "drawdown_pressure": 51.8742,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -2927,13 +2927,13 @@
   },
   {
     "date": "2023-11-17",
-    "risk_temperature": 32.1,
+    "risk_temperature": 31.8,
     "regime": "NORMAL",
     "avix_clean": 15.8702,
     "qvix": 17.11,
     "hs300_close": 3568.069,
     "drawdown_pressure": 54.1552,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -2949,13 +2949,13 @@
   },
   {
     "date": "2023-11-21",
-    "risk_temperature": 24.7,
+    "risk_temperature": 25.0,
     "regime": "NORMAL",
     "avix_clean": 14.9599,
     "qvix": 16.6,
     "hs300_close": 3581.067,
     "drawdown_pressure": 50.9042,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -3026,24 +3026,24 @@
   },
   {
     "date": "2023-11-30",
-    "risk_temperature": 35.1,
+    "risk_temperature": 34.6,
     "regime": "NORMAL",
     "avix_clean": 15.4332,
     "qvix": 18.15,
     "hs300_close": 3496.203,
     "drawdown_pressure": 67.3787,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2023-12-01",
-    "risk_temperature": 35.7,
+    "risk_temperature": 35.4,
     "regime": "NORMAL",
     "avix_clean": 15.6818,
     "qvix": 18.41,
     "hs300_close": 3482.881,
     "drawdown_pressure": 69.2123,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -3070,13 +3070,13 @@
   },
   {
     "date": "2023-12-06",
-    "risk_temperature": 50.1,
+    "risk_temperature": 49.9,
     "regime": "CAUTION",
     "avix_clean": 17.488,
     "qvix": 19.88,
     "hs300_close": 3399.598,
     "drawdown_pressure": 81.0795,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -3092,13 +3092,13 @@
   },
   {
     "date": "2023-12-08",
-    "risk_temperature": 50.5,
+    "risk_temperature": 50.2,
     "regime": "CAUTION",
     "avix_clean": 17.5413,
     "qvix": 18.45,
     "hs300_close": 3399.462,
     "drawdown_pressure": 73.5246,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -3114,13 +3114,13 @@
   },
   {
     "date": "2023-12-12",
-    "risk_temperature": 42.7,
+    "risk_temperature": 43.7,
     "regime": "CAUTION",
     "avix_clean": 17.2239,
     "qvix": 18.35,
     "hs300_close": 3426.803,
     "drawdown_pressure": 64.5566,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -3169,13 +3169,13 @@
   },
   {
     "date": "2023-12-19",
-    "risk_temperature": 48.0,
+    "risk_temperature": 47.8,
     "regime": "CAUTION",
     "avix_clean": 18.1182,
     "qvix": 18.61,
     "hs300_close": 3334.041,
     "drawdown_pressure": 82.328,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -3202,13 +3202,13 @@
   },
   {
     "date": "2023-12-22",
-    "risk_temperature": 50.4,
+    "risk_temperature": 50.6,
     "regime": "CAUTION",
     "avix_clean": 17.2563,
     "qvix": 18.69,
     "hs300_close": 3337.228,
     "drawdown_pressure": 83.5179,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -3279,13 +3279,13 @@
   },
   {
     "date": "2024-01-03",
-    "risk_temperature": 48.1,
+    "risk_temperature": 48.4,
     "regime": "CAUTION",
     "avix_clean": 16.9087,
     "qvix": 17.97,
     "hs300_close": 3378.297,
     "drawdown_pressure": 64.6387,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -3367,46 +3367,46 @@
   },
   {
     "date": "2024-01-15",
-    "risk_temperature": 51.4,
+    "risk_temperature": 51.6,
     "regime": "CAUTION",
     "avix_clean": 17.6688,
     "qvix": 18.69,
     "hs300_close": 3280.92,
     "drawdown_pressure": 74.6872,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-01-16",
-    "risk_temperature": 47.7,
+    "risk_temperature": 47.2,
     "regime": "CAUTION",
     "avix_clean": 17.728,
     "qvix": 18.65,
     "hs300_close": 3300.876,
     "drawdown_pressure": 70.731,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-01-17",
-    "risk_temperature": 73.4,
+    "risk_temperature": 74.6,
     "regime": "HIGH_RISK",
     "avix_clean": 20.3287,
     "qvix": 20.93,
     "hs300_close": 3229.082,
     "drawdown_pressure": 88.1542,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-01-18",
-    "risk_temperature": 68.5,
+    "risk_temperature": 68.3,
     "regime": "HIGH_RISK",
     "avix_clean": 20.7748,
     "qvix": 20.78,
     "hs300_close": 3274.729,
     "drawdown_pressure": 79.636,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -3422,13 +3422,13 @@
   },
   {
     "date": "2024-01-22",
-    "risk_temperature": 79.0,
+    "risk_temperature": 78.4,
     "regime": "PANIC",
     "avix_clean": 22.4046,
     "qvix": 19.48,
     "hs300_close": 3218.902,
     "drawdown_pressure": 96.434,
-    "breadth_pressure": 80.0,
+    "breadth_pressure": 74.0,
     "model_confidence": 96.0
   },
   {
@@ -3466,24 +3466,24 @@
   },
   {
     "date": "2024-01-26",
-    "risk_temperature": 50.8,
+    "risk_temperature": 51.1,
     "regime": "CAUTION",
     "avix_clean": 18.0376,
     "qvix": 18.68,
     "hs300_close": 3333.821,
     "drawdown_pressure": 63.8557,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-01-29",
-    "risk_temperature": 58.9,
-    "regime": "CAUTION",
+    "risk_temperature": 60.1,
+    "regime": "HIGH_RISK",
     "avix_clean": 19.6121,
     "qvix": 20.04,
     "hs300_close": 3303.96,
     "drawdown_pressure": 71.2739,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -3499,46 +3499,46 @@
   },
   {
     "date": "2024-01-31",
-    "risk_temperature": 76.0,
+    "risk_temperature": 75.7,
     "regime": "PANIC",
     "avix_clean": 22.5072,
     "qvix": 22.32,
     "hs300_close": 3215.352,
     "drawdown_pressure": 91.9317,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-02-01",
-    "risk_temperature": 73.4,
+    "risk_temperature": 72.7,
     "regime": "HIGH_RISK",
     "avix_clean": 22.3795,
     "qvix": 22.29,
     "hs300_close": 3217.711,
     "drawdown_pressure": 93.2894,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-02-02",
-    "risk_temperature": 81.4,
+    "risk_temperature": 81.1,
     "regime": "PANIC",
     "avix_clean": 23.9929,
     "qvix": 23.14,
     "hs300_close": 3179.628,
     "drawdown_pressure": 99.1506,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-02-05",
-    "risk_temperature": 82.8,
+    "risk_temperature": 81.4,
     "regime": "PANIC",
     "avix_clean": 27.2709,
     "qvix": 24.2,
     "hs300_close": 3200.422,
     "drawdown_pressure": 95.788,
-    "breadth_pressure": 69.1667,
+    "breadth_pressure": 55.3333,
     "model_confidence": 96.0
   },
   {
@@ -3576,35 +3576,35 @@
   },
   {
     "date": "2024-02-19",
-    "risk_temperature": 59.1,
+    "risk_temperature": 58.8,
     "regime": "CAUTION",
     "avix_clean": 21.5798,
     "qvix": 21.49,
     "hs300_close": 3403.808,
     "drawdown_pressure": 44.3006,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-02-20",
-    "risk_temperature": 48.3,
+    "risk_temperature": 49.1,
     "regime": "CAUTION",
     "avix_clean": 19.622,
     "qvix": 19.72,
     "hs300_close": 3410.854,
     "drawdown_pressure": 41.9614,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-02-21",
-    "risk_temperature": 47.3,
+    "risk_temperature": 47.0,
     "regime": "CAUTION",
     "avix_clean": 19.0791,
     "qvix": 19.43,
     "hs300_close": 3456.871,
     "drawdown_pressure": 31.6694,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -3631,13 +3631,13 @@
   },
   {
     "date": "2024-02-26",
-    "risk_temperature": 53.4,
+    "risk_temperature": 53.6,
     "regime": "CAUTION",
     "avix_clean": 20.2586,
     "qvix": 20.79,
     "hs300_close": 3453.359,
     "drawdown_pressure": 20.2656,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -3653,13 +3653,13 @@
   },
   {
     "date": "2024-02-28",
-    "risk_temperature": 57.8,
+    "risk_temperature": 57.5,
     "regime": "CAUTION",
     "avix_clean": 20.058,
     "qvix": 20.61,
     "hs300_close": 3450.26,
     "drawdown_pressure": 19.2852,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -3697,24 +3697,24 @@
   },
   {
     "date": "2024-03-05",
-    "risk_temperature": 44.8,
+    "risk_temperature": 45.3,
     "regime": "CAUTION",
     "avix_clean": 19.0923,
     "qvix": 20.55,
     "hs300_close": 3565.514,
     "drawdown_pressure": 0.0,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-03-06",
-    "risk_temperature": 41.7,
+    "risk_temperature": 41.9,
     "regime": "CAUTION",
     "avix_clean": 18.2232,
     "qvix": 19.7,
     "hs300_close": 3551.048,
     "drawdown_pressure": 3.1406,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -3752,24 +3752,24 @@
   },
   {
     "date": "2024-03-12",
-    "risk_temperature": 33.1,
+    "risk_temperature": 32.6,
     "regime": "NORMAL",
     "avix_clean": 17.0768,
     "qvix": 19.64,
     "hs300_close": 3597.494,
     "drawdown_pressure": 1.2241,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-03-13",
-    "risk_temperature": 31.3,
+    "risk_temperature": 31.5,
     "regime": "NORMAL",
     "avix_clean": 17.1446,
     "qvix": 19.64,
     "hs300_close": 3572.361,
     "drawdown_pressure": 6.4824,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -3862,24 +3862,24 @@
   },
   {
     "date": "2024-03-26",
-    "risk_temperature": 25.5,
+    "risk_temperature": 25.0,
     "regime": "NORMAL",
     "avix_clean": 16.3265,
     "qvix": 17.7,
     "hs300_close": 3543.747,
     "drawdown_pressure": 14.8746,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-03-27",
-    "risk_temperature": 35.7,
+    "risk_temperature": 35.4,
     "regime": "NORMAL",
     "avix_clean": 17.0033,
     "qvix": 18.02,
     "hs300_close": 3502.787,
     "drawdown_pressure": 25.2338,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -3950,13 +3950,13 @@
   },
   {
     "date": "2024-04-09",
-    "risk_temperature": 22.7,
+    "risk_temperature": 22.4,
     "regime": "NORMAL",
     "avix_clean": 15.9412,
     "qvix": 17.81,
     "hs300_close": 3533.487,
     "drawdown_pressure": 14.8768,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -3972,13 +3972,13 @@
   },
   {
     "date": "2024-04-11",
-    "risk_temperature": 17.0,
+    "risk_temperature": 17.7,
     "regime": "CALM",
     "avix_clean": 14.9444,
     "qvix": 16.73,
     "hs300_close": 3504.245,
     "drawdown_pressure": 21.0003,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -3994,24 +3994,24 @@
   },
   {
     "date": "2024-04-15",
-    "risk_temperature": 26.7,
+    "risk_temperature": 26.4,
     "regime": "NORMAL",
     "avix_clean": 15.9528,
     "qvix": 16.36,
     "hs300_close": 3549.076,
     "drawdown_pressure": 11.4936,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-04-16",
-    "risk_temperature": 43.1,
+    "risk_temperature": 42.8,
     "regime": "CAUTION",
     "avix_clean": 17.3254,
     "qvix": 17.6,
     "hs300_close": 3511.115,
     "drawdown_pressure": 22.5311,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -4027,13 +4027,13 @@
   },
   {
     "date": "2024-04-18",
-    "risk_temperature": 29.9,
+    "risk_temperature": 30.7,
     "regime": "NORMAL",
     "avix_clean": 16.236,
     "qvix": 17.7,
     "hs300_close": 3569.802,
     "drawdown_pressure": 6.5002,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -4060,13 +4060,13 @@
   },
   {
     "date": "2024-04-23",
-    "risk_temperature": 34.0,
+    "risk_temperature": 33.0,
     "regime": "NORMAL",
     "avix_clean": 16.4303,
     "qvix": 17.15,
     "hs300_close": 3506.225,
     "drawdown_pressure": 21.8728,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -4082,13 +4082,13 @@
   },
   {
     "date": "2024-04-25",
-    "risk_temperature": 22.8,
+    "risk_temperature": 23.5,
     "regime": "NORMAL",
     "avix_clean": 15.4143,
     "qvix": 17.15,
     "hs300_close": 3530.281,
     "drawdown_pressure": 14.9715,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -4137,13 +4137,13 @@
   },
   {
     "date": "2024-05-07",
-    "risk_temperature": 34.9,
+    "risk_temperature": 35.7,
     "regime": "NORMAL",
     "avix_clean": 17.0765,
     "qvix": 19.4,
     "hs300_close": 3659.008,
     "drawdown_pressure": 0.0,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -4170,13 +4170,13 @@
   },
   {
     "date": "2024-05-10",
-    "risk_temperature": 30.6,
+    "risk_temperature": 31.1,
     "regime": "NORMAL",
     "avix_clean": 16.4568,
     "qvix": 19.53,
     "hs300_close": 3666.277,
     "drawdown_pressure": 0.0,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -4192,13 +4192,13 @@
   },
   {
     "date": "2024-05-14",
-    "risk_temperature": 29.6,
+    "risk_temperature": 29.8,
     "regime": "NORMAL",
     "avix_clean": 16.3339,
     "qvix": 19.45,
     "hs300_close": 3657.045,
     "drawdown_pressure": 2.3032,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -4214,13 +4214,13 @@
   },
   {
     "date": "2024-05-16",
-    "risk_temperature": 24.0,
+    "risk_temperature": 23.5,
     "regime": "NORMAL",
     "avix_clean": 15.9165,
     "qvix": 19.21,
     "hs300_close": 3640.359,
     "drawdown_pressure": 7.1809,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -4258,13 +4258,13 @@
   },
   {
     "date": "2024-05-22",
-    "risk_temperature": 19.8,
+    "risk_temperature": 19.6,
     "regime": "CALM",
     "avix_clean": 15.4238,
     "qvix": null,
     "hs300_close": 3684.451,
     "drawdown_pressure": 2.2215,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -4324,35 +4324,35 @@
   },
   {
     "date": "2024-05-30",
-    "risk_temperature": 25.7,
+    "risk_temperature": 24.7,
     "regime": "NORMAL",
     "avix_clean": 15.2808,
     "qvix": null,
     "hs300_close": 3594.312,
     "drawdown_pressure": 22.7927,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
     "date": "2024-05-31",
-    "risk_temperature": 24.4,
+    "risk_temperature": 24.6,
     "regime": "NORMAL",
     "avix_clean": 15.3588,
     "qvix": null,
     "hs300_close": 3579.925,
     "drawdown_pressure": 25.5268,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
     "date": "2024-06-03",
-    "risk_temperature": 21.4,
+    "risk_temperature": 20.6,
     "regime": "NORMAL",
     "avix_clean": 15.2718,
     "qvix": 16.58,
     "hs300_close": 3588.748,
     "drawdown_pressure": 24.9198,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -4390,35 +4390,35 @@
   },
   {
     "date": "2024-06-07",
-    "risk_temperature": 25.8,
+    "risk_temperature": 26.3,
     "regime": "NORMAL",
     "avix_clean": 15.8817,
     "qvix": 17.2,
     "hs300_close": 3574.114,
     "drawdown_pressure": 29.8068,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-06-11",
-    "risk_temperature": 28.7,
+    "risk_temperature": 28.2,
     "regime": "NORMAL",
     "avix_clean": 16.1335,
     "qvix": 17.3,
     "hs300_close": 3542.877,
     "drawdown_pressure": 36.9416,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-06-12",
-    "risk_temperature": 22.3,
+    "risk_temperature": 23.3,
     "regime": "NORMAL",
     "avix_clean": 15.5912,
     "qvix": 17.3,
     "hs300_close": 3544.123,
     "drawdown_pressure": 35.8532,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -4445,13 +4445,13 @@
   },
   {
     "date": "2024-06-17",
-    "risk_temperature": 20.5,
-    "regime": "NORMAL",
+    "risk_temperature": 19.7,
+    "regime": "CALM",
     "avix_clean": 14.8994,
     "qvix": 0.0,
     "hs300_close": 3536.199,
     "drawdown_pressure": 39.1468,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -4489,24 +4489,24 @@
   },
   {
     "date": "2024-06-21",
-    "risk_temperature": 21.2,
+    "risk_temperature": 21.4,
     "regime": "NORMAL",
     "avix_clean": 14.6419,
     "qvix": 15.11,
     "hs300_close": 3495.62,
     "drawdown_pressure": 47.2396,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-06-24",
-    "risk_temperature": 24.4,
+    "risk_temperature": 24.1,
     "regime": "NORMAL",
     "avix_clean": 14.5133,
     "qvix": 15.36,
     "hs300_close": 3476.81,
     "drawdown_pressure": 53.5272,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -4544,35 +4544,35 @@
   },
   {
     "date": "2024-06-28",
-    "risk_temperature": 18.4,
+    "risk_temperature": 19.4,
     "regime": "CALM",
     "avix_clean": 14.3368,
     "qvix": 15.51,
     "hs300_close": 3461.657,
     "drawdown_pressure": 55.5148,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-07-01",
-    "risk_temperature": 16.4,
+    "risk_temperature": 17.4,
     "regime": "CALM",
     "avix_clean": 13.9609,
     "qvix": 15.26,
     "hs300_close": 3478.183,
     "drawdown_pressure": 50.3178,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-07-02",
-    "risk_temperature": 18.1,
+    "risk_temperature": 18.4,
     "regime": "CALM",
     "avix_clean": 13.3955,
     "qvix": 14.83,
     "hs300_close": 3471.786,
     "drawdown_pressure": 51.113,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -4599,13 +4599,13 @@
   },
   {
     "date": "2024-07-05",
-    "risk_temperature": 20.9,
+    "risk_temperature": 20.4,
     "regime": "NORMAL",
     "avix_clean": 14.0511,
     "qvix": 15.44,
     "hs300_close": 3431.061,
     "drawdown_pressure": 62.003,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -4654,24 +4654,24 @@
   },
   {
     "date": "2024-07-12",
-    "risk_temperature": 20.6,
+    "risk_temperature": 21.1,
     "regime": "NORMAL",
     "avix_clean": 13.8729,
     "qvix": 15.15,
     "hs300_close": 3472.401,
     "drawdown_pressure": 53.4486,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-07-15",
-    "risk_temperature": 18.1,
+    "risk_temperature": 18.6,
     "regime": "CALM",
     "avix_clean": 13.5796,
     "qvix": 14.81,
     "hs300_close": 3476.247,
     "drawdown_pressure": 52.5838,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -4687,13 +4687,13 @@
   },
   {
     "date": "2024-07-17",
-    "risk_temperature": 19.6,
+    "risk_temperature": 18.8,
     "regime": "CALM",
     "avix_clean": 13.3742,
     "qvix": 14.48,
     "hs300_close": 3501.584,
     "drawdown_pressure": 49.6349,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -4709,35 +4709,35 @@
   },
   {
     "date": "2024-07-19",
-    "risk_temperature": 19.5,
+    "risk_temperature": 19.3,
     "regime": "CALM",
     "avix_clean": 14.1449,
     "qvix": 15.04,
     "hs300_close": 3539.016,
     "drawdown_pressure": 41.8786,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-07-22",
-    "risk_temperature": 23.6,
+    "risk_temperature": 23.8,
     "regime": "NORMAL",
     "avix_clean": 14.2609,
     "qvix": 14.99,
     "hs300_close": 3514.925,
     "drawdown_pressure": 47.3977,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-07-23",
-    "risk_temperature": 33.7,
+    "risk_temperature": 34.9,
     "regime": "NORMAL",
     "avix_clean": 15.076,
     "qvix": 16.04,
     "hs300_close": 3439.878,
     "drawdown_pressure": 63.8794,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -4753,13 +4753,13 @@
   },
   {
     "date": "2024-07-25",
-    "risk_temperature": 40.8,
+    "risk_temperature": 41.0,
     "regime": "CAUTION",
     "avix_clean": 16.2659,
     "qvix": 17.26,
     "hs300_close": 3399.272,
     "drawdown_pressure": 73.0052,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -4775,24 +4775,24 @@
   },
   {
     "date": "2024-07-29",
-    "risk_temperature": 36.5,
+    "risk_temperature": 36.8,
     "regime": "NORMAL",
     "avix_clean": 15.7323,
     "qvix": 17.04,
     "hs300_close": 3390.742,
     "drawdown_pressure": 73.8705,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-07-30",
-    "risk_temperature": 38.7,
+    "risk_temperature": 38.9,
     "regime": "NORMAL",
     "avix_clean": 16.0868,
     "qvix": 17.48,
     "hs300_close": 3369.382,
     "drawdown_pressure": 78.4331,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -4841,35 +4841,35 @@
   },
   {
     "date": "2024-08-06",
-    "risk_temperature": 55.8,
+    "risk_temperature": 55.6,
     "regime": "CAUTION",
     "avix_clean": 18.3083,
     "qvix": 19.25,
     "hs300_close": 3342.979,
     "drawdown_pressure": 83.7427,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-08-07",
-    "risk_temperature": 45.9,
+    "risk_temperature": 46.4,
     "regime": "CAUTION",
     "avix_clean": 16.6571,
     "qvix": 18.04,
     "hs300_close": 3341.489,
     "drawdown_pressure": 83.737,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-08-08",
-    "risk_temperature": 35.4,
+    "risk_temperature": 36.1,
     "regime": "NORMAL",
     "avix_clean": 15.5646,
     "qvix": 17.34,
     "hs300_close": 3342.937,
     "drawdown_pressure": 83.5018,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -4929,24 +4929,24 @@
   },
   {
     "date": "2024-08-16",
-    "risk_temperature": 30.2,
+    "risk_temperature": 30.7,
     "regime": "NORMAL",
     "avix_clean": 14.259,
     "qvix": null,
     "hs300_close": 3345.634,
     "drawdown_pressure": 70.0311,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 84.0
   },
   {
     "date": "2024-08-19",
-    "risk_temperature": 27.8,
+    "risk_temperature": 28.8,
     "regime": "NORMAL",
     "avix_clean": 14.14,
     "qvix": null,
     "hs300_close": 3356.968,
     "drawdown_pressure": 66.8448,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -4995,13 +4995,13 @@
   },
   {
     "date": "2024-08-26",
-    "risk_temperature": 23.0,
+    "risk_temperature": 23.8,
     "regime": "NORMAL",
     "avix_clean": 13.7794,
     "qvix": 15.56,
     "hs300_close": 3324.223,
     "drawdown_pressure": 69.8933,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -5017,24 +5017,24 @@
   },
   {
     "date": "2024-08-28",
-    "risk_temperature": 22.8,
+    "risk_temperature": 22.3,
     "regime": "NORMAL",
     "avix_clean": 13.8252,
     "qvix": 16.17,
     "hs300_close": 3286.496,
     "drawdown_pressure": 72.339,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-08-29",
-    "risk_temperature": 25.3,
+    "risk_temperature": 24.8,
     "regime": "NORMAL",
     "avix_clean": 14.0912,
     "qvix": 16.76,
     "hs300_close": 3277.681,
     "drawdown_pressure": 73.5149,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -5061,13 +5061,13 @@
   },
   {
     "date": "2024-09-03",
-    "risk_temperature": 27.5,
+    "risk_temperature": 27.2,
     "regime": "NORMAL",
     "avix_clean": 14.1895,
     "qvix": null,
     "hs300_close": 3273.428,
     "drawdown_pressure": 67.9367,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -5105,13 +5105,13 @@
   },
   {
     "date": "2024-09-09",
-    "risk_temperature": 44.9,
+    "risk_temperature": 43.9,
     "regime": "CAUTION",
     "avix_clean": 15.9181,
     "qvix": null,
     "hs300_close": 3192.952,
     "drawdown_pressure": 87.0999,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -5127,13 +5127,13 @@
   },
   {
     "date": "2024-09-11",
-    "risk_temperature": 42.9,
+    "risk_temperature": 42.2,
     "regime": "CAUTION",
     "avix_clean": 15.7698,
     "qvix": 19.67,
     "hs300_close": 3186.13,
     "drawdown_pressure": 86.4788,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -5160,13 +5160,13 @@
   },
   {
     "date": "2024-09-18",
-    "risk_temperature": 33.5,
+    "risk_temperature": 34.2,
     "regime": "NORMAL",
     "avix_clean": 15.2289,
     "qvix": 19.85,
     "hs300_close": 3171.01,
     "drawdown_pressure": 88.659,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -5182,24 +5182,24 @@
   },
   {
     "date": "2024-09-20",
-    "risk_temperature": 35.7,
+    "risk_temperature": 36.2,
     "regime": "NORMAL",
     "avix_clean": 14.3885,
     "qvix": 18.74,
     "hs300_close": 3201.05,
     "drawdown_pressure": 81.7523,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-09-23",
-    "risk_temperature": 27.2,
+    "risk_temperature": 28.0,
     "regime": "NORMAL",
     "avix_clean": 14.1801,
     "qvix": null,
     "hs300_close": 3212.764,
     "drawdown_pressure": 78.6099,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 84.0
   },
   {
@@ -5281,13 +5281,13 @@
   },
   {
     "date": "2024-10-10",
-    "risk_temperature": 77.9,
+    "risk_temperature": 78.4,
     "regime": "PANIC",
     "avix_clean": 37.8681,
     "qvix": 33.61,
     "hs300_close": 3997.788,
     "drawdown_pressure": 51.5518,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -5314,24 +5314,24 @@
   },
   {
     "date": "2024-10-15",
-    "risk_temperature": 72.1,
+    "risk_temperature": 73.3,
     "regime": "HIGH_RISK",
     "avix_clean": 26.9477,
     "qvix": 24.49,
     "hs300_close": 3855.995,
     "drawdown_pressure": 79.6367,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-10-16",
-    "risk_temperature": 70.1,
+    "risk_temperature": 70.6,
     "regime": "HIGH_RISK",
     "avix_clean": 28.0605,
     "qvix": 25.07,
     "hs300_close": 3831.589,
     "drawdown_pressure": 82.8394,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -5380,13 +5380,13 @@
   },
   {
     "date": "2024-10-23",
-    "risk_temperature": 68.6,
+    "risk_temperature": 69.6,
     "regime": "HIGH_RISK",
     "avix_clean": 29.3936,
     "qvix": 27.37,
     "hs300_close": 3973.209,
     "drawdown_pressure": 54.8451,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -5413,13 +5413,13 @@
   },
   {
     "date": "2024-10-28",
-    "risk_temperature": 66.3,
+    "risk_temperature": 67.3,
     "regime": "HIGH_RISK",
     "avix_clean": 30.8679,
     "qvix": 28.55,
     "hs300_close": 3964.157,
     "drawdown_pressure": 54.4185,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -5435,13 +5435,13 @@
   },
   {
     "date": "2024-10-30",
-    "risk_temperature": 72.6,
+    "risk_temperature": 73.1,
     "regime": "HIGH_RISK",
     "avix_clean": 30.9014,
     "qvix": 28.36,
     "hs300_close": 3889.449,
     "drawdown_pressure": 69.4685,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -5457,13 +5457,13 @@
   },
   {
     "date": "2024-11-01",
-    "risk_temperature": 77.9,
+    "risk_temperature": 77.6,
     "regime": "PANIC",
     "avix_clean": 32.3266,
     "qvix": 29.35,
     "hs300_close": 3890.02,
     "drawdown_pressure": 68.8937,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -5490,13 +5490,13 @@
   },
   {
     "date": "2024-11-06",
-    "risk_temperature": 69.8,
+    "risk_temperature": 70.3,
     "regime": "HIGH_RISK",
     "avix_clean": 32.1815,
     "qvix": 25.07,
     "hs300_close": 4024.283,
     "drawdown_pressure": 40.8816,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -5512,13 +5512,13 @@
   },
   {
     "date": "2024-11-08",
-    "risk_temperature": 66.9,
+    "risk_temperature": 67.1,
     "regime": "HIGH_RISK",
     "avix_clean": 31.0695,
     "qvix": 27.37,
     "hs300_close": 4104.047,
     "drawdown_pressure": 24.0614,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -5545,35 +5545,35 @@
   },
   {
     "date": "2024-11-13",
-    "risk_temperature": 57.4,
+    "risk_temperature": 56.9,
     "regime": "CAUTION",
     "avix_clean": 25.2047,
     "qvix": 24.64,
     "hs300_close": 4110.89,
     "drawdown_pressure": 24.2427,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-11-14",
-    "risk_temperature": 63.7,
+    "risk_temperature": 64.6,
     "regime": "HIGH_RISK",
     "avix_clean": 25.5906,
     "qvix": 24.4,
     "hs300_close": 4039.619,
     "drawdown_pressure": 39.1207,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 74.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-11-15",
-    "risk_temperature": 64.1,
+    "risk_temperature": 65.3,
     "regime": "HIGH_RISK",
     "avix_clean": 25.6887,
     "qvix": 24.8,
     "hs300_close": 3968.831,
     "drawdown_pressure": 53.0448,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -5611,13 +5611,13 @@
   },
   {
     "date": "2024-11-21",
-    "risk_temperature": 57.9,
+    "risk_temperature": 58.6,
     "regime": "CAUTION",
     "avix_clean": 23.1246,
     "qvix": 22.77,
     "hs300_close": 3989.298,
     "drawdown_pressure": 46.8287,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -5633,13 +5633,13 @@
   },
   {
     "date": "2024-11-25",
-    "risk_temperature": 65.6,
+    "risk_temperature": 65.9,
     "regime": "HIGH_RISK",
     "avix_clean": 24.1508,
     "qvix": 23.66,
     "hs300_close": 3848.091,
     "drawdown_pressure": 75.35,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -5699,13 +5699,13 @@
   },
   {
     "date": "2024-12-03",
-    "risk_temperature": 64.9,
+    "risk_temperature": 65.4,
     "regime": "HIGH_RISK",
     "avix_clean": 25.724,
     "qvix": 25.04,
     "hs300_close": 3951.891,
     "drawdown_pressure": 51.2333,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -5721,13 +5721,13 @@
   },
   {
     "date": "2024-12-05",
-    "risk_temperature": 62.2,
+    "risk_temperature": 61.9,
     "regime": "HIGH_RISK",
     "avix_clean": 24.8424,
     "qvix": 24.37,
     "hs300_close": 3921.588,
     "drawdown_pressure": 56.242,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -5765,13 +5765,13 @@
   },
   {
     "date": "2024-12-11",
-    "risk_temperature": 60.1,
+    "risk_temperature": 60.8,
     "regime": "HIGH_RISK",
     "avix_clean": 25.3338,
     "qvix": 24.62,
     "hs300_close": 3988.831,
     "drawdown_pressure": 41.5554,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -5809,13 +5809,13 @@
   },
   {
     "date": "2024-12-17",
-    "risk_temperature": 60.7,
+    "risk_temperature": 60.9,
     "regime": "HIGH_RISK",
     "avix_clean": 23.0827,
     "qvix": 23.13,
     "hs300_close": 3922.033,
     "drawdown_pressure": 56.8146,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -5831,35 +5831,35 @@
   },
   {
     "date": "2024-12-19",
-    "risk_temperature": 56.3,
+    "risk_temperature": 56.0,
     "regime": "CAUTION",
     "avix_clean": 22.3531,
     "qvix": 22.28,
     "hs300_close": 3945.464,
     "drawdown_pressure": 52.8684,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-12-20",
-    "risk_temperature": 54.6,
+    "risk_temperature": 55.1,
     "regime": "CAUTION",
     "avix_clean": 21.4859,
     "qvix": 21.57,
     "hs300_close": 3927.744,
     "drawdown_pressure": 55.4659,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-12-23",
-    "risk_temperature": 56.8,
+    "risk_temperature": 57.0,
     "regime": "CAUTION",
     "avix_clean": 21.1044,
     "qvix": 21.44,
     "hs300_close": 3933.572,
     "drawdown_pressure": 56.1124,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -5875,13 +5875,13 @@
   },
   {
     "date": "2024-12-25",
-    "risk_temperature": 53.7,
+    "risk_temperature": 53.9,
     "regime": "CAUTION",
     "avix_clean": 20.6967,
     "qvix": 21.07,
     "hs300_close": 3985.629,
     "drawdown_pressure": 45.359,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -5897,46 +5897,46 @@
   },
   {
     "date": "2024-12-27",
-    "risk_temperature": 45.7,
+    "risk_temperature": 46.4,
     "regime": "CAUTION",
     "avix_clean": 19.2623,
     "qvix": 20.13,
     "hs300_close": 3981.031,
     "drawdown_pressure": 45.4053,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-12-30",
-    "risk_temperature": 45.9,
+    "risk_temperature": 45.4,
     "regime": "CAUTION",
     "avix_clean": 19.0775,
     "qvix": 20.06,
     "hs300_close": 3999.055,
     "drawdown_pressure": 42.3174,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2024-12-31",
-    "risk_temperature": 52.4,
+    "risk_temperature": 52.1,
     "regime": "CAUTION",
     "avix_clean": 18.9681,
     "qvix": 20.03,
     "hs300_close": 3934.911,
     "drawdown_pressure": 39.9364,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-01-02",
-    "risk_temperature": 73.0,
+    "risk_temperature": 73.9,
     "regime": "HIGH_RISK",
     "avix_clean": 20.7452,
     "qvix": 21.74,
     "hs300_close": 3820.395,
     "drawdown_pressure": 63.7603,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 74.0,
     "model_confidence": 96.0
   },
   {
@@ -5974,24 +5974,24 @@
   },
   {
     "date": "2025-01-08",
-    "risk_temperature": 58.5,
+    "risk_temperature": 58.7,
     "regime": "CAUTION",
     "avix_clean": 19.1056,
     "qvix": 20.66,
     "hs300_close": 3789.215,
     "drawdown_pressure": 70.9476,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-01-09",
-    "risk_temperature": 56.2,
+    "risk_temperature": 55.4,
     "regime": "CAUTION",
     "avix_clean": 18.9922,
     "qvix": 20.37,
     "hs300_close": 3779.877,
     "drawdown_pressure": 73.8844,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -6007,13 +6007,13 @@
   },
   {
     "date": "2025-01-13",
-    "risk_temperature": 54.7,
+    "risk_temperature": 54.2,
     "regime": "CAUTION",
     "avix_clean": 19.3695,
     "qvix": 21.27,
     "hs300_close": 3722.513,
     "drawdown_pressure": 86.3331,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -6073,13 +6073,13 @@
   },
   {
     "date": "2025-01-21",
-    "risk_temperature": 54.7,
+    "risk_temperature": 54.5,
     "regime": "CAUTION",
     "avix_clean": 19.3589,
     "qvix": 20.38,
     "hs300_close": 3832.615,
     "drawdown_pressure": 63.7643,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -6095,13 +6095,13 @@
   },
   {
     "date": "2025-01-23",
-    "risk_temperature": 59.5,
-    "regime": "CAUTION",
+    "risk_temperature": 60.0,
+    "regime": "HIGH_RISK",
     "avix_clean": 19.9508,
     "qvix": 20.93,
     "hs300_close": 3803.744,
     "drawdown_pressure": 68.9036,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -6128,13 +6128,13 @@
   },
   {
     "date": "2025-02-05",
-    "risk_temperature": 60.3,
+    "risk_temperature": 60.8,
     "regime": "HIGH_RISK",
     "avix_clean": 20.168,
     "qvix": 21.0,
     "hs300_close": 3795.085,
     "drawdown_pressure": 70.1804,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -6249,13 +6249,13 @@
   },
   {
     "date": "2025-02-20",
-    "risk_temperature": 39.6,
-    "regime": "NORMAL",
+    "risk_temperature": 40.1,
+    "regime": "CAUTION",
     "avix_clean": 18.2771,
     "qvix": 18.87,
     "hs300_close": 3928.896,
     "drawdown_pressure": 24.0191,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -6271,13 +6271,13 @@
   },
   {
     "date": "2025-02-24",
-    "risk_temperature": 42.8,
+    "risk_temperature": 43.0,
     "regime": "CAUTION",
     "avix_clean": 18.1167,
     "qvix": null,
     "hs300_close": 3969.717,
     "drawdown_pressure": 16.1802,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -6304,46 +6304,46 @@
   },
   {
     "date": "2025-02-27",
-    "risk_temperature": 40.9,
+    "risk_temperature": 41.4,
     "regime": "CAUTION",
     "avix_clean": 18.1836,
     "qvix": 18.79,
     "hs300_close": 3968.116,
     "drawdown_pressure": 15.1091,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-02-28",
-    "risk_temperature": 52.6,
+    "risk_temperature": 53.5,
     "regime": "CAUTION",
     "avix_clean": 18.935,
     "qvix": 19.47,
     "hs300_close": 3890.049,
     "drawdown_pressure": 32.2344,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 74.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-03-03",
-    "risk_temperature": 43.7,
+    "risk_temperature": 43.2,
     "regime": "CAUTION",
     "avix_clean": 17.6113,
     "qvix": 18.57,
     "hs300_close": 3888.474,
     "drawdown_pressure": 32.8067,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-03-04",
-    "risk_temperature": 39.8,
-    "regime": "NORMAL",
+    "risk_temperature": 40.6,
+    "regime": "CAUTION",
     "avix_clean": 17.1903,
     "qvix": 18.81,
     "hs300_close": 3885.221,
     "drawdown_pressure": 32.6463,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -6381,13 +6381,13 @@
   },
   {
     "date": "2025-03-10",
-    "risk_temperature": 34.0,
+    "risk_temperature": 34.2,
     "regime": "NORMAL",
     "avix_clean": 16.2281,
     "qvix": 17.86,
     "hs300_close": 3928.802,
     "drawdown_pressure": 22.6998,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -6403,13 +6403,13 @@
   },
   {
     "date": "2025-03-12",
-    "risk_temperature": 38.4,
+    "risk_temperature": 38.6,
     "regime": "NORMAL",
     "avix_clean": 16.7922,
     "qvix": 18.22,
     "hs300_close": 3927.232,
     "drawdown_pressure": 22.4278,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -6436,13 +6436,13 @@
   },
   {
     "date": "2025-03-17",
-    "risk_temperature": 45.8,
+    "risk_temperature": 46.6,
     "regime": "CAUTION",
     "avix_clean": 18.4483,
     "qvix": 19.39,
     "hs300_close": 3996.788,
     "drawdown_pressure": 1.4223,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -6458,13 +6458,13 @@
   },
   {
     "date": "2025-03-19",
-    "risk_temperature": 45.6,
+    "risk_temperature": 45.9,
     "regime": "CAUTION",
     "avix_clean": 18.2057,
     "qvix": 19.14,
     "hs300_close": 4010.168,
     "drawdown_pressure": 0.2913,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -6491,13 +6491,13 @@
   },
   {
     "date": "2025-03-24",
-    "risk_temperature": 34.4,
+    "risk_temperature": 33.9,
     "regime": "NORMAL",
     "avix_clean": 16.1049,
     "qvix": 16.99,
     "hs300_close": 3934.849,
     "drawdown_pressure": 16.1808,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -6513,24 +6513,24 @@
   },
   {
     "date": "2025-03-26",
-    "risk_temperature": 27.6,
+    "risk_temperature": 28.1,
     "regime": "NORMAL",
     "avix_clean": 15.323,
     "qvix": 16.57,
     "hs300_close": 3919.357,
     "drawdown_pressure": 18.5508,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-03-27",
-    "risk_temperature": 25.0,
+    "risk_temperature": 24.7,
     "regime": "NORMAL",
     "avix_clean": 15.0082,
     "qvix": 16.43,
     "hs300_close": 3932.412,
     "drawdown_pressure": 16.2098,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -6557,24 +6557,24 @@
   },
   {
     "date": "2025-04-01",
-    "risk_temperature": 29.1,
+    "risk_temperature": 30.1,
     "regime": "NORMAL",
     "avix_clean": 15.7107,
     "qvix": 17.58,
     "hs300_close": 3887.684,
     "drawdown_pressure": 24.9303,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-04-02",
-    "risk_temperature": 31.2,
+    "risk_temperature": 30.9,
     "regime": "NORMAL",
     "avix_clean": 15.8272,
     "qvix": 17.73,
     "hs300_close": 3884.386,
     "drawdown_pressure": 25.2621,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -6656,46 +6656,46 @@
   },
   {
     "date": "2025-04-15",
-    "risk_temperature": 49.7,
+    "risk_temperature": 50.2,
     "regime": "CAUTION",
     "avix_clean": 18.6624,
     "qvix": 19.37,
     "hs300_close": 3761.235,
     "drawdown_pressure": 50.3893,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-04-16",
-    "risk_temperature": 50.2,
+    "risk_temperature": 50.7,
     "regime": "CAUTION",
     "avix_clean": 18.9342,
     "qvix": 19.03,
     "hs300_close": 3772.82,
     "drawdown_pressure": 47.9744,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-04-17",
-    "risk_temperature": 50.1,
+    "risk_temperature": 49.8,
     "regime": "CAUTION",
     "avix_clean": 18.9445,
     "qvix": 19.49,
     "hs300_close": 3772.222,
     "drawdown_pressure": 47.682,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-04-18",
-    "risk_temperature": 51.3,
+    "risk_temperature": 50.8,
     "regime": "CAUTION",
     "avix_clean": 18.8755,
     "qvix": 16.99,
     "hs300_close": 3772.523,
     "drawdown_pressure": 47.9541,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -6711,46 +6711,46 @@
   },
   {
     "date": "2025-04-22",
-    "risk_temperature": 53.8,
+    "risk_temperature": 54.0,
     "regime": "CAUTION",
     "avix_clean": 18.6698,
     "qvix": 18.51,
     "hs300_close": 3783.952,
     "drawdown_pressure": 44.2774,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-04-23",
-    "risk_temperature": 50.4,
+    "risk_temperature": 50.2,
     "regime": "CAUTION",
     "avix_clean": 18.4871,
     "qvix": 18.41,
     "hs300_close": 3786.882,
     "drawdown_pressure": 44.1488,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-04-24",
-    "risk_temperature": 52.5,
+    "risk_temperature": 52.7,
     "regime": "CAUTION",
     "avix_clean": 18.3568,
     "qvix": 0.0,
     "hs300_close": 3784.357,
     "drawdown_pressure": 44.4345,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-04-25",
-    "risk_temperature": 50.5,
+    "risk_temperature": 50.3,
     "regime": "CAUTION",
     "avix_clean": 18.5511,
     "qvix": 18.41,
     "hs300_close": 3786.994,
     "drawdown_pressure": 44.2458,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -6766,24 +6766,24 @@
   },
   {
     "date": "2025-04-29",
-    "risk_temperature": 55.6,
+    "risk_temperature": 56.1,
     "regime": "CAUTION",
     "avix_clean": 19.4093,
     "qvix": 18.84,
     "hs300_close": 3775.077,
     "drawdown_pressure": 46.7144,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-04-30",
-    "risk_temperature": 59.0,
+    "risk_temperature": 58.5,
     "regime": "CAUTION",
     "avix_clean": 20.2765,
     "qvix": 19.32,
     "hs300_close": 3770.571,
     "drawdown_pressure": 48.0368,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -6843,13 +6843,13 @@
   },
   {
     "date": "2025-05-13",
-    "risk_temperature": 28.9,
+    "risk_temperature": 29.4,
     "regime": "NORMAL",
     "avix_clean": 16.3012,
     "qvix": 17.27,
     "hs300_close": 3896.258,
     "drawdown_pressure": 21.3708,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -6876,24 +6876,24 @@
   },
   {
     "date": "2025-05-16",
-    "risk_temperature": 29.4,
+    "risk_temperature": 29.9,
     "regime": "NORMAL",
     "avix_clean": 16.3221,
     "qvix": 17.83,
     "hs300_close": 3889.085,
     "drawdown_pressure": 23.0623,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-05-19",
-    "risk_temperature": 24.2,
+    "risk_temperature": 25.0,
     "regime": "NORMAL",
     "avix_clean": 15.8902,
     "qvix": 15.17,
     "hs300_close": 3877.145,
     "drawdown_pressure": 24.7885,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -6909,13 +6909,13 @@
   },
   {
     "date": "2025-05-21",
-    "risk_temperature": 26.4,
+    "risk_temperature": 26.1,
     "regime": "NORMAL",
     "avix_clean": 16.2738,
     "qvix": 15.76,
     "hs300_close": 3916.381,
     "drawdown_pressure": 17.3325,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -6942,13 +6942,13 @@
   },
   {
     "date": "2025-05-26",
-    "risk_temperature": 34.3,
+    "risk_temperature": 34.8,
     "regime": "NORMAL",
     "avix_clean": 16.7013,
     "qvix": 16.67,
     "hs300_close": 3860.107,
     "drawdown_pressure": 29.0814,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -7030,13 +7030,13 @@
   },
   {
     "date": "2025-06-06",
-    "risk_temperature": 24.2,
+    "risk_temperature": 24.5,
     "regime": "NORMAL",
     "avix_clean": 15.2644,
     "qvix": 16.61,
     "hs300_close": 3873.984,
     "drawdown_pressure": 23.6936,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7074,13 +7074,13 @@
   },
   {
     "date": "2025-06-12",
-    "risk_temperature": 26.5,
+    "risk_temperature": 26.3,
     "regime": "NORMAL",
     "avix_clean": 15.8295,
     "qvix": 17.33,
     "hs300_close": 3892.199,
     "drawdown_pressure": 19.5307,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -7118,13 +7118,13 @@
   },
   {
     "date": "2025-06-18",
-    "risk_temperature": 30.9,
+    "risk_temperature": 30.4,
     "regime": "NORMAL",
     "avix_clean": 16.3853,
     "qvix": 17.47,
     "hs300_close": 3874.971,
     "drawdown_pressure": 16.4505,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -7140,13 +7140,13 @@
   },
   {
     "date": "2025-06-20",
-    "risk_temperature": 26.3,
+    "risk_temperature": 26.6,
     "regime": "NORMAL",
     "avix_clean": 15.7362,
     "qvix": 16.55,
     "hs300_close": 3846.644,
     "drawdown_pressure": 18.168,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7195,13 +7195,13 @@
   },
   {
     "date": "2025-06-27",
-    "risk_temperature": 27.2,
+    "risk_temperature": 26.7,
     "regime": "NORMAL",
     "avix_clean": 15.7497,
     "qvix": 16.93,
     "hs300_close": 3921.758,
     "drawdown_pressure": 8.3988,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -7217,24 +7217,24 @@
   },
   {
     "date": "2025-07-01",
-    "risk_temperature": 17.2,
+    "risk_temperature": 18.2,
     "regime": "CALM",
     "avix_clean": 15.0113,
     "qvix": 16.88,
     "hs300_close": 3942.762,
     "drawdown_pressure": 2.5489,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-07-02",
-    "risk_temperature": 17.2,
+    "risk_temperature": 17.5,
     "regime": "CALM",
     "avix_clean": 14.7936,
     "qvix": 16.79,
     "hs300_close": 3943.685,
     "drawdown_pressure": 2.6694,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7250,24 +7250,24 @@
   },
   {
     "date": "2025-07-04",
-    "risk_temperature": 18.9,
+    "risk_temperature": 19.4,
     "regime": "CALM",
     "avix_clean": 14.8365,
     "qvix": 16.88,
     "hs300_close": 3982.203,
     "drawdown_pressure": 0.0,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-07-07",
-    "risk_temperature": 24.8,
+    "risk_temperature": 25.3,
     "regime": "NORMAL",
     "avix_clean": 15.6661,
     "qvix": 17.84,
     "hs300_close": 3965.175,
     "drawdown_pressure": 2.4943,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -7283,13 +7283,13 @@
   },
   {
     "date": "2025-07-09",
-    "risk_temperature": 34.7,
+    "risk_temperature": 33.7,
     "regime": "NORMAL",
     "avix_clean": 16.4533,
     "qvix": 18.75,
     "hs300_close": 3991.401,
     "drawdown_pressure": 1.4084,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7316,35 +7316,35 @@
   },
   {
     "date": "2025-07-14",
-    "risk_temperature": 36.6,
+    "risk_temperature": 37.3,
     "regime": "NORMAL",
     "avix_clean": 17.7961,
     "qvix": 19.92,
     "hs300_close": 4017.668,
     "drawdown_pressure": 0.0,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-07-15",
-    "risk_temperature": 33.7,
+    "risk_temperature": 32.9,
     "regime": "NORMAL",
     "avix_clean": 16.9143,
     "qvix": 19.39,
     "hs300_close": 4019.064,
     "drawdown_pressure": 1.2488,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-07-16",
-    "risk_temperature": 31.8,
+    "risk_temperature": 32.0,
     "regime": "NORMAL",
     "avix_clean": 16.6752,
     "qvix": 19.03,
     "hs300_close": 4007.202,
     "drawdown_pressure": 3.0746,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7393,13 +7393,13 @@
   },
   {
     "date": "2025-07-23",
-    "risk_temperature": 42.8,
+    "risk_temperature": 43.3,
     "regime": "CAUTION",
     "avix_clean": 19.276,
     "qvix": 20.37,
     "hs300_close": 4119.769,
     "drawdown_pressure": 0.0,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -7415,13 +7415,13 @@
   },
   {
     "date": "2025-07-25",
-    "risk_temperature": 42.8,
+    "risk_temperature": 43.3,
     "regime": "CAUTION",
     "avix_clean": 19.3897,
     "qvix": 19.83,
     "hs300_close": 4127.163,
     "drawdown_pressure": 4.0798,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -7448,13 +7448,13 @@
   },
   {
     "date": "2025-07-30",
-    "risk_temperature": 36.8,
+    "risk_temperature": 37.1,
     "regime": "NORMAL",
     "avix_clean": 18.5044,
     "qvix": 19.59,
     "hs300_close": 4151.238,
     "drawdown_pressure": 0.1106,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7470,13 +7470,13 @@
   },
   {
     "date": "2025-08-01",
-    "risk_temperature": 37.0,
+    "risk_temperature": 37.2,
     "regime": "NORMAL",
     "avix_clean": 17.7301,
     "qvix": 18.61,
     "hs300_close": 4054.929,
     "drawdown_pressure": 18.2683,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7514,13 +7514,13 @@
   },
   {
     "date": "2025-08-07",
-    "risk_temperature": 32.0,
+    "risk_temperature": 32.7,
     "regime": "NORMAL",
     "avix_clean": 17.405,
     "qvix": 18.94,
     "hs300_close": 4114.666,
     "drawdown_pressure": 5.2487,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -7602,13 +7602,13 @@
   },
   {
     "date": "2025-08-19",
-    "risk_temperature": 50.5,
+    "risk_temperature": 50.8,
     "regime": "CAUTION",
     "avix_clean": 20.3772,
     "qvix": null,
     "hs300_close": 4223.374,
     "drawdown_pressure": 2.2664,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -7624,13 +7624,13 @@
   },
   {
     "date": "2025-08-21",
-    "risk_temperature": 45.6,
+    "risk_temperature": 46.1,
     "regime": "CAUTION",
     "avix_clean": 20.2862,
     "qvix": 21.31,
     "hs300_close": 4288.071,
     "drawdown_pressure": 0.0,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -7657,13 +7657,13 @@
   },
   {
     "date": "2025-08-26",
-    "risk_temperature": 57.3,
+    "risk_temperature": 57.5,
     "regime": "CAUTION",
     "avix_clean": 24.412,
     "qvix": 23.22,
     "hs300_close": 4452.591,
     "drawdown_pressure": 3.3434,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7690,13 +7690,13 @@
   },
   {
     "date": "2025-08-29",
-    "risk_temperature": 53.4,
+    "risk_temperature": 53.2,
     "regime": "CAUTION",
     "avix_clean": 24.011,
     "qvix": 22.4,
     "hs300_close": 4496.759,
     "drawdown_pressure": 1.9803,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -7723,24 +7723,24 @@
   },
   {
     "date": "2025-09-03",
-    "risk_temperature": 53.5,
+    "risk_temperature": 52.5,
     "regime": "CAUTION",
     "avix_clean": 21.9718,
     "qvix": 22.27,
     "hs300_close": 4459.83,
     "drawdown_pressure": 13.6453,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-09-04",
-    "risk_temperature": 56.8,
+    "risk_temperature": 58.0,
     "regime": "CAUTION",
     "avix_clean": 22.2337,
     "qvix": 22.1,
     "hs300_close": 4365.209,
     "drawdown_pressure": 29.5299,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -7756,13 +7756,13 @@
   },
   {
     "date": "2025-09-08",
-    "risk_temperature": 48.4,
+    "risk_temperature": 49.4,
     "regime": "CAUTION",
     "avix_clean": 20.9024,
     "qvix": 21.69,
     "hs300_close": 4467.573,
     "drawdown_pressure": 11.6206,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -7800,35 +7800,35 @@
   },
   {
     "date": "2025-09-12",
-    "risk_temperature": 49.3,
+    "risk_temperature": 49.8,
     "regime": "CAUTION",
     "avix_clean": 20.1427,
     "qvix": 21.09,
     "hs300_close": 4521.998,
     "drawdown_pressure": 4.341,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-09-15",
-    "risk_temperature": 52.2,
+    "risk_temperature": 51.5,
     "regime": "CAUTION",
     "avix_clean": 20.8838,
     "qvix": 21.93,
     "hs300_close": 4533.056,
     "drawdown_pressure": 3.7024,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-09-16",
-    "risk_temperature": 61.4,
+    "risk_temperature": 61.1,
     "regime": "HIGH_RISK",
     "avix_clean": 21.9425,
     "qvix": 22.57,
     "hs300_close": 4523.337,
     "drawdown_pressure": 4.8438,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -7855,13 +7855,13 @@
   },
   {
     "date": "2025-09-19",
-    "risk_temperature": 51.8,
+    "risk_temperature": 52.1,
     "regime": "CAUTION",
     "avix_clean": 20.4151,
     "qvix": 21.43,
     "hs300_close": 4501.92,
     "drawdown_pressure": 11.197,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7877,13 +7877,13 @@
   },
   {
     "date": "2025-09-23",
-    "risk_temperature": 50.6,
+    "risk_temperature": 49.6,
     "regime": "CAUTION",
     "avix_clean": 20.2213,
     "qvix": 22.57,
     "hs300_close": 4519.778,
     "drawdown_pressure": 8.7734,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -7899,13 +7899,13 @@
   },
   {
     "date": "2025-09-25",
-    "risk_temperature": 38.8,
+    "risk_temperature": 38.3,
     "regime": "NORMAL",
     "avix_clean": 18.0844,
     "qvix": 20.11,
     "hs300_close": 4593.488,
     "drawdown_pressure": 2.3375,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -7954,13 +7954,13 @@
   },
   {
     "date": "2025-10-10",
-    "risk_temperature": 52.0,
+    "risk_temperature": 53.2,
     "regime": "CAUTION",
     "avix_clean": 19.3945,
     "qvix": 21.2,
     "hs300_close": 4616.834,
     "drawdown_pressure": 14.293,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -7976,13 +7976,13 @@
   },
   {
     "date": "2025-10-14",
-    "risk_temperature": 60.2,
+    "risk_temperature": 61.4,
     "regime": "HIGH_RISK",
     "avix_clean": 22.0467,
     "qvix": 22.92,
     "hs300_close": 4539.064,
     "drawdown_pressure": 26.3508,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -7998,24 +7998,24 @@
   },
   {
     "date": "2025-10-16",
-    "risk_temperature": 49.8,
+    "risk_temperature": 49.3,
     "regime": "CAUTION",
     "avix_clean": 19.9733,
     "qvix": 21.63,
     "hs300_close": 4618.422,
     "drawdown_pressure": 12.6322,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-10-17",
-    "risk_temperature": 57.1,
+    "risk_temperature": 58.3,
     "regime": "CAUTION",
     "avix_clean": 20.9747,
     "qvix": 0.0,
     "hs300_close": 4514.235,
     "drawdown_pressure": 31.3689,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 96.0
   },
   {
@@ -8053,13 +8053,13 @@
   },
   {
     "date": "2025-10-23",
-    "risk_temperature": 44.3,
+    "risk_temperature": 44.1,
     "regime": "CAUTION",
     "avix_clean": 19.1879,
     "qvix": 21.4,
     "hs300_close": 4606.345,
     "drawdown_pressure": 13.6566,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -8119,13 +8119,13 @@
   },
   {
     "date": "2025-10-31",
-    "risk_temperature": 48.2,
+    "risk_temperature": 48.4,
     "regime": "CAUTION",
     "avix_clean": 18.7857,
     "qvix": 21.27,
     "hs300_close": 4640.668,
     "drawdown_pressure": 17.764,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -8185,13 +8185,13 @@
   },
   {
     "date": "2025-11-10",
-    "risk_temperature": 44.1,
+    "risk_temperature": 45.1,
     "regime": "CAUTION",
     "avix_clean": 18.99,
     "qvix": null,
     "hs300_close": 4695.051,
     "drawdown_pressure": 6.4856,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -8240,13 +8240,13 @@
   },
   {
     "date": "2025-11-17",
-    "risk_temperature": 48.6,
+    "risk_temperature": 48.9,
     "regime": "CAUTION",
     "avix_clean": 19.3957,
     "qvix": 21.95,
     "hs300_close": 4598.053,
     "drawdown_pressure": 22.6814,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -8262,13 +8262,13 @@
   },
   {
     "date": "2025-11-19",
-    "risk_temperature": 47.5,
+    "risk_temperature": 47.0,
     "regime": "CAUTION",
     "avix_clean": 19.6387,
     "qvix": 22.13,
     "hs300_close": 4588.292,
     "drawdown_pressure": 25.7638,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -8295,13 +8295,13 @@
   },
   {
     "date": "2025-11-24",
-    "risk_temperature": 46.7,
+    "risk_temperature": 46.5,
     "regime": "CAUTION",
     "avix_clean": 18.9254,
     "qvix": 17.83,
     "hs300_close": 4448.048,
     "drawdown_pressure": 51.1824,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -8317,24 +8317,24 @@
   },
   {
     "date": "2025-11-26",
-    "risk_temperature": 33.1,
+    "risk_temperature": 32.6,
     "regime": "NORMAL",
     "avix_clean": 16.3276,
     "qvix": 18.94,
     "hs300_close": 4517.626,
     "drawdown_pressure": 40.5925,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-11-27",
-    "risk_temperature": 34.6,
+    "risk_temperature": 35.1,
     "regime": "NORMAL",
     "avix_clean": 16.1916,
     "qvix": null,
     "hs300_close": 4515.403,
     "drawdown_pressure": 40.0411,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 84.0
   },
   {
@@ -8383,13 +8383,13 @@
   },
   {
     "date": "2025-12-04",
-    "risk_temperature": 29.3,
+    "risk_temperature": 29.0,
     "regime": "NORMAL",
     "avix_clean": 15.7975,
     "qvix": 16.88,
     "hs300_close": 4546.566,
     "drawdown_pressure": 36.1726,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -8416,24 +8416,24 @@
   },
   {
     "date": "2025-12-09",
-    "risk_temperature": 33.6,
+    "risk_temperature": 32.6,
     "regime": "NORMAL",
     "avix_clean": 15.8132,
     "qvix": 17.41,
     "hs300_close": 4598.223,
     "drawdown_pressure": 27.3147,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-12-10",
-    "risk_temperature": 35.5,
+    "risk_temperature": 36.0,
     "regime": "NORMAL",
     "avix_clean": 16.5127,
     "qvix": 19.49,
     "hs300_close": 4591.827,
     "drawdown_pressure": 28.7725,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -8493,13 +8493,13 @@
   },
   {
     "date": "2025-12-18",
-    "risk_temperature": 40.7,
+    "risk_temperature": 40.9,
     "regime": "CAUTION",
     "avix_clean": 17.0295,
     "qvix": 17.4,
     "hs300_close": 4552.793,
     "drawdown_pressure": 35.3645,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
@@ -8526,13 +8526,13 @@
   },
   {
     "date": "2025-12-23",
-    "risk_temperature": 23.8,
+    "risk_temperature": 23.6,
     "regime": "NORMAL",
     "avix_clean": 15.4405,
     "qvix": 12.59,
     "hs300_close": 4620.734,
     "drawdown_pressure": 23.7704,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -8570,35 +8570,35 @@
   },
   {
     "date": "2025-12-29",
-    "risk_temperature": 34.5,
+    "risk_temperature": 34.7,
     "regime": "NORMAL",
     "avix_clean": 16.5636,
     "qvix": 15.06,
     "hs300_close": 4639.372,
     "drawdown_pressure": 18.1078,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-12-30",
-    "risk_temperature": 32.7,
+    "risk_temperature": 32.5,
     "regime": "NORMAL",
     "avix_clean": 16.8112,
     "qvix": 15.82,
     "hs300_close": 4651.282,
     "drawdown_pressure": 16.6567,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2025-12-31",
-    "risk_temperature": 33.0,
+    "risk_temperature": 33.5,
     "regime": "NORMAL",
     "avix_clean": 16.7892,
     "qvix": 15.74,
     "hs300_close": 4629.94,
     "drawdown_pressure": 19.0016,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -8625,24 +8625,24 @@
   },
   {
     "date": "2026-01-07",
-    "risk_temperature": 39.0,
+    "risk_temperature": 38.7,
     "regime": "NORMAL",
     "avix_clean": 17.9828,
     "qvix": 17.83,
     "hs300_close": 4776.666,
     "drawdown_pressure": 1.7081,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
     "date": "2026-01-08",
-    "risk_temperature": 41.1,
+    "risk_temperature": 41.6,
     "regime": "CAUTION",
     "avix_clean": 18.1063,
     "qvix": 22.26,
     "hs300_close": 4737.654,
     "drawdown_pressure": 6.6634,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -8680,46 +8680,46 @@
   },
   {
     "date": "2026-01-14",
-    "risk_temperature": 52.8,
+    "risk_temperature": 52.3,
     "regime": "CAUTION",
     "avix_clean": 20.4476,
     "qvix": 20.08,
     "hs300_close": 4741.931,
     "drawdown_pressure": 8.7605,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2026-01-15",
-    "risk_temperature": 42.5,
+    "risk_temperature": 41.7,
     "regime": "CAUTION",
     "avix_clean": 18.743,
     "qvix": 19.58,
     "hs300_close": 4751.429,
     "drawdown_pressure": 8.5757,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2026-01-16",
-    "risk_temperature": 40.0,
+    "risk_temperature": 40.3,
     "regime": "CAUTION",
     "avix_clean": 18.2915,
     "qvix": 19.82,
     "hs300_close": 4731.873,
     "drawdown_pressure": 11.7267,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 96.0
   },
   {
     "date": "2026-01-19",
-    "risk_temperature": 24.3,
+    "risk_temperature": 25.3,
     "regime": "NORMAL",
     "avix_clean": 16.2125,
     "qvix": null,
     "hs300_close": 4734.456,
     "drawdown_pressure": 10.5416,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -8757,79 +8757,79 @@
   },
   {
     "date": "2026-01-23",
-    "risk_temperature": 35.9,
+    "risk_temperature": 35.7,
     "regime": "NORMAL",
     "avix_clean": 17.4119,
     "qvix": null,
     "hs300_close": 4702.497,
     "drawdown_pressure": 12.8368,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-01-26",
-    "risk_temperature": 48.3,
+    "risk_temperature": 48.5,
     "regime": "CAUTION",
     "avix_clean": 18.9499,
     "qvix": null,
     "hs300_close": 4706.964,
     "drawdown_pressure": 12.5492,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-01-27",
-    "risk_temperature": 42.4,
+    "risk_temperature": 42.2,
     "regime": "CAUTION",
     "avix_clean": 18.3557,
     "qvix": null,
     "hs300_close": 4705.692,
     "drawdown_pressure": 12.1784,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-01-28",
-    "risk_temperature": 44.8,
+    "risk_temperature": 45.8,
     "regime": "CAUTION",
     "avix_clean": 18.9222,
     "qvix": null,
     "hs300_close": 4717.991,
     "drawdown_pressure": 9.8645,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-01-29",
-    "risk_temperature": 48.1,
+    "risk_temperature": 48.6,
     "regime": "CAUTION",
     "avix_clean": 19.0507,
     "qvix": null,
     "hs300_close": 4753.87,
     "drawdown_pressure": 5.0098,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-01-30",
-    "risk_temperature": 50.7,
+    "risk_temperature": 49.7,
     "regime": "CAUTION",
     "avix_clean": 19.4267,
     "qvix": null,
     "hs300_close": 4706.34,
     "drawdown_pressure": 13.6808,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-02-02",
-    "risk_temperature": 67.4,
+    "risk_temperature": 66.8,
     "regime": "HIGH_RISK",
     "avix_clean": 24.3554,
     "qvix": 0.0,
     "hs300_close": 4605.98,
     "drawdown_pressure": 33.262,
-    "breadth_pressure": 80.0,
+    "breadth_pressure": 74.0,
     "model_confidence": 96.0
   },
   {
@@ -8845,13 +8845,13 @@
   },
   {
     "date": "2026-02-04",
-    "risk_temperature": 43.7,
+    "risk_temperature": 44.5,
     "regime": "CAUTION",
     "avix_clean": 19.1847,
     "qvix": null,
     "hs300_close": 4698.683,
     "drawdown_pressure": 15.7472,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 84.0
   },
   {
@@ -8867,13 +8867,13 @@
   },
   {
     "date": "2026-02-06",
-    "risk_temperature": 45.6,
+    "risk_temperature": 45.9,
     "regime": "CAUTION",
     "avix_clean": 19.0214,
     "qvix": null,
     "hs300_close": 4643.596,
     "drawdown_pressure": 25.0923,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -8889,24 +8889,24 @@
   },
   {
     "date": "2026-02-10",
-    "risk_temperature": 32.6,
+    "risk_temperature": 33.4,
     "regime": "NORMAL",
     "avix_clean": 17.8057,
     "qvix": 17.83,
     "hs300_close": 4724.296,
     "drawdown_pressure": 10.7436,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
     "date": "2026-02-11",
-    "risk_temperature": 34.5,
+    "risk_temperature": 35.0,
     "regime": "NORMAL",
     "avix_clean": 17.6165,
     "qvix": 17.83,
     "hs300_close": 4713.819,
     "drawdown_pressure": 11.7591,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
@@ -8955,46 +8955,46 @@
   },
   {
     "date": "2026-02-26",
-    "risk_temperature": 25.8,
+    "risk_temperature": 26.3,
     "regime": "NORMAL",
     "avix_clean": 15.6996,
     "qvix": 19.49,
     "hs300_close": 4726.874,
     "drawdown_pressure": 9.1146,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 96.0
   },
   {
     "date": "2026-02-27",
-    "risk_temperature": 27.6,
+    "risk_temperature": 28.3,
     "regime": "NORMAL",
     "avix_clean": 15.7192,
     "qvix": null,
     "hs300_close": 4710.647,
     "drawdown_pressure": 9.92,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-03-02",
-    "risk_temperature": 32.5,
+    "risk_temperature": 33.0,
     "regime": "NORMAL",
     "avix_clean": 16.3011,
     "qvix": null,
     "hs300_close": 4728.669,
     "drawdown_pressure": 7.5524,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-03-03",
-    "risk_temperature": 53.0,
+    "risk_temperature": 52.4,
     "regime": "CAUTION",
     "avix_clean": 18.3445,
     "qvix": null,
     "hs300_close": 4655.896,
     "drawdown_pressure": 20.711,
-    "breadth_pressure": 80.0,
+    "breadth_pressure": 74.0,
     "model_confidence": 84.0
   },
   {
@@ -9054,13 +9054,13 @@
   },
   {
     "date": "2026-03-11",
-    "risk_temperature": 35.3,
+    "risk_temperature": 35.1,
     "regime": "NORMAL",
     "avix_clean": 17.266,
     "qvix": 17.83,
     "hs300_close": 4704.496,
     "drawdown_pressure": 14.0217,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 96.0
   },
   {
@@ -9087,13 +9087,13 @@
   },
   {
     "date": "2026-03-16",
-    "risk_temperature": 45.9,
+    "risk_temperature": 45.2,
     "regime": "CAUTION",
     "avix_clean": 18.372,
     "qvix": null,
     "hs300_close": 4671.559,
     "drawdown_pressure": 21.5215,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 84.0
   },
   {
@@ -9131,13 +9131,13 @@
   },
   {
     "date": "2026-03-20",
-    "risk_temperature": 57.2,
+    "risk_temperature": 56.2,
     "regime": "CAUTION",
     "avix_clean": 19.9085,
     "qvix": null,
     "hs300_close": 4567.018,
     "drawdown_pressure": 43.4126,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -9197,13 +9197,13 @@
   },
   {
     "date": "2026-03-30",
-    "risk_temperature": 55.6,
+    "risk_temperature": 56.3,
     "regime": "CAUTION",
     "avix_clean": 20.1612,
     "qvix": null,
     "hs300_close": 4491.95,
     "drawdown_pressure": 54.975,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 84.0
   },
   {
@@ -9252,13 +9252,13 @@
   },
   {
     "date": "2026-04-07",
-    "risk_temperature": 56.3,
+    "risk_temperature": 56.1,
     "regime": "CAUTION",
     "avix_clean": 19.3228,
     "qvix": null,
     "hs300_close": 4440.616,
     "drawdown_pressure": 63.6014,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -9296,13 +9296,13 @@
   },
   {
     "date": "2026-04-13",
-    "risk_temperature": 44.5,
+    "risk_temperature": 44.3,
     "regime": "CAUTION",
     "avix_clean": 17.7362,
     "qvix": null,
     "hs300_close": 4646.155,
     "drawdown_pressure": 31.4249,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -9318,13 +9318,13 @@
   },
   {
     "date": "2026-04-15",
-    "risk_temperature": 48.3,
+    "risk_temperature": 48.5,
     "regime": "CAUTION",
     "avix_clean": 17.9085,
     "qvix": null,
     "hs300_close": 4685.246,
     "drawdown_pressure": 20.4303,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -9340,35 +9340,35 @@
   },
   {
     "date": "2026-04-17",
-    "risk_temperature": 45.2,
+    "risk_temperature": 44.7,
     "regime": "CAUTION",
     "avix_clean": 17.7726,
     "qvix": null,
     "hs300_close": 4728.672,
     "drawdown_pressure": 12.5,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-04-20",
-    "risk_temperature": 42.4,
+    "risk_temperature": 43.4,
     "regime": "CAUTION",
     "avix_clean": 17.7611,
     "qvix": null,
     "hs300_close": 4757.442,
     "drawdown_pressure": 7.2059,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-04-21",
-    "risk_temperature": 40.1,
-    "regime": "CAUTION",
+    "risk_temperature": 39.6,
+    "regime": "NORMAL",
     "avix_clean": 17.5739,
     "qvix": 0.0,
     "hs300_close": 4767.997,
     "drawdown_pressure": 6.9943,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 96.0
   },
   {
@@ -9406,13 +9406,13 @@
   },
   {
     "date": "2026-04-27",
-    "risk_temperature": 36.5,
+    "risk_temperature": 37.5,
     "regime": "NORMAL",
     "avix_clean": 16.9693,
     "qvix": null,
     "hs300_close": 4770.947,
     "drawdown_pressure": 10.3891,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -9439,13 +9439,13 @@
   },
   {
     "date": "2026-04-30",
-    "risk_temperature": 38.3,
+    "risk_temperature": 39.1,
     "regime": "NORMAL",
     "avix_clean": 17.0187,
     "qvix": null,
     "hs300_close": 4807.307,
     "drawdown_pressure": 5.4204,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 20.0,
     "model_confidence": 84.0
   },
   {
@@ -9472,13 +9472,13 @@
   },
   {
     "date": "2026-05-08",
-    "risk_temperature": 46.0,
+    "risk_temperature": 46.3,
     "regime": "CAUTION",
     "avix_clean": 18.0928,
     "qvix": null,
     "hs300_close": 4871.912,
     "drawdown_pressure": 3.5935,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -9494,13 +9494,13 @@
   },
   {
     "date": "2026-05-12",
-    "risk_temperature": 53.3,
+    "risk_temperature": 52.3,
     "regime": "CAUTION",
     "avix_clean": 19.9774,
     "qvix": null,
     "hs300_close": 4948.047,
     "drawdown_pressure": 1.1943,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -9538,46 +9538,46 @@
   },
   {
     "date": "2026-05-18",
-    "risk_temperature": 48.0,
+    "risk_temperature": 48.5,
     "regime": "CAUTION",
     "avix_clean": 19.1174,
     "qvix": null,
     "hs300_close": 4833.524,
     "drawdown_pressure": 27.0873,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-05-19",
-    "risk_temperature": 41.1,
+    "risk_temperature": 42.1,
     "regime": "CAUTION",
     "avix_clean": 18.6812,
     "qvix": null,
     "hs300_close": 4852.883,
     "drawdown_pressure": 22.1402,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-05-20",
-    "risk_temperature": 38.6,
+    "risk_temperature": 38.1,
     "regime": "NORMAL",
     "avix_clean": 17.7953,
     "qvix": null,
     "hs300_close": 4850.7,
     "drawdown_pressure": 22.9149,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-05-21",
-    "risk_temperature": 50.4,
+    "risk_temperature": 50.1,
     "regime": "CAUTION",
     "avix_clean": 18.3529,
     "qvix": null,
     "hs300_close": 4783.098,
     "drawdown_pressure": 36.8084,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 84.0
   },
   {
@@ -9604,24 +9604,24 @@
   },
   {
     "date": "2026-05-26",
-    "risk_temperature": 50.7,
+    "risk_temperature": 49.9,
     "regime": "CAUTION",
     "avix_clean": 18.9881,
     "qvix": null,
     "hs300_close": 4947.849,
     "drawdown_pressure": 12.7659,
-    "breadth_pressure": 37.5,
+    "breadth_pressure": 30.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-05-27",
-    "risk_temperature": 57.4,
+    "risk_temperature": 56.4,
     "regime": "CAUTION",
     "avix_clean": 19.6306,
     "qvix": null,
     "hs300_close": 4908.171,
     "drawdown_pressure": 21.0485,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 40.0,
     "model_confidence": 84.0
   },
   {
@@ -9692,13 +9692,13 @@
   },
   {
     "date": "2026-06-05",
-    "risk_temperature": 58.3,
+    "risk_temperature": 59.5,
     "regime": "CAUTION",
     "avix_clean": 19.6808,
     "qvix": null,
     "hs300_close": 4816.92,
     "drawdown_pressure": 36.3644,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 84.0
   },
   {
@@ -9769,13 +9769,13 @@
   },
   {
     "date": "2026-06-16",
-    "risk_temperature": 57.1,
+    "risk_temperature": 56.6,
     "regime": "CAUTION",
     "avix_clean": 20.0986,
     "qvix": null,
     "hs300_close": 4884.232,
     "drawdown_pressure": 23.9721,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 20.0,
     "model_confidence": 84.0
   },
   {
@@ -9791,13 +9791,13 @@
   },
   {
     "date": "2026-06-18",
-    "risk_temperature": 60.1,
-    "regime": "HIGH_RISK",
+    "risk_temperature": 59.9,
+    "regime": "CAUTION",
     "avix_clean": 21.2729,
     "qvix": null,
     "hs300_close": 4941.599,
     "drawdown_pressure": 17.3768,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -9813,13 +9813,13 @@
   },
   {
     "date": "2026-06-23",
-    "risk_temperature": 71.2,
+    "risk_temperature": 72.4,
     "regime": "HIGH_RISK",
     "avix_clean": 23.1942,
     "qvix": null,
     "hs300_close": 4919.386,
     "drawdown_pressure": 25.8115,
-    "breadth_pressure": 50.0,
+    "breadth_pressure": 62.0,
     "model_confidence": 84.0
   },
   {
@@ -9846,24 +9846,24 @@
   },
   {
     "date": "2026-06-26",
-    "risk_temperature": 72.9,
+    "risk_temperature": 73.8,
     "regime": "HIGH_RISK",
     "avix_clean": 23.4525,
     "qvix": null,
     "hs300_close": 4868.221,
     "drawdown_pressure": 37.2957,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 74.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-06-29",
-    "risk_temperature": 65.5,
+    "risk_temperature": 65.2,
     "regime": "HIGH_RISK",
     "avix_clean": 23.5794,
     "qvix": null,
     "hs300_close": 4926.921,
     "drawdown_pressure": 27.2304,
-    "breadth_pressure": 12.5,
+    "breadth_pressure": 10.0,
     "model_confidence": 84.0
   },
   {
@@ -9879,24 +9879,24 @@
   },
   {
     "date": "2026-07-01",
-    "risk_temperature": 63.5,
+    "risk_temperature": 64.0,
     "regime": "HIGH_RISK",
     "avix_clean": 22.6987,
     "qvix": null,
     "hs300_close": 4958.977,
     "drawdown_pressure": 20.8091,
-    "breadth_pressure": 25.0,
+    "breadth_pressure": 30.0,
     "model_confidence": 84.0
   },
   {
     "date": "2026-07-02",
-    "risk_temperature": 74.5,
-    "regime": "HIGH_RISK",
+    "risk_temperature": 75.4,
+    "regime": "PANIC",
     "avix_clean": 24.3304,
     "qvix": null,
     "hs300_close": 4812.296,
     "drawdown_pressure": 43.6275,
-    "breadth_pressure": 65.0,
+    "breadth_pressure": 74.0,
     "model_confidence": 84.0
   }
 ]
