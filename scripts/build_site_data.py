@@ -26,7 +26,7 @@ def main() -> None:
         strategy.to_csv(CALCULATED / "strategy_s3_s4.csv", index=False)
     write_json(latest_payload(risk, raw, realtime), SITE / "latest.json")
     write_json(history_payload(risk), SITE / "history.json")
-    write_json(components_payload(risk), SITE / "components.json")
+    write_json(components_payload(risk, realtime), SITE / "components.json")
     write_json(audit_payload(risk, realtime), SITE / "audit.json")
     write_json(strategy_payload(strategy), SITE / "strategy.json")
     write_json({

@@ -120,6 +120,73 @@ function renderStrategy(strategy) {
   }).join('');
 }
 
+function appendNowcastHistory(history, latest) {
+  const rows = [...(history || [])];
+  const lastDate = rows.length ? rows[rows.length - 1].date : null;
+  if (!latest?.trade_date || latest.is_final !== false || latest.trade_date <= lastDate) {
+    return rows;
+  }
+  rows.push({
+    date: latest.trade_date,
+    risk_temperature: latest.risk_temperature,
+    regime: latest.regime,
+    avix_clean: null,
+    qvix: null,
+    hs300_close: null,
+    drawdown_pressure: null,
+    breadth_pressure: null,
+    is_nowcast: true,
+  });
+  return rows;
+}
+
+function filterHistoryByRange(history, range) {
+  if (!history?.length || range === 'ALL') return history || [];
+  const months = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12 }[range] || 12;
+  const last = new Date(history[history.length - 1].date + 'T00:00:00');
+  const cutoff = new Date(last);
+  cutoff.setMonth(cutoff.getMonth() - months);
+  return history.filter(row => new Date(row.date + 'T00:00:00') >= cutoff);
+}
+
+function setActiveRange(range) {
+  document.querySelectorAll('#rangeControls button').forEach(button => {
+    button.classList.toggle('active', button.dataset.range === range);
+  });
+}
+
+function connectTimeCharts(charts) {
+  charts.forEach(chart => {
+    chart.group = 'risk-time-series';
+  });
+  echarts.connect('risk-time-series');
+}
+
+function renderTimeCharts(history, strategy, range) {
+  const filtered = filterHistoryByRange(history, range);
+  ['historyChart', 'avixQvixChart', 'hs300Chart'].forEach(id => {
+    const instance = echarts.getInstanceByDom(document.getElementById(id));
+    if (instance) instance.dispose();
+  });
+  const charts = [
+    renderHistoryChart(filtered, strategy),
+    renderAvixQvixChart(filtered, strategy),
+    renderHs300Chart(filtered)
+  ];
+  connectTimeCharts(charts);
+  return charts;
+}
+
+function bindRangeControls(onRange) {
+  document.querySelectorAll('#rangeControls button').forEach(button => {
+    button.addEventListener('click', () => {
+      const range = button.dataset.range || '1Y';
+      setActiveRange(range);
+      onRange(range);
+    });
+  });
+}
+
 async function main() {
   const [latest, history, components, audit, strategy] = await Promise.all([
     loadJSON('./data/latest.json'),
@@ -131,13 +198,19 @@ async function main() {
   renderLatest(latest);
   renderAudit(audit);
   renderStrategy(strategy);
-  const charts = [
-    renderComponentsChart(components),
-    renderHistoryChart(history),
-    renderAvixQvixChart(history),
-    renderHs300Chart(history)
-  ];
-  window.addEventListener('resize', () => charts.forEach(chart => chart.resize()));
+  setText('componentsMode', `${components.temperature_mode || '--'} / ${components.trade_date || '--'}`);
+  const componentChart = renderComponentsChart(components);
+  const activeHistory = appendNowcastHistory(history, latest);
+  let activeRange = '1Y';
+  let timeCharts = renderTimeCharts(activeHistory, strategy, activeRange);
+  bindRangeControls(range => {
+    activeRange = range;
+    timeCharts = renderTimeCharts(activeHistory, strategy, activeRange);
+  });
+  window.addEventListener('resize', () => {
+    componentChart.resize();
+    timeCharts.forEach(chart => chart.resize());
+  });
 }
 
 main().catch(err => {
