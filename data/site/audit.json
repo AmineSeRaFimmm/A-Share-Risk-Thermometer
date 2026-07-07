@@ -1,5 +1,5 @@
 {
-  "trade_date": "2026-07-03",
+  "trade_date": "2026-07-07",
   "temperature_mode": "NOWCAST",
   "data_health": {
     "options_history": "OK",
@@ -13,12 +13,12 @@
     "quality": "OK",
     "usable": true,
     "note": "normal two-term interpolation",
-    "avix_mid": 21.5885
+    "avix_mid": 22.3006
   },
   "nowcast": {
     "active": true,
     "quality": "OK_NOWCAST|WARN_BREADTH_MISSING|WARN_QVIX_MISSING",
-    "risk_temperature": 65.0,
+    "risk_temperature": 66.8,
     "baseline_trade_date": "2026-07-02",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
@@ -27,5 +27,5 @@
     "WARN_BREADTH_MISSING",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-06T21:12:56+08:00"
+  "last_successful_update": "2026-07-07T11:00:24+08:00"
 }
