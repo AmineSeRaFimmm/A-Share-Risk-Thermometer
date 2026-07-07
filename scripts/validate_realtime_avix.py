@@ -6,7 +6,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pandas as pd
 
-from src.storage.paths import CALCULATED
+from src.storage.paths import CALCULATED, NORMALIZED
+from src.storage.csv_store import read_csv
+from src.core.calendar import current_realtime_trade_date
 
 def fail(message: str) -> None:
     print(message)
@@ -26,6 +28,13 @@ def main() -> None:
         fail("avix_realtime_mid.csv missing avix_mid or quality")
 
     row = df.sort_values("valuation_time").iloc[-1] if "valuation_time" in df.columns else df.iloc[-1]
+    index_history = read_csv(NORMALIZED / "index_history.csv")
+    hs300 = index_history[index_history["symbol"] == "sh000300"].copy() if not index_history.empty and "symbol" in index_history.columns else pd.DataFrame()
+    expected_trade_date = current_realtime_trade_date(hs300)
+    actual_trade_date = str(row.get("trade_date", ""))[:10]
+    if actual_trade_date != expected_trade_date:
+        fail(f"realtime AVIX trade_date stale or mismatched: {actual_trade_date} != {expected_trade_date}")
+
     quality = str(row.get("quality", ""))
     avix = number(row, "avix_mid")
     if pd.notna(avix) and not (0 < float(avix) < 120):

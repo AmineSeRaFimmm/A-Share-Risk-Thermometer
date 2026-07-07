@@ -393,6 +393,7 @@ def _build_output(
     return {
         "valuation_time": valuation_time,
         "trade_date": trade_date,
+        "avix": avix_mid,
         "avix_mid": avix_mid,
         "var30": float(var30) if np.isfinite(var30) else math.nan,
         "near_expiry": near.expiry_date,

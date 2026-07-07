@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 from pathlib import Path
+import os
 import sys
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
@@ -9,13 +10,11 @@ import pandas as pd
 from src.storage.paths import RAW, NORMALIZED, CALCULATED, ensure_dirs
 from src.storage.csv_store import read_csv, write_csv
 from src.data_sources.akshare_options import fetch_option_realtime_months
-from src.core.calendar import trading_days_from_index
+from src.core.calendar import current_realtime_trade_date, merged_trading_days
 from src.core.realtime_avix import calculate_realtime_avix
 
 
-def latest_trade_date(index_history: pd.DataFrame) -> str:
-    hs = index_history[index_history["symbol"] == "sh000300"].copy()
-    return str(hs.sort_values("date").iloc[-1]["date"])
+os.environ.setdefault("NO_PROXY", "*")
 
 
 def latest_clean_avix(trade_date: str) -> float | None:
@@ -35,19 +34,19 @@ def main() -> None:
     if index_history.empty or rates.empty:
         raise SystemExit("index_history.csv and rate_curve_history.csv are required")
 
-    trade_date = latest_trade_date(index_history)
+    hs = index_history[index_history["symbol"] == "sh000300"].copy()
+    trade_date = current_realtime_trade_date(hs)
     raw, manifest = fetch_option_realtime_months()
     if not raw.empty:
         write_csv(raw, RAW / "option_realtime" / f"{trade_date}.csv")
     if not manifest.empty:
         write_csv(manifest, RAW / "option_realtime" / "fetch_manifest.csv")
 
-    hs = index_history[index_history["symbol"] == "sh000300"]
     chain, result = calculate_realtime_avix(
         raw,
         rates,
         trade_date,
-        set(trading_days_from_index(hs)),
+        set(merged_trading_days(hs)),
         close_avix=latest_clean_avix(trade_date),
         fetch_manifest=manifest,
     )
