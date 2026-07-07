@@ -21,11 +21,11 @@
       </section>
       <section>
         <h2>Quality Rules</h2>
-        <p>期权链不足、无法夹住 30 天、Shibor 过期、QVIX 缺失、全 A 宽度缺失、实时链缺失都会写入 quality。缺失源不会被静默当成正常数据；温度可在降级质量下继续生成，但页面和 audit 会显示对应 WARN/LOW。</p>
+        <p>期权链不足、无法夹住 30 天、Shibor 过期、QVIX 缺失、全 A 宽度缺失、实时链缺失都会写入 quality。缺失源不会被静默当成正常数据；温度可在降级质量下继续生成，但页面和 audit 会显示对应 WARN/LOW，并用模型置信度单独标记当前温度的输入完整度。</p>
       </section>
       <section>
         <h2>Data Limits</h2>
-        <p>免费源缺少历史 bid/ask、结算价和历史持仓量，因此历史序列称为 <code>AVIX_CLOSE_REPLICA</code>，不声称复刻官方指数。数据源失败时不会静默覆盖旧数据，输出会降级 quality。</p>
+        <p>免费源缺少历史 bid/ask、结算价和历史持仓量，因此历史序列称为 <code>AVIX_CLOSE_REPLICA</code>，不声称复刻官方指数。真实全 A 宽度源失败时，系统只会使用宽基指数参与度作为代理，并标记 <code>WARN_BREADTH_PROXY</code>、降低模型置信度；不会把代理宽度当成真实股票宽度。</p>
       </section>
       <section>
         <h2>Temperature Zones</h2>

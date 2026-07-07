@@ -1,6 +1,7 @@
 from __future__ import annotations
 import numpy as np
 import pandas as pd
+from src.core.breadth import compute_index_breadth_proxy
 from src.utils.quality import clip, merge_quality
 
 WEIGHTS = {
@@ -69,6 +70,41 @@ def compute_turnover(index_history: pd.DataFrame) -> pd.DataFrame:
     hs["turnover_stress"] = hs["volume_ratio_20"].map(lambda x: clip((x - 0.8) / 1.2 * 100) if pd.notna(x) else 50)
     return hs[["date", "volume_ratio_20", "turnover_stress"]].rename(columns={"date": "trade_date"})
 
+
+def _model_confidence(row: pd.Series) -> tuple[float, str]:
+    available_weight = 0.0
+    missing = []
+    avix_quality = str(row.get("avix_quality", ""))
+    if pd.notna(row.get("avix_clean")) and not avix_quality.startswith("LOW") and not avix_quality.startswith("BAD"):
+        available_weight += WEIGHTS["avix_percentile_2y"] + WEIGHTS["avix_zscore_1y"] + WEIGHTS["avix_5d_change"]
+    else:
+        missing.append("AVIX")
+    if pd.notna(row.get("qvix_close")):
+        available_weight += WEIGHTS["qvix_confirmation"]
+    else:
+        missing.append("QVIX")
+    if pd.notna(row.get("realized_vol_percentile")):
+        available_weight += WEIGHTS["realized_vol_percentile"]
+    else:
+        missing.append("REALIZED_VOL")
+    if pd.notna(row.get("drawdown_pressure")):
+        available_weight += WEIGHTS["drawdown_pressure"]
+    else:
+        missing.append("DRAWDOWN")
+    breadth_quality = str(row.get("breadth_quality", ""))
+    if pd.notna(row.get("breadth_pressure")):
+        uses_proxy = "WARN_BREADTH_PROXY" in breadth_quality
+        available_weight += WEIGHTS["market_breadth_pressure"] * (0.6 if uses_proxy else 1.0)
+        if uses_proxy:
+            missing.append("STOCK_BREADTH")
+    else:
+        missing.append("BREADTH")
+    if pd.notna(row.get("turnover_stress")):
+        available_weight += WEIGHTS["turnover_stress"]
+    else:
+        missing.append("TURNOVER")
+    return round(clip(available_weight * 100), 1), "|".join(missing)
+
 def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataFrame, realized: pd.DataFrame, drawdown: pd.DataFrame, breadth: pd.DataFrame, index_history: pd.DataFrame) -> pd.DataFrame:
     if avix_clean.empty and index_history.empty:
         return pd.DataFrame()
@@ -86,8 +122,23 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
     df["avix_zscore_1y"] = z.map(lambda x: clip(50 + 20 * x) if pd.notna(x) else 50)
     chg5 = df["avix_clean"] / df["avix_clean"].shift(5) - 1
     df["avix_5d_change"] = chg5.map(lambda x: clip(50 + 200 * x) if pd.notna(x) else 50)
-    for extra in [qvix_validation[["trade_date", "qvix_confirmation", "qvix_close", "quality"]] if not qvix_validation.empty else pd.DataFrame(),
-                  realized, drawdown, breadth, compute_turnover(index_history)]:
+    breadth_for_merge = breadth.copy() if not breadth.empty else pd.DataFrame()
+    if not breadth_for_merge.empty and "quality" in breadth_for_merge.columns:
+        breadth_for_merge = breadth_for_merge.rename(columns={"quality": "breadth_quality"})
+    proxy_breadth = compute_index_breadth_proxy(index_history)
+    if not proxy_breadth.empty:
+        if "quality" in proxy_breadth.columns:
+            proxy_breadth = proxy_breadth.rename(columns={"quality": "breadth_quality"})
+        if breadth_for_merge.empty:
+            breadth_for_merge = proxy_breadth
+        else:
+            breadth_for_merge = (
+                pd.concat([proxy_breadth, breadth_for_merge], ignore_index=True)
+                .drop_duplicates("trade_date", keep="last")
+                .sort_values("trade_date")
+            )
+    qvix_for_merge = qvix_validation[["trade_date", "qvix_confirmation", "qvix_close", "quality"]].rename(columns={"quality": "qvix_quality"}) if not qvix_validation.empty else pd.DataFrame()
+    for extra in [qvix_for_merge, realized, drawdown, breadth_for_merge, compute_turnover(index_history)]:
         if not extra.empty:
             df = df.merge(extra, on="trade_date", how="left", suffixes=("", "_extra"))
     df["qvix_confirmation"] = df["qvix_confirmation"].fillna(50)
@@ -101,11 +152,14 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
     df["regime"] = regimes.map(lambda x: x[0])
     df["regime_cn"] = regimes.map(lambda x: x[1])
     def q(row):
-        flags = [avix_quality, row.get("avix_quality"), row.get("quality")]
+        flags = [avix_quality, row.get("avix_quality"), row.get("qvix_quality"), row.get("breadth_quality")]
         if pd.isna(row.get("qvix_close", np.nan)):
             flags.append("WARN_QVIX_MISSING")
         if pd.isna(row.get("breadth_pressure", np.nan)):
             flags.append("WARN_BREADTH_MISSING")
         return merge_quality([f for f in flags if isinstance(f, str)])
     df["quality"] = df.apply(q, axis=1)
+    confidence = df.apply(_model_confidence, axis=1)
+    df["model_confidence"] = confidence.map(lambda x: x[0])
+    df["model_missing_components"] = confidence.map(lambda x: x[1])
     return df

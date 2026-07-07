@@ -60,6 +60,50 @@ def _latest_component_summary(comps: dict) -> dict:
     }
 
 
+def _model_confidence_summary(row: pd.Series, quality: str) -> dict:
+    confidence = row.get("model_confidence")
+    missing = row.get("model_missing_components")
+    if confidence is None or pd.isna(confidence):
+        flags = str(quality or "").split("|")
+        confidence = 100.0
+        if any("QVIX" in f for f in flags):
+            confidence -= 12.0
+        if any("BREADTH_MISSING" in f for f in flags):
+            confidence -= 10.0
+        if any("BREADTH_PROXY" in f for f in flags):
+            confidence -= 4.0
+        if any("AVIX" in f and ("LOW" in f or "BAD" in f) for f in flags):
+            confidence -= 50.0
+        missing = "|".join(
+            part for part, present in [
+                ("QVIX", any("QVIX" in f for f in flags)),
+                ("BREADTH", any("BREADTH_MISSING" in f for f in flags)),
+                ("STOCK_BREADTH", any("BREADTH_PROXY" in f for f in flags)),
+            ] if present
+        )
+    confidence = max(0.0, min(100.0, float(confidence)))
+    if confidence >= 90:
+        grade = "HIGH"
+    elif confidence >= 75:
+        grade = "MEDIUM"
+    else:
+        grade = "LOW"
+    return {
+        "score": finite(confidence),
+        "grade": grade,
+        "missing_components": "" if pd.isna(missing) else str(missing or ""),
+    }
+
+
+def _confidence_label(confidence: dict) -> str:
+    score = confidence.get("score")
+    grade = confidence.get("grade")
+    if score is None:
+        return "--"
+    grade_cn = {"HIGH": "高", "MEDIUM": "中", "LOW": "低"}.get(str(grade), str(grade))
+    return f"{score:.1f} / {grade_cn}"
+
+
 def _active_view(risk: pd.DataFrame, realtime: pd.DataFrame | None):
     official = risk.sort_values("trade_date").iloc[-1]
     nowcast = realtime_nowcast_payload(risk, realtime)
@@ -81,6 +125,7 @@ def latest_payload(risk: pd.DataFrame, avix_raw: pd.DataFrame, realtime: pd.Data
     regime_cn = nowcast["regime_cn"] if nowcast else row.regime_cn
     quality = nowcast["quality"] if nowcast else row.quality
     trade_date = nowcast["trade_date"] if nowcast else row.trade_date
+    confidence = _model_confidence_summary(row, quality)
     return {
         "trade_date": trade_date,
         "update_time": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
@@ -88,6 +133,8 @@ def latest_payload(risk: pd.DataFrame, avix_raw: pd.DataFrame, realtime: pd.Data
         "regime": regime,
         "regime_cn": regime_cn,
         "quality": quality,
+        "model_confidence": confidence,
+        "model_confidence_label": _confidence_label(confidence),
         "temperature_mode": "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
         "temperature_mode_cn": "盘中估算" if nowcast else "收盘正式",
         "is_final": nowcast is None,
@@ -117,6 +164,7 @@ def latest_payload(risk: pd.DataFrame, avix_raw: pd.DataFrame, realtime: pd.Data
             "regime": row.regime,
             "regime_cn": row.regime_cn,
             "quality": row.quality,
+            "model_confidence": _model_confidence_summary(row, row.quality),
         },
         "nowcast": None if nowcast is None else {
             "trade_date": nowcast["trade_date"],
@@ -145,6 +193,7 @@ def history_payload(risk: pd.DataFrame, max_points: int = 900) -> list[dict]:
         "hs300_close": finite(getattr(r, "sh000300_close", None)),
         "drawdown_pressure": finite(getattr(r, "drawdown_pressure", None)),
         "breadth_pressure": finite(getattr(r, "market_breadth_pressure", None)),
+        "model_confidence": finite(getattr(r, "model_confidence", None)),
     } for r in out.itertuples()]
 
 
@@ -204,6 +253,7 @@ def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None) -> d
             "baseline_trade_date": nowcast["baseline_trade_date"],
             "method": nowcast["method"],
         },
+        "model_confidence": _model_confidence_summary(row, nowcast["quality"] if nowcast else row.quality),
         "warnings": sorted(set(warnings)),
         "last_successful_update": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
     }

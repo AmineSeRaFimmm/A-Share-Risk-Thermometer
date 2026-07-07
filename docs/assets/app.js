@@ -34,6 +34,7 @@ function appendMetaItem(label, id) {
 
 function ensureRealtimeMeta() {
   appendMetaItem('温度口径', 'temperatureMode');
+  appendMetaItem('模型置信度', 'modelConfidence');
   appendMetaItem('实时AVIX', 'realtimeAvix');
   appendMetaItem('实时质量', 'realtimeAvixQuality');
 }
@@ -55,6 +56,7 @@ function renderRealtimeAvix(avix) {
 }
 
 function renderLatest(latest) {
+  ensureRealtimeMeta();
   setText('riskTemperature', latest.risk_temperature);
   setText('regime', latest.regime_cn);
   const modeLabel = latest.temperature_mode_cn || (latest.is_final === false ? '盘中估算' : '收盘正式');
@@ -62,6 +64,13 @@ function renderLatest(latest) {
   qualityEl.textContent = modeLabel;
   qualityEl.title = latest.quality || modeLabel;
   setText('temperatureMode', modeLabel);
+  setText('modelConfidence', latest.model_confidence_label || '--');
+  const confidenceEl = document.getElementById('modelConfidence');
+  if (confidenceEl) {
+    const confidence = latest.model_confidence || {};
+    confidenceEl.title = confidence.missing_components ? `缺失或降级: ${confidence.missing_components}` : '主要模型输入完整';
+    confidenceEl.dataset.grade = (confidence.grade || '').toLowerCase();
+  }
   setText('tradeDate', latest.trade_date);
   const update = latest.update_time ? new Date(latest.update_time).toLocaleString('zh-CN', { hour12: false }) : '--';
   setText('updateTime', update);
@@ -86,6 +95,13 @@ function renderAudit(audit) {
   grid.innerHTML = Object.entries(audit.data_health || {}).map(([key, value]) => (
     `<div class="health-item"><span>${labels[key] || key}</span><strong>${value}</strong></div>`
   )).join('');
+  const confidence = audit.model_confidence || {};
+  if (confidence.score !== undefined && confidence.score !== null) {
+    const gradeLabel = { HIGH: '高', MEDIUM: '中', LOW: '低' }[confidence.grade] || confidence.grade || '--';
+    grid.insertAdjacentHTML('beforeend',
+      `<div class="health-item"><span>模型置信度</span><strong>${Number(confidence.score).toFixed(1)} / ${gradeLabel}</strong></div>`
+    );
+  }
 }
 
 function formatPct(value) {

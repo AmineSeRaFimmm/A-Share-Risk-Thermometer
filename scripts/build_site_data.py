@@ -36,6 +36,7 @@ def main() -> None:
         "avix_realtime": "AVIX_REALTIME_MID uses bid/ask midpoint when available.",
         "qvix_role": "QVIX is validation and confirmation only.",
         "weights": "Weights are configured in config/scoring.yml.",
+        "model_confidence": "model_confidence scores input completeness separately from risk_temperature; proxy breadth is discounted and flagged.",
         "limitations": ["No historical bid/ask", "No historical settlement price", "No historical open interest", "Free sources may fail or change"],
     }, SITE / "methodology.json")
     if DOCS.exists():

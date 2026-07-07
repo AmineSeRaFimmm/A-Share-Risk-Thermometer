@@ -102,6 +102,9 @@ article, .health-panel, .content-page {
 .quality { background: #eef2ff; color: #3730a3; }
 .meta-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 0; }
 dd { margin: 4px 0 0; font-weight: 700; color: #344054; overflow-wrap: anywhere; line-height: 1.25; }
+dd[data-grade="high"] { color: var(--green); }
+dd[data-grade="medium"] { color: var(--amber); }
+dd[data-grade="low"] { color: var(--red); }
 
 .explain-panel h1 { margin: 0 0 16px; font-size: clamp(24px, 3vw, 38px); line-height: 1.1; }
 .explain-panel p { color: #475467; line-height: 1.7; margin: 0; }

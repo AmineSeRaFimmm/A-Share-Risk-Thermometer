@@ -15,6 +15,45 @@ def compute_breadth_pressure(breadth_history: pd.DataFrame) -> pd.DataFrame:
     )
     return df[["trade_date", "advancing_ratio", "decline_ratio", "big_down_ratio", "limit_down_ratio", "breadth_pressure", "quality"]]
 
+
+def compute_index_breadth_proxy(index_history: pd.DataFrame) -> pd.DataFrame:
+    """Fallback breadth proxy from broad index participation.
+
+    This is deliberately marked as a proxy because it is not stock-level A-share
+    breadth. It is still better than silently treating missing breadth as neutral.
+    """
+    if index_history.empty or not {"date", "symbol", "close"}.issubset(index_history.columns):
+        return pd.DataFrame()
+    work = index_history[["date", "symbol", "close"]].copy()
+    work["trade_date"] = pd.to_datetime(work["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+    work["close"] = pd.to_numeric(work["close"], errors="coerce")
+    work = work.dropna(subset=["trade_date", "symbol", "close"]).sort_values(["symbol", "trade_date"])
+    work["ret1"] = work.groupby("symbol")["close"].pct_change()
+    rows = []
+    for trade_date, day in work.dropna(subset=["ret1"]).groupby("trade_date"):
+        valid = day["ret1"].dropna()
+        if len(valid) < 3:
+            continue
+        advancing_ratio = float((valid > 0).mean())
+        decline_ratio = float((valid < 0).mean())
+        big_down_ratio = float((valid <= -0.03).mean())
+        limit_down_ratio = float((valid <= -0.06).mean())
+        breadth_pressure = (
+            50 * (1 - advancing_ratio)
+            + 30 * clip(big_down_ratio / 0.50, 0, 1)
+            + 20 * clip(limit_down_ratio / 0.30, 0, 1)
+        )
+        rows.append({
+            "trade_date": trade_date,
+            "advancing_ratio": advancing_ratio,
+            "decline_ratio": decline_ratio,
+            "big_down_ratio": big_down_ratio,
+            "limit_down_ratio": limit_down_ratio,
+            "breadth_pressure": float(breadth_pressure),
+            "quality": "WARN_BREADTH_PROXY",
+        })
+    return pd.DataFrame(rows)
+
 def drop_legacy_synthetic_breadth(df: pd.DataFrame) -> pd.DataFrame:
     if df.empty:
         return df

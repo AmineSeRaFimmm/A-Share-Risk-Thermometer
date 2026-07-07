@@ -280,7 +280,13 @@ def calculate_all(master: pd.DataFrame, option_frames: list[pd.DataFrame], index
     breadth = compute_breadth_pressure(breadth_hist)
     components = compute_risk_temperature(clean, qv, realized, drawdown, breadth, index_history)
     write_csv(components, CALCULATED / "risk_components.csv")
-    write_csv(components[["trade_date", "risk_temperature", "regime", "regime_cn", "quality"]], CALCULATED / "risk_temperature.csv")
+    write_csv(
+        components[[
+            "trade_date", "risk_temperature", "regime", "regime_cn",
+            "quality", "model_confidence", "model_missing_components",
+        ]],
+        CALCULATED / "risk_temperature.csv",
+    )
     audit = pd.DataFrame([{"trade_date": components["trade_date"].iloc[-1], "event": "bootstrap_history", "quality": components["quality"].iloc[-1], "time": now_cn().isoformat(timespec="seconds")}]) if not components.empty else pd.DataFrame()
     write_csv(audit, CALCULATED / "audit_log.csv")
     return components
