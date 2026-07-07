@@ -13,12 +13,12 @@
     "quality": "OK",
     "usable": true,
     "note": "normal two-term interpolation",
-    "avix_mid": 22.7908
+    "avix_mid": 22.3259
   },
   "nowcast": {
     "active": true,
     "quality": "OK_NOWCAST|WARN_BREADTH_MISSING|WARN_QVIX_MISSING",
-    "risk_temperature": 68.3,
+    "risk_temperature": 66.9,
     "baseline_trade_date": "2026-07-02",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
@@ -27,5 +27,5 @@
     "WARN_BREADTH_MISSING",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-07T14:17:37+08:00"
+  "last_successful_update": "2026-07-07T14:40:16+08:00"
 }
