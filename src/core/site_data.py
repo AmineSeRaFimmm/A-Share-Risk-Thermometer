@@ -3,6 +3,7 @@ import math
 import pandas as pd
 from src.core.risk_temperature import WEIGHTS, interpretation
 from src.core.realtime_risk_temperature import realtime_nowcast_payload
+from src.core.strategy_s3_s4 import latest_strategy_payload
 
 
 def finite(v):
@@ -206,3 +207,7 @@ def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None) -> d
         "warnings": sorted(set(warnings)),
         "last_successful_update": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
     }
+
+
+def strategy_payload(strategy: pd.DataFrame) -> dict:
+    return latest_strategy_payload(strategy)

@@ -88,15 +88,49 @@ function renderAudit(audit) {
   )).join('');
 }
 
+function formatPct(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? (numeric * 100).toFixed(2) + '%' : '--';
+}
+
+function renderStrategy(strategy) {
+  const payload = strategy || {};
+  const latest = payload.latest || {};
+  const position = payload.position || {};
+  const rules = payload.rules || {};
+  setText('strategyMode', rules.mode || payload.status || '--');
+  setText('strategyPosition', position.s3_s4 || '--');
+  setText('strategyTradeDate', latest.trade_date || '--');
+  const execution = latest.execution_trade_date
+    ? `${latest.execution_trade_date} / ${latest.execution_sse_open ?? '--'}`
+    : '--';
+  setText('strategyExecution', execution);
+
+  const signalBox = document.getElementById('strategySignals');
+  if (!signalBox) return;
+  const items = [
+    ['S3', latest.s3_signal, latest.s3_buy, latest.s3_sell, latest.s3_sell_reason],
+    ['S4', latest.s4_signal, latest.s4_buy, latest.s4_sell, latest.s4_sell_reason],
+    ['S3+S4', latest.s3_s4_signal, latest.s3_s4_buy, latest.s3_s4_sell, latest.s3_s4_sell_reason]
+  ];
+  signalBox.innerHTML = items.map(([name, signal, buy, sell, reason]) => {
+    const action = buy ? 'BUY' : sell ? 'SELL' : signal ? 'WATCH' : 'NONE';
+    const detail = sell && reason ? reason : `AVIX ${latest.avix ?? '--'} / 10日 ${formatPct(latest.sse_ret10)}`;
+    return `<div class="strategy-card" data-action="${action.toLowerCase()}"><span>${name}</span><strong>${action}</strong><em>${detail}</em></div>`;
+  }).join('');
+}
+
 async function main() {
-  const [latest, history, components, audit] = await Promise.all([
+  const [latest, history, components, audit, strategy] = await Promise.all([
     loadJSON('./data/latest.json'),
     loadJSON('./data/history.json'),
     loadJSON('./data/components.json'),
-    loadJSON('./data/audit.json')
+    loadJSON('./data/audit.json'),
+    loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' }))
   ]);
   renderLatest(latest);
   renderAudit(audit);
+  renderStrategy(strategy);
   const charts = [
     renderComponentsChart(components),
     renderHistoryChart(history),

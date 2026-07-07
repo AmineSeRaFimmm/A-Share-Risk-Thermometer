@@ -65,6 +65,29 @@
         </article>
       </section>
 
+      <section class="strategy-panel" aria-label="S3/S4策略信号">
+        <div class="section-head">
+          <h2>S3 / S4 策略信号</h2>
+          <span id="strategyMode">OFFICIAL_CLOSE</span>
+        </div>
+        <div class="strategy-grid">
+          <div class="strategy-state">
+            <span>组合状态</span>
+            <strong id="strategyPosition">--</strong>
+          </div>
+          <div class="strategy-state">
+            <span>最近信号日</span>
+            <strong id="strategyTradeDate">--</strong>
+          </div>
+          <div class="strategy-state">
+            <span>执行日开盘</span>
+            <strong id="strategyExecution">--</strong>
+          </div>
+        </div>
+        <div class="strategy-signals" id="strategySignals"></div>
+        <p class="strategy-note" id="strategyNote">S3/S4 使用收盘正式数据确认，盘中风险温度不改写正式信号。</p>
+      </section>
+
       <section class="chart-grid">
         <article class="chart-panel">
           <div class="section-head">
