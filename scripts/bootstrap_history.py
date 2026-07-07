@@ -19,7 +19,7 @@ from src.data_sources.akshare_options import fetch_option_daily, fetch_option_re
 from src.data_sources.akshare_qvix import fetch_qvix
 from src.data_sources.akshare_breadth import fetch_a_breadth_snapshot, summarize_breadth
 from src.data_sources.shibor import fetch_shibor
-from src.core.calendar import trading_days_from_index
+from src.core.calendar import current_realtime_trade_date, merged_trading_days, trading_days_from_index
 from src.core.contracts import build_contract_master
 from src.core.option_chain import build_daily_option_chain
 from src.core.avix_formula import calculate_avix_for_date
@@ -188,10 +188,11 @@ def fetch_options(index_history: pd.DataFrame, recent_days: int | None, full: bo
     return master, frames
 
 def calculate_all(master: pd.DataFrame, option_frames: list[pd.DataFrame], index_history: pd.DataFrame) -> pd.DataFrame:
-    trading_days = set(trading_days_from_index(index_history[index_history["symbol"] == "sh000300"]))
+    hs300_history = index_history[index_history["symbol"] == "sh000300"].copy()
+    trading_days = set(trading_days_from_index(hs300_history))
     chain = build_daily_option_chain(master, option_frames, trading_days)
     write_csv(chain, NORMALIZED / "daily_option_chain.csv")
-    dates = sorted(chain["trade_date"].unique().tolist()) if not chain.empty else sorted(index_history[index_history["symbol"] == "sh000300"]["date"].unique().tolist())
+    dates = sorted(chain["trade_date"].unique().tolist()) if not chain.empty else sorted(hs300_history["date"].unique().tolist())
     try:
         rates = fetch_shibor()
     except Exception as exc:  # noqa: BLE001
@@ -203,16 +204,21 @@ def calculate_all(master: pd.DataFrame, option_frames: list[pd.DataFrame], index
             raise RuntimeError("No Shibor data available; source failed and no cached rate curve exists")
         print("WARN Shibor source unavailable; using cached rate curve")
     write_csv(rates, NORMALIZED / "rate_curve_history.csv")
-    latest_trade_date = dates[-1] if dates else None
-    if latest_trade_date:
+    realtime_trade_date = current_realtime_trade_date(hs300_history)
+    if realtime_trade_date:
         try:
             realtime_raw = fetch_option_realtime("io")
         except Exception as exc:  # noqa: BLE001
             print(f"WARN realtime option fetch failed: {exc}")
             realtime_raw = pd.DataFrame()
         if not realtime_raw.empty:
-            write_csv(realtime_raw, RAW / "option_realtime" / f"{latest_trade_date}.csv")
-        realtime_chain, realtime_avix = calculate_realtime_avix(realtime_raw, rates, latest_trade_date, trading_days)
+            write_csv(realtime_raw, RAW / "option_realtime" / f"{realtime_trade_date}.csv")
+        realtime_chain, realtime_avix = calculate_realtime_avix(
+            realtime_raw,
+            rates,
+            realtime_trade_date,
+            set(merged_trading_days(hs300_history)),
+        )
         if not realtime_chain.empty:
             write_csv(realtime_chain, NORMALIZED / "realtime_option_chain.csv")
         write_csv(realtime_avix, CALCULATED / "avix_realtime_mid.csv")
