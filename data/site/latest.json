@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-07-07",
-  "update_time": "2026-07-07T19:26:23+08:00",
+  "update_time": "2026-07-07T20:24:22+08:00",
   "risk_temperature": 69.6,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
@@ -64,7 +64,7 @@
     "baseline_trade_date": "2026-07-02",
     "official_risk_temperature": 75.4,
     "realtime_avix": 22.4364,
-    "realtime_valuation_time": "2026-07-07T19:22:56+08:00",
+    "realtime_valuation_time": "2026-07-07T20:20:41+08:00",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
   "interpretation": {
