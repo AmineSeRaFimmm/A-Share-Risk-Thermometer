@@ -12,6 +12,18 @@ function numericOrNull(value) {
   return Number.isFinite(numeric) ? numeric : null;
 }
 
+function paddedAxisRange(values, padding = 0.06) {
+  const nums = values.map(numericOrNull).filter(Number.isFinite);
+  if (!nums.length) return {};
+  const low = Math.min(...nums);
+  const high = Math.max(...nums);
+  const span = Math.max(high - low, high * 0.02, 1);
+  return {
+    min: Math.floor(low - span * padding),
+    max: Math.ceil(high + span * padding),
+  };
+}
+
 function positiveOrNull(value) {
   if (value === null || value === undefined || value === '') return null;
   const numeric = Number(value);
@@ -192,20 +204,26 @@ function renderAvixQvixChart(history, strategy) {
 
 function renderHs300Chart(history) {
   const chart = echarts.init(document.getElementById('hs300Chart'));
+  const hs300Values = history.map(d => numericOrNull(d.hs300_close));
+  const hs300Axis = paddedAxisRange(hs300Values);
   chart.setOption({
     tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'cross' }, formatter: sharedTooltip },
     legend: { top: 0, textStyle: axisText() },
-    grid: [{ left: isNarrow() ? 38 : 48, right: isNarrow() ? 12 : 48, top: 36, height: '38%' }, { left: isNarrow() ? 38 : 48, right: isNarrow() ? 12 : 48, bottom: 34, height: '32%' }],
-    xAxis: [{ type: 'category', data: history.map(d => d.date), axisLabel: { show: false }, boundaryGap: false }, { type: 'category', gridIndex: 1, data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false }],
-    yAxis: [{ type: 'value', axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } }, { type: 'value', gridIndex: 1, min: 0, max: 100, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } }],
+    grid: { left: isNarrow() ? 42 : 54, right: isNarrow() ? 42 : 56, top: 36, bottom: 34 },
+    xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false },
+    yAxis: [
+      { type: 'value', name: '沪深300', min: hs300Axis.min, max: hs300Axis.max, scale: true, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
+      { type: 'value', name: '温度', min: 0, max: 100, axisLabel: axisText(), splitLine: { show: false } }
+    ],
     series: [
-      { name: 'HS300 Close', type: 'line', symbol: 'none', data: history.map(d => numericOrNull(d.hs300_close)), lineStyle: { color: '#111827', width: 2 } },
+      { name: 'HS300 Close', type: 'line', symbol: 'none', smooth: true, connectNulls: false, data: hs300Values, lineStyle: { color: '#111827', width: 2.4 } },
       {
         name: 'Risk Temperature',
         type: 'line',
-        xAxisIndex: 1,
         yAxisIndex: 1,
         symbol: 'none',
+        smooth: true,
+        connectNulls: false,
         data: history.map(d => numericOrNull(d.risk_temperature)),
         lineStyle: { color: '#c2413b', width: 2 },
         markArea: { silent: true, itemStyle: { opacity: 0.08 }, data: [[{ yAxis: 60 }, { yAxis: 75 }], [{ yAxis: 75 }, { yAxis: 90 }], [{ yAxis: 90 }, { yAxis: 100 }]] },

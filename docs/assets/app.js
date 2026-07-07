@@ -158,7 +158,7 @@ function appendNowcastHistory(history, latest) {
 
 function filterHistoryByRange(history, range) {
   if (!history?.length || range === 'ALL') return history || [];
-  const months = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12 }[range] || 12;
+  const months = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '3Y': 36 }[range] || 12;
   const last = new Date(history[history.length - 1].date + 'T00:00:00');
   const cutoff = new Date(last);
   cutoff.setMonth(cutoff.getMonth() - months);
