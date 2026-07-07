@@ -1,7 +1,7 @@
 {
   "trade_date": "2026-07-07",
-  "update_time": "2026-07-07T15:30:06+08:00",
-  "risk_temperature": 68.3,
+  "update_time": "2026-07-07T16:31:50+08:00",
+  "risk_temperature": 68.7,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
   "quality": "OK_NOWCAST|WARN_BREADTH_PROXY|WARN_QVIX_MISSING",
@@ -15,9 +15,9 @@
   "temperature_mode_cn": "盘中估算",
   "is_final": false,
   "components": {
-    "avix_percentile_2y": 84.5238,
-    "avix_zscore_1y": 83.4608,
-    "avix_5d_change": 40.1767,
+    "avix_percentile_2y": 84.9206,
+    "avix_zscore_1y": 84.7138,
+    "avix_5d_change": 41.3347,
     "qvix_confirmation": 50.0,
     "realized_vol": 91.6667,
     "drawdown_pressure": 43.6275,
@@ -35,12 +35,12 @@
   "avix": {
     "avix_clean_close": 24.3304,
     "avix_raw_close": 24.3304,
-    "avix_realtime_mid": 22.3006,
+    "avix_realtime_mid": 22.4364,
     "avix_realtime_quality": "OK",
     "avix_realtime_note": "normal two-term interpolation",
     "avix_realtime_usable": true,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-    "avix_percentile_2y": 0.8452,
+    "avix_percentile_2y": 0.8492,
     "quality": "OK"
   },
   "official_close": {
@@ -57,19 +57,19 @@
   },
   "nowcast": {
     "trade_date": "2026-07-07",
-    "risk_temperature": 68.3,
+    "risk_temperature": 68.7,
     "regime": "HIGH_RISK",
     "regime_cn": "高风险",
     "quality": "OK_NOWCAST|WARN_BREADTH_PROXY|WARN_QVIX_MISSING",
     "baseline_trade_date": "2026-07-02",
     "official_risk_temperature": 74.5,
-    "realtime_avix": 22.3006,
-    "realtime_valuation_time": "2026-07-07T11:00:24+08:00",
+    "realtime_avix": 22.4364,
+    "realtime_valuation_time": "2026-07-07T16:31:50+08:00",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
   "interpretation": {
-    "headline": "市场风险温度 68.3，处于高风险",
-    "summary": "实现波动率、AVIX两年分位、AVIX异常程度是当前风险温度的主要驱动；多因子合成后给出 68.3/100。",
+    "headline": "市场风险温度 68.7，处于高风险",
+    "summary": "实现波动率、AVIX两年分位、AVIX异常程度是当前风险温度的主要驱动；多因子合成后给出 68.7/100。",
     "posture": "防守 + 等待风险释放",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
