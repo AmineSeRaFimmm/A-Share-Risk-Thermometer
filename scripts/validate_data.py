@@ -42,11 +42,13 @@ def main() -> None:
         require("WARN_NOT_BRACKET_30D" not in latest_avix_quality, "latest AVIX must use a bracketed/exact 30D term")
     qvix = pd.read_csv(CALCULATED / "qvix_validation.csv")
     required_qvix = {
-        "trade_date", "avix_clean", "qvix_close", "avix_change_1d", "qvix_change_1d",
+        "trade_date", "avix_clean", "qvix_close", "qvix_replica", "qvix_replica_quality",
+        "qvix_replica_method", "avix_change_1d", "qvix_change_1d",
         "direction_match", "spread", "spread_zscore_252", "rolling_corr_60",
         "rolling_corr_120", "extreme_match", "qvix_confirmation", "quality",
     }
     require(required_qvix.issubset(qvix.columns), "qvix_validation.csv missing required validation columns")
+    require(qvix["qvix_replica"].dropna().gt(0).all(), "qvix_replica must be positive when present")
     rates = pd.read_csv("data/normalized/rate_curve_history.csv")
     require(set([7, 14, 30, 90, 180, 365]).issubset(set(rates["tenor_days"].dropna().astype(int))), "Shibor curve missing required tenors")
     require(not rates["source"].astype(str).str.contains("FALLBACK|SYNTHETIC", case=False, regex=True).any(), "rate curve contains fallback/synthetic source")

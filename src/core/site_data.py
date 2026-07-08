@@ -190,6 +190,8 @@ def history_payload(risk: pd.DataFrame, max_points: int = 900) -> list[dict]:
         "regime": r.regime,
         "avix_clean": finite(getattr(r, "avix_clean", None)),
         "qvix": finite(getattr(r, "qvix_close", None)),
+        "qvix_replica": finite(getattr(r, "qvix_replica", None)),
+        "qvix_replica_quality": getattr(r, "qvix_replica_quality", None),
         "hs300_close": finite(getattr(r, "sh000300_close", None)),
         "drawdown_pressure": finite(getattr(r, "drawdown_pressure", None)),
         "breadth_pressure": finite(getattr(r, "market_breadth_pressure", None)),

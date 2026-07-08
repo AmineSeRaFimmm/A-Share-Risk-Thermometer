@@ -196,6 +196,15 @@ function renderAvixQvixChart(history, strategy) {
         connectNulls: false,
         data: history.map(d => positiveOrNull(d.qvix)),
         lineStyle: { color: '#2563eb', width: 2 }
+      },
+      {
+        name: 'QVIX_REPLICA_MODEL',
+        type: 'line',
+        symbol: 'none',
+        smooth: true,
+        connectNulls: false,
+        data: history.map(d => positiveOrNull(d.qvix_replica)),
+        lineStyle: { color: '#15956b', width: 2, type: 'dashed' }
       }
     ]
   });

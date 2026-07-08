@@ -2,6 +2,38 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+REPLICA_WINDOW = 252
+REPLICA_MIN_OBS = 20
+REPLICA_LOW_OBS = 5
+
+
+def _add_qvix_replica(df: pd.DataFrame) -> pd.DataFrame:
+    out = df.copy()
+    out["avix_clean"] = pd.to_numeric(out["avix_clean"], errors="coerce")
+    out["qvix_close"] = pd.to_numeric(out["qvix_close"], errors="coerce")
+    valid_pair = out["avix_clean"].notna() & out["qvix_close"].notna() & out["qvix_close"].gt(0)
+    prior_spread = (out["avix_clean"] - out["qvix_close"]).where(valid_pair).shift(1)
+    basis = prior_spread.rolling(REPLICA_WINDOW, min_periods=REPLICA_LOW_OBS).median()
+    obs_count = prior_spread.rolling(REPLICA_WINDOW, min_periods=1).count().fillna(0).astype(int)
+    out["qvix_replica_basis"] = basis.fillna(0.0)
+    out["qvix_replica_calibration_count"] = obs_count
+    out["qvix_replica"] = (out["avix_clean"] - out["qvix_replica_basis"]).where(out["avix_clean"].notna())
+    out.loc[out["qvix_replica"] <= 0, "qvix_replica"] = np.nan
+    out["qvix_replica_quality"] = np.select(
+        [
+            obs_count >= REPLICA_MIN_OBS,
+            obs_count >= REPLICA_LOW_OBS,
+        ],
+        [
+            "OK_REPLICA_ROLLING_MEDIAN_BASIS",
+            "WARN_REPLICA_LOW_CALIBRATION",
+        ],
+        default="WARN_REPLICA_UNCALIBRATED",
+    )
+    out["qvix_replica_method"] = "AVIX_CLEAN_MINUS_PRIOR_252D_MEDIAN_AVIX_QVIX_SPREAD"
+    return out
+
+
 def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
     if avix_clean.empty:
         return pd.DataFrame()
@@ -18,8 +50,11 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
         av["extreme_match"] = False
         av["qvix_confirmation"] = 50.0
         av["quality"] = "WARN_QVIX_MISSING"
+        av = _add_qvix_replica(av)
         return av[[
-            "trade_date", "avix_clean", "qvix_close", "avix_change_1d", "qvix_change_1d",
+            "trade_date", "avix_clean", "qvix_close", "qvix_replica", "qvix_replica_basis",
+            "qvix_replica_calibration_count", "qvix_replica_quality", "qvix_replica_method",
+            "avix_change_1d", "qvix_change_1d",
             "direction_match", "spread", "spread_zscore_252", "rolling_corr_60",
             "rolling_corr_120", "extreme_match", "qvix_confirmation", "quality",
         ]]
@@ -47,8 +82,11 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
         return 30.0
     df["qvix_confirmation"] = df.apply(score, axis=1)
     df["quality"] = df["qvix_close"].isna().map(lambda missing: "WARN_QVIX_MISSING" if missing else "OK")
+    df = _add_qvix_replica(df)
     return df[[
-        "trade_date", "avix_clean", "qvix_close", "avix_change_1d", "qvix_change_1d",
+        "trade_date", "avix_clean", "qvix_close", "qvix_replica", "qvix_replica_basis",
+        "qvix_replica_calibration_count", "qvix_replica_quality", "qvix_replica_method",
+        "avix_change_1d", "qvix_change_1d",
         "direction_match", "spread", "spread_zscore_252", "rolling_corr_60",
         "rolling_corr_120", "extreme_match", "qvix_confirmation", "quality",
     ]]

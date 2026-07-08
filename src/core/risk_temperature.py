@@ -137,7 +137,12 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
                 .drop_duplicates("trade_date", keep="last")
                 .sort_values("trade_date")
             )
-    qvix_for_merge = qvix_validation[["trade_date", "qvix_confirmation", "qvix_close", "quality"]].rename(columns={"quality": "qvix_quality"}) if not qvix_validation.empty else pd.DataFrame()
+    qvix_cols = [
+        "trade_date", "qvix_confirmation", "qvix_close", "quality",
+        "qvix_replica", "qvix_replica_quality", "qvix_replica_method",
+    ]
+    available_qvix_cols = [col for col in qvix_cols if col in qvix_validation.columns]
+    qvix_for_merge = qvix_validation[available_qvix_cols].rename(columns={"quality": "qvix_quality"}) if not qvix_validation.empty else pd.DataFrame()
     for extra in [qvix_for_merge, realized, drawdown, breadth_for_merge, compute_turnover(index_history)]:
         if not extra.empty:
             df = df.merge(extra, on="trade_date", how="left", suffixes=("", "_extra"))
