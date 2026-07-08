@@ -12,7 +12,7 @@ DOCS = ROOT / "docs"
 def ensure_dirs() -> None:
     for path in [
         RAW / "options_daily", RAW / "option_realtime", RAW / "indices",
-        RAW / "breadth", RAW / "qvix", RAW / "shibor",
+        RAW / "breadth", RAW / "qvix", RAW / "shibor", RAW / "sectors",
         NORMALIZED, CALCULATED, SITE, DOCS
     ]:
         path.mkdir(parents=True, exist_ok=True)

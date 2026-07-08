@@ -9,6 +9,7 @@ const STALE_THRESHOLD_MS = 15 * 60 * 1000;
 const dashboardState = {
   activeRange: '1Y',
   componentChart: null,
+  sectorChart: null,
   timeCharts: [],
   history: [],
   strategy: {},
@@ -196,6 +197,56 @@ function renderStrategy(strategy) {
   }).join('');
 }
 
+function formatCorr(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric.toFixed(3) : '--';
+}
+
+function formatSignedPct(value) {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) return '--';
+  const pct = numeric * 100;
+  return `${pct > 0 ? '+' : ''}${pct.toFixed(2)}%`;
+}
+
+function sectorRow(row, direction) {
+  const tone = direction === 'positive' ? 'positive' : 'negative';
+  return `<div class="sector-item" data-tone="${tone}">
+    <div>
+      <strong>${row.name || '--'}</strong>
+      <span>${row.symbol || '--'} / ${row.strength || '--'} / ${row.stability || '--'} / 样本 ${row.sample_size || '--'}</span>
+    </div>
+    <div class="sector-metrics">
+      <b>${formatCorr(row.corr_temp_fwd_excess)}</b>
+      <em>高风险 ${formatSignedPct(row.high_risk_avg_excess)} / n=${row.high_risk_sample ?? '--'}</em>
+    </div>
+  </div>`;
+}
+
+function renderSectorCorrelation(sector) {
+  const panel = document.querySelector('.sector-panel');
+  if (!panel) return;
+  if (!sector?.rankings) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  setText('sectorAsOf', `申万一级 / ${sector.as_of || '--'} / 近一年5日超额收益`);
+  const positive = sector.rankings.positive || [];
+  const negative = sector.rankings.negative || [];
+  const positiveBox = document.getElementById('sectorPositiveList');
+  const negativeBox = document.getElementById('sectorNegativeList');
+  if (positiveBox) {
+    positiveBox.innerHTML = positive.slice(0, 5).map(row => sectorRow(row, 'positive')).join('');
+  }
+  if (negativeBox) {
+    negativeBox.innerHTML = negative.slice(0, 5).map(row => sectorRow(row, 'negative')).join('');
+  }
+  const oldSectorChart = echarts.getInstanceByDom(document.getElementById('sectorCorrelationChart'));
+  if (oldSectorChart) oldSectorChart.dispose();
+  dashboardState.sectorChart = renderSectorCorrelationChart(sector);
+}
+
 function appendNowcastHistory(history, latest) {
   const rows = [...(history || [])];
   const lastDate = rows.length ? rows[rows.length - 1].date : null;
@@ -264,20 +315,22 @@ function bindRangeControls(onRange) {
 }
 
 async function loadDashboardData() {
-  const [latest, history, components, audit, strategy] = await Promise.all([
+  const [latest, history, components, audit, strategy, sector] = await Promise.all([
     loadJSON('./data/latest.json'),
     loadJSON('./data/history.json'),
     loadJSON('./data/components.json'),
     loadJSON('./data/audit.json'),
-    loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' }))
+    loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' })),
+    loadJSON('./data/sector_correlation.json').catch(() => ({ status: 'missing' }))
   ]);
-  return { latest, history, components, audit, strategy };
+  return { latest, history, components, audit, strategy, sector };
 }
 
-function renderDashboard({ latest, history, components, audit, strategy }) {
+function renderDashboard({ latest, history, components, audit, strategy, sector }) {
   renderLatest(latest);
   renderAudit(audit);
   renderStrategy(strategy);
+  renderSectorCorrelation(sector);
   setText('componentsMode', `${components.temperature_mode || '--'} / ${components.trade_date || '--'}`);
   const componentDom = document.getElementById('componentsChart');
   const oldComponentChart = echarts.getInstanceByDom(componentDom);
@@ -312,6 +365,7 @@ async function main() {
   });
   window.addEventListener('resize', () => {
     dashboardState.componentChart?.resize();
+    dashboardState.sectorChart?.resize();
     dashboardState.timeCharts.forEach(chart => chart.resize());
   });
 }

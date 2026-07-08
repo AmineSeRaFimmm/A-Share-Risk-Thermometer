@@ -10,6 +10,7 @@ from src.storage.csv_store import read_csv
 from src.storage.json_store import write_json
 from src.core.site_data import latest_payload, history_payload, components_payload, audit_payload, strategy_payload
 from src.core.strategy_s3_s4 import build_s3_s4_strategy
+from src.core.sector_correlation import analyze_sector_correlation
 import pandas as pd
 
 def main() -> None:
@@ -29,6 +30,11 @@ def main() -> None:
     write_json(components_payload(risk, realtime), SITE / "components.json")
     write_json(audit_payload(risk, realtime), SITE / "audit.json")
     write_json(strategy_payload(strategy), SITE / "strategy.json")
+    sector_history = read_csv(NORMALIZED / "sw_level1_sector_history.csv")
+    if not sector_history.empty and not index_history.empty:
+        sector_payload = analyze_sector_correlation(risk, sector_history, index_history)
+        write_json(sector_payload, SITE / "sector_correlation.json")
+        pd.DataFrame(sector_payload["metrics"]).to_csv(CALCULATED / "sector_correlation_metrics.csv", index=False)
     write_json({
         "title": "A-Share Risk Thermometer methodology",
         "not_official": True,
@@ -48,7 +54,7 @@ def main() -> None:
         shutil.copy2(path, data_dir / path.name)
     downloads = data_dir / "downloads"
     downloads.mkdir(exist_ok=True)
-    for name in ["risk_temperature.csv", "avix_clean_close.csv", "qvix_validation.csv", "strategy_s3_s4.csv"]:
+    for name in ["risk_temperature.csv", "avix_clean_close.csv", "qvix_validation.csv", "strategy_s3_s4.csv", "sector_correlation_metrics.csv"]:
         src = CALCULATED / name
         if src.exists():
             shutil.copy2(src, downloads / name)

@@ -226,6 +226,47 @@ dd[data-freshness="unknown"] { color: var(--amber); }
 .strategy-card[data-action="sell"] { border-color: #f0a6a2; background: #fff1f2; }
 .strategy-card[data-action="watch"] { border-color: #f3c06f; background: #fffbeb; }
 .strategy-note { margin: 14px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
+.sector-panel { margin-top: 18px; padding: 20px; }
+.sector-relation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 14px;
+}
+.mini-head {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+.sector-list { display: grid; gap: 8px; }
+.sector-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.sector-item strong,
+.sector-item span,
+.sector-metrics b,
+.sector-metrics em { display: block; }
+.sector-item strong { font-size: 14px; }
+.sector-item span,
+.sector-metrics em {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.sector-metrics { text-align: right; min-width: 86px; }
+.sector-metrics b { font-size: 17px; }
+.sector-item[data-tone="positive"] .sector-metrics b { color: var(--green); }
+.sector-item[data-tone="negative"] .sector-metrics b { color: var(--red); }
+.sector-chart { height: 390px; }
 .health-panel { margin-top: 18px; }
 .health-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
 .health-item {
@@ -266,7 +307,7 @@ body.error .page-shell::before {
 
 @media (max-width: 1100px) {
   .summary-grid, .chart-grid { grid-template-columns: 1fr; }
-  .strategy-grid, .strategy-signals { grid-template-columns: 1fr; }
+  .strategy-grid, .strategy-signals, .sector-relation-grid { grid-template-columns: 1fr; }
   .health-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 680px) {
@@ -281,6 +322,7 @@ body.error .page-shell::before {
   .explain-panel,
   .components-panel,
   .chart-panel,
+  .sector-panel,
   .health-panel {
     width: calc(100vw - 48px);
     max-width: calc(100vw - 48px);
@@ -294,4 +336,6 @@ body.error .page-shell::before {
   .range-controls button { flex: 1; min-width: 0; }
   #avixQvixChart,
   #hs300Chart { height: 360px; }
+  .sector-chart { height: 430px; }
+  .sector-item { align-items: flex-start; }
 }

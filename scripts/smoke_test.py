@@ -10,7 +10,7 @@ def main() -> None:
     assert "risk_temperature" in latest
     assert 0 <= latest["risk_temperature"] <= 100
     html = (ROOT / "web/index.html").read_text(encoding="utf-8")
-    for text in ["A股风险温度", "组件贡献", "AVIX", "QVIX", "数据健康"]:
+    for text in ["A股风险温度", "组件贡献", "AVIX", "QVIX", "风险温度 × 板块关系", "数据健康"]:
         assert text in html
 
 if __name__ == "__main__":

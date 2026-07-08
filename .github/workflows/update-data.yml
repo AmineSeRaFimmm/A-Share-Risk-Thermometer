@@ -56,6 +56,7 @@ jobs:
           fi
       - name: Build site data
         run: |
+          python scripts/build_sector_correlation.py || echo "::warning::Sector correlation refresh failed; using existing published sector_correlation.json"
           python scripts/build_site_data.py
       - name: Validate data
         run: |

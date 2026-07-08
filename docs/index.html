@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260708-chart-ux">
+    <link rel="stylesheet" href="./assets/app.css?v=20260708-sector-correlation">
   </head>
   <body>
     <header class="topbar">
@@ -97,6 +97,25 @@
         <p class="strategy-note" id="strategyNote">S3/S4 使用收盘正式数据确认，盘中风险温度不改写正式信号。</p>
       </section>
 
+      <section class="sector-panel" aria-label="风险温度与申万一级行业关系">
+        <div class="section-head">
+          <h2>风险温度 × 板块关系</h2>
+          <span id="sectorAsOf">申万一级 / 近一年5日超额收益</span>
+        </div>
+        <p class="chart-note">主指标：风险温度与未来5日行业相对沪深300超额收益的相关性；当前样本若未达到强相关，会标为候选而非结论。</p>
+        <div class="sector-relation-grid">
+          <div>
+            <div class="mini-head">正相关候选</div>
+            <div id="sectorPositiveList" class="sector-list"></div>
+          </div>
+          <div>
+            <div class="mini-head">反相关候选</div>
+            <div id="sectorNegativeList" class="sector-list"></div>
+          </div>
+        </div>
+        <div id="sectorCorrelationChart" class="chart sector-chart"></div>
+      </section>
+
       <section class="chart-grid">
         <article class="chart-panel">
           <div class="section-head">
@@ -127,7 +146,7 @@
     </main>
 
     <script src="./vendor/echarts.min.js"></script>
-    <script src="./assets/charts.js?v=20260708-chart-ux"></script>
-    <script src="./assets/app.js?v=20260708-chart-ux"></script>
+    <script src="./assets/charts.js?v=20260708-sector-correlation"></script>
+    <script src="./assets/app.js?v=20260708-sector-correlation"></script>
   </body>
 </html>

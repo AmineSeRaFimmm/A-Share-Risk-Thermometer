@@ -341,3 +341,77 @@ function renderHs300Chart(history) {
   setChartA11y(chart, '沪深300与风险温度', latestHs300 && latestRisk ? `最新沪深300为${fmt(latestHs300.value, 1)}，最新风险温度为${fmt(latestRisk.value, 1)}。两条线分上下两格显示，不共用数值轴。` : '显示沪深300和风险温度的同步时间变化。');
   return chart;
 }
+
+function renderSectorCorrelationChart(payload) {
+  const el = document.getElementById('sectorCorrelationChart');
+  if (!el || !payload?.rankings) return null;
+  const chart = echarts.init(el);
+  const positive = payload.rankings.positive || [];
+  const negative = payload.rankings.negative || [];
+  const rows = [
+    ...negative.slice(0, 8).reverse(),
+    ...positive.slice(0, 8),
+  ];
+  const maxAbs = Math.max(0.2, ...rows.map(row => Math.abs(Number(row.corr_temp_fwd_excess) || 0)));
+  const axisMax = Math.ceil(maxAbs * 10) / 10;
+  chart.setOption({
+    aria: {
+      enabled: true,
+      label: { description: '风险温度与申万一级行业未来5日超额收益相关性排行。正值代表高温环境相对更强，负值代表高温环境相对更弱。' },
+    },
+    tooltip: {
+      confine: true,
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: params => {
+        const item = Array.isArray(params) ? params[0] : params;
+        const source = rows[item.dataIndex] || {};
+        return [
+          `<strong>${source.name}</strong>`,
+          `1Y相关: ${fmt(source.corr_temp_fwd_excess, 3)}`,
+          `2Y相关: ${fmt(source.corr_2y, 3)}`,
+          `高风险区平均超额: ${fmt(Number(source.high_risk_avg_excess) * 100, 2)}% / 样本 ${source.high_risk_sample ?? '--'}`,
+          `稳定性: ${source.stability || '--'}`,
+          `样本: ${source.sample_size || '--'}`,
+        ].join('<br>');
+      },
+    },
+    grid: { left: isNarrow() ? 82 : 112, right: isNarrow() ? 16 : 28, top: 16, bottom: 36 },
+    xAxis: {
+      type: 'value',
+      min: -axisMax,
+      max: axisMax,
+      axisLabel: axisText(),
+      splitLine: { lineStyle: { color: '#edf0f5' } },
+    },
+    yAxis: {
+      type: 'category',
+      data: rows.map(row => row.name),
+      axisLabel: axisText(),
+      axisTick: { show: false },
+    },
+    series: [{
+      name: '1Y 5日超额相关',
+      type: 'bar',
+      data: rows.map(row => row.corr_temp_fwd_excess),
+      itemStyle: {
+        color: params => Number(params.value) >= 0 ? '#15956b' : '#c2413b',
+        borderRadius: params => Number(params.value) >= 0 ? [0, 4, 4, 0] : [4, 0, 0, 4],
+      },
+      label: {
+        show: !isNarrow(),
+        position: params => Number(params.value) >= 0 ? 'right' : 'left',
+        color: '#344054',
+        formatter: params => fmt(params.value, 2),
+      },
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        lineStyle: { color: '#98a2b3' },
+        data: [{ xAxis: 0 }],
+      },
+    }]
+  });
+  setChartA11y(chart, '风险温度与板块关系', `覆盖${payload.sector_count || 0}个申万一级行业，日期截至${payload.as_of || '--'}。`);
+  return chart;
+}

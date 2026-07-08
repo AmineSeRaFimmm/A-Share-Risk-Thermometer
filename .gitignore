@@ -5,3 +5,6 @@ __pycache__/
 .pytest_cache/
 data/raw/**/*.tmp
 tmp/
+
+# Generated sector history cache
+data/normalized/sw_level1_sector_history.csv

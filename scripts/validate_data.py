@@ -35,6 +35,12 @@ def main() -> None:
         path = SITE / name
         require(path.exists(), f"{name} missing")
         json.loads(path.read_text(encoding="utf-8"))
+    sector_path = SITE / "sector_correlation.json"
+    require(sector_path.exists(), "sector_correlation.json missing")
+    sector = json.loads(sector_path.read_text(encoding="utf-8"))
+    require(sector.get("sector_count", 0) >= 20, "sector_correlation sector_count too low")
+    require(len(sector.get("metrics", [])) >= 100, "sector_correlation metrics too sparse")
+    require(sector.get("rankings", {}).get("negative"), "sector_correlation negative ranking missing")
     avix = pd.read_csv(CALCULATED / "avix_clean_close.csv")
     if not avix.empty:
         require((avix["avix_clean"].dropna() > 0).all(), "avix_clean must be positive")
