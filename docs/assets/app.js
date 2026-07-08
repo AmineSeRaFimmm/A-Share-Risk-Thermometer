@@ -12,6 +12,7 @@ const dashboardState = {
   timeCharts: [],
   history: [],
   strategy: {},
+  refreshInFlight: false,
 };
 
 function getTempClass(temp) {
@@ -48,6 +49,7 @@ function ensureRealtimeMeta() {
   appendMetaItem('实时AVIX', 'realtimeAvix');
   appendMetaItem('实时质量', 'realtimeAvixQuality');
   appendMetaItem('数据新鲜度', 'freshnessStatus');
+  appendMetaItem('数据检查', 'refreshStatus');
 }
 
 function formatRealtimeAvix(value) {
@@ -99,6 +101,16 @@ function renderNowcastNote(latest) {
     return;
   }
   note.textContent = '当前为收盘正式口径；盘中更新可用时会切换为实时 AVIX 驱动的盘中估算。';
+}
+
+function updateRefreshStatus(status, detail) {
+  ensureRealtimeMeta();
+  const el = document.getElementById('refreshStatus');
+  if (!el) return;
+  const now = new Date().toLocaleTimeString('zh-CN', { hour12: false });
+  el.textContent = status === 'error' ? `失败 ${now}` : `已检查 ${now}`;
+  el.dataset.freshness = status === 'error' ? 'stale' : 'fresh';
+  el.title = detail || '页面每 60 秒自动检查最新数据';
 }
 
 function renderLatest(latest) {
@@ -278,15 +290,22 @@ function renderDashboard({ latest, history, components, audit, strategy }) {
 }
 
 async function refreshDashboard() {
+  if (dashboardState.refreshInFlight) return;
+  dashboardState.refreshInFlight = true;
   try {
     renderDashboard(await loadDashboardData());
+    updateRefreshStatus('ok');
   } catch (err) {
     console.error(err);
+    updateRefreshStatus('error', err.message || String(err));
+  } finally {
+    dashboardState.refreshInFlight = false;
   }
 }
 
 async function main() {
   renderDashboard(await loadDashboardData());
+  updateRefreshStatus('ok', '初始数据加载完成；页面每 60 秒自动检查最新数据');
   bindRangeControls(range => {
     dashboardState.activeRange = range;
     dashboardState.timeCharts = renderTimeCharts(dashboardState.history, dashboardState.strategy, range);
