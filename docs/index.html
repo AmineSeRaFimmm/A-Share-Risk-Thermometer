@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260708-refresh-status">
+    <link rel="stylesheet" href="./assets/app.css?v=20260708-chart-ux">
   </head>
   <body>
     <header class="topbar">
@@ -50,7 +50,7 @@
         <article class="components-panel">
           <div class="section-head">
             <h2>组件贡献</h2>
-            <span id="componentsMode">8 factors</span>
+            <span id="componentsMode">当前8因子</span>
           </div>
           <div id="componentsChart" class="chart compact"></div>
         </article>
@@ -69,6 +69,7 @@
               <button type="button" data-range="ALL">All</button>
             </div>
           </div>
+          <p class="chart-note">虚线阈值：60 警戒、75 高风险、90 恐慌；末端标记为当前正式/盘中温度。</p>
           <div id="historyChart" class="chart large"></div>
         </article>
       </section>
@@ -100,16 +101,18 @@
         <article class="chart-panel">
           <div class="section-head">
             <h2>AVIX vs QVIX</h2>
-            <span>真实QVIX断点保留 / 复刻值虚线</span>
+            <span>灰色=真实QVIX缺失 / 绿色虚线=模型复刻</span>
           </div>
+          <p class="chart-note">真实 QVIX 保留缺口不补线；QVIX 模型复刻值只作对照，不替代真实 QVIX。</p>
           <div id="avixQvixChart" class="chart"></div>
         </article>
 
         <article class="chart-panel">
           <div class="section-head">
             <h2>沪深300与风险温度</h2>
-            <span>同轴时间对比</span>
+            <span>上下分栏同步时间，不共用数值轴</span>
           </div>
+          <p class="chart-note">上方为沪深300收盘价，下方为风险温度；只比较时间节奏，不比较两线绝对高度。</p>
           <div id="hs300Chart" class="chart"></div>
         </article>
       </section>
@@ -124,7 +127,7 @@
     </main>
 
     <script src="./vendor/echarts.min.js"></script>
-    <script src="./assets/charts.js?v=20260708-refresh-status"></script>
-    <script src="./assets/app.js?v=20260708-refresh-status"></script>
+    <script src="./assets/charts.js?v=20260708-chart-ux"></script>
+    <script src="./assets/app.js?v=20260708-chart-ux"></script>
   </body>
 </html>

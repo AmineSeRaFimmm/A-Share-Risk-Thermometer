@@ -142,6 +142,12 @@ dd[data-freshness="unknown"] { color: var(--amber); }
 
 .section-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 14px; }
 .section-head h2 { margin: 0; font-size: 18px; }
+.chart-note {
+  margin: -6px 0 10px;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.5;
+}
 .range-controls {
   display: inline-flex;
   gap: 4px;
@@ -173,6 +179,7 @@ dd[data-freshness="unknown"] { color: var(--amber); }
 .chart { width: 100%; height: 320px; }
 .chart.compact { height: 285px; }
 .chart.large { height: 390px; }
+#hs300Chart { height: 360px; }
 .chart-row { margin-top: 18px; }
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
 .wide { width: 100%; }
@@ -282,6 +289,9 @@ body.error .page-shell::before {
   .explain-panel h1 { word-break: break-all; }
   .posture { align-items: flex-start; gap: 8px; flex-direction: column; }
   .section-head { align-items: flex-start; flex-direction: column; }
+  .chart-note { margin-top: -4px; font-size: 12px; }
   .range-controls { width: 100%; justify-content: space-between; }
   .range-controls button { flex: 1; min-width: 0; }
+  #avixQvixChart,
+  #hs300Chart { height: 360px; }
 }

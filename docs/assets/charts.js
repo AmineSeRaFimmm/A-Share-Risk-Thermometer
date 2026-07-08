@@ -2,6 +2,14 @@ function axisText() {
   return { color: '#667085', fontSize: 11 };
 }
 
+const SERIES_LABELS = {
+  avixClean: 'AVIX收盘复刻',
+  qvixReal: '真实QVIX',
+  qvixReplica: 'QVIX模型复刻',
+  hs300: '沪深300收盘',
+  riskTemperature: '风险温度',
+};
+
 function isNarrow() {
   return window.innerWidth < 680;
 }
@@ -51,6 +59,51 @@ function sharedTooltip(params) {
   return [title, ...lines].join('<br>');
 }
 
+function setChartA11y(chart, label, summary) {
+  const dom = chart.getDom();
+  dom.setAttribute('role', 'img');
+  dom.setAttribute('aria-label', `${label}。${summary}`);
+}
+
+function legendOption() {
+  return {
+    top: 0,
+    type: isNarrow() ? 'scroll' : 'plain',
+    itemWidth: isNarrow() ? 12 : 18,
+    itemHeight: isNarrow() ? 8 : 10,
+    itemGap: isNarrow() ? 6 : 10,
+    textStyle: axisText(),
+    pageIconSize: 9,
+    pageTextStyle: axisText(),
+  };
+}
+
+function qvixMissingAreas(history) {
+  const areas = [];
+  let start = null;
+  history.forEach((row, index) => {
+    const missing = positiveOrNull(row.qvix) === null;
+    if (missing && start === null) start = row.date;
+    const isLast = index === history.length - 1;
+    if ((!missing || isLast) && start !== null) {
+      const end = missing && isLast ? row.date : history[index - 1]?.date;
+      if (end) {
+        areas.push([
+          { name: '真实QVIX缺失', xAxis: start },
+          { xAxis: end },
+        ]);
+      }
+      start = null;
+    }
+  });
+  return areas;
+}
+
+function latestFinite(history, key) {
+  const row = [...history].reverse().find(item => Number.isFinite(Number(item[key])));
+  return row ? { date: row.date, value: Number(row[key]) } : null;
+}
+
 function strategyMarks(strategy, history, valueKey, eventType) {
   if (!strategy || !history?.length) return [];
   const valueByDate = new Map(history.map(row => [row.date, numericOrNull(row[valueKey])]));
@@ -62,7 +115,7 @@ function strategyMarks(strategy, history, valueKey, eventType) {
       const value = valueByDate.get(row.trade_date);
       if (!Number.isFinite(value)) return null;
       return {
-        name: eventType === 'buy' ? 'S3/S4 BUY' : 'S3/S4 SELL',
+        name: eventType === 'buy' ? 'S3/S4买入' : 'S3/S4卖出',
         coord: [row.trade_date, value],
         value: eventType === 'buy' ? 'BUY' : 'SELL',
         itemStyle: { color },
@@ -102,7 +155,13 @@ function renderComponentsChart(payload) {
   const el = document.getElementById('componentsChart');
   const chart = echarts.init(el);
   const items = payload.components || [];
+  const sorted = [...items].sort((a, b) => Number(b.contribution || 0) - Number(a.contribution || 0));
+  const topNames = new Set(sorted.slice(0, 3).map(item => item.name));
   chart.setOption({
+    aria: {
+      enabled: true,
+      label: { description: '组件贡献条形图，显示当前风险温度由八个因子按权重贡献组成。' },
+    },
     tooltip: {
       confine: true,
       trigger: 'axis',
@@ -119,10 +178,14 @@ function renderComponentsChart(payload) {
     series: [{
       type: 'bar',
       data: items.map(d => Number(d.contribution || 0).toFixed(2)).reverse(),
-      itemStyle: { color: '#c2413b', borderRadius: [0, 4, 4, 0] },
+      itemStyle: {
+        color: params => topNames.has(items.slice().reverse()[params.dataIndex]?.name) ? '#c2413b' : '#d98b87',
+        borderRadius: [0, 4, 4, 0],
+      },
       label: { show: !isNarrow(), position: 'right', color: '#344054', formatter: '{c}' }
     }]
   });
+  setChartA11y(chart, '组件贡献', `最大贡献因子是${sorted[0]?.name || '未知'}，贡献${fmt(sorted[0]?.contribution || 0)}。`);
   return chart;
 }
 
@@ -140,25 +203,26 @@ function renderHistoryChart(history, strategy) {
       { gt: 90, lte: 100, color: '#8f1d22' }
     ]},
     series: [{
-      name: 'Risk Temperature',
+      name: SERIES_LABELS.riskTemperature,
       type: 'line',
-      smooth: true,
+      smooth: false,
       symbol: 'none',
       lineStyle: { width: 3 },
+      itemStyle: { color: '#2563eb' },
       areaStyle: { opacity: 0.08 },
       markArea: { silent: true, itemStyle: { opacity: 0.08 }, data: [[{ yAxis: 60 }, { yAxis: 75 }], [{ yAxis: 75 }, { yAxis: 90 }], [{ yAxis: 90 }, { yAxis: 100 }]] },
       markLine: { silent: true, symbol: 'none', lineStyle: { color: '#98a2b3', type: 'dashed' }, data: [{ yAxis: 60 }, { yAxis: 75 }, { yAxis: 90 }] },
       markPoint: { symbolSize: 42, data: [...latestPoint(history, 'risk_temperature', '当前'), ...recentHighPoint(history)] },
       data: history.map(d => d.risk_temperature)
     }, {
-      name: 'S3/S4 BUY',
+      name: 'S3/S4买入',
       type: 'scatter',
       symbol: 'triangle',
       symbolSize: 12,
       itemStyle: { color: '#15956b' },
       data: strategyMarks(strategy, history, 'risk_temperature', 'buy').map(mark => mark.coord),
     }, {
-      name: 'S3/S4 SELL',
+      name: 'S3/S4卖出',
       type: 'scatter',
       symbol: 'diamond',
       symbolSize: 11,
@@ -166,48 +230,66 @@ function renderHistoryChart(history, strategy) {
       data: strategyMarks(strategy, history, 'risk_temperature', 'sell').map(mark => mark.coord),
     }]
   });
+  const latest = latestFinite(history, 'risk_temperature');
+  setChartA11y(chart, '温度历史曲线', latest ? `最新风险温度为${fmt(latest.value, 1)}，日期${latest.date}。虚线阈值为60、75、90。` : '显示风险温度随时间变化。');
   return chart;
 }
 
 function renderAvixQvixChart(history, strategy) {
   const chart = echarts.init(document.getElementById('avixQvixChart'));
+  const missingAreas = qvixMissingAreas(history);
+  const realCount = history.filter(d => positiveOrNull(d.qvix) !== null).length;
   chart.setOption({
+    aria: {
+      enabled: true,
+      label: { description: 'AVIX 与 QVIX 对比图。真实 QVIX 缺失时保留断点，灰色区间表示真实 QVIX 缺失，绿色虚线是模型复刻值。' },
+    },
     tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'cross' }, formatter: sharedTooltip },
-    legend: { top: 0, textStyle: axisText() },
-    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: 36, bottom: 34 },
+    legend: legendOption(),
+    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: isNarrow() ? 52 : 36, bottom: 34 },
     xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false },
     yAxis: { type: 'value', axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
     series: [
       {
-        name: 'AVIX_CLEAN_CLOSE',
+        name: SERIES_LABELS.avixClean,
         type: 'line',
         symbol: 'none',
-        smooth: true,
+        smooth: false,
         connectNulls: false,
         data: history.map(d => positiveOrNull(d.avix_clean)),
         lineStyle: { color: '#c2413b', width: 2 },
+        itemStyle: { color: '#c2413b' },
         markPoint: { symbolSize: 42, data: [...strategyMarks(strategy, history, 'avix_clean', 'buy'), ...strategyMarks(strategy, history, 'avix_clean', 'sell')] },
       },
       {
-        name: 'QVIX_300INDEX',
+        name: SERIES_LABELS.qvixReal,
         type: 'line',
         symbol: 'none',
-        smooth: true,
+        smooth: false,
         connectNulls: false,
         data: history.map(d => positiveOrNull(d.qvix)),
-        lineStyle: { color: '#2563eb', width: 2 }
+        lineStyle: { color: '#2563eb', width: 2.4 },
+        itemStyle: { color: '#2563eb' },
+        markArea: {
+          silent: true,
+          itemStyle: { color: 'rgba(102, 112, 133, 0.08)' },
+          label: { show: false },
+          data: missingAreas,
+        },
       },
       {
-        name: 'QVIX_REPLICA_MODEL',
+        name: SERIES_LABELS.qvixReplica,
         type: 'line',
         symbol: 'none',
-        smooth: true,
+        smooth: false,
         connectNulls: false,
         data: history.map(d => positiveOrNull(d.qvix_replica)),
-        lineStyle: { color: '#15956b', width: 2, type: 'dashed' }
+        lineStyle: { color: '#15956b', width: 2, type: 'dashed' },
+        itemStyle: { color: '#15956b' }
       }
     ]
   });
+  setChartA11y(chart, 'AVIX与QVIX', `当前范围共有${history.length}个交易日，真实QVIX有${realCount}个有效点，缺失${history.length - realCount}个点；缺失处保留断线，模型复刻值单独用虚线显示。`);
   return chart;
 }
 
@@ -215,30 +297,47 @@ function renderHs300Chart(history) {
   const chart = echarts.init(document.getElementById('hs300Chart'));
   const hs300Values = history.map(d => numericOrNull(d.hs300_close));
   const hs300Axis = paddedAxisRange(hs300Values);
+  const dates = history.map(d => d.date);
+  const narrow = isNarrow();
   chart.setOption({
+    aria: {
+      enabled: true,
+      label: { description: '沪深300与风险温度上下同步时间图，上方是沪深300收盘价，下方是风险温度，避免双轴数值误读。' },
+    },
     tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'cross' }, formatter: sharedTooltip },
-    legend: { top: 0, textStyle: axisText() },
-    grid: { left: isNarrow() ? 42 : 54, right: isNarrow() ? 42 : 56, top: 36, bottom: 34 },
-    xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false },
+    legend: legendOption(),
+    grid: [
+      { left: narrow ? 42 : 54, right: narrow ? 12 : 24, top: narrow ? 50 : 42, height: narrow ? 82 : 96 },
+      { left: narrow ? 42 : 54, right: narrow ? 12 : 24, top: narrow ? 166 : 174, bottom: 34 },
+    ],
+    xAxis: [
+      { type: 'category', gridIndex: 0, data: dates, axisLabel: { show: false }, axisTick: { show: false }, boundaryGap: false },
+      { type: 'category', gridIndex: 1, data: dates, axisLabel: axisText(), boundaryGap: false },
+    ],
     yAxis: [
-      { type: 'value', name: '沪深300', min: hs300Axis.min, max: hs300Axis.max, scale: true, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
-      { type: 'value', name: '温度', min: 0, max: 100, axisLabel: axisText(), splitLine: { show: false } }
+      { type: 'value', gridIndex: 0, name: '沪深300', min: hs300Axis.min, max: hs300Axis.max, scale: true, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
+      { type: 'value', gridIndex: 1, name: '温度', min: 0, max: 100, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
     ],
     series: [
-      { name: 'HS300 Close', type: 'line', symbol: 'none', smooth: true, connectNulls: false, data: hs300Values, lineStyle: { color: '#111827', width: 2.4 } },
+      { name: SERIES_LABELS.hs300, type: 'line', xAxisIndex: 0, yAxisIndex: 0, symbol: 'none', smooth: false, connectNulls: false, data: hs300Values, lineStyle: { color: '#111827', width: 2.2 }, itemStyle: { color: '#111827' } },
       {
-        name: 'Risk Temperature',
+        name: SERIES_LABELS.riskTemperature,
         type: 'line',
+        xAxisIndex: 1,
         yAxisIndex: 1,
         symbol: 'none',
-        smooth: true,
+        smooth: false,
         connectNulls: false,
         data: history.map(d => numericOrNull(d.risk_temperature)),
         lineStyle: { color: '#c2413b', width: 2 },
+        itemStyle: { color: '#c2413b' },
         markArea: { silent: true, itemStyle: { opacity: 0.08 }, data: [[{ yAxis: 60 }, { yAxis: 75 }], [{ yAxis: 75 }, { yAxis: 90 }], [{ yAxis: 90 }, { yAxis: 100 }]] },
         markLine: { silent: true, symbol: 'none', lineStyle: { color: '#98a2b3', type: 'dashed' }, data: [{ yAxis: 60 }, { yAxis: 75 }, { yAxis: 90 }] },
       }
     ]
   });
+  const latestHs300 = latestFinite(history, 'hs300_close');
+  const latestRisk = latestFinite(history, 'risk_temperature');
+  setChartA11y(chart, '沪深300与风险温度', latestHs300 && latestRisk ? `最新沪深300为${fmt(latestHs300.value, 1)}，最新风险温度为${fmt(latestRisk.value, 1)}。两条线分上下两格显示，不共用数值轴。` : '显示沪深300和风险温度的同步时间变化。');
   return chart;
 }
