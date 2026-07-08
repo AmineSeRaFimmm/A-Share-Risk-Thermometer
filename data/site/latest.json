@@ -1,7 +1,7 @@
 {
-  "trade_date": "2026-07-07",
-  "update_time": "2026-07-07T20:24:22+08:00",
-  "risk_temperature": 69.6,
+  "trade_date": "2026-07-08",
+  "update_time": "2026-07-08T10:09:47+08:00",
+  "risk_temperature": 69.8,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
   "quality": "OK_NOWCAST|WARN_BREADTH_PROXY|WARN_QVIX_MISSING",
@@ -15,9 +15,9 @@
   "temperature_mode_cn": "盘中估算",
   "is_final": false,
   "components": {
-    "avix_percentile_2y": 84.9206,
-    "avix_zscore_1y": 84.7135,
-    "avix_5d_change": 41.3344,
+    "avix_percentile_2y": 85.119,
+    "avix_zscore_1y": 85.5801,
+    "avix_5d_change": 42.1363,
     "qvix_confirmation": 50.0,
     "realized_vol": 91.6667,
     "drawdown_pressure": 43.6275,
@@ -35,12 +35,12 @@
   "avix": {
     "avix_clean_close": 24.3304,
     "avix_raw_close": 24.3304,
-    "avix_realtime_mid": 22.4364,
+    "avix_realtime_mid": 22.5304,
     "avix_realtime_quality": "OK",
     "avix_realtime_note": "normal two-term interpolation",
     "avix_realtime_usable": true,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-    "avix_percentile_2y": 0.8492,
+    "avix_percentile_2y": 0.8512,
     "quality": "OK"
   },
   "official_close": {
@@ -56,20 +56,20 @@
     }
   },
   "nowcast": {
-    "trade_date": "2026-07-07",
-    "risk_temperature": 69.6,
+    "trade_date": "2026-07-08",
+    "risk_temperature": 69.8,
     "regime": "HIGH_RISK",
     "regime_cn": "高风险",
     "quality": "OK_NOWCAST|WARN_BREADTH_PROXY|WARN_QVIX_MISSING",
     "baseline_trade_date": "2026-07-02",
     "official_risk_temperature": 75.4,
-    "realtime_avix": 22.4364,
-    "realtime_valuation_time": "2026-07-07T20:20:41+08:00",
+    "realtime_avix": 22.5304,
+    "realtime_valuation_time": "2026-07-08T10:09:46+08:00",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
   "interpretation": {
-    "headline": "市场风险温度 69.6，处于高风险",
-    "summary": "实现波动率、AVIX两年分位、AVIX异常程度是当前风险温度的主要驱动；多因子合成后给出 69.6/100。",
+    "headline": "市场风险温度 69.8，处于高风险",
+    "summary": "实现波动率、AVIX异常程度、AVIX两年分位是当前风险温度的主要驱动；多因子合成后给出 69.8/100。",
     "posture": "防守 + 等待风险释放",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
