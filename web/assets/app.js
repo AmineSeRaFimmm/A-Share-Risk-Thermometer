@@ -4,6 +4,16 @@ async function loadJSON(path) {
   return await res.json();
 }
 
+const AUTO_REFRESH_MS = 60 * 1000;
+const STALE_THRESHOLD_MS = 15 * 60 * 1000;
+const dashboardState = {
+  activeRange: '1Y',
+  componentChart: null,
+  timeCharts: [],
+  history: [],
+  strategy: {},
+};
+
 function getTempClass(temp) {
   if (temp < 20) return 'calm';
   if (temp < 40) return 'normal';
@@ -37,6 +47,7 @@ function ensureRealtimeMeta() {
   appendMetaItem('模型置信度', 'modelConfidence');
   appendMetaItem('实时AVIX', 'realtimeAvix');
   appendMetaItem('实时质量', 'realtimeAvixQuality');
+  appendMetaItem('数据新鲜度', 'freshnessStatus');
 }
 
 function formatRealtimeAvix(value) {
@@ -53,6 +64,41 @@ function renderRealtimeAvix(avix) {
   setText('realtimeAvixQuality', realtimeQuality ? `${realtimeQuality}${realtimeUsable === false ? ' / NOT USABLE' : ''}` : '--');
   const qualityEl = document.getElementById('realtimeAvixQuality');
   if (qualityEl) qualityEl.title = [avix?.avix_realtime_note, avix?.avix_realtime_source].filter(Boolean).join(' | ');
+}
+
+function updateFreshness(latest) {
+  ensureRealtimeMeta();
+  const el = document.getElementById('freshnessStatus');
+  if (!el) return;
+  if (!latest?.update_time) {
+    el.textContent = '--';
+    el.dataset.freshness = 'unknown';
+    el.title = 'latest.update_time missing';
+    return;
+  }
+  const updatedAt = new Date(latest.update_time);
+  if (Number.isNaN(updatedAt.getTime())) {
+    el.textContent = '时间异常';
+    el.dataset.freshness = 'unknown';
+    el.title = latest.update_time;
+    return;
+  }
+  const ageMs = Date.now() - updatedAt.getTime();
+  const ageMinutes = Math.max(0, Math.floor(ageMs / 60000));
+  const isFresh = ageMs <= STALE_THRESHOLD_MS;
+  el.textContent = isFresh ? `新鲜 ${ageMinutes}分` : `延迟 ${ageMinutes}分`;
+  el.dataset.freshness = isFresh ? 'fresh' : 'stale';
+  el.title = `最近数据生成时间: ${updatedAt.toLocaleString('zh-CN', { hour12: false })}`;
+}
+
+function renderNowcastNote(latest) {
+  const note = document.getElementById('nowcastNote');
+  if (!note) return;
+  if (latest?.is_final === false) {
+    note.textContent = '盘中估算仅实时替换 AVIX 相关因子；指数、宽度、回撤、成交等非 AVIX 因子沿用最近正式收盘。';
+    return;
+  }
+  note.textContent = '当前为收盘正式口径；盘中更新可用时会切换为实时 AVIX 驱动的盘中估算。';
 }
 
 function renderLatest(latest) {
@@ -75,6 +121,8 @@ function renderLatest(latest) {
   const update = latest.update_time ? new Date(latest.update_time).toLocaleString('zh-CN', { hour12: false }) : '--';
   setText('updateTime', update);
   renderRealtimeAvix(latest.avix || {});
+  updateFreshness(latest);
+  renderNowcastNote(latest);
   setText('headline', latest.interpretation?.headline);
   setText('summary', latest.interpretation?.summary);
   setText('posture', latest.interpretation?.posture);
@@ -203,7 +251,7 @@ function bindRangeControls(onRange) {
   });
 }
 
-async function main() {
+async function loadDashboardData() {
   const [latest, history, components, audit, strategy] = await Promise.all([
     loadJSON('./data/latest.json'),
     loadJSON('./data/history.json'),
@@ -211,21 +259,41 @@ async function main() {
     loadJSON('./data/audit.json'),
     loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' }))
   ]);
+  return { latest, history, components, audit, strategy };
+}
+
+function renderDashboard({ latest, history, components, audit, strategy }) {
   renderLatest(latest);
   renderAudit(audit);
   renderStrategy(strategy);
   setText('componentsMode', `${components.temperature_mode || '--'} / ${components.trade_date || '--'}`);
-  const componentChart = renderComponentsChart(components);
+  const componentDom = document.getElementById('componentsChart');
+  const oldComponentChart = echarts.getInstanceByDom(componentDom);
+  if (oldComponentChart) oldComponentChart.dispose();
+  dashboardState.componentChart = renderComponentsChart(components);
   const activeHistory = appendNowcastHistory(history, latest);
-  let activeRange = '1Y';
-  let timeCharts = renderTimeCharts(activeHistory, strategy, activeRange);
+  dashboardState.history = activeHistory;
+  dashboardState.strategy = strategy;
+  dashboardState.timeCharts = renderTimeCharts(activeHistory, strategy, dashboardState.activeRange);
+}
+
+async function refreshDashboard() {
+  try {
+    renderDashboard(await loadDashboardData());
+  } catch (err) {
+    console.error(err);
+  }
+}
+
+async function main() {
+  renderDashboard(await loadDashboardData());
   bindRangeControls(range => {
-    activeRange = range;
-    timeCharts = renderTimeCharts(activeHistory, strategy, activeRange);
+    dashboardState.activeRange = range;
+    dashboardState.timeCharts = renderTimeCharts(dashboardState.history, dashboardState.strategy, range);
   });
   window.addEventListener('resize', () => {
-    componentChart.resize();
-    timeCharts.forEach(chart => chart.resize());
+    dashboardState.componentChart?.resize();
+    dashboardState.timeCharts.forEach(chart => chart.resize());
   });
 }
 
@@ -234,10 +302,14 @@ main().catch(err => {
   console.error(err);
 });
 
-const AUTO_REFRESH_MS = 30 * 60 * 1000;
-
 setInterval(() => {
   if (!document.hidden) {
-    window.location.reload();
+    refreshDashboard();
   }
 }, AUTO_REFRESH_MS);
+
+document.addEventListener('visibilitychange', () => {
+  if (!document.hidden) {
+    refreshDashboard();
+  }
+});

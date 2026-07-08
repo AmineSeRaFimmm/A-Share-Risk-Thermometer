@@ -2,9 +2,11 @@ name: Update Realtime AVIX
 
 on:
   schedule:
-    - cron: "35 1 * * 1-5"
-    - cron: "5,35 2,3 * * 1-5"
-    - cron: "5,35 5,6,7 * * 1-5"
+    - cron: "30-55/5 1 * * 1-5"
+    - cron: "*/5 2 * * 1-5"
+    - cron: "0-30/5 3 * * 1-5"
+    - cron: "*/5 5-6 * * 1-5"
+    - cron: "0 7 * * 1-5"
   workflow_dispatch:
 
 permissions:

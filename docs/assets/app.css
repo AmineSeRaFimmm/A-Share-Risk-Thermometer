@@ -105,6 +105,9 @@ dd { margin: 4px 0 0; font-weight: 700; color: #344054; overflow-wrap: anywhere;
 dd[data-grade="high"] { color: var(--green); }
 dd[data-grade="medium"] { color: var(--amber); }
 dd[data-grade="low"] { color: var(--red); }
+dd[data-freshness="fresh"] { color: var(--green); }
+dd[data-freshness="stale"] { color: var(--red); }
+dd[data-freshness="unknown"] { color: var(--amber); }
 
 .explain-panel h1 { margin: 0 0 16px; font-size: clamp(24px, 3vw, 38px); line-height: 1.1; }
 .explain-panel p { color: #475467; line-height: 1.7; margin: 0; }
@@ -126,6 +129,16 @@ dd[data-grade="low"] { color: var(--red); }
 .posture span { color: var(--muted); font-size: 13px; }
 .posture strong { font-size: 17px; }
 .disclaimer { font-size: 13px; }
+.nowcast-note {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1e3a8a;
+  font-size: 13px;
+  line-height: 1.55;
+}
 
 .section-head { display: flex; justify-content: space-between; gap: 12px; align-items: baseline; margin-bottom: 14px; }
 .section-head h2 { margin: 0; font-size: 18px; }
