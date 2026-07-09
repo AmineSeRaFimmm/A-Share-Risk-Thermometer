@@ -1,7 +1,7 @@
 {
   "status": "ok",
   "official_latest_date": "2026-07-02",
-  "estimated_latest_date": "2026-07-08",
+  "estimated_latest_date": "2026-07-09",
   "rows": [
     {
       "date": "2026-07-03",
@@ -16,7 +16,7 @@
       "gap_reason": "正式期权日线缺失或不合格；使用实时AVIX估算",
       "avix_realtime_mid": 21.5885,
       "avix_realtime_quality": "OK",
-      "realtime_valuation_time": "2026-07-09T08:46:13+08:00",
+      "realtime_valuation_time": "2026-07-09T14:26:58+08:00",
       "hs300_close": 4842.174,
       "drawdown_pressure": 39.1406,
       "breadth_pressure": 25.0,
@@ -46,7 +46,7 @@
       "gap_reason": "正式期权日线缺失或不合格；使用实时AVIX估算",
       "avix_realtime_mid": 22.4364,
       "avix_realtime_quality": "OK",
-      "realtime_valuation_time": "2026-07-09T08:46:13+08:00",
+      "realtime_valuation_time": "2026-07-09T14:26:58+08:00",
       "hs300_close": 4792.262,
       "drawdown_pressure": 48.6716,
       "breadth_pressure": 25.0,
@@ -76,7 +76,7 @@
       "gap_reason": "正式期权日线缺失或不合格；使用实时AVIX估算",
       "avix_realtime_mid": 22.0659,
       "avix_realtime_quality": "OK",
-      "realtime_valuation_time": "2026-07-09T08:46:14+08:00",
+      "realtime_valuation_time": "2026-07-09T14:26:58+08:00",
       "hs300_close": 4755.534,
       "drawdown_pressure": 54.2746,
       "breadth_pressure": 25.0,
@@ -91,6 +91,36 @@
         "drawdown_pressure": 54.2746,
         "market_breadth_pressure": 25.0,
         "turnover_stress": 0.0
+      }
+    },
+    {
+      "date": "2026-07-09",
+      "trade_date": "2026-07-09",
+      "risk_temperature_estimated": 59.6,
+      "regime": "CAUTION",
+      "regime_cn": "警戒",
+      "temperature_mode": "ESTIMATED_CLOSE",
+      "temperature_mode_cn": "估算收盘",
+      "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
+      "baseline_trade_date": "2026-07-02",
+      "gap_reason": "正式期权日线缺失或不合格；使用实时AVIX估算",
+      "avix_realtime_mid": 21.6699,
+      "avix_realtime_quality": "OK",
+      "realtime_valuation_time": "2026-07-09T14:26:58+08:00",
+      "hs300_close": null,
+      "drawdown_pressure": 50.0,
+      "breadth_pressure": 25.0,
+      "model_confidence": 78.0,
+      "model_missing_components": "QVIX|BREADTH",
+      "components": {
+        "avix_percentile_2y": 82.505,
+        "avix_zscore_1y": 76.9127,
+        "avix_5d_change": 40.935,
+        "qvix_confirmation": 50.0,
+        "realized_vol_percentile": 50.0,
+        "drawdown_pressure": 50.0,
+        "market_breadth_pressure": 25.0,
+        "turnover_stress": 50.0
       }
     }
   ],
