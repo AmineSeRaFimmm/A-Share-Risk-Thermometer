@@ -41,6 +41,13 @@ def main() -> None:
     require(sector.get("sector_count", 0) >= 20, "sector_correlation sector_count too low")
     require(len(sector.get("metrics", [])) >= 100, "sector_correlation metrics too sparse")
     require(sector.get("rankings", {}).get("negative"), "sector_correlation negative ranking missing")
+    low_position_path = SITE / "low_position_sector_study.json"
+    require(low_position_path.exists(), "low_position_sector_study.json missing")
+    low_position = json.loads(low_position_path.read_text(encoding="utf-8"))
+    require(low_position.get("sector_count", 0) >= 20, "low_position sector_count too low")
+    require(low_position.get("selected_count", 0) >= 4, "low_position selected_count too low")
+    require(len(low_position.get("metrics", [])) >= 24, "low_position metrics too sparse")
+    require(low_position.get("selected_sectors"), "low_position selected sectors missing")
     avix = pd.read_csv(CALCULATED / "avix_clean_close.csv")
     if not avix.empty:
         require((avix["avix_clean"].dropna() > 0).all(), "avix_clean must be positive")

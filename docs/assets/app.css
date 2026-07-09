@@ -226,7 +226,7 @@ dd[data-freshness="unknown"] { color: var(--amber); }
 .strategy-card[data-action="sell"] { border-color: #f0a6a2; background: #fff1f2; }
 .strategy-card[data-action="watch"] { border-color: #f3c06f; background: #fffbeb; }
 .strategy-note { margin: 14px 0 0; color: var(--muted); font-size: 13px; line-height: 1.6; }
-.sector-panel { margin-top: 18px; padding: 20px; }
+.sector-panel, .low-position-panel { margin-top: 18px; padding: 20px; }
 .sector-relation-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -267,6 +267,40 @@ dd[data-freshness="unknown"] { color: var(--amber); }
 .sector-item[data-tone="positive"] .sector-metrics b { color: var(--green); }
 .sector-item[data-tone="negative"] .sector-metrics b { color: var(--red); }
 .sector-chart { height: 390px; }
+.low-position-cards {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+  margin: 12px 0 14px;
+}
+.low-position-card {
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.low-position-card strong,
+.low-position-card span { display: block; }
+.low-position-card strong { font-size: 14px; }
+.low-position-card span {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+.low-position-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin: 12px 0 0;
+}
+.low-position-card dt { font-size: 11px; }
+.low-position-card dd { font-size: 13px; }
+.low-position-table-wrap { overflow-x: auto; margin-top: 10px; }
+.compact-table { margin-top: 0; font-size: 13px; }
+.compact-table th,
+.compact-table td { padding: 9px 10px; white-space: nowrap; }
 .health-panel { margin-top: 18px; }
 .health-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
 .health-item {
@@ -307,7 +341,7 @@ body.error .page-shell::before {
 
 @media (max-width: 1100px) {
   .summary-grid, .chart-grid { grid-template-columns: 1fr; }
-  .strategy-grid, .strategy-signals, .sector-relation-grid { grid-template-columns: 1fr; }
+  .strategy-grid, .strategy-signals, .sector-relation-grid, .low-position-cards { grid-template-columns: 1fr; }
   .health-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 680px) {
@@ -323,6 +357,7 @@ body.error .page-shell::before {
   .components-panel,
   .chart-panel,
   .sector-panel,
+  .low-position-panel,
   .health-panel {
     width: calc(100vw - 48px);
     max-width: calc(100vw - 48px);

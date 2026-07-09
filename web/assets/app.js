@@ -10,6 +10,7 @@ const dashboardState = {
   activeRange: '1Y',
   componentChart: null,
   sectorChart: null,
+  lowPositionChart: null,
   timeCharts: [],
   history: [],
   strategy: {},
@@ -247,6 +248,70 @@ function renderSectorCorrelation(sector) {
   dashboardState.sectorChart = renderSectorCorrelationChart(sector);
 }
 
+function formatScore(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? numeric.toFixed(1) : '--';
+}
+
+function formatPercentile(value) {
+  const numeric = Number(value);
+  return Number.isFinite(numeric) ? `${(numeric * 100).toFixed(1)}%` : '--';
+}
+
+function lowPositionCard(row) {
+  return `<div class="low-position-card">
+    <div>
+      <strong>${row.name || '--'}</strong>
+      <span>${row.symbol || '--'} / ${row.relationship_type || '--'}</span>
+    </div>
+    <dl>
+      <div><dt>低位分</dt><dd>${formatScore(row.low_position_score)}</dd></div>
+      <div><dt>5Y分位</dt><dd>${formatPercentile(row.price_percentile_5y)}</dd></div>
+      <div><dt>5Y回撤</dt><dd>${formatSignedPct(row.drawdown_5y)}</dd></div>
+      <div><dt>PB</dt><dd>${row.pb ?? '--'}</dd></div>
+    </dl>
+  </div>`;
+}
+
+function renderLowPositionSectorStudy(study) {
+  const panel = document.querySelector('.low-position-panel');
+  if (!panel) return;
+  if (!study?.selected_sectors?.length) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  setText('lowPositionAsOf', `申万一级 / ${study.as_of || '--'} / 近1Y-2Y关系`);
+  const cards = document.getElementById('lowPositionCards');
+  if (cards) cards.innerHTML = study.selected_sectors.map(lowPositionCard).join('');
+
+  const signalRows = [];
+  const selectedBySymbol = new Map(study.selected_sectors.map(row => [row.symbol, row]));
+  (study.signals || []).forEach(row => {
+    if (row.window === '1Y' && row.horizon === '20D' && row.signal === 'risk_pullback_after_high') {
+      signalRows.push(row);
+    }
+  });
+  const tbody = document.getElementById('lowPositionSignals');
+  if (tbody) {
+    tbody.innerHTML = signalRows.map(row => {
+      const selected = selectedBySymbol.get(row.symbol) || {};
+      return `<tr>
+        <td>${row.name || '--'}</td>
+        <td>${selected.relationship_type || '--'}</td>
+        <td>${formatSignedPct(row.avg_fwd_excess)}</td>
+        <td>${row.sample_size ?? '--'}</td>
+        <td>${formatPercentile(row.win_rate)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  const lowPositionDom = document.getElementById('lowPositionChart');
+  const oldLowPositionChart = echarts.getInstanceByDom(lowPositionDom);
+  if (oldLowPositionChart) oldLowPositionChart.dispose();
+  dashboardState.lowPositionChart = renderLowPositionSectorChart(study);
+}
+
 function appendNowcastHistory(history, latest) {
   const rows = [...(history || [])];
   const lastDate = rows.length ? rows[rows.length - 1].date : null;
@@ -315,22 +380,24 @@ function bindRangeControls(onRange) {
 }
 
 async function loadDashboardData() {
-  const [latest, history, components, audit, strategy, sector] = await Promise.all([
+  const [latest, history, components, audit, strategy, sector, lowPosition] = await Promise.all([
     loadJSON('./data/latest.json'),
     loadJSON('./data/history.json'),
     loadJSON('./data/components.json'),
     loadJSON('./data/audit.json'),
     loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' })),
-    loadJSON('./data/sector_correlation.json').catch(() => ({ status: 'missing' }))
+    loadJSON('./data/sector_correlation.json').catch(() => ({ status: 'missing' })),
+    loadJSON('./data/low_position_sector_study.json').catch(() => ({ status: 'missing' }))
   ]);
-  return { latest, history, components, audit, strategy, sector };
+  return { latest, history, components, audit, strategy, sector, lowPosition };
 }
 
-function renderDashboard({ latest, history, components, audit, strategy, sector }) {
+function renderDashboard({ latest, history, components, audit, strategy, sector, lowPosition }) {
   renderLatest(latest);
   renderAudit(audit);
   renderStrategy(strategy);
   renderSectorCorrelation(sector);
+  renderLowPositionSectorStudy(lowPosition);
   setText('componentsMode', `${components.temperature_mode || '--'} / ${components.trade_date || '--'}`);
   const componentDom = document.getElementById('componentsChart');
   const oldComponentChart = echarts.getInstanceByDom(componentDom);
@@ -366,6 +433,7 @@ async function main() {
   window.addEventListener('resize', () => {
     dashboardState.componentChart?.resize();
     dashboardState.sectorChart?.resize();
+    dashboardState.lowPositionChart?.resize();
     dashboardState.timeCharts.forEach(chart => chart.resize());
   });
 }

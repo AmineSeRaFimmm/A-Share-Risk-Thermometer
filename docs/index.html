@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260708-sector-correlation">
+    <link rel="stylesheet" href="./assets/app.css?v=20260709-low-position-sector">
   </head>
   <body>
     <header class="topbar">
@@ -116,6 +116,30 @@
         <div id="sectorCorrelationChart" class="chart sector-chart"></div>
       </section>
 
+      <section class="low-position-panel" aria-label="低位板块与风险温度研究">
+        <div class="section-head">
+          <h2>低位板块 × 风险温度</h2>
+          <span id="lowPositionAsOf">申万一级 / 3Y-5Y低位候选</span>
+        </div>
+        <p class="chart-note">低位评分结合3年/5年价格分位、3年/5年高点回撤、相对沪深300落后幅度；PE/PB只作当前横截面辅助，不当作历史估值分位。</p>
+        <div id="lowPositionCards" class="low-position-cards"></div>
+        <div id="lowPositionChart" class="chart sector-chart"></div>
+        <div class="low-position-table-wrap">
+          <table class="compact-table">
+            <thead>
+              <tr>
+                <th>板块</th>
+                <th>关系类型</th>
+                <th>高温回落20日超额</th>
+                <th>样本</th>
+                <th>胜率</th>
+              </tr>
+            </thead>
+            <tbody id="lowPositionSignals"></tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="chart-grid">
         <article class="chart-panel">
           <div class="section-head">
@@ -146,7 +170,7 @@
     </main>
 
     <script src="./vendor/echarts.min.js"></script>
-    <script src="./assets/charts.js?v=20260708-sector-correlation"></script>
-    <script src="./assets/app.js?v=20260708-sector-correlation"></script>
+    <script src="./assets/charts.js?v=20260709-low-position-sector"></script>
+    <script src="./assets/app.js?v=20260709-low-position-sector"></script>
   </body>
 </html>

@@ -86,3 +86,38 @@ def fetch_sw_level1_sector_history(sleep_seconds: float = 0.25) -> tuple[pd.Data
     history = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
     manifest = pd.DataFrame(manifest_rows)
     return history, manifest
+
+
+def fetch_sw_level1_sector_valuation() -> pd.DataFrame:
+    """Fetch current SW level-1 valuation snapshot.
+
+    AkShare exposes current PE/PB for the index universe, but not a stable
+    historical valuation percentile. Downstream research treats this as a
+    cross-sectional snapshot only.
+    """
+    import akshare as ak
+
+    os.environ.setdefault("NO_PROXY", "*")
+    info = ak.sw_index_first_info()
+    if info.empty:
+        return pd.DataFrame()
+
+    out = info.rename(columns={
+        "行业代码": "symbol",
+        "行业名称": "name",
+        "成份个数": "member_count",
+        "静态市盈率": "pe_static",
+        "TTM(滚动)市盈率": "pe_ttm",
+        "市净率": "pb",
+        "静态股息率": "dividend_yield",
+    }).copy()
+    out["symbol"] = out["symbol"].map(_sector_symbol)
+    for column in ["member_count", "pe_static", "pe_ttm", "pb", "dividend_yield"]:
+        if column in out.columns:
+            out[column] = pd.to_numeric(out[column], errors="coerce")
+    out["source"] = "AKSHARE_SW_LEVEL1_VALUATION"
+    out["fetch_time"] = pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds")
+    return out[[
+        "symbol", "name", "member_count", "pe_static", "pe_ttm", "pb",
+        "dividend_yield", "source", "fetch_time",
+    ]]

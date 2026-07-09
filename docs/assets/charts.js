@@ -415,3 +415,76 @@ function renderSectorCorrelationChart(payload) {
   setChartA11y(chart, '风险温度与板块关系', `覆盖${payload.sector_count || 0}个申万一级行业，日期截至${payload.as_of || '--'}。`);
   return chart;
 }
+
+function renderLowPositionSectorChart(payload) {
+  const el = document.getElementById('lowPositionChart');
+  if (!el || !payload?.selected_sectors?.length) return null;
+  const chart = echarts.init(el);
+  const metricByKey = new Map((payload.metrics || []).map(row => [
+    `${row.symbol}-${row.window}-${row.horizon}`,
+    row,
+  ]));
+  const rows = payload.selected_sectors.slice().reverse();
+  const oneYear = rows.map(row => metricByKey.get(`${row.symbol}-1Y-20D`)?.corr_temp_fwd_excess ?? null);
+  const twoYear = rows.map(row => metricByKey.get(`${row.symbol}-2Y-20D`)?.corr_temp_fwd_excess ?? null);
+  const maxAbs = Math.max(0.2, ...oneYear.concat(twoYear).map(value => Math.abs(Number(value) || 0)));
+  const axisMax = Math.ceil(maxAbs * 10) / 10;
+  chart.setOption({
+    aria: {
+      enabled: true,
+      label: { description: '低位板块与风险温度关系图，比较近一年和近两年风险温度对未来20日板块超额收益的相关性。' },
+    },
+    tooltip: {
+      confine: true,
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' },
+      formatter: params => {
+        const items = Array.isArray(params) ? params : [params];
+        const source = rows[items[0]?.dataIndex] || {};
+        const lines = [
+          `<strong>${source.name}</strong>`,
+          `低位分: ${fmt(source.low_position_score, 1)}`,
+          `5Y分位: ${fmt(Number(source.price_percentile_5y) * 100, 1)}%`,
+          `5Y回撤: ${fmt(Number(source.drawdown_5y) * 100, 1)}%`,
+        ];
+        items.forEach(item => {
+          lines.push(`${item.marker}${item.seriesName}: ${fmt(item.value, 3)}`);
+        });
+        return lines.join('<br>');
+      },
+    },
+    legend: legendOption(),
+    grid: { left: isNarrow() ? 82 : 112, right: isNarrow() ? 16 : 28, top: isNarrow() ? 52 : 34, bottom: 36 },
+    xAxis: {
+      type: 'value',
+      min: -axisMax,
+      max: axisMax,
+      axisLabel: axisText(),
+      splitLine: { lineStyle: { color: '#edf0f5' } },
+    },
+    yAxis: {
+      type: 'category',
+      data: rows.map(row => row.name),
+      axisLabel: axisText(),
+      axisTick: { show: false },
+    },
+    series: [
+      {
+        name: '1Y 20日超额相关',
+        type: 'bar',
+        data: oneYear,
+        itemStyle: { color: params => Number(params.value) >= 0 ? '#15956b' : '#c2413b', borderRadius: 4 },
+        label: { show: !isNarrow(), position: 'right', color: '#344054', formatter: params => fmt(params.value, 2) },
+      },
+      {
+        name: '2Y 20日超额相关',
+        type: 'bar',
+        data: twoYear,
+        itemStyle: { color: params => Number(params.value) >= 0 ? '#7fbda7' : '#d98b87', borderRadius: 4 },
+        label: { show: false },
+      },
+    ],
+  });
+  setChartA11y(chart, '低位板块与风险温度', `筛选${payload.selected_count || rows.length}个低位板块，日期截至${payload.as_of || '--'}。`);
+  return chart;
+}
