@@ -12,6 +12,7 @@ from src.core.site_data import latest_payload, history_payload, components_paylo
 from src.core.strategy_s3_s4 import build_s3_s4_strategy
 from src.core.sector_correlation import analyze_sector_correlation
 from src.core.low_position_sector_study import analyze_low_position_sector_study
+from src.core.nowcast_history import build_nowcast_history_from_files, nowcast_rows_csv
 import pandas as pd
 
 def main() -> None:
@@ -26,10 +27,14 @@ def main() -> None:
     strategy = build_s3_s4_strategy(avix_clean, index_history)
     if not strategy.empty:
         strategy.to_csv(CALCULATED / "strategy_s3_s4.csv", index=False)
-    write_json(latest_payload(risk, raw, realtime), SITE / "latest.json")
     write_json(history_payload(risk), SITE / "history.json")
-    write_json(components_payload(risk, realtime), SITE / "components.json")
-    write_json(audit_payload(risk, realtime), SITE / "audit.json")
+    nowcast_history = build_nowcast_history_from_files()
+    write_json(nowcast_history, SITE / "nowcast_history.json")
+    nowcast_csv = nowcast_rows_csv(nowcast_history)
+    nowcast_csv.to_csv(CALCULATED / "risk_temperature_nowcast.csv", index=False)
+    write_json(latest_payload(risk, raw, realtime, nowcast_history), SITE / "latest.json")
+    write_json(components_payload(risk, realtime, nowcast_history), SITE / "components.json")
+    write_json(audit_payload(risk, realtime, nowcast_history), SITE / "audit.json")
     write_json(strategy_payload(strategy), SITE / "strategy.json")
     sector_history = read_csv(NORMALIZED / "sw_level1_sector_history.csv")
     if not sector_history.empty and not index_history.empty:
@@ -59,7 +64,7 @@ def main() -> None:
         shutil.copy2(path, data_dir / path.name)
     downloads = data_dir / "downloads"
     downloads.mkdir(exist_ok=True)
-    for name in ["risk_temperature.csv", "avix_clean_close.csv", "qvix_validation.csv", "strategy_s3_s4.csv", "sector_correlation_metrics.csv", "low_position_sector_metrics.csv"]:
+    for name in ["risk_temperature.csv", "risk_temperature_nowcast.csv", "avix_clean_close.csv", "qvix_validation.csv", "strategy_s3_s4.csv", "sector_correlation_metrics.csv", "low_position_sector_metrics.csv"]:
         src = CALCULATED / name
         if src.exists():
             shutil.copy2(src, downloads / name)

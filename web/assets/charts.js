@@ -137,6 +137,18 @@ function latestPoint(history, valueKey, label) {
   }];
 }
 
+function latestEstimatedPoint(history) {
+  const last = [...history].reverse().find(row => Number.isFinite(Number(row.risk_temperature_estimated)));
+  if (!last) return [];
+  return [{
+    name: '估算',
+    coord: [last.date, Number(last.risk_temperature_estimated)],
+    value: '估算',
+    itemStyle: { color: '#c05621' },
+    label: { formatter: '估' },
+  }];
+}
+
 function recentHighPoint(history) {
   if (!history?.length) return [];
   const rows = history.filter(row => Number.isFinite(Number(row.risk_temperature)));
@@ -191,9 +203,29 @@ function renderComponentsChart(payload) {
 
 function renderHistoryChart(history, strategy) {
   const chart = echarts.init(document.getElementById('historyChart'));
+  const estimatedCount = history.filter(d => numericOrNull(d.risk_temperature_estimated) !== null).length;
   chart.setOption({
-    tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'cross' }, formatter: sharedTooltip },
-    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: 22, bottom: 34 },
+    aria: {
+      enabled: true,
+      label: { description: '风险温度历史图。正式收盘温度为实线，正式期权日线缺失时的估算温度为橙色虚线。' },
+    },
+    tooltip: {
+      confine: true,
+      trigger: 'axis',
+      axisPointer: { type: 'cross' },
+      formatter: params => {
+        const items = Array.isArray(params) ? params : [params];
+        const title = items[0]?.axisValueLabel || items[0]?.name || '';
+        const row = history.find(item => item.date === items[0]?.axisValue);
+        const lines = items
+          .filter(item => item.value !== null && item.value !== undefined && item.value !== '-')
+          .map(item => tooltipLine(item.marker, item.seriesName, item.value));
+        if (row?.estimate_reason) lines.push(`估算原因: ${row.estimate_reason}`);
+        return [title, ...lines].join('<br>');
+      },
+    },
+    legend: legendOption(),
+    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: isNarrow() ? 54 : 46, bottom: 34 },
     xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false },
     yAxis: { type: 'value', min: 0, max: 100, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
     visualMap: { show: false, pieces: [
@@ -203,7 +235,7 @@ function renderHistoryChart(history, strategy) {
       { gt: 90, lte: 100, color: '#8f1d22' }
     ]},
     series: [{
-      name: SERIES_LABELS.riskTemperature,
+      name: '正式收盘温度',
       type: 'line',
       smooth: false,
       symbol: 'none',
@@ -214,6 +246,17 @@ function renderHistoryChart(history, strategy) {
       markLine: { silent: true, symbol: 'none', lineStyle: { color: '#98a2b3', type: 'dashed' }, data: [{ yAxis: 60 }, { yAxis: 75 }, { yAxis: 90 }] },
       markPoint: { symbolSize: 42, data: [...latestPoint(history, 'risk_temperature', '当前'), ...recentHighPoint(history)] },
       data: history.map(d => d.risk_temperature)
+    }, {
+      name: '估算收盘温度',
+      type: 'line',
+      smooth: false,
+      symbol: 'circle',
+      symbolSize: 5,
+      connectNulls: false,
+      lineStyle: { color: '#c05621', width: 2.2, type: 'dashed' },
+      itemStyle: { color: '#c05621' },
+      markPoint: { symbolSize: 42, data: latestEstimatedPoint(history) },
+      data: history.map(d => numericOrNull(d.risk_temperature_estimated))
     }, {
       name: 'S3/S4买入',
       type: 'scatter',
@@ -231,7 +274,7 @@ function renderHistoryChart(history, strategy) {
     }]
   });
   const latest = latestFinite(history, 'risk_temperature');
-  setChartA11y(chart, '温度历史曲线', latest ? `最新风险温度为${fmt(latest.value, 1)}，日期${latest.date}。虚线阈值为60、75、90。` : '显示风险温度随时间变化。');
+  setChartA11y(chart, '温度历史曲线', latest ? `最新正式风险温度为${fmt(latest.value, 1)}，日期${latest.date}。估算点数量${estimatedCount}。虚线阈值为60、75、90。` : `显示风险温度随时间变化，估算点数量${estimatedCount}。`);
   return chart;
 }
 

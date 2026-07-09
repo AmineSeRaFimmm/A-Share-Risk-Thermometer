@@ -58,6 +58,7 @@ jobs:
         run: |
           python scripts/build_sector_correlation.py || echo "::warning::Sector correlation refresh failed; using existing published sector_correlation.json"
           python scripts/build_low_position_sector_study.py || echo "::warning::Low-position sector study refresh failed; using existing published low_position_sector_study.json"
+          python scripts/build_nowcast_history.py || echo "::warning::Nowcast history refresh failed; using existing published nowcast_history.json"
           python scripts/build_site_data.py
       - name: Validate data
         run: |

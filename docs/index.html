@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260709-low-position-sector">
+    <link rel="stylesheet" href="./assets/app.css?v=20260709-nowcast-history">
   </head>
   <body>
     <header class="topbar">
@@ -69,7 +69,8 @@
               <button type="button" data-range="ALL">All</button>
             </div>
           </div>
-          <p class="chart-note">虚线阈值：60 警戒、75 高风险、90 恐慌；末端标记为当前正式/盘中温度。</p>
+          <p class="chart-note">正式收盘为实线；正式期权日线缺失时，合格实时AVIX估算值用虚线显示，且不写入正式历史。</p>
+          <p class="chart-note gap-note" id="nowcastGapNote">正在检查正式温度缺口。</p>
           <div id="historyChart" class="chart large"></div>
         </article>
       </section>
@@ -170,7 +171,7 @@
     </main>
 
     <script src="./vendor/echarts.min.js"></script>
-    <script src="./assets/charts.js?v=20260709-low-position-sector"></script>
-    <script src="./assets/app.js?v=20260709-low-position-sector"></script>
+    <script src="./assets/charts.js?v=20260709-nowcast-history"></script>
+    <script src="./assets/app.js?v=20260709-nowcast-history"></script>
   </body>
 </html>

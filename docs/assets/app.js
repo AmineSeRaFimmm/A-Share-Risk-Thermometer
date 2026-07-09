@@ -13,6 +13,7 @@ const dashboardState = {
   lowPositionChart: null,
   timeCharts: [],
   history: [],
+  nowcastHistory: {},
   strategy: {},
   refreshInFlight: false,
 };
@@ -312,24 +313,59 @@ function renderLowPositionSectorStudy(study) {
   dashboardState.lowPositionChart = renderLowPositionSectorChart(study);
 }
 
-function appendNowcastHistory(history, latest) {
-  const rows = [...(history || [])];
-  const lastDate = rows.length ? rows[rows.length - 1].date : null;
-  if (!latest?.trade_date || latest.is_final !== false || latest.trade_date <= lastDate) {
-    return rows;
-  }
-  rows.push({
-    date: latest.trade_date,
-    risk_temperature: latest.risk_temperature,
-    regime: latest.regime,
-    avix_clean: null,
-    qvix: null,
-    hs300_close: null,
-    drawdown_pressure: null,
-    breadth_pressure: null,
-    is_nowcast: true,
+function mergeNowcastHistory(history, nowcastHistory, latest) {
+  const byDate = new Map((history || []).map(row => [row.date, {
+    ...row,
+    risk_temperature_official: row.risk_temperature,
+    risk_temperature_estimated: null,
+    estimate_reason: null,
+  }]));
+  (nowcastHistory?.rows || []).forEach(row => {
+    const date = row.date || row.trade_date;
+    if (!date) return;
+    const existing = byDate.get(date) || {
+      date,
+      risk_temperature: null,
+      risk_temperature_official: null,
+      regime: row.regime,
+      avix_clean: null,
+      qvix: null,
+      qvix_replica: null,
+      hs300_close: row.hs300_close ?? null,
+      drawdown_pressure: row.drawdown_pressure ?? null,
+      breadth_pressure: row.breadth_pressure ?? null,
+    };
+    existing.risk_temperature_estimated = row.risk_temperature_estimated;
+    existing.estimate_reason = row.gap_reason || row.quality || '估算收盘';
+    existing.estimate_quality = row.quality;
+    existing.avix_realtime_mid = row.avix_realtime_mid;
+    existing.is_estimated_close = true;
+    byDate.set(date, existing);
   });
-  return rows;
+  if (latest?.trade_date && latest.is_final === false && !byDate.get(latest.trade_date)?.risk_temperature_estimated) {
+    const existing = byDate.get(latest.trade_date) || { date: latest.trade_date, risk_temperature: null, risk_temperature_official: null };
+    existing.risk_temperature_estimated = latest.risk_temperature;
+    existing.estimate_reason = '页面当前盘中估算；正式收盘温度尚未生成';
+    existing.is_estimated_close = true;
+    byDate.set(latest.trade_date, existing);
+  }
+  return [...byDate.values()].sort((a, b) => String(a.date).localeCompare(String(b.date)));
+}
+
+function renderNowcastGapSummary(nowcastHistory) {
+  const note = document.getElementById('nowcastGapNote');
+  if (!note) return;
+  if (!nowcastHistory || nowcastHistory.status === 'missing') {
+    note.textContent = '估算历史暂不可用。';
+    return;
+  }
+  const rows = nowcastHistory.rows || [];
+  const unavailable = (nowcastHistory.gaps || []).filter(row => row.estimate_status !== '可用').map(row => row.date);
+  const estimatePart = rows.length
+    ? `估算可用 ${rows[0].date || rows[0].trade_date} 至 ${rows[rows.length - 1].date || rows[rows.length - 1].trade_date}`
+    : '暂无估算点';
+  const missingPart = unavailable.length ? `仍缺 ${unavailable.join('、')}` : '无未解释缺口';
+  note.textContent = `正式收盘最新 ${nowcastHistory.official_latest_date || '--'}；${estimatePart}；${missingPart}。`;
 }
 
 function filterHistoryByRange(history, range) {
@@ -380,31 +416,34 @@ function bindRangeControls(onRange) {
 }
 
 async function loadDashboardData() {
-  const [latest, history, components, audit, strategy, sector, lowPosition] = await Promise.all([
+  const [latest, history, nowcastHistory, components, audit, strategy, sector, lowPosition] = await Promise.all([
     loadJSON('./data/latest.json'),
     loadJSON('./data/history.json'),
+    loadJSON('./data/nowcast_history.json').catch(() => ({ status: 'missing', rows: [], gaps: [] })),
     loadJSON('./data/components.json'),
     loadJSON('./data/audit.json'),
     loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' })),
     loadJSON('./data/sector_correlation.json').catch(() => ({ status: 'missing' })),
     loadJSON('./data/low_position_sector_study.json').catch(() => ({ status: 'missing' }))
   ]);
-  return { latest, history, components, audit, strategy, sector, lowPosition };
+  return { latest, history, nowcastHistory, components, audit, strategy, sector, lowPosition };
 }
 
-function renderDashboard({ latest, history, components, audit, strategy, sector, lowPosition }) {
+function renderDashboard({ latest, history, nowcastHistory, components, audit, strategy, sector, lowPosition }) {
   renderLatest(latest);
   renderAudit(audit);
   renderStrategy(strategy);
   renderSectorCorrelation(sector);
   renderLowPositionSectorStudy(lowPosition);
+  renderNowcastGapSummary(nowcastHistory);
   setText('componentsMode', `${components.temperature_mode || '--'} / ${components.trade_date || '--'}`);
   const componentDom = document.getElementById('componentsChart');
   const oldComponentChart = echarts.getInstanceByDom(componentDom);
   if (oldComponentChart) oldComponentChart.dispose();
   dashboardState.componentChart = renderComponentsChart(components);
-  const activeHistory = appendNowcastHistory(history, latest);
+  const activeHistory = mergeNowcastHistory(history, nowcastHistory, latest);
   dashboardState.history = activeHistory;
+  dashboardState.nowcastHistory = nowcastHistory;
   dashboardState.strategy = strategy;
   dashboardState.timeCharts = renderTimeCharts(activeHistory, strategy, dashboardState.activeRange);
 }

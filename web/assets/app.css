@@ -148,6 +148,11 @@ dd[data-freshness="unknown"] { color: var(--amber); }
   font-size: 12px;
   line-height: 1.5;
 }
+.gap-note {
+  margin-top: -4px;
+  color: #344054;
+  font-weight: 700;
+}
 .range-controls {
   display: inline-flex;
   gap: 4px;
