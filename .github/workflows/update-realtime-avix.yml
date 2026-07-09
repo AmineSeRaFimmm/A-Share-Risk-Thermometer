@@ -77,12 +77,12 @@ jobs:
 
             if timeout 120s python scripts/update_realtime_avix.py; then
               python scripts/validate_realtime_avix.py
-              git add data/raw/option_realtime data/normalized/realtime_option_chain.csv data/calculated/avix_realtime_mid.csv data/site docs/data docs/assets/app.js
+              python scripts/stage_realtime_outputs.py
               if git diff --cached --quiet; then
                 echo "No realtime AVIX changes to commit."
               else
                 git commit -m "Update realtime AVIX"
-                git pull --rebase origin main
+                git pull --rebase --autostash origin main
                 git push
               fi
             else
