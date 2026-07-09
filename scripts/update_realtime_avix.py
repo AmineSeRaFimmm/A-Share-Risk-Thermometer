@@ -55,10 +55,8 @@ def main() -> None:
     write_csv(result, CALCULATED / "avix_realtime_mid.csv")
 
     if (CALCULATED / "risk_components.csv").exists():
-        from scripts.build_site_data import main as build_site
-        from scripts.write_active_components import main as write_active_components
-        build_site()
-        write_active_components()
+        from scripts.build_realtime_site_data import main as build_realtime_site
+        build_realtime_site()
 
     row = result.iloc[-1].to_dict()
     print(f"Realtime AVIX updated: {trade_date} quality={row.get('quality')} avix_mid={row.get('avix_mid')}")
