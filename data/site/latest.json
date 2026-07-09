@@ -1,28 +1,28 @@
 {
   "trade_date": "2026-07-09",
-  "update_time": "2026-07-09T14:27:01+08:00",
-  "risk_temperature": 59.6,
-  "regime": "CAUTION",
-  "regime_cn": "警戒",
+  "update_time": "2026-07-09T19:22:45+08:00",
+  "risk_temperature": 60.7,
+  "regime": "HIGH_RISK",
+  "regime_cn": "高风险",
   "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
   "model_confidence": {
-    "score": 78.0,
+    "score": 88.0,
     "grade": "MEDIUM",
-    "missing_components": "QVIX|BREADTH"
+    "missing_components": "QVIX"
   },
-  "model_confidence_label": "78.0 / 中",
+  "model_confidence_label": "88.0 / 中",
   "temperature_mode": "ESTIMATED_CLOSE",
   "temperature_mode_cn": "估算收盘",
   "is_final": false,
   "components": {
-    "avix_percentile_2y": 82.505,
-    "avix_zscore_1y": 76.9127,
-    "avix_5d_change": 40.935,
+    "avix_percentile_2y": 81.9085,
+    "avix_zscore_1y": 75.3164,
+    "avix_5d_change": 39.4236,
     "qvix_confirmation": 50.0,
-    "realized_vol": 50.0,
-    "drawdown_pressure": 50.0,
+    "realized_vol": 90.6746,
+    "drawdown_pressure": 35.7035,
     "breadth_pressure": 25.0,
-    "turnover_stress": 50.0
+    "turnover_stress": 8.9427
   },
   "market": {
     "hs300_close": 4812.296,
@@ -35,12 +35,12 @@
   "avix": {
     "avix_clean_close": 24.3304,
     "avix_raw_close": 24.3304,
-    "avix_realtime_mid": 21.6699,
+    "avix_realtime_mid": 21.4984,
     "avix_realtime_quality": "OK",
     "avix_realtime_note": "normal two-term interpolation",
     "avix_realtime_usable": true,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-    "avix_percentile_2y": 0.825,
+    "avix_percentile_2y": 0.8191,
     "quality": "OK"
   },
   "official_close": {
@@ -57,20 +57,20 @@
   },
   "nowcast": {
     "trade_date": "2026-07-09",
-    "risk_temperature": 59.6,
-    "regime": "CAUTION",
-    "regime_cn": "警戒",
+    "risk_temperature": 60.7,
+    "regime": "HIGH_RISK",
+    "regime_cn": "高风险",
     "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
     "baseline_trade_date": "2026-07-02",
     "official_risk_temperature": 75.4,
-    "realtime_avix": 21.6699,
-    "realtime_valuation_time": "2026-07-09T14:26:58+08:00",
+    "realtime_avix": 21.4984,
+    "realtime_valuation_time": "2026-07-09T19:22:41+08:00",
     "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors"
   },
   "interpretation": {
-    "headline": "市场风险温度 59.6，处于警戒",
-    "summary": "AVIX两年分位、AVIX异常程度、成交压力是当前风险温度的主要驱动；多因子合成后给出 59.6/100。",
-    "posture": "降低追高倾向",
+    "headline": "市场风险温度 60.7，处于高风险",
+    "summary": "实现波动率、AVIX两年分位、AVIX异常程度是当前风险温度的主要驱动；多因子合成后给出 60.7/100。",
+    "posture": "防守 + 等待风险释放",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
 }
