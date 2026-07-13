@@ -1,0 +1,768 @@
+{
+  "title": "风险温度分阶段交易指令（严格研究版）",
+  "disclaimer": "历史统计规律生成的研究指令，不构成投资建议；请控制仓位并自担风险。",
+  "methodology": {
+    "csi300_rule": {
+      "id": "s006676",
+      "buy": {
+        "rt_low": 60.0,
+        "rt_high": 80.0,
+        "hs300_dd60_max": -0.05
+      },
+      "sell": {
+        "hold_trading_days": 5,
+        "execution": "T+1 open after hold complete"
+      },
+      "execution": "signal_close_T_exec_open_T1",
+      "stats": {
+        "n": 49,
+        "win_rate": 0.6327,
+        "ann_return": 0.1035,
+        "total_return": 0.8574,
+        "max_dd": -0.1842,
+        "avg_trade": 0.0107,
+        "oos_n": 22,
+        "oos_win_rate": 0.6364,
+        "oos_total_return": 0.4702
+      }
+    },
+    "sector_proxy": "excess_return = sector_return - csi300_return",
+    "execution_default": "T close signal → T+1 open",
+    "sources": [
+      "research/output/strict/strict_rt_csi300_report.md",
+      "research/output/sector_flow/strict_rt_sector_flow_report.md",
+      "research/output/core_plus_sectors/core_plus_sectors_report.md"
+    ]
+  },
+  "as_of": "2026-07-10",
+  "market_state": {
+    "trade_date": "2026-07-10",
+    "rt": 63.0,
+    "prev_rt": 55.7,
+    "rt_d1": 7.299999999999997,
+    "rt_d5": 1.1000000000000014,
+    "rt_rollmax_10": 75.4,
+    "hs300_dd60": -0.0551165711200243,
+    "regime": "HIGH_RISK",
+    "regime_cn": "高风险",
+    "quality": "WARN_BREADTH_PROXY|WARN_QVIX_MISSING"
+  },
+  "active_stage_ids": [
+    "CSI300_CORE_BUY"
+  ],
+  "primary_stage": {
+    "stage_id": "CSI300_CORE_BUY",
+    "name_cn": "主策略做多窗口（高胜率高收益核心）",
+    "csi300": {
+      "action": "BUY",
+      "action_cn": "买入沪深300（或等价ETF）",
+      "detail": "T日收盘满足条件 → T+1开盘买入；持有5个交易日 → 到期后下一开盘卖出。",
+      "confidence": "HIGH",
+      "rule_id": "s006676",
+      "stats_summary": "全样本 n=49 胜率63% 年化~10% 总收益~86%；OOS n=22 胜率64% 总收益~47%"
+    },
+    "notes": [
+      "这是全体系最高优先级的指数级指令。",
+      "同一时间最多1笔主策略；持仓中忽略新信号。",
+      "建议仓位研究区间 1/3~1/2，非回测满仓假设。"
+    ]
+  },
+  "active_stages": [
+    {
+      "stage_id": "CSI300_CORE_BUY",
+      "name_cn": "主策略做多窗口（高胜率高收益核心）",
+      "priority": 100,
+      "csi300": {
+        "action": "BUY",
+        "action_cn": "买入沪深300（或等价ETF）",
+        "detail": "T日收盘满足条件 → T+1开盘买入；持有5个交易日 → 到期后下一开盘卖出。",
+        "confidence": "HIGH",
+        "rule_id": "s006676",
+        "stats_summary": "全样本 n=49 胜率63% 年化~10% 总收益~86%；OOS n=22 胜率64% 总收益~47%"
+      },
+      "sectors_long": [
+        {
+          "name": "建筑材料",
+          "why": "高风险区间[60,75) 未来5日超额显著、胜率~58%",
+          "win_rate": 0.58,
+          "n": 184,
+          "horizon": "5D"
+        },
+        {
+          "name": "商贸零售",
+          "why": "高风险区间超额显著",
+          "win_rate": 0.59,
+          "n": 184,
+          "horizon": "5D"
+        },
+        {
+          "name": "传媒",
+          "why": "高风险区间超额显著",
+          "win_rate": 0.58,
+          "n": 184,
+          "horizon": "5D"
+        },
+        {
+          "name": "恒生科技",
+          "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+          "win_rate": 0.58,
+          "n": 165,
+          "horizon": "5D"
+        }
+      ],
+      "sectors_short": [
+        {
+          "name": "公用事业",
+          "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+          "win_rate": 0.44,
+          "n": 184,
+          "horizon": "5D"
+        },
+        {
+          "name": "银行",
+          "why": "高风险区间相对不占优",
+          "win_rate": 0.49,
+          "n": 184,
+          "horizon": "5D"
+        }
+      ],
+      "hold_days": 5,
+      "notes": [
+        "这是全体系最高优先级的指数级指令。",
+        "同一时间最多1笔主策略；持仓中忽略新信号。",
+        "建议仓位研究区间 1/3~1/2，非回测满仓假设。"
+      ],
+      "same_day_note": null
+    }
+  ],
+  "actionable_instructions": [
+    {
+      "rank": 1,
+      "market": "CSI300",
+      "side": "BUY",
+      "name": "沪深300",
+      "instrument": "沪深300",
+      "trigger": "60≤RT<80 且 沪深300 60日回撤≤-5%",
+      "entry": "T+1 开盘",
+      "exit": "持有5个交易日后 T+1 开盘卖出",
+      "priority": "P0",
+      "win_rate": 0.6327,
+      "n": 49,
+      "evidence": {
+        "n": 49,
+        "win_rate": 0.6327,
+        "ann_return": 0.1035,
+        "total_return": 0.8574,
+        "max_dd": -0.1842,
+        "avg_trade": 0.0107,
+        "oos_n": 22,
+        "oos_win_rate": 0.6364,
+        "oos_total_return": 0.4702
+      },
+      "why": "严格回测最优：n=49 胜率63% 年化~10% OOS胜率64%",
+      "disclaimer": "研究指令，非投资建议",
+      "sector": "沪深300",
+      "etf_code": "510300",
+      "etf_name": "沪深300ETF华泰柏瑞",
+      "etf_label": "510300 沪深300ETF华泰柏瑞",
+      "etf_quality": "good",
+      "etf_quality_cn": "贴合",
+      "etf_note": "核心指数仓默认标的；备选 510310/159919",
+      "etf_display": "沪深300 → 510300 沪深300ETF华泰柏瑞",
+      "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
+    },
+    {
+      "rank": 10,
+      "market": "SECTOR",
+      "side": "OVERWEIGHT_RELATIVE",
+      "name": "建筑材料",
+      "instrument": "建筑材料",
+      "stage": "主策略做多窗口（高胜率高收益核心）",
+      "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+      "entry": "事件确认后 T+1",
+      "exit": "持有约5个交易日",
+      "priority": "P1",
+      "win_rate": 0.58,
+      "n": 184,
+      "why": "高风险区间[60,75) 未来5日超额显著、胜率~58%",
+      "size_note": "相对收益指令，按映射 ETF 交易",
+      "disclaimer": "超额收益代理资金偏好，非官方资金流",
+      "sector": "建筑材料",
+      "etf_code": "159745",
+      "etf_name": "建材ETF国泰",
+      "etf_label": "159745 建材ETF国泰",
+      "etf_quality": "good",
+      "etf_quality_cn": "贴合",
+      "etf_note": "",
+      "etf_display": "建筑材料 → 159745 建材ETF国泰",
+      "instrument_display": "建筑材料（159745 建材ETF国泰）"
+    },
+    {
+      "rank": 11,
+      "market": "SECTOR",
+      "side": "OVERWEIGHT_RELATIVE",
+      "name": "商贸零售",
+      "instrument": "商贸零售",
+      "stage": "主策略做多窗口（高胜率高收益核心）",
+      "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+      "entry": "事件确认后 T+1",
+      "exit": "持有约5个交易日",
+      "priority": "P1",
+      "win_rate": 0.59,
+      "n": 184,
+      "why": "高风险区间超额显著",
+      "size_note": "相对收益指令，按映射 ETF 交易",
+      "disclaimer": "超额收益代理资金偏好，非官方资金流",
+      "sector": "商贸零售",
+      "etf_code": "159928",
+      "etf_name": "消费ETF汇添富",
+      "etf_label": "159928 消费ETF汇添富",
+      "etf_quality": "proxy",
+      "etf_quality_cn": "主题代理",
+      "etf_note": "零售宽基稀缺，用主要消费ETF",
+      "etf_display": "商贸零售 → 159928 消费ETF汇添富",
+      "instrument_display": "商贸零售（159928 消费ETF汇添富）"
+    },
+    {
+      "rank": 12,
+      "market": "SECTOR",
+      "side": "OVERWEIGHT_RELATIVE",
+      "name": "传媒",
+      "instrument": "传媒",
+      "stage": "主策略做多窗口（高胜率高收益核心）",
+      "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+      "entry": "事件确认后 T+1",
+      "exit": "持有约5个交易日",
+      "priority": "P1",
+      "win_rate": 0.58,
+      "n": 184,
+      "why": "高风险区间超额显著",
+      "size_note": "相对收益指令，按映射 ETF 交易",
+      "disclaimer": "超额收益代理资金偏好，非官方资金流",
+      "sector": "传媒",
+      "etf_code": "512980",
+      "etf_name": "传媒ETF广发",
+      "etf_label": "512980 传媒ETF广发",
+      "etf_quality": "good",
+      "etf_quality_cn": "贴合",
+      "etf_note": "",
+      "etf_display": "传媒 → 512980 传媒ETF广发",
+      "instrument_display": "传媒（512980 传媒ETF广发）"
+    },
+    {
+      "rank": 13,
+      "market": "SECTOR",
+      "side": "OVERWEIGHT_RELATIVE",
+      "name": "恒生科技",
+      "instrument": "恒生科技",
+      "stage": "主策略做多窗口（高胜率高收益核心）",
+      "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+      "entry": "事件确认后 T+1",
+      "exit": "持有约5个交易日",
+      "priority": "P1",
+      "win_rate": 0.58,
+      "n": 165,
+      "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+      "size_note": "相对收益指令，按映射 ETF 交易",
+      "disclaimer": "超额收益代理资金偏好，非官方资金流",
+      "sector": "恒生科技",
+      "etf_code": "513180",
+      "etf_name": "恒生科技ETF华夏",
+      "etf_label": "513180 恒生科技ETF华夏",
+      "etf_quality": "good",
+      "etf_quality_cn": "贴合",
+      "etf_note": "备选 513130/513010",
+      "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
+      "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
+    },
+    {
+      "rank": 50,
+      "market": "SECTOR",
+      "side": "UNDERWEIGHT_RELATIVE",
+      "name": "公用事业",
+      "instrument": "公用事业",
+      "stage": "主策略做多窗口（高胜率高收益核心）",
+      "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+      "entry": "事件确认后减配/回避",
+      "exit": "约5个交易日窗口",
+      "priority": "P1",
+      "win_rate": 0.44,
+      "n": 184,
+      "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+      "disclaimer": "相对减配，不是裸空指令",
+      "sector": "公用事业",
+      "etf_code": "560620",
+      "etf_name": "公用事业ETF万家",
+      "etf_label": "560620 公用事业ETF万家",
+      "etf_quality": "good",
+      "etf_quality_cn": "贴合",
+      "etf_note": "",
+      "etf_display": "公用事业 → 560620 公用事业ETF万家",
+      "instrument_display": "公用事业（560620 公用事业ETF万家）"
+    },
+    {
+      "rank": 51,
+      "market": "SECTOR",
+      "side": "UNDERWEIGHT_RELATIVE",
+      "name": "银行",
+      "instrument": "银行",
+      "stage": "主策略做多窗口（高胜率高收益核心）",
+      "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+      "entry": "事件确认后减配/回避",
+      "exit": "约5个交易日窗口",
+      "priority": "P1",
+      "win_rate": 0.49,
+      "n": 184,
+      "why": "高风险区间相对不占优",
+      "disclaimer": "相对减配，不是裸空指令",
+      "sector": "银行",
+      "etf_code": "512800",
+      "etf_name": "银行ETF华宝",
+      "etf_label": "512800 银行ETF华宝",
+      "etf_quality": "good",
+      "etf_quality_cn": "贴合",
+      "etf_note": "",
+      "etf_display": "银行 → 512800 银行ETF华宝",
+      "instrument_display": "银行（512800 银行ETF华宝）"
+    }
+  ],
+  "flex_panel": {
+    "status": "双仓激活",
+    "status_code": "BOTH",
+    "headline": "组合 Flex：核心买入 + 板块超配",
+    "as_of": "2026-07-10",
+    "execution_cn": "信号日 T 收盘确认 → 下一交易日开盘执行",
+    "hold_days": 5,
+    "allocation_cn": "双仓：约 60% 核心沪深300 + 40% 卫星板块等权",
+    "allocation_mode": "BOTH",
+    "market_state": {
+      "rt": 63.0,
+      "rt_d1": 7.299999999999997,
+      "rt_d5": 1.1000000000000014,
+      "hs300_dd60": -0.0551165711200243,
+      "regime_cn": "高风险"
+    },
+    "core": {
+      "sleeve": "core",
+      "name": "沪深300 主策略",
+      "action": "BUY",
+      "action_cn": "买入",
+      "tone": "buy",
+      "detail": "T 日收盘满足条件 → 下一交易日开盘买入；持有 5 个交易日后开盘卖出。",
+      "rule": "60≤RT<80 且 60日回撤≤-5%；持有5日",
+      "active": true,
+      "etf_code": "510300",
+      "etf_name": "沪深300ETF华泰柏瑞",
+      "etf_label": "510300 沪深300ETF华泰柏瑞"
+    },
+    "satellite": {
+      "sleeve": "satellite",
+      "name": "板块超配卫星",
+      "active": true,
+      "stage_id": "CSI300_CORE_BUY",
+      "stage_cn": "主策略做多窗口（高胜率高收益核心）",
+      "buy": [
+        {
+          "name": "建筑材料",
+          "side": "BUY",
+          "side_cn": "买入/超配",
+          "why": "高风险区间[60,75) 未来5日超额显著、胜率~58%",
+          "win_rate": 0.58,
+          "n": 184,
+          "sector": "建筑材料",
+          "etf_code": "159745",
+          "etf_name": "建材ETF国泰",
+          "etf_label": "159745 建材ETF国泰",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "建筑材料 → 159745 建材ETF国泰",
+          "instrument_display": "建筑材料（159745 建材ETF国泰）"
+        },
+        {
+          "name": "商贸零售",
+          "side": "BUY",
+          "side_cn": "买入/超配",
+          "why": "高风险区间超额显著",
+          "win_rate": 0.59,
+          "n": 184,
+          "sector": "商贸零售",
+          "etf_code": "159928",
+          "etf_name": "消费ETF汇添富",
+          "etf_label": "159928 消费ETF汇添富",
+          "etf_quality": "proxy",
+          "etf_quality_cn": "主题代理",
+          "etf_note": "零售宽基稀缺，用主要消费ETF",
+          "etf_display": "商贸零售 → 159928 消费ETF汇添富",
+          "instrument_display": "商贸零售（159928 消费ETF汇添富）"
+        },
+        {
+          "name": "传媒",
+          "side": "BUY",
+          "side_cn": "买入/超配",
+          "why": "高风险区间超额显著",
+          "win_rate": 0.58,
+          "n": 184,
+          "sector": "传媒",
+          "etf_code": "512980",
+          "etf_name": "传媒ETF广发",
+          "etf_label": "512980 传媒ETF广发",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "传媒 → 512980 传媒ETF广发",
+          "instrument_display": "传媒（512980 传媒ETF广发）"
+        },
+        {
+          "name": "恒生科技",
+          "side": "BUY",
+          "side_cn": "买入/超配",
+          "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+          "win_rate": 0.58,
+          "n": 165,
+          "sector": "恒生科技",
+          "etf_code": "513180",
+          "etf_name": "恒生科技ETF华夏",
+          "etf_label": "513180 恒生科技ETF华夏",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "备选 513130/513010",
+          "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
+          "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
+        }
+      ],
+      "sell": [
+        {
+          "name": "公用事业",
+          "side": "SELL",
+          "side_cn": "卖出/低配",
+          "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+          "win_rate": 0.44,
+          "n": 184,
+          "sector": "公用事业",
+          "etf_code": "560620",
+          "etf_name": "公用事业ETF万家",
+          "etf_label": "560620 公用事业ETF万家",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "公用事业 → 560620 公用事业ETF万家",
+          "instrument_display": "公用事业（560620 公用事业ETF万家）"
+        },
+        {
+          "name": "银行",
+          "side": "SELL",
+          "side_cn": "卖出/低配",
+          "why": "高风险区间相对不占优",
+          "win_rate": 0.49,
+          "n": 184,
+          "sector": "银行",
+          "etf_code": "512800",
+          "etf_name": "银行ETF华宝",
+          "etf_label": "512800 银行ETF华宝",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "银行 → 512800 银行ETF华宝",
+          "instrument_display": "银行（512800 银行ETF华宝）"
+        }
+      ],
+      "detail": "仅高置信阶段；已映射到行业/主题 ETF（见 etf_code）；long-only 默认不做空。"
+    },
+    "buy_list": [
+      {
+        "sleeve": "core",
+        "name": "沪深300",
+        "side": "BUY",
+        "side_cn": "买入",
+        "weight_hint": "Flex 满仓核心或 60%",
+        "entry": "T+1 开盘",
+        "exit": "持有 5 日 → 开盘卖出",
+        "why": "组合 Flex 核心规则（回测胜率约 65%）",
+        "sector": "沪深300",
+        "etf_code": "510300",
+        "etf_name": "沪深300ETF华泰柏瑞",
+        "etf_label": "510300 沪深300ETF华泰柏瑞",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "核心指数仓默认标的；备选 510310/159919",
+        "etf_display": "沪深300 → 510300 沪深300ETF华泰柏瑞",
+        "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
+      },
+      {
+        "sleeve": "satellite",
+        "name": "建筑材料",
+        "side": "BUY",
+        "side_cn": "买入/超配",
+        "weight_hint": "卫星等权",
+        "entry": "T+1 开盘",
+        "exit": "持有约 5 日",
+        "why": "高风险区间[60,75) 未来5日超额显著、胜率~58%",
+        "win_rate": 0.58,
+        "n": 184,
+        "sector": "建筑材料",
+        "etf_code": "159745",
+        "etf_name": "建材ETF国泰",
+        "etf_label": "159745 建材ETF国泰",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "建筑材料 → 159745 建材ETF国泰",
+        "instrument_display": "建筑材料（159745 建材ETF国泰）"
+      },
+      {
+        "sleeve": "satellite",
+        "name": "商贸零售",
+        "side": "BUY",
+        "side_cn": "买入/超配",
+        "weight_hint": "卫星等权",
+        "entry": "T+1 开盘",
+        "exit": "持有约 5 日",
+        "why": "高风险区间超额显著",
+        "win_rate": 0.59,
+        "n": 184,
+        "sector": "商贸零售",
+        "etf_code": "159928",
+        "etf_name": "消费ETF汇添富",
+        "etf_label": "159928 消费ETF汇添富",
+        "etf_quality": "proxy",
+        "etf_quality_cn": "主题代理",
+        "etf_note": "零售宽基稀缺，用主要消费ETF",
+        "etf_display": "商贸零售 → 159928 消费ETF汇添富",
+        "instrument_display": "商贸零售（159928 消费ETF汇添富）"
+      },
+      {
+        "sleeve": "satellite",
+        "name": "传媒",
+        "side": "BUY",
+        "side_cn": "买入/超配",
+        "weight_hint": "卫星等权",
+        "entry": "T+1 开盘",
+        "exit": "持有约 5 日",
+        "why": "高风险区间超额显著",
+        "win_rate": 0.58,
+        "n": 184,
+        "sector": "传媒",
+        "etf_code": "512980",
+        "etf_name": "传媒ETF广发",
+        "etf_label": "512980 传媒ETF广发",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "传媒 → 512980 传媒ETF广发",
+        "instrument_display": "传媒（512980 传媒ETF广发）"
+      },
+      {
+        "sleeve": "satellite",
+        "name": "恒生科技",
+        "side": "BUY",
+        "side_cn": "买入/超配",
+        "weight_hint": "卫星等权",
+        "entry": "T+1 开盘",
+        "exit": "持有约 5 日",
+        "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+        "win_rate": 0.58,
+        "n": 165,
+        "sector": "恒生科技",
+        "etf_code": "513180",
+        "etf_name": "恒生科技ETF华夏",
+        "etf_label": "513180 恒生科技ETF华夏",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "备选 513130/513010",
+        "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
+        "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
+      }
+    ],
+    "sell_list": [
+      {
+        "sleeve": "satellite",
+        "name": "公用事业",
+        "side": "SELL",
+        "side_cn": "卖出/低配",
+        "weight_hint": "回避/减配（long-only 不持有）",
+        "entry": "立即减配",
+        "exit": "阶段窗口约 5 日",
+        "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+        "win_rate": 0.44,
+        "n": 184,
+        "sector": "公用事业",
+        "etf_code": "560620",
+        "etf_name": "公用事业ETF万家",
+        "etf_label": "560620 公用事业ETF万家",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "公用事业 → 560620 公用事业ETF万家",
+        "instrument_display": "公用事业（560620 公用事业ETF万家）"
+      },
+      {
+        "sleeve": "satellite",
+        "name": "银行",
+        "side": "SELL",
+        "side_cn": "卖出/低配",
+        "weight_hint": "回避/减配（long-only 不持有）",
+        "entry": "立即减配",
+        "exit": "阶段窗口约 5 日",
+        "why": "高风险区间相对不占优",
+        "win_rate": 0.49,
+        "n": 184,
+        "sector": "银行",
+        "etf_code": "512800",
+        "etf_name": "银行ETF华宝",
+        "etf_label": "512800 银行ETF华宝",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "银行 → 512800 银行ETF华宝",
+        "instrument_display": "银行（512800 银行ETF华宝）"
+      }
+    ],
+    "sector_etf_map_version": "config/sector_etf_map.yml",
+    "backtest": {
+      "mode": "combined_flex_long_only",
+      "label_cn": "组合 Flex（核心+板块超配）",
+      "core_weight_when_both": 0.6,
+      "sat_weight_when_both": 0.4,
+      "flex_rule_cn": "仅一仓激活时 100% 该仓；双仓同时 60% 核心 + 40% 卫星",
+      "hold_days": 5,
+      "execution": "T 收盘信号 → T+1 开盘",
+      "full_sample": {
+        "total_return": 4.0155,
+        "ann_return": 0.2922,
+        "max_dd": -0.1537,
+        "win_rate": 0.625,
+        "trade_count": 256
+      },
+      "oos": {
+        "total_return": 1.6078,
+        "ann_return": 0.4868,
+        "max_dd": -0.1096,
+        "win_rate": 0.625,
+        "trade_count": 104
+      },
+      "core_only": {
+        "total_return": 0.8523,
+        "ann_return": 0.103,
+        "max_dd": -0.1065,
+        "win_rate": 0.6531,
+        "trade_count": 49
+      },
+      "caveat_cn": "板块用行业指数代理 ETF，卫星交易较密，实盘收益应低于回测。"
+    },
+    "disclaimer": "研究回测指令，非投资建议。ETF 映射见 config/sector_etf_map.yml；弱代理请降仓。",
+    "primary_stage_cn": "主策略做多窗口（高胜率高收益核心）"
+  },
+  "all_stage_catalog": [
+    {
+      "stage_id": "CALM",
+      "name_cn": "平静 / 低波动",
+      "detect": "rt < 40",
+      "csi300_action": "不做 RT 主动做多沪深300",
+      "long": [
+        "有色金属",
+        "煤炭",
+        "石油石化"
+      ],
+      "short": [
+        "美容护理",
+        "恒生科技",
+        "商贸零售"
+      ]
+    },
+    {
+      "stage_id": "RISING_HARD",
+      "name_cn": "升温冲击（ΔRT_5≥+5）",
+      "detect": "rt_d5 >= 5",
+      "csi300_action": "升温当日不追涨指数；若同时满足主策略买入条件则按主策略",
+      "long": [
+        "通信",
+        "电子",
+        "机械设备",
+        "国防军工"
+      ],
+      "short": [
+        "美容护理",
+        "房地产",
+        "钢铁"
+      ]
+    },
+    {
+      "stage_id": "CSI300_CORE_BUY",
+      "name_cn": "主策略做多窗口（高胜率高收益核心）",
+      "detect": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+      "csi300_action": "买入沪深300（或等价ETF）",
+      "long": [
+        "建筑材料",
+        "商贸零售",
+        "传媒",
+        "恒生科技"
+      ],
+      "short": [
+        "公用事业",
+        "银行"
+      ]
+    },
+    {
+      "stage_id": "ENTER_70_BOUNCE",
+      "name_cn": "刚进入更高风险（穿越70）——弹性反弹窗口",
+      "detect": "prev_rt < 70 <= rt",
+      "csi300_action": "若同时满足主策略则执行主策略；否则不加仓指数",
+      "long": [
+        "恒生科技"
+      ],
+      "short": [
+        "石油石化",
+        "公用事业",
+        "银行"
+      ]
+    },
+    {
+      "stage_id": "HIGH_COOLING",
+      "name_cn": "高位降温 / 避险轮动",
+      "detect": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+      "csi300_action": "主策略若已到期则不新开；已持有按规则卖",
+      "long": [
+        "石油石化",
+        "综合",
+        "轻工制造",
+        "煤炭",
+        "传媒"
+      ],
+      "short": [
+        "电子",
+        "计算机"
+      ]
+    },
+    {
+      "stage_id": "FALLING_HARD",
+      "name_cn": "降温（ΔRT_5≤-5）",
+      "detect": "rt_d5 <= -5",
+      "csi300_action": "除非仍满足主策略持仓中，否则不新开指数多单",
+      "long": [
+        "有色金属",
+        "煤炭",
+        "基础化工",
+        "电力设备"
+      ],
+      "short": [
+        "计算机",
+        "传媒",
+        "美容护理"
+      ]
+    },
+    {
+      "stage_id": "PANIC_SMALL_N",
+      "name_cn": "恐慌区（RT≥75，小样本）",
+      "detect": "rt >= 75",
+      "csi300_action": "仅当仍满足主策略上沿前条件才考虑；禁止裸买极端恐慌",
+      "long": [
+        "恒生科技",
+        "有色金属"
+      ],
+      "short": [
+        "公用事业"
+      ]
+    }
+  ]
+}

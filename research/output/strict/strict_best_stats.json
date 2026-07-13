@@ -1,0 +1,17 @@
+{
+  "strategy_id":"s006676",
+  "trade_count":49,
+  "exposure_ratio":0.1829652997,
+  "avg_holding_days":5.9183673469,
+  "win_rate":0.6326530612,
+  "avg_trade_return":0.0106964539,
+  "median_trade_return":0.0047043602,
+  "total_return":0.8573877687,
+  "annualized_return":0.103450779,
+  "max_drawdown":-0.1841970356,
+  "max_single_loss":-0.0713187964,
+  "profit_factor":2.3142261601,
+  "sharpe":0.9549597169,
+  "calmar":0.5616310744,
+  "max_consecutive_losses":3
+}

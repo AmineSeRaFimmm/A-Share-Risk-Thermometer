@@ -1,0 +1,188 @@
+# Shenwan L1 / style name → preferred tradable ETF
+# Preference: liquid A-share (or HK-connect) ETFs with tight industry name match.
+# Codes are 6-digit fund codes.
+
+csi300:
+  code: "510300"
+  name: "沪深300ETF华泰柏瑞"
+  exchange: "SH"
+  note: "核心指数仓默认标的；备选 510310/159919"
+
+hstech:
+  code: "513180"
+  name: "恒生科技ETF华夏"
+  exchange: "SH"
+  note: "备选 513130/513010"
+
+sectors:
+  农林牧渔:
+    code: "516670"
+    name: "畜牧养殖ETF招商"
+    alt: ["516670", "159865"]
+    note: "养殖主题代理农林牧渔"
+    quality: "proxy"
+  基础化工:
+    code: "516020"
+    name: "化工ETF华宝"
+    alt: ["159870", "159082"]
+    quality: "good"
+  钢铁:
+    code: "515210"
+    name: "钢铁ETF国泰"
+    alt: ["515210"]
+    quality: "good"
+  有色金属:
+    code: "512400"
+    name: "有色金属ETF南方"
+    alt: ["512400"]
+    quality: "good"
+  电子:
+    code: "159995"
+    name: "芯片ETF华夏"
+    alt: ["512480", "561100"]
+    note: "电子宽基稀缺；用芯片/半导体高相关代理"
+    quality: "proxy"
+  家用电器:
+    code: "159730"
+    name: "家电ETF博时"
+    alt: ["159730"]
+    quality: "good"
+  食品饮料:
+    code: "515710"
+    name: "食品饮料ETF华宝"
+    alt: ["512690", "515170"]
+    quality: "good"
+  纺织服饰:
+    code: "159928"
+    name: "消费ETF汇添富"
+    alt: ["159928"]
+    note: "无纯正纺织服饰ETF，用主要消费近似"
+    quality: "weak"
+  轻工制造:
+    code: "512430"
+    name: "家居家电ETF华泰柏瑞"
+    alt: ["515730", "159928"]
+    note: "无纯正轻工ETF，用家居主题近似"
+    quality: "proxy"
+  医药生物:
+    code: "512010"
+    name: "医药ETF易方达"
+    alt: ["512290", "159929"]
+    quality: "good"
+  公用事业:
+    code: "560620"
+    name: "公用事业ETF万家"
+    alt: ["159059"]
+    quality: "good"
+  交通运输:
+    code: "159666"
+    name: "交通运输ETF华夏"
+    alt: ["159666"]
+    quality: "good"
+  房地产:
+    code: "512200"
+    name: "房地产ETF南方"
+    alt: ["512200"]
+    quality: "good"
+  商贸零售:
+    code: "159928"
+    name: "消费ETF汇添富"
+    alt: ["515170"]
+    note: "零售宽基稀缺，用主要消费ETF"
+    quality: "proxy"
+  社会服务:
+    code: "159766"
+    name: "旅游ETF富国"
+    alt: ["562510"]
+    note: "社会服务≈旅游主题代理"
+    quality: "proxy"
+  综合:
+    code: "510300"
+    name: "沪深300ETF华泰柏瑞"
+    alt: ["510300"]
+    note: "综合行业无干净映射，回退沪深300"
+    quality: "weak"
+  建筑材料:
+    code: "159745"
+    name: "建材ETF国泰"
+    alt: ["159787", "516750"]
+    quality: "good"
+  建筑装饰:
+    code: "159745"
+    name: "建材ETF国泰"
+    alt: ["159745"]
+    note: "无纯建筑装饰ETF，用建材代理"
+    quality: "proxy"
+  电力设备:
+    code: "516850"
+    name: "新能源ETF华夏"
+    alt: ["515790", "159875"]
+    note: "电力设备≈新能源主题"
+    quality: "proxy"
+  国防军工:
+    code: "512660"
+    name: "军工ETF国泰"
+    alt: ["512710", "512680"]
+    quality: "good"
+  计算机:
+    code: "159998"
+    name: "计算机ETF天弘"
+    alt: ["512720"]
+    quality: "good"
+  传媒:
+    code: "512980"
+    name: "传媒ETF广发"
+    alt: ["159805"]
+    quality: "good"
+  通信:
+    code: "515880"
+    name: "通信ETF国泰"
+    alt: ["515050", "159507"]
+    quality: "good"
+  银行:
+    code: "512800"
+    name: "银行ETF华宝"
+    alt: ["512700", "515020"]
+    quality: "good"
+  非银金融:
+    code: "512880"
+    name: "证券ETF国泰"
+    alt: ["512900", "159993"]
+    quality: "good"
+  汽车:
+    code: "516110"
+    name: "汽车ETF国泰"
+    alt: ["516590"]
+    quality: "good"
+  机械设备:
+    code: "159886"
+    name: "机械ETF富国"
+    alt: ["516250"]
+    quality: "good"
+  煤炭:
+    code: "515220"
+    name: "煤炭ETF国泰"
+    alt: ["515220"]
+    quality: "good"
+  石油石化:
+    code: "159697"
+    name: "石油ETF鹏华"
+    alt: ["159309", "159017"]
+    note: "油气主题代理石化"
+    quality: "proxy"
+  环保:
+    code: "512580"
+    name: "环保ETF广发"
+    alt: ["512580"]
+    quality: "good"
+  美容护理:
+    code: "159928"
+    name: "消费ETF汇添富"
+    alt: ["159928"]
+    note: "A股无主流美容护理行业ETF，用消费ETF弱代理"
+    quality: "weak"
+  恒生科技:
+    code: "513180"
+    name: "恒生科技ETF华夏"
+    alt: ["513130", "513010"]
+    quality: "good"

@@ -1,0 +1,475 @@
+{
+  "rows": [
+    {
+      "sector": "沪深300",
+      "etf_code": "510300",
+      "etf_name": "沪深300ETF华泰柏瑞",
+      "etf_label": "510300 沪深300ETF华泰柏瑞",
+      "exchange": "SH",
+      "alt_codes": [],
+      "note": "核心指数仓默认标的；备选 510310/159919",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "沪深300 → 510300 沪深300ETF华泰柏瑞"
+    },
+    {
+      "sector": "恒生科技",
+      "etf_code": "513180",
+      "etf_name": "恒生科技ETF华夏",
+      "etf_label": "513180 恒生科技ETF华夏",
+      "exchange": "SH",
+      "alt_codes": [],
+      "note": "备选 513130/513010",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "恒生科技 → 513180 恒生科技ETF华夏"
+    },
+    {
+      "sector": "交通运输",
+      "etf_code": "159666",
+      "etf_name": "交通运输ETF华夏",
+      "etf_label": "159666 交通运输ETF华夏",
+      "exchange": "SZ",
+      "alt_codes": [
+        "159666"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "交通运输 → 159666 交通运输ETF华夏"
+    },
+    {
+      "sector": "传媒",
+      "etf_code": "512980",
+      "etf_name": "传媒ETF广发",
+      "etf_label": "512980 传媒ETF广发",
+      "exchange": "SH",
+      "alt_codes": [
+        "159805"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "传媒 → 512980 传媒ETF广发"
+    },
+    {
+      "sector": "公用事业",
+      "etf_code": "560620",
+      "etf_name": "公用事业ETF万家",
+      "etf_label": "560620 公用事业ETF万家",
+      "exchange": "SH",
+      "alt_codes": [
+        "159059"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "公用事业 → 560620 公用事业ETF万家"
+    },
+    {
+      "sector": "农林牧渔",
+      "etf_code": "516670",
+      "etf_name": "畜牧养殖ETF招商",
+      "etf_label": "516670 畜牧养殖ETF招商",
+      "exchange": "SH",
+      "alt_codes": [
+        "516670",
+        "159865"
+      ],
+      "note": "养殖主题代理农林牧渔",
+      "quality": "proxy",
+      "quality_cn": "主题代理",
+      "display": "农林牧渔 → 516670 畜牧养殖ETF招商"
+    },
+    {
+      "sector": "医药生物",
+      "etf_code": "512010",
+      "etf_name": "医药ETF易方达",
+      "etf_label": "512010 医药ETF易方达",
+      "exchange": "SH",
+      "alt_codes": [
+        "512290",
+        "159929"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "医药生物 → 512010 医药ETF易方达"
+    },
+    {
+      "sector": "商贸零售",
+      "etf_code": "159928",
+      "etf_name": "消费ETF汇添富",
+      "etf_label": "159928 消费ETF汇添富",
+      "exchange": "SZ",
+      "alt_codes": [
+        "515170"
+      ],
+      "note": "零售宽基稀缺，用主要消费ETF",
+      "quality": "proxy",
+      "quality_cn": "主题代理",
+      "display": "商贸零售 → 159928 消费ETF汇添富"
+    },
+    {
+      "sector": "国防军工",
+      "etf_code": "512660",
+      "etf_name": "军工ETF国泰",
+      "etf_label": "512660 军工ETF国泰",
+      "exchange": "SH",
+      "alt_codes": [
+        "512710",
+        "512680"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "国防军工 → 512660 军工ETF国泰"
+    },
+    {
+      "sector": "基础化工",
+      "etf_code": "516020",
+      "etf_name": "化工ETF华宝",
+      "etf_label": "516020 化工ETF华宝",
+      "exchange": "SH",
+      "alt_codes": [
+        "159870",
+        "159082"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "基础化工 → 516020 化工ETF华宝"
+    },
+    {
+      "sector": "家用电器",
+      "etf_code": "159730",
+      "etf_name": "家电ETF博时",
+      "etf_label": "159730 家电ETF博时",
+      "exchange": "SZ",
+      "alt_codes": [
+        "159730"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "家用电器 → 159730 家电ETF博时"
+    },
+    {
+      "sector": "建筑材料",
+      "etf_code": "159745",
+      "etf_name": "建材ETF国泰",
+      "etf_label": "159745 建材ETF国泰",
+      "exchange": "SZ",
+      "alt_codes": [
+        "159787",
+        "516750"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "建筑材料 → 159745 建材ETF国泰"
+    },
+    {
+      "sector": "建筑装饰",
+      "etf_code": "159745",
+      "etf_name": "建材ETF国泰",
+      "etf_label": "159745 建材ETF国泰",
+      "exchange": "SZ",
+      "alt_codes": [
+        "159745"
+      ],
+      "note": "无纯建筑装饰ETF，用建材代理",
+      "quality": "proxy",
+      "quality_cn": "主题代理",
+      "display": "建筑装饰 → 159745 建材ETF国泰"
+    },
+    {
+      "sector": "房地产",
+      "etf_code": "512200",
+      "etf_name": "房地产ETF南方",
+      "etf_label": "512200 房地产ETF南方",
+      "exchange": "SH",
+      "alt_codes": [
+        "512200"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "房地产 → 512200 房地产ETF南方"
+    },
+    {
+      "sector": "有色金属",
+      "etf_code": "512400",
+      "etf_name": "有色金属ETF南方",
+      "etf_label": "512400 有色金属ETF南方",
+      "exchange": "SH",
+      "alt_codes": [
+        "512400"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "有色金属 → 512400 有色金属ETF南方"
+    },
+    {
+      "sector": "机械设备",
+      "etf_code": "159886",
+      "etf_name": "机械ETF富国",
+      "etf_label": "159886 机械ETF富国",
+      "exchange": "SZ",
+      "alt_codes": [
+        "516250"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "机械设备 → 159886 机械ETF富国"
+    },
+    {
+      "sector": "汽车",
+      "etf_code": "516110",
+      "etf_name": "汽车ETF国泰",
+      "etf_label": "516110 汽车ETF国泰",
+      "exchange": "SH",
+      "alt_codes": [
+        "516590"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "汽车 → 516110 汽车ETF国泰"
+    },
+    {
+      "sector": "煤炭",
+      "etf_code": "515220",
+      "etf_name": "煤炭ETF国泰",
+      "etf_label": "515220 煤炭ETF国泰",
+      "exchange": "SH",
+      "alt_codes": [
+        "515220"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "煤炭 → 515220 煤炭ETF国泰"
+    },
+    {
+      "sector": "环保",
+      "etf_code": "512580",
+      "etf_name": "环保ETF广发",
+      "etf_label": "512580 环保ETF广发",
+      "exchange": "SH",
+      "alt_codes": [
+        "512580"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "环保 → 512580 环保ETF广发"
+    },
+    {
+      "sector": "电力设备",
+      "etf_code": "516850",
+      "etf_name": "新能源ETF华夏",
+      "etf_label": "516850 新能源ETF华夏",
+      "exchange": "SH",
+      "alt_codes": [
+        "515790",
+        "159875"
+      ],
+      "note": "电力设备≈新能源主题",
+      "quality": "proxy",
+      "quality_cn": "主题代理",
+      "display": "电力设备 → 516850 新能源ETF华夏"
+    },
+    {
+      "sector": "电子",
+      "etf_code": "159995",
+      "etf_name": "芯片ETF华夏",
+      "etf_label": "159995 芯片ETF华夏",
+      "exchange": "SZ",
+      "alt_codes": [
+        "512480",
+        "561100"
+      ],
+      "note": "电子宽基稀缺；用芯片/半导体高相关代理",
+      "quality": "proxy",
+      "quality_cn": "主题代理",
+      "display": "电子 → 159995 芯片ETF华夏"
+    },
+    {
+      "sector": "石油石化",
+      "etf_code": "159697",
+      "etf_name": "石油ETF鹏华",
+      "etf_label": "159697 石油ETF鹏华",
+      "exchange": "SZ",
+      "alt_codes": [
+        "159309",
+        "159017"
+      ],
+      "note": "油气主题代理石化",
+      "quality": "proxy",
+      "quality_cn": "主题代理",
+      "display": "石油石化 → 159697 石油ETF鹏华"
+    },
+    {
+      "sector": "社会服务",
+      "etf_code": "159766",
+      "etf_name": "旅游ETF富国",
+      "etf_label": "159766 旅游ETF富国",
+      "exchange": "SZ",
+      "alt_codes": [
+        "562510"
+      ],
+      "note": "社会服务≈旅游主题代理",
+      "quality": "proxy",
+      "quality_cn": "主题代理",
+      "display": "社会服务 → 159766 旅游ETF富国"
+    },
+    {
+      "sector": "纺织服饰",
+      "etf_code": "159928",
+      "etf_name": "消费ETF汇添富",
+      "etf_label": "159928 消费ETF汇添富",
+      "exchange": "SZ",
+      "alt_codes": [
+        "159928"
+      ],
+      "note": "无纯正纺织服饰ETF，用主要消费近似",
+      "quality": "weak",
+      "quality_cn": "弱代理",
+      "display": "纺织服饰 → 159928 消费ETF汇添富"
+    },
+    {
+      "sector": "综合",
+      "etf_code": "510300",
+      "etf_name": "沪深300ETF华泰柏瑞",
+      "etf_label": "510300 沪深300ETF华泰柏瑞",
+      "exchange": "SH",
+      "alt_codes": [
+        "510300"
+      ],
+      "note": "综合行业无干净映射，回退沪深300",
+      "quality": "weak",
+      "quality_cn": "弱代理",
+      "display": "综合 → 510300 沪深300ETF华泰柏瑞"
+    },
+    {
+      "sector": "美容护理",
+      "etf_code": "159928",
+      "etf_name": "消费ETF汇添富",
+      "etf_label": "159928 消费ETF汇添富",
+      "exchange": "SZ",
+      "alt_codes": [
+        "159928"
+      ],
+      "note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
+      "quality": "weak",
+      "quality_cn": "弱代理",
+      "display": "美容护理 → 159928 消费ETF汇添富"
+    },
+    {
+      "sector": "计算机",
+      "etf_code": "159998",
+      "etf_name": "计算机ETF天弘",
+      "etf_label": "159998 计算机ETF天弘",
+      "exchange": "SZ",
+      "alt_codes": [
+        "512720"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "计算机 → 159998 计算机ETF天弘"
+    },
+    {
+      "sector": "轻工制造",
+      "etf_code": "512430",
+      "etf_name": "家居家电ETF华泰柏瑞",
+      "etf_label": "512430 家居家电ETF华泰柏瑞",
+      "exchange": "SH",
+      "alt_codes": [
+        "515730",
+        "159928"
+      ],
+      "note": "无纯正轻工ETF，用家居主题近似",
+      "quality": "proxy",
+      "quality_cn": "主题代理",
+      "display": "轻工制造 → 512430 家居家电ETF华泰柏瑞"
+    },
+    {
+      "sector": "通信",
+      "etf_code": "515880",
+      "etf_name": "通信ETF国泰",
+      "etf_label": "515880 通信ETF国泰",
+      "exchange": "SH",
+      "alt_codes": [
+        "515050",
+        "159507"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "通信 → 515880 通信ETF国泰"
+    },
+    {
+      "sector": "钢铁",
+      "etf_code": "515210",
+      "etf_name": "钢铁ETF国泰",
+      "etf_label": "515210 钢铁ETF国泰",
+      "exchange": "SH",
+      "alt_codes": [
+        "515210"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "钢铁 → 515210 钢铁ETF国泰"
+    },
+    {
+      "sector": "银行",
+      "etf_code": "512800",
+      "etf_name": "银行ETF华宝",
+      "etf_label": "512800 银行ETF华宝",
+      "exchange": "SH",
+      "alt_codes": [
+        "512700",
+        "515020"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "银行 → 512800 银行ETF华宝"
+    },
+    {
+      "sector": "非银金融",
+      "etf_code": "512880",
+      "etf_name": "证券ETF国泰",
+      "etf_label": "512880 证券ETF国泰",
+      "exchange": "SH",
+      "alt_codes": [
+        "512900",
+        "159993"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "非银金融 → 512880 证券ETF国泰"
+    },
+    {
+      "sector": "食品饮料",
+      "etf_code": "515710",
+      "etf_name": "食品饮料ETF华宝",
+      "etf_label": "515710 食品饮料ETF华宝",
+      "exchange": "SH",
+      "alt_codes": [
+        "512690",
+        "515170"
+      ],
+      "note": "",
+      "quality": "good",
+      "quality_cn": "贴合",
+      "display": "食品饮料 → 515710 食品饮料ETF华宝"
+    }
+  ]
+}

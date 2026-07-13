@@ -1,0 +1,16 @@
+,count
+evt_rt_rising_hard,441
+evt_rt_falling_hard,485
+evt_rt_rising_soft,552
+evt_rt_falling_soft,619
+evt_enter_high_60,63
+evt_enter_high_70,35
+evt_exit_high_60,62
+evt_high_cooling,45
+evt_high_cooling_strict,27
+evt_regime_calm,737
+evt_regime_caution,629
+evt_regime_high,193
+evt_regime_panic,26
+evt_rt_rising_q80,316
+evt_rt_falling_q20,316

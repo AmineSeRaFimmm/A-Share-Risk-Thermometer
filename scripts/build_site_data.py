@@ -14,6 +14,7 @@ from src.core.sector_correlation import analyze_sector_correlation
 from src.core.low_position_sector_study import analyze_low_position_sector_study
 from src.core.nowcast_history import build_nowcast_history_from_files, nowcast_rows_csv
 from src.core.rt_tactical import build_rt_tactical_payload
+from src.core.stage_trade_playbook import build_playbook_payload
 import pandas as pd
 
 
@@ -97,6 +98,7 @@ def main() -> None:
     write_json(audit_payload(risk, realtime, nowcast_history), SITE / "audit.json")
     write_json(strategy_payload(strategy), SITE / "strategy.json")
     write_json(build_rt_tactical_payload(risk, index_history), SITE / "rt_tactical.json")
+    write_json(build_playbook_payload(risk, index_history), SITE / "stage_playbook.json")
     _load_or_build_sector_payloads(risk, index_history)
     write_json({
         "title": "A-Share Risk Thermometer methodology",

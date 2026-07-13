@@ -188,6 +188,175 @@ dd[data-freshness="unknown"] { color: var(--amber); }
 .chart-row { margin-top: 18px; }
 .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-top: 18px; }
 .wide { width: 100%; }
+.flex-trade-panel {
+  margin-top: 18px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: var(--shadow);
+}
+.flex-headline {
+  margin: 8px 0 14px;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.35;
+}
+.flex-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.flex-meta-grid > div {
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.flex-meta-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.flex-meta-grid strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.flex-sleeves {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.flex-sleeve {
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+.flex-sleeve[data-tone="buy"] {
+  border-color: #8fd7bf;
+  background: #ecfdf5;
+}
+.flex-sleeve[data-tone="sell"] {
+  border-color: #f0a6a2;
+  background: #fff1f2;
+}
+.flex-sleeve[data-tone="wait"] {
+  border-color: #f3c06f;
+  background: #fffbeb;
+}
+.flex-sleeve-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+.flex-sleeve-head h3 {
+  margin: 0;
+  font-size: 15px;
+}
+.flex-sleeve-head em {
+  font-style: normal;
+  font-weight: 800;
+  font-size: 14px;
+  white-space: nowrap;
+}
+.flex-sleeve p {
+  margin: 10px 0 0;
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.flex-rule {
+  color: var(--muted) !important;
+  font-size: 12px !important;
+}
+.flex-book-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.flex-book {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--surface);
+}
+.flex-book-title {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.flex-book.buy .flex-book-title {
+  background: #d1fae5;
+  color: #065f46;
+}
+.flex-book.sell .flex-book-title {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.flex-order-list {
+  display: grid;
+  gap: 0;
+}
+.flex-order-item {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  padding: 12px;
+  border-top: 1px solid var(--line);
+  align-items: start;
+}
+.flex-order-item .badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 800;
+}
+.flex-order-item.buy .badge {
+  background: #059669;
+  color: #fff;
+}
+.flex-order-item.sell .badge {
+  background: #dc2626;
+  color: #fff;
+}
+.flex-order-item strong {
+  display: block;
+  font-size: 15px;
+}
+.flex-order-item span {
+  display: block;
+  margin-top: 4px;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.flex-order-empty {
+  padding: 16px 12px;
+  color: var(--muted);
+  font-size: 13px;
+  border-top: 1px solid var(--line);
+}
+.flex-disclaimer {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
 .strategy-panel { margin-top: 18px; padding: 20px; }
 .strategy-grid {
   display: grid;
@@ -415,7 +584,8 @@ body.is-loading .temperature-readout span::after {
 
 @media (max-width: 1100px) {
   .summary-grid, .chart-grid { grid-template-columns: 1fr; }
-  .strategy-grid, .strategy-signals, .sector-relation-grid, .low-position-cards { grid-template-columns: 1fr; }
+  .strategy-grid, .strategy-signals, .sector-relation-grid, .low-position-cards,
+  .flex-sleeves, .flex-book-grid, .flex-meta-grid { grid-template-columns: 1fr; }
   .health-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 680px) {
@@ -434,7 +604,8 @@ body.is-loading .temperature-readout span::after {
   .low-position-panel,
   .health-panel,
   .strategy-panel,
-  .rt-tactical-panel {
+  .rt-tactical-panel,
+  .flex-trade-panel {
     width: 100%;
     max-width: 100%;
   }

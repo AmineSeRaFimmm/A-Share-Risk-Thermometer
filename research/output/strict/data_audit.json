@@ -1,0 +1,39 @@
+{
+  "risk_components_exists":true,
+  "sh000300_exists":true,
+  "used_execution":"T+1 open",
+  "risk_start":1577059200000,
+  "risk_end":1783641600000,
+  "index_start":1010102400000,
+  "index_end":1783641600000,
+  "risk_latest":1783641600000,
+  "index_latest":1783641600000,
+  "risk_duplicate_dates":0,
+  "index_duplicate_dates":0,
+  "risk_temperature_missing":0,
+  "quality_distribution":{
+    "WARN_BREADTH_PROXY":1177,
+    "WARN_BREADTH_PROXY|WARN_NOT_BRACKET_30D":276,
+    "WARN_BREADTH_PROXY|WARN_QVIX_MISSING":101,
+    "WARN_BREADTH_PROXY|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING":27,
+    "LOW_NO_CHAIN":2,
+    "BAD_NO_TERM":1,
+    "WARN_QVIX_MISSING":1
+  },
+  "model_confidence_distribution":{
+    "46.0":3,
+    "84.0":128,
+    "88.0":1,
+    "96.0":1453
+  },
+  "inner_join_rows":1585,
+  "aligned_start":1577059200000,
+  "aligned_end":1783641600000,
+  "joined_risk_temperature_missing":0,
+  "joined_open_missing":0,
+  "joined_close_missing":0,
+  "date_misalignment_count":4361,
+  "risk_later_than_index":false,
+  "index_later_than_risk":false,
+  "future_data_risk":false
+}

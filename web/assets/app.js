@@ -470,14 +470,15 @@ async function loadCriticalDashboardData() {
 }
 
 async function loadHeavyDashboardData() {
-  const [strategy, sector, lowPosition, rtTactical] = await Promise.all([
+  const [strategy, sector, lowPosition, rtTactical, stagePlaybook] = await Promise.all([
     loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' })),
     loadJSON('./data/sector_correlation.json').catch(() => ({ status: 'missing' })),
     loadJSON('./data/low_position_sector_study.json').catch(() => ({ status: 'missing' })),
     loadJSON('./data/rt_tactical.json').catch(() => ({ status: 'missing' })),
+    loadJSON('./data/stage_playbook.json').catch(() => ({ status: 'missing' })),
   ]);
   dashboardState.heavyLoaded = true;
-  return { strategy, sector, lowPosition, rtTactical };
+  return { strategy, sector, lowPosition, rtTactical, stagePlaybook };
 }
 
 function renderCriticalDashboard({ latest, history, nowcastHistory, components, audit }) {
@@ -505,8 +506,9 @@ function renderCriticalDashboard({ latest, history, nowcastHistory, components, 
   );
 }
 
-function renderHeavyDashboard({ strategy, sector, lowPosition, rtTactical }) {
+function renderHeavyDashboard({ strategy, sector, lowPosition, rtTactical, stagePlaybook }) {
   dashboardState.strategy = strategy || {};
+  renderFlexTradePanel(stagePlaybook);
   renderStrategy(strategy);
   renderSectorCorrelation(sector);
   renderLowPositionSectorStudy(lowPosition);
@@ -518,6 +520,91 @@ function renderHeavyDashboard({ strategy, sector, lowPosition, rtTactical }) {
       dashboardState.activeRange
     );
   }
+}
+
+function pctLabel(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? `${(n * 100).toFixed(1)}%` : '--';
+}
+
+function renderFlexOrderList(el, items, emptyText) {
+  if (!el) return;
+  if (!items || !items.length) {
+    el.innerHTML = `<div class="flex-order-empty">${emptyText}</div>`;
+    return;
+  }
+  el.innerHTML = items.map(item => {
+    const side = (item.side || '').toUpperCase();
+    const isBuy = side === 'BUY' || side === 'OVERWEIGHT_RELATIVE';
+    const badge = isBuy ? '买入' : '卖出';
+    const cls = isBuy ? 'buy' : 'sell';
+    const etfCode = item.etf_code || '';
+    const etfName = item.etf_name || '';
+    const title = etfCode
+      ? `${item.name || '--'} → ${etfCode} ${etfName}`.trim()
+      : (item.instrument_display || item.name || '--');
+    const quality = item.etf_quality_cn ? `映射${item.etf_quality_cn}` : null;
+    const meta = [
+      etfCode ? `ETF ${etfCode}` : null,
+      quality,
+      item.entry ? `进: ${item.entry}` : null,
+      item.exit ? `出: ${item.exit}` : null,
+      item.weight_hint ? `仓位: ${item.weight_hint}` : null,
+      item.win_rate != null ? `胜率 ${pctLabel(item.win_rate)}` : null,
+      item.n != null ? `n=${item.n}` : null,
+    ].filter(Boolean).join(' · ');
+    const why = item.why || item.etf_note || '';
+    return `<div class="flex-order-item ${cls}">
+      <span class="badge">${badge}</span>
+      <div>
+        <strong>${title}</strong>
+        <span>${meta}</span>
+        ${why ? `<span>${why}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFlexTradePanel(playbook) {
+  const panel = document.getElementById('flexTradePanel');
+  if (!panel) return;
+  const flex = playbook?.flex_panel;
+  if (!flex || playbook?.status === 'missing') {
+    setText('flexHeadline', '组合 Flex 信号暂不可用');
+    setText('flexStatus', '数据缺失');
+    renderFlexOrderList(document.getElementById('flexBuyList'), [], '暂无买入指令');
+    renderFlexOrderList(document.getElementById('flexSellList'), [], '暂无卖出/低配指令');
+    return;
+  }
+
+  const bt = flex.backtest || {};
+  const full = bt.full_sample || {};
+  setText('flexStatus', `${flex.status || '--'} · 研究信号`);
+  setText('flexHeadline', flex.headline || '--');
+  setText('flexAlloc', flex.allocation_cn || '--');
+  setText('flexExec', flex.execution_cn || 'T+1 开盘');
+  setText('flexHold', `${flex.hold_days || 5} 个交易日`);
+  setText(
+    'flexStats',
+    `全样本 ${pctLabel(full.win_rate)} / 年化 ${pctLabel(full.ann_return)} · OOS ${pctLabel((bt.oos || {}).win_rate)}`
+  );
+  setText('flexDisclaimer', flex.disclaimer || '研究回测指令，非投资建议。');
+
+  const core = flex.core || {};
+  const sat = flex.satellite || {};
+  const coreEl = document.getElementById('flexCoreSleeve');
+  const satEl = document.getElementById('flexSatSleeve');
+  if (coreEl) coreEl.dataset.tone = core.tone || (core.active ? 'buy' : 'wait');
+  if (satEl) satEl.dataset.tone = sat.active ? 'buy' : 'wait';
+  const coreEtf = core.etf_code ? `${core.etf_code} ${core.etf_name || ''}`.trim() : '';
+  setText('flexCoreAction', core.action_cn || '--');
+  setText('flexCoreDetail', core.detail || '--');
+  setText('flexCoreRule', coreEtf ? `${core.rule || ''} · 标的 ${coreEtf}` : (core.rule || ''));
+  setText('flexSatStage', sat.active ? (sat.stage_cn || '卫星激活') : '卫星未激活');
+  setText('flexSatDetail', sat.detail || (sat.active ? `阶段：${sat.stage_cn || '--'}` : '当前无高置信板块卫星信号。'));
+
+  renderFlexOrderList(document.getElementById('flexBuyList'), flex.buy_list || [], '今日无买入指令');
+  renderFlexOrderList(document.getElementById('flexSellList'), flex.sell_list || [], '今日无卖出/低配指令');
 }
 
 function hideLoadError() {
