@@ -13,7 +13,7 @@
     "quality": "WARN_NOT_BRACKET_30D",
     "usable": false,
     "note": "nearest two terms do not bracket 30D",
-    "avix_mid": 20.2543
+    "avix_mid": 19.9311
   },
   "nowcast": null,
   "model_confidence": {
@@ -26,5 +26,5 @@
     "WARN_NOT_BRACKET_30D",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-13T09:48:08+08:00"
+  "last_successful_update": "2026-07-13T10:39:32+08:00"
 }
