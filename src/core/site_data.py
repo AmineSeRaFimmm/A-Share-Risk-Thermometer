@@ -104,6 +104,30 @@ def _confidence_label(confidence: dict) -> str:
     return f"{score:.1f} / {grade_cn}"
 
 
+def _breadth_mode(row: pd.Series) -> str:
+    quality = str(row.get("breadth_quality") or row.get("quality") or "")
+    if "WARN_BREADTH_PROXY" in quality:
+        return "INDEX_PROXY"
+    if "WARN_BREADTH_MISSING" in quality:
+        return "MISSING"
+    if pd.notna(row.get("breadth_pressure")) or pd.notna(row.get("market_breadth_pressure")):
+        if "OK" in quality or quality == "" or "PROXY" not in quality:
+            # Empty quality with values usually means stock snapshot OK.
+            if "PROXY" in quality:
+                return "INDEX_PROXY"
+            return "STOCK_A"
+    return "UNKNOWN"
+
+
+def _breadth_mode_cn(row: pd.Series) -> str:
+    return {
+        "STOCK_A": "全A个股宽度",
+        "INDEX_PROXY": "宽基指数代理",
+        "MISSING": "宽度缺失",
+        "UNKNOWN": "宽度未知",
+    }.get(_breadth_mode(row), "宽度未知")
+
+
 def _active_view(risk: pd.DataFrame, realtime: pd.DataFrame | None):
     official = risk.sort_values("trade_date").iloc[-1]
     nowcast = realtime_nowcast_payload(risk, realtime)
@@ -175,6 +199,9 @@ def latest_payload(
             "advancing_ratio": finite(row.get("advancing_ratio")),
             "big_down_ratio": finite(row.get("big_down_ratio")),
             "as_of_trade_date": row.trade_date,
+            "breadth_mode": _breadth_mode(row),
+            "breadth_mode_cn": _breadth_mode_cn(row),
+            "breadth_quality": str(row.get("breadth_quality") or ""),
         },
         "avix": {
             "avix_clean_close": finite(row.get("avix_clean")),

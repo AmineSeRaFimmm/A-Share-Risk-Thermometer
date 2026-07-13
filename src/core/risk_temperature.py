@@ -8,9 +8,8 @@ from src.utils.quality import clip, merge_quality
 WEIGHTS = load_weights()
 REGIMES = load_regimes()
 _THRESHOLDS = load_thresholds()
-# Keep warmup at 20 for bit-identical history until methodology PR raises this to config value.
-_PERCENTILE_MIN_PERIODS = 20
-_PERCENTILE_MIN_PERIODS_CONFIG = int(_THRESHOLDS["min_history_days_for_percentile"])
+# Align rolling percentile warmup with config/thresholds.yml (was hard-coded 20).
+_PERCENTILE_MIN_PERIODS = int(_THRESHOLDS["min_history_days_for_percentile"])
 
 
 def regime_for(temp: float) -> tuple[str, str]:
@@ -122,8 +121,18 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
         if breadth_for_merge.empty:
             breadth_for_merge = proxy_breadth
         else:
+            # Prefer real stock breadth (OK*) over index proxy on the same trade_date.
+            stock = breadth_for_merge.copy()
+            if "breadth_quality" in stock.columns:
+                stock_ok = stock["breadth_quality"].astype(str).str.startswith("OK")
+                if "valid_count" in stock.columns:
+                    counts = pd.to_numeric(stock["valid_count"], errors="coerce").fillna(0)
+                    stock_ok = stock_ok & (counts >= 1000)
+                stock_prefer = stock.loc[stock_ok]
+            else:
+                stock_prefer = stock
             breadth_for_merge = (
-                pd.concat([proxy_breadth, breadth_for_merge], ignore_index=True)
+                pd.concat([proxy_breadth, stock_prefer], ignore_index=True)
                 .drop_duplicates("trade_date", keep="last")
                 .sort_values("trade_date")
             )

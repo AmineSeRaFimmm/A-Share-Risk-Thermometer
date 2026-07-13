@@ -1,6 +1,9 @@
 from __future__ import annotations
 import numpy as np
 import pandas as pd
+from src.utils.config import load_thresholds
+
+_MIN_PERIODS = int(load_thresholds()["min_history_days_for_percentile"])
 
 
 def compute_realized_vol(index_history: pd.DataFrame) -> pd.DataFrame:
@@ -12,8 +15,7 @@ def compute_realized_vol(index_history: pd.DataFrame) -> pd.DataFrame:
     hs["ret"] = np.log(hs["close"] / hs["close"].shift(1))
     hs["rv20"] = hs["ret"].rolling(20).std() * np.sqrt(252) * 100
     hs["rv60"] = hs["ret"].rolling(60).std() * np.sqrt(252) * 100
-    # Keep min_periods=20 for bit-identical history with prior releases.
-    hs["realized_vol_percentile"] = hs["rv20"].rolling(504, min_periods=20).apply(
+    hs["realized_vol_percentile"] = hs["rv20"].rolling(504, min_periods=_MIN_PERIODS).apply(
         lambda x: pd.Series(x).rank(pct=True).iloc[-1] * 100,
         raw=False,
     )

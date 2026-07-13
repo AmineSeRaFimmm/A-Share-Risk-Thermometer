@@ -11,6 +11,8 @@
     "No historical settlement price",
     "No historical open interest",
     "Free sources may fail or change",
-    "Historical breadth is often index-proxy when stock breadth snapshots are missing"
+    "Historical breadth is often index-proxy when stock breadth snapshots are missing",
+    "Missing component scores fill with neutral 50 (not reweighted); see model_confidence",
+    "Percentile windows use min_history_days_for_percentile from config/thresholds.yml"
   ]
 }

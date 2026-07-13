@@ -116,14 +116,59 @@ def write_option_manifest(manifest: pd.DataFrame) -> None:
     path = RAW / "options_daily" / "fetch_manifest.csv"
     manifest.drop_duplicates("contract", keep="last").sort_values("contract").to_csv(path, index=False)
 
+
+def _frame_max_date(df: pd.DataFrame) -> str | None:
+    if df is None or df.empty or "date" not in df.columns:
+        return None
+    try:
+        return str(pd.to_datetime(df["date"], errors="coerce").max().date())
+    except Exception:
+        return None
+
+
+def option_cache_max_date(limit: int | None = None) -> str | None:
+    """Max trade date across cached option contract CSVs."""
+    max_date = None
+    paths = sorted((RAW / "options_daily").glob("io*.csv"), key=lambda p: p.stat().st_mtime, reverse=True)
+    if limit is not None:
+        paths = paths[:limit]
+    for path in paths:
+        try:
+            df = pd.read_csv(path, usecols=["date"])
+        except Exception:
+            df = read_csv(path)
+        d = _frame_max_date(df)
+        if d and (max_date is None or d > max_date):
+            max_date = d
+    return max_date
+
+
+def _option_frame_is_stale(df: pd.DataFrame, target_date: str | None) -> bool:
+    """True when cache is missing or lags the target HS300 trade date."""
+    if df is None or df.empty:
+        return True
+    if not target_date:
+        return False
+    max_date = _frame_max_date(df)
+    if max_date is None:
+        return True
+    return max_date < target_date
+
+
 def fetch_options(index_history: pd.DataFrame, recent_days: int | None, full: bool = False) -> tuple[pd.DataFrame, list[pd.DataFrame]]:
     hs = index_history[index_history["symbol"] == "sh000300"].copy()
     candidates = option_contracts_from_index(hs, recent_days, full=full)
-    frames = []
+    frames: list[pd.DataFrame] = []
+    frame_by_contract: dict[str, pd.DataFrame] = {}
     probe_limit = len(candidates) if full else min(len(candidates), 420)
     manifest = read_option_manifest()
     status_map = dict(zip(manifest.get("contract", []), manifest.get("status", [])))
     max_new = int(os.environ.get("MAX_OPTION_FETCHES", "0") or "0")
+    # Default: refresh stale existing contracts so daily AVIX does not freeze on old cache.
+    refresh_stale = os.environ.get("REFRESH_STALE_OPTIONS", "1") not in {"0", "false", "False"}
+    target_date = None
+    if not hs.empty:
+        target_date = str(pd.to_datetime(hs["date"]).max().date())
 
     def fetch_one(contract: str) -> tuple[str, pd.DataFrame, str, str]:
         try:
@@ -135,54 +180,75 @@ def fetch_options(index_history: pd.DataFrame, recent_days: int | None, full: bo
             return contract, pd.DataFrame(), "failed", str(exc)[:240]
 
     to_fetch: list[str] = []
+    stale_refresh: list[str] = []
     for contract in candidates[:probe_limit]:
-        path = RAW / "options_daily" / f"{contract.lower()}.csv"
+        key = contract.lower()
+        path = RAW / "options_daily" / f"{key}.csv"
         if path.exists():
             df = read_csv(path)
-        elif full and status_map.get(contract.lower()) == "empty":
+            if not df.empty:
+                frame_by_contract[key] = df
+            if refresh_stale and _option_frame_is_stale(df, target_date):
+                stale_refresh.append(contract)
             continue
-        else:
-            if not max_new or len(to_fetch) < max_new:
-                to_fetch.append(contract)
+        if full and status_map.get(key) == "empty":
             continue
-        if not df.empty:
-            frames.append(df)
+        to_fetch.append(contract)
+
+    # Prefer refreshing stale known contracts first (fixes official series gaps).
+    fetch_queue = stale_refresh + [c for c in to_fetch if c not in set(stale_refresh)]
+    if max_new > 0:
+        fetch_queue = fetch_queue[:max_new]
+
     workers = int(os.environ.get("OPTION_FETCH_WORKERS", "10" if full else "4"))
-    if to_fetch:
-        print(f"Fetching {len(to_fetch)} option contracts with {workers} workers")
+    if fetch_queue:
+        print(
+            f"Fetching {len(fetch_queue)} option contracts "
+            f"({len(stale_refresh)} stale-refresh, {len(to_fetch)} new) "
+            f"target_date={target_date} workers={workers}"
+        )
         done = 0
         failures = 0
+        refreshed_ok = 0
         with ThreadPoolExecutor(max_workers=max(1, workers)) as pool:
-            futures = [pool.submit(fetch_one, contract) for contract in to_fetch]
+            futures = [pool.submit(fetch_one, contract) for contract in fetch_queue]
             for future in as_completed(futures):
                 contract, df, status, error = future.result()
                 done += 1
-                path = RAW / "options_daily" / f"{contract.lower()}.csv"
+                key = contract.lower()
+                path = RAW / "options_daily" / f"{key}.csv"
                 if not df.empty:
                     write_csv(df, path)
-                    frames.append(df)
+                    frame_by_contract[key] = df
                     status = "ok"
                     error = ""
+                    refreshed_ok += 1
                 elif status == "failed":
                     failures += 1
                     if failures in {1, 10, 25}:
                         print(f"WARN option fetch failed/timeout {contract}: {error}")
                 manifest = pd.concat([manifest, pd.DataFrame([{
-                    "contract": contract.lower(),
+                    "contract": key,
                     "status": status,
                     "last_error": error,
                     "last_try": now_cn().isoformat(timespec="seconds"),
                 }])], ignore_index=True)
-                if done % 200 == 0 or done == len(to_fetch):
-                    print(f"Option fetch progress {done}/{len(to_fetch)}")
+                if done % 200 == 0 or done == len(fetch_queue):
+                    print(f"Option fetch progress {done}/{len(fetch_queue)} ok={refreshed_ok}")
+        print(f"Option fetch done: ok={refreshed_ok} failed_or_empty={len(fetch_queue) - refreshed_ok}")
     if not manifest.empty:
         write_option_manifest(manifest)
+    # Always rebuild from the full on-disk cache so daily refresh of a candidate
+    # subset cannot shrink the historical option chain to recent months only.
+    frames = load_cached_option_frames()
     if not frames:
-        frames = load_cached_option_frames()
-        if frames:
-            print("WARN no fresh option history fetched; using cached verified option history")
+        frames = [df for df in frame_by_contract.values() if df is not None and not df.empty]
     if not frames:
         raise RuntimeError("No option history available; source failed and no cached contracts exist")
+    print(f"Loaded {len(frames)} option contract frames from cache")
+    cache_max = option_cache_max_date(limit=200)
+    if target_date and cache_max and cache_max < target_date:
+        print(f"WARN option cache still lags target: cache_max={cache_max} target={target_date}")
     master = build_contract_master(frames)
     write_csv(master, NORMALIZED / "contract_master.csv")
     return master, frames
@@ -300,28 +366,49 @@ def calculate_all(
         clean = clean[clean["trade_date"] != clean["trade_date"].max()].copy()
     write_csv(clean, CALCULATED / "avix_clean_close.csv")
     try:
-        qvix = fetch_qvix()
+        qvix_fresh = fetch_qvix()
     except Exception as exc:  # noqa: BLE001
         print(f"WARN qvix fetch failed: {exc}")
-        qvix = pd.DataFrame()
+        qvix_fresh = pd.DataFrame()
+    from src.data_sources.akshare_qvix import merge_qvix_cache
+    qvix_cached = read_csv(RAW / "qvix" / "qvix.csv")
+    qvix = merge_qvix_cache(qvix_fresh, qvix_cached)
+    if qvix.empty and not qvix_cached.empty:
+        qvix = qvix_cached
+        print("WARN using cached QVIX after empty merge")
     write_csv(qvix, RAW / "qvix" / "qvix.csv")
     qv = validate_qvix(clean, qvix)
     write_csv(qv, CALCULATED / "qvix_validation.csv")
     realized = compute_realized_vol(index_history)
     drawdown = compute_drawdown(index_history)
     breadth_hist = drop_legacy_synthetic_breadth(read_csv(NORMALIZED / "breadth_history.csv"))
-    if breadth_hist.empty:
+    # Ensure latest HS300 trade date has a stock-breadth attempt when still missing/weak.
+    latest_index_date = None
+    if not hs300_history.empty:
+        latest_index_date = str(pd.to_datetime(hs300_history["date"]).max().date())
+    need_breadth = True
+    if latest_index_date and not breadth_hist.empty:
+        latest_row = breadth_hist[breadth_hist["trade_date"].astype(str) == latest_index_date]
+        if not latest_row.empty and str(latest_row.iloc[-1].get("quality", "")).startswith("OK"):
+            need_breadth = False
+    if need_breadth and latest_index_date:
         try:
             breadth_raw = fetch_a_breadth_snapshot()
         except Exception as exc:  # noqa: BLE001
             print(f"WARN breadth fetch failed: {exc}")
             breadth_raw = pd.DataFrame()
         if not breadth_raw.empty:
-            write_csv(breadth_raw, RAW / "breadth" / f"{dates[-1]}.csv")
-        breadth_hist = summarize_breadth(breadth_raw, dates[-1])
-        write_csv(breadth_hist, NORMALIZED / "breadth_history.csv")
-    else:
-        write_csv(breadth_hist, NORMALIZED / "breadth_history.csv")
+            write_csv(breadth_raw, RAW / "breadth" / f"{latest_index_date}.csv")
+        summary = summarize_breadth(breadth_raw, latest_index_date)
+        if breadth_hist.empty:
+            breadth_hist = summary
+        else:
+            breadth_hist = (
+                pd.concat([breadth_hist, summary], ignore_index=True)
+                .drop_duplicates("trade_date", keep="last")
+                .sort_values("trade_date")
+            )
+    write_csv(breadth_hist, NORMALIZED / "breadth_history.csv")
     breadth = compute_breadth_pressure(breadth_hist)
     components = compute_risk_temperature(clean, qv, realized, drawdown, breadth, index_history)
     write_csv(components, CALCULATED / "risk_components.csv")

@@ -26,9 +26,23 @@ def _merge_history(fresh: pd.DataFrame, cached: pd.DataFrame) -> pd.DataFrame:
     return combined
 
 
+def _cache_is_fresh(cached: pd.DataFrame, max_lag_days: int = 5) -> bool:
+    if cached.empty or "date" not in cached.columns:
+        return False
+    try:
+        max_date = pd.to_datetime(cached["date"], errors="coerce").max()
+        if pd.isna(max_date):
+            return False
+        lag = (pd.Timestamp.now().normalize() - max_date.normalize()).days
+        return lag <= max_lag_days
+    except Exception:
+        return False
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--no-fetch", action="store_true", help="Use cached sector data only")
+    parser.add_argument("--force-fetch", action="store_true", help="Always refresh from network")
     args = parser.parse_args()
 
     ensure_dirs()
@@ -38,8 +52,30 @@ def main() -> None:
     cached = read_csv(normalized_path)
     fresh = pd.DataFrame()
     manifest = pd.DataFrame()
-    if not args.no_fetch:
-        fresh, manifest = fetch_sw_level1_sector_history()
+    if args.no_fetch:
+        print(f"Using cached SW L1 history only rows={len(cached)}")
+    elif not args.force_fetch and _cache_is_fresh(cached):
+        print(
+            f"SW L1 cache is fresh (max_date={pd.to_datetime(cached['date']).max().date()}); "
+            f"skipping network fetch rows={len(cached)}"
+        )
+    elif cached.empty or args.force_fetch:
+        print("Fetching SW L1 sector history from network")
+        try:
+            fresh, manifest = fetch_sw_level1_sector_history()
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN sector fetch failed: {exc}")
+            fresh, manifest = pd.DataFrame(), pd.DataFrame()
+        if not manifest.empty:
+            write_csv(manifest, manifest_path)
+    else:
+        # Cache exists but stale: attempt refresh, fall back to cache.
+        print(f"SW L1 cache is stale; attempting refresh rows={len(cached)}")
+        try:
+            fresh, manifest = fetch_sw_level1_sector_history(max_workers=4)
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN sector refresh failed, keeping cache: {exc}")
+            fresh, manifest = pd.DataFrame(), pd.DataFrame()
         if not manifest.empty:
             write_csv(manifest, manifest_path)
 

@@ -18,7 +18,8 @@
         <h2>Composite Risk Temperature</h2>
         <p>最终温度由 AVIX 两年分位、AVIX 一年 z-score、AVIX 5 日变化、QVIX confirmation、沪深300实现波动率、回撤压力、市场宽度压力和成交压力合成。权重在运行时从 <code>config/scoring.yml</code> 加载（与代码默认值保持一致）。</p>
         <p><code>Risk Temperature = 0.28 * AVIX percentile + 0.14 * AVIX z-score + 0.08 * AVIX 5d change + 0.12 * QVIX confirmation + 0.12 * realized volatility + 0.12 * drawdown pressure + 0.10 * market breadth + 0.04 * turnover stress</code></p>
-        <p>缺失因子当前以中性值 50 填补，同时用 <code>model_confidence</code> 单独反映输入完整度。历史序列里宽度因子多数日期为宽基指数代理（<code>WARN_BREADTH_PROXY</code>），不宜理解为完整「全 A 个股宽度」。</p>
+        <p>缺失因子当前以中性值 <strong>50</strong> 填补（不重归一），温度看起来仍完整，但会通过 <code>model_confidence</code> 与 quality 标记降级。两年分位 / 实现波动率分位的 rolling 最小样本为 <code>config/thresholds.yml</code> 中的 <code>min_history_days_for_percentile</code>（默认 120）。</p>
+        <p>宽度因子优先使用当日全 A 现货快照；缺失时才回退宽基指数代理（<code>WARN_BREADTH_PROXY</code>）。仪表盘会显示「宽度口径」：全A个股宽度 / 宽基指数代理。</p>
       </section>
       <section>
         <h2>策略与研究信号（两套独立规则）</h2>

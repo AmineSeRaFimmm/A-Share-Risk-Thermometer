@@ -29,25 +29,42 @@ def _sync_web_to_docs() -> None:
         shutil.copy2(path, dest)
 
 
+def _payload_is_fresh(path: Path, risk: pd.DataFrame, max_age_hours: float = 36.0) -> bool:
+    """True when JSON exists, is recent, and matches the latest risk trade_date when possible."""
+    if not path.exists() or risk.empty:
+        return False
+    try:
+        import json
+        import time
+
+        age_hours = (time.time() - path.stat().st_mtime) / 3600.0
+        if age_hours > max_age_hours:
+            return False
+        payload = json.loads(path.read_text(encoding="utf-8"))
+        as_of = str(payload.get("as_of") or payload.get("benchmark_latest_date") or "")
+        latest_risk = str(risk.sort_values("trade_date").iloc[-1]["trade_date"])
+        if as_of and as_of < latest_risk:
+            return False
+        return True
+    except Exception:
+        return False
+
+
 def _load_or_build_sector_payloads(risk: pd.DataFrame, index_history: pd.DataFrame) -> None:
-    """Reuse sector JSON written by dedicated scripts when present; else recompute."""
+    """Reuse sector JSON when fresh; otherwise recompute from local sector history."""
     sector_path = SITE / "sector_correlation.json"
     low_path = SITE / "low_position_sector_study.json"
     sector_history = read_csv(NORMALIZED / "sw_level1_sector_history.csv")
 
-    if sector_path.exists() and low_path.exists():
-        # Dedicated workflow steps already refreshed these; keep them.
-        return
-
     if sector_history.empty or index_history.empty:
         return
 
-    if not sector_path.exists():
+    if not _payload_is_fresh(sector_path, risk):
         sector_payload = analyze_sector_correlation(risk, sector_history, index_history)
         write_json(sector_payload, sector_path)
         pd.DataFrame(sector_payload["metrics"]).to_csv(CALCULATED / "sector_correlation_metrics.csv", index=False)
 
-    if not low_path.exists():
+    if not _payload_is_fresh(low_path, risk):
         valuation = read_csv(Path("data/raw/sectors/sw_level1_valuation_snapshot.csv"))
         low_position_payload = analyze_low_position_sector_study(
             risk, sector_history, index_history, valuation=valuation
@@ -95,6 +112,8 @@ def main() -> None:
             "No historical open interest",
             "Free sources may fail or change",
             "Historical breadth is often index-proxy when stock breadth snapshots are missing",
+            "Missing component scores fill with neutral 50 (not reweighted); see model_confidence",
+            "Percentile windows use min_history_days_for_percentile from config/thresholds.yml",
         ],
     }, SITE / "methodology.json")
     _sync_web_to_docs()

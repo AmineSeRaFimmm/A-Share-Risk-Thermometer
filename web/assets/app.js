@@ -128,6 +128,23 @@ function renderNowcastNote(latest) {
   note.textContent = '当前为收盘正式口径；盘中更新可用时会切换为实时 AVIX 驱动的盘中估算。';
 }
 
+function renderBreadthMode(latest) {
+  ensureRealtimeMeta();
+  appendMetaItem('宽度口径', 'breadthMode');
+  const market = latest?.market || {};
+  const modeCn = market.breadth_mode_cn || '--';
+  const mode = market.breadth_mode || '';
+  setText('breadthMode', modeCn);
+  const el = document.getElementById('breadthMode');
+  if (!el) return;
+  el.dataset.breadth = (mode || 'unknown').toLowerCase();
+  el.title = market.breadth_quality
+    ? `宽度质量: ${market.breadth_quality}`
+    : mode === 'INDEX_PROXY'
+      ? '历史多数日期使用宽基指数代理宽度，不是全A个股涨跌统计'
+      : '基于全A现货快照统计';
+}
+
 function updateRefreshStatus(status, detail) {
   ensureRealtimeMeta();
   const el = document.getElementById('refreshStatus');
@@ -154,6 +171,7 @@ function renderLatest(latest) {
     confidenceEl.title = confidence.missing_components ? `缺失或降级: ${confidence.missing_components}` : '主要模型输入完整';
     confidenceEl.dataset.grade = (confidence.grade || '').toLowerCase();
   }
+  renderBreadthMode(latest);
   setText('tradeDate', latest.trade_date);
   const update = latest.update_time ? new Date(latest.update_time).toLocaleString('zh-CN', { hour12: false }) : '--';
   setText('updateTime', update);
@@ -174,7 +192,7 @@ function renderAudit(audit) {
     options_realtime: '实时期权',
     qvix: 'QVIX',
     indices: '指数行情',
-    breadth: '全A宽度',
+    breadth: '市场宽度',
     shibor: 'Shibor'
   };
   grid.innerHTML = Object.entries(audit.data_health || {}).map(([key, value]) => (

@@ -29,3 +29,12 @@ def test_thresholds_defaults():
     assert thr["min_options_per_term"] == 8
     assert thr["fixed_warning_level"] == 22
     assert thr["fixed_panic_level"] == 25
+
+
+def test_percentile_min_periods_uses_config():
+    from src.core.risk_temperature import _PERCENTILE_MIN_PERIODS
+    from src.core.realized_vol import _MIN_PERIODS
+
+    thr = load_thresholds()
+    assert _PERCENTILE_MIN_PERIODS == thr["min_history_days_for_percentile"]
+    assert _MIN_PERIODS == thr["min_history_days_for_percentile"]

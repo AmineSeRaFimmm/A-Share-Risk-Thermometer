@@ -115,6 +115,13 @@ def summarize_breadth(df: pd.DataFrame, trade_date: str) -> pd.DataFrame:
         valid = pd.Series(True, index=work.index)
     pct = pd.to_numeric(work[pct_col], errors="coerce")
     valid_count = int(valid.sum())
+    # Reject empty/partial snapshots that would look like "OK" with fake 0/1 ratios.
+    if valid_count < 1000:
+        return pd.DataFrame([{
+            "trade_date": trade_date,
+            "valid_count": valid_count,
+            "quality": "WARN_BREADTH_SPARSE" if valid_count > 0 else "WARN_BREADTH_MISSING",
+        }])
     denom = max(valid_count, 1)
     out = {
         "trade_date": trade_date,

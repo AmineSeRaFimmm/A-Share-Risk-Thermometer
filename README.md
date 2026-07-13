@@ -27,10 +27,12 @@ It is not a trading signal by itself.
 - QVIX is validation and confirmation only (agreement quality, not fear level). It does not overwrite the AVIX replica.
 - Realized volatility uses HS300 20-day and 60-day annualized volatility.
 - Drawdown pressure combines HS300 and SSE 60-day drawdowns.
-- Market breadth uses daily saved A-share snapshots when available; otherwise a wide-index proxy with `WARN_BREADTH_PROXY`.
+- Market breadth prefers daily saved A-share spot snapshots; falls back to a wide-index proxy with `WARN_BREADTH_PROXY`. Dashboard shows breadth mode explicitly.
 - Turnover stress uses HS300 volume versus its 20-day average.
 - Composite weights are **loaded at runtime** from `config/scoring.yml` (must sum to 1.0).
 - AVIX S3/S4 levels (22/25) and quality thresholds are read from `config/thresholds.yml`.
+- Rolling percentiles use `min_history_days_for_percentile` (default 120). Missing component scores fill with neutral **50** (not reweighted); check `model_confidence`.
+- Daily option caches are **refreshed when stale** vs the latest HS300 trade date (fixes frozen official AVIX series).
 
 ## Related signals on the dashboard
 

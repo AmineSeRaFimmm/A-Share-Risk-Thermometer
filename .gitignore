@@ -6,5 +6,9 @@ __pycache__/
 data/raw/**/*.tmp
 tmp/
 
-# Generated sector history cache
-data/normalized/sw_level1_sector_history.csv
+# Large optional research raw dumps (keep normalized sector history tracked)
+data/raw/sectors/etf_holdings/
+data/raw/sectors/etf_holdings_2025/
+data/raw/sectors/StockClassifyUse_stock.xls
+research/output/charts/
+research/**/__pycache__/

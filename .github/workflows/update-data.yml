@@ -23,7 +23,8 @@ permissions:
   id-token: write
 
 concurrency:
-  group: risk-thermometer-update
+  # Share group with realtime so data pushes to main serialize.
+  group: risk-thermometer-main
   cancel-in-progress: false
 
 jobs:

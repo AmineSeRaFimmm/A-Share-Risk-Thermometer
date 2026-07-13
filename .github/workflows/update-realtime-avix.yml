@@ -20,8 +20,9 @@ permissions:
   actions: write
 
 concurrency:
-  group: realtime-avix
-  cancel-in-progress: true
+  # Share group with daily update so pushes to main do not race.
+  group: risk-thermometer-main
+  cancel-in-progress: false
 
 jobs:
   update-realtime-avix:

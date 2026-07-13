@@ -1,7 +1,3 @@
 trade_date,advancing_ratio,decline_ratio,big_down_ratio,limit_down_ratio,quality,valid_count,advancing_count,declining_count,big_down_count,limit_down_count,total_amount,turnover_median,volume_ratio_median
-2026-07-03,,,,,WARN_BREADTH_MISSING,,,,,,,,
-2026-07-06,,,,,WARN_BREADTH_MISSING,,,,,,,,
-2026-07-07,,,,,WARN_BREADTH_MISSING,,,,,,,,
-2026-07-08,,,,,WARN_BREADTH_MISSING,,,,,,,,
 2026-07-09,1.0,0.0,0.0,0.0,OK,1100.0,1100.0,0.0,0.0,0.0,1856113589979.27,4.85,1.02
 2026-07-10,,,,,WARN_BREADTH_MISSING,,,,,,,,
