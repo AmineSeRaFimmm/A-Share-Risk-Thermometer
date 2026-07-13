@@ -88,11 +88,26 @@ function renderRealtimeAvix(avix) {
   ensureRealtimeMeta();
   const realtimeMid = avix?.avix_realtime_mid;
   const realtimeQuality = avix?.avix_realtime_quality;
-  const realtimeUsable = avix?.avix_realtime_usable;
+  const usableNowcast = avix?.avix_realtime_usable_nowcast ?? avix?.avix_realtime_usable;
+  const usableGap = avix?.avix_realtime_usable_gap_fill;
   setText('realtimeAvix', formatRealtimeAvix(realtimeMid));
-  setText('realtimeAvixQuality', realtimeQuality ? `${realtimeQuality}${realtimeUsable === false ? ' / NOT USABLE' : ''}` : '--');
+  let qualityLabel = realtimeQuality || '--';
+  if (realtimeQuality) {
+    if (usableNowcast) {
+      qualityLabel += usableGap ? ' · 盘中可用/可补缺口' : ' · 盘中可用';
+    } else {
+      qualityLabel += ' · 不可用';
+    }
+  }
+  setText('realtimeAvixQuality', qualityLabel);
   const qualityEl = document.getElementById('realtimeAvixQuality');
-  if (qualityEl) qualityEl.title = [avix?.avix_realtime_note, avix?.avix_realtime_source].filter(Boolean).join(' | ');
+  if (qualityEl) {
+    qualityEl.title = [
+      avix?.avix_realtime_note,
+      avix?.avix_realtime_source,
+      '盘中 nowcast 允许 WARN；估算收盘补缺要求严格 OK；正式历史只用官方收盘 AVIX',
+    ].filter(Boolean).join(' | ');
+  }
 }
 
 function updateFreshness(latest) {
@@ -123,11 +138,20 @@ function updateFreshness(latest) {
 function renderNowcastNote(latest) {
   const note = document.getElementById('nowcastNote');
   if (!note) return;
-  if (latest?.is_final === false) {
-    note.textContent = '盘中估算仅实时替换 AVIX 相关因子；指数、宽度、回撤、成交等非 AVIX 因子沿用最近正式收盘。';
+  const official = latest?.official_close || {};
+  const nowcast = latest?.nowcast || {};
+  const mode = latest?.temperature_mode || '';
+  const officialTxt = `正式收盘 ${official.trade_date || '--'} RT ${official.risk_temperature ?? '--'}（官方 AVIX）`;
+  if (mode === 'NOWCAST' || (nowcast.active && latest?.is_final === false && mode !== 'ESTIMATED_CLOSE')) {
+    note.textContent = `盘中估算 RT ${nowcast.risk_temperature ?? latest?.risk_temperature ?? '--'}（实时 AVIX ${formatRealtimeAvix(nowcast.realtime_avix ?? latest?.avix?.avix_realtime_mid)}）· ${officialTxt}。仅替换 AVIX 三因子；宽度/回撤等沿用最近正式收盘。官方日线就绪后自动切回正式收盘。`;
     return;
   }
-  note.textContent = '当前为收盘正式口径；盘中更新可用时会切换为实时 AVIX 驱动的盘中估算。';
+  if (mode === 'ESTIMATED_CLOSE') {
+    note.textContent = `估算收盘：正式期权日线缺口，用严格 OK 的实时 AVIX 估算 · ${officialTxt}。不写入正式历史序列。`;
+    return;
+  }
+  const reason = nowcast.reason_cn || '盘中可用时将显示实时估算';
+  note.textContent = `当前为收盘正式口径 · ${officialTxt}。${reason}`;
 }
 
 function renderBreadthMode(latest) {
@@ -172,6 +196,17 @@ function renderLatest(latest) {
     const confidence = latest.model_confidence || {};
     confidenceEl.title = confidence.missing_components ? `缺失或降级: ${confidence.missing_components}` : '主要模型输入完整';
     confidenceEl.dataset.grade = (confidence.grade || '').toLowerCase();
+  }
+  // Always surface official close RT next to active reading
+  appendMetaItem('正式收盘RT', 'officialCloseRt');
+  const official = latest.official_close || {};
+  const officialLabel = official.trade_date
+    ? `${official.risk_temperature ?? '--'} (${official.trade_date})`
+    : '--';
+  setText('officialCloseRt', officialLabel);
+  const officialEl = document.getElementById('officialCloseRt');
+  if (officialEl) {
+    officialEl.title = '正式历史只用官方收盘 AVIX；与盘中估算分离';
   }
   renderBreadthMode(latest);
   setText('tradeDate', latest.trade_date);

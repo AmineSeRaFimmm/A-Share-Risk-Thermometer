@@ -3,7 +3,10 @@ from __future__ import annotations
 import pandas as pd
 
 from src.core.calendar import merged_trading_days
-from src.core.realtime_avix import calculate_realtime_avix
+from src.core.realtime_avix import (
+    calculate_realtime_avix,
+    realtime_avix_allows_gap_fill,
+)
 from src.core.risk_temperature import compute_risk_temperature
 from src.core.qvix_validation import validate_qvix
 from src.core.realized_vol import compute_realized_vol
@@ -63,9 +66,12 @@ def _realtime_avix_rows(
         row = result.iloc[-1].to_dict()
         quality = str(row.get("quality", ""))
         avix_mid = pd.to_numeric(row.get("avix_mid"), errors="coerce")
-        if quality == "OK" and pd.notna(avix_mid) and float(avix_mid) > 0:
+        # Gap-fill estimated close: strict OK only — never soft-WARN into history proxy.
+        if realtime_avix_allows_gap_fill(quality, avix_mid):
             rows.append(row)
-            status_by_date[trade_date] = "实时AVIX可用"
+            status_by_date[trade_date] = "实时AVIX可用(严格OK，可补估算收盘)"
+        elif pd.notna(avix_mid) and float(avix_mid) > 0:
+            status_by_date[trade_date] = f"实时AVIX仅可盘中: {quality or 'UNKNOWN'}"
         else:
             status_by_date[trade_date] = f"实时AVIX不可用: {quality or 'UNKNOWN'}"
 

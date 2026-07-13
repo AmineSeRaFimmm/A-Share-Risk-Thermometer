@@ -18,6 +18,49 @@ OK_TERM_OPTIONS = 12
 MAX_SPREAD_PCT = 0.50
 WARN_SPREAD_PCT = 0.30
 
+# Dual-track quality policy:
+# - nowcast (intraday display): allow WARN_*, reject BAD_/LOW_
+# - gap-fill / estimated close: require exact OK only (never pollute official series)
+
+
+def split_quality_flags(quality: str | None) -> list[str]:
+    text = str(quality or "").strip()
+    if not text or text == "OK":
+        return []
+    return [part for part in text.split("|") if part and part != "OK"]
+
+
+def realtime_avix_has_value(avix_mid) -> bool:
+    try:
+        value = float(avix_mid)
+    except (TypeError, ValueError):
+        return False
+    return math.isfinite(value) and value > 0
+
+
+def realtime_avix_allows_nowcast(quality: str | None, avix_mid=None) -> bool:
+    """Intraday risk-temperature may use WARN-quality realtime AVIX.
+
+    Official close history is never written from this path. BAD_/LOW_ samples
+    are still rejected so broken chains do not drive the dashboard.
+    """
+    if avix_mid is not None and not realtime_avix_has_value(avix_mid):
+        return False
+    flags = split_quality_flags(quality)
+    if not flags:
+        return avix_mid is None or realtime_avix_has_value(avix_mid)
+    if any(flag.startswith("BAD_") or flag.startswith("LOW_") for flag in flags):
+        return False
+    return True
+
+
+def realtime_avix_allows_gap_fill(quality: str | None, avix_mid=None) -> bool:
+    """Strict gate for estimated-close gap rows (must not enter official history)."""
+    if str(quality or "") != "OK":
+        return False
+    return avix_mid is None or realtime_avix_has_value(avix_mid)
+
+
 @dataclass
 class RealtimeTermVariance:
     expiry_date: str

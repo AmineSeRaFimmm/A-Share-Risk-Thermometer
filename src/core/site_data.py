@@ -1,6 +1,11 @@
 from __future__ import annotations
 import math
 import pandas as pd
+from src.core.realtime_avix import (
+    realtime_avix_allows_gap_fill,
+    realtime_avix_allows_nowcast,
+    realtime_avix_has_value,
+)
 from src.core.risk_temperature import WEIGHTS, interpretation
 from src.core.realtime_risk_temperature import realtime_nowcast_payload
 from src.core.strategy_s3_s4 import latest_strategy_payload
@@ -155,6 +160,9 @@ def latest_payload(
     raw = avix_raw[avix_raw["trade_date"] == row.trade_date].iloc[-1] if not avix_raw.empty and row.trade_date in set(avix_raw["trade_date"]) else None
     realtime_row = _latest_realtime(realtime)
     realtime_quality = "LOW_NO_REALTIME_CHAIN" if realtime_row is None else str(realtime_row.get("quality", "OK"))
+    realtime_mid = None if realtime_row is None else realtime_row.get("avix_mid")
+    nowcast_ok = realtime_avix_allows_nowcast(realtime_quality, realtime_mid)
+    gap_fill_ok = realtime_avix_allows_gap_fill(realtime_quality, realtime_mid)
     nowcast, comps, interp_row = _active_view(risk, realtime)
     estimate = _latest_estimated_row(nowcast_history)
     estimate_date = None if estimate is None else str(estimate.get("date") or estimate.get("trade_date"))
@@ -172,13 +180,26 @@ def latest_payload(
             "grade": "MEDIUM" if float(estimate.get("model_confidence") or 0) >= 75 else "LOW",
             "missing_components": str(estimate.get("model_missing_components") or ""),
         }
-    else:
-        temp = nowcast["risk_temperature"] if nowcast else row.risk_temperature
-        regime = nowcast["regime"] if nowcast else row.regime
-        regime_cn = nowcast["regime_cn"] if nowcast else row.regime_cn
-        quality = nowcast["quality"] if nowcast else row.quality
-        trade_date = nowcast["trade_date"] if nowcast else row.trade_date
+        mode = "ESTIMATED_CLOSE"
+        mode_cn = "估算收盘"
+    elif nowcast:
+        temp = nowcast["risk_temperature"]
+        regime = nowcast["regime"]
+        regime_cn = nowcast["regime_cn"]
+        quality = nowcast["quality"]
+        trade_date = nowcast["trade_date"]
         confidence = _model_confidence_summary(row, quality)
+        mode = "NOWCAST"
+        mode_cn = "盘中估算"
+    else:
+        temp = row.risk_temperature
+        regime = row.regime
+        regime_cn = row.regime_cn
+        quality = row.quality
+        trade_date = row.trade_date
+        confidence = _model_confidence_summary(row, quality)
+        mode = "OFFICIAL_CLOSE"
+        mode_cn = "收盘正式"
     return {
         "trade_date": trade_date,
         "update_time": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
@@ -188,9 +209,9 @@ def latest_payload(
         "quality": quality,
         "model_confidence": confidence,
         "model_confidence_label": _confidence_label(confidence),
-        "temperature_mode": "ESTIMATED_CLOSE" if use_estimate else "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
-        "temperature_mode_cn": "估算收盘" if use_estimate else "盘中估算" if nowcast else "收盘正式",
-        "is_final": not (use_estimate or nowcast),
+        "temperature_mode": mode,
+        "temperature_mode_cn": mode_cn,
+        "is_final": mode == "OFFICIAL_CLOSE",
         "components": _latest_component_summary(comps),
         "market": {
             "hs300_close": finite(row.get("sh000300_close")),
@@ -209,7 +230,10 @@ def latest_payload(
             "avix_realtime_mid": None if realtime_row is None else finite(realtime_row.get("avix_mid")),
             "avix_realtime_quality": realtime_quality,
             "avix_realtime_note": None if realtime_row is None else realtime_row.get("note"),
-            "avix_realtime_usable": realtime_quality == "OK",
+            # Display/nowcast usable (WARN allowed). Strict gap-fill is separate.
+            "avix_realtime_usable": nowcast_ok and realtime_avix_has_value(realtime_mid),
+            "avix_realtime_usable_nowcast": nowcast_ok and realtime_avix_has_value(realtime_mid),
+            "avix_realtime_usable_gap_fill": gap_fill_ok and realtime_avix_has_value(realtime_mid),
             "avix_realtime_source": None if realtime_row is None else realtime_row.get("source"),
             "avix_percentile_2y": finite(comps.get("avix_percentile_2y") / 100 if comps.get("avix_percentile_2y") is not None else None),
             "quality": row.get("avix_quality", "OK"),
@@ -220,20 +244,66 @@ def latest_payload(
             "regime": row.regime,
             "regime_cn": row.regime_cn,
             "quality": row.quality,
+            "avix_clean": finite(row.get("avix_clean")),
             "model_confidence": _model_confidence_summary(row, row.quality),
         },
         "nowcast": {
-            "trade_date": trade_date,
-            "risk_temperature": finite(temp),
-            "regime": regime,
-            "regime_cn": regime_cn,
-            "quality": quality,
-            "baseline_trade_date": estimate.get("baseline_trade_date") if use_estimate else nowcast["baseline_trade_date"] if nowcast else row.trade_date,
+            "trade_date": trade_date if (use_estimate or nowcast) else None,
+            "risk_temperature": finite(temp) if (use_estimate or nowcast) else None,
+            "regime": regime if (use_estimate or nowcast) else None,
+            "regime_cn": regime_cn if (use_estimate or nowcast) else None,
+            "quality": quality if (use_estimate or nowcast) else None,
+            "baseline_trade_date": (
+                estimate.get("baseline_trade_date")
+                if use_estimate
+                else nowcast["baseline_trade_date"]
+                if nowcast
+                else row.trade_date
+            ),
             "official_risk_temperature": finite(row.risk_temperature),
-            "realtime_avix": finite(estimate.get("avix_realtime_mid")) if use_estimate else finite(nowcast["realtime_avix"]) if nowcast else None,
-            "realtime_valuation_time": estimate.get("realtime_valuation_time") if use_estimate else nowcast["realtime_valuation_time"] if nowcast else None,
-            "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors" if use_estimate else nowcast["method"] if nowcast else "Official close",
-        } if (use_estimate or nowcast) else None,
+            "realtime_avix": (
+                finite(estimate.get("avix_realtime_mid"))
+                if use_estimate
+                else finite(nowcast["realtime_avix"])
+                if nowcast
+                else None
+            ),
+            "realtime_avix_quality": (
+                None
+                if use_estimate
+                else nowcast.get("realtime_avix_quality")
+                if nowcast
+                else realtime_quality
+            ),
+            "realtime_valuation_time": (
+                estimate.get("realtime_valuation_time")
+                if use_estimate
+                else nowcast["realtime_valuation_time"]
+                if nowcast
+                else None
+            ),
+            "method": (
+                "Estimated close from realtime AVIX plus available close-based non-AVIX factors"
+                if use_estimate
+                else nowcast["method"]
+                if nowcast
+                else "Official close"
+            ),
+            "active": bool(use_estimate or nowcast),
+        }
+        if (use_estimate or nowcast)
+        else {
+            "active": False,
+            "official_risk_temperature": finite(row.risk_temperature),
+            "reason_cn": (
+                "已有正式收盘，优先官方 AVIX"
+                if realtime_row is not None
+                and str(realtime_row.get("trade_date", "")) <= str(row.trade_date)
+                else "实时 AVIX 不可用或质量过低"
+                if not nowcast_ok
+                else "无盘中 nowcast"
+            ),
+        },
         "interpretation": interpretation(float(temp), regime_cn, interp_row),
     }
 
@@ -317,7 +387,18 @@ def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None, nowc
         },
         "realtime_avix": {
             "quality": realtime_quality,
-            "usable": realtime_quality == "OK",
+            "usable": realtime_avix_allows_nowcast(
+                realtime_quality,
+                None if realtime_row is None else realtime_row.get("avix_mid"),
+            ),
+            "usable_nowcast": realtime_avix_allows_nowcast(
+                realtime_quality,
+                None if realtime_row is None else realtime_row.get("avix_mid"),
+            ),
+            "usable_gap_fill": realtime_avix_allows_gap_fill(
+                realtime_quality,
+                None if realtime_row is None else realtime_row.get("avix_mid"),
+            ),
             "note": None if realtime_row is None else realtime_row.get("note"),
             "avix_mid": None if realtime_row is None else finite(realtime_row.get("avix_mid")),
         },
@@ -327,7 +408,10 @@ def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None, nowc
             "risk_temperature": finite(estimate.get("risk_temperature_estimated")) if use_estimate else finite(nowcast["risk_temperature"]) if nowcast else finite(row.risk_temperature),
             "baseline_trade_date": estimate.get("baseline_trade_date") if use_estimate else nowcast["baseline_trade_date"] if nowcast else row.trade_date,
             "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors" if use_estimate else nowcast["method"] if nowcast else "Official close",
-        } if (use_estimate or nowcast) else None,
+        } if (use_estimate or nowcast) else {
+            "active": False,
+            "reason_cn": "盘中 nowcast 未激活；正式收盘优先官方 AVIX",
+        },
         "model_confidence": confidence,
         "warnings": sorted(set(warnings)),
         "last_successful_update": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),

@@ -1,24 +1,24 @@
 {
-  "trade_date": "2026-07-10",
-  "temperature_mode": "OFFICIAL_CLOSE",
+  "trade_date": "2026-07-13",
+  "temperature_mode": "NOWCAST",
   "components": [
     {
       "name": "AVIX两年分位",
-      "score": 76.7396,
+      "score": 71.2302,
       "weight": 0.28,
-      "contribution": 21.4871
+      "contribution": 19.9445
     },
     {
       "name": "AVIX Z-score",
-      "score": 65.6887,
+      "score": 60.1547,
       "weight": 0.14,
-      "contribution": 9.1964
+      "contribution": 8.4217
     },
     {
       "name": "AVIX 5日变化",
-      "score": 33.5019,
+      "score": 29.2116,
       "weight": 0.08,
-      "contribution": 2.6802
+      "contribution": 2.3369
     },
     {
       "name": "QVIX确认",

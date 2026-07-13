@@ -1,6 +1,7 @@
 from __future__ import annotations
 import numpy as np
 import pandas as pd
+from src.core.realtime_avix import realtime_avix_allows_nowcast, realtime_avix_has_value
 from src.core.risk_temperature import WEIGHTS, regime_for
 from src.utils.quality import clip, merge_quality
 
@@ -64,9 +65,14 @@ def _avix_nowcast_components(risk: pd.DataFrame, realtime_avix: float, realtime_
 def realtime_nowcast_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None) -> dict | None:
     """Build an intraday risk-temperature nowcast.
 
+    Dual-track policy:
+      - NOWCAST (this payload): may use WARN-quality realtime AVIX for display.
+      - OFFICIAL_CLOSE history: never written here; only official daily AVIX pipeline.
+      - When official close catches up to the realtime trade_date, nowcast deactivates
+        so the dashboard returns to official close AVIX-driven temperature.
+
     The nowcast replaces only the three AVIX-derived factors with realtime AVIX.
-    All non-AVIX factors stay anchored to the latest official close row, so the
-    close-based historical risk series remains untouched.
+    All non-AVIX factors stay anchored to the latest official close row.
     """
     official = _latest_row(risk, "trade_date")
     realtime_row = _latest_row(realtime, "valuation_time")
@@ -78,8 +84,11 @@ def realtime_nowcast_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None) 
     official_trade_date = str(official.get("trade_date", ""))
     realtime_avix = _num(realtime_row.get("avix_mid"))
 
-    if realtime_quality != "OK" or pd.isna(realtime_avix) or float(realtime_avix) <= 0:
+    if not realtime_avix_has_value(realtime_avix):
         return None
+    if not realtime_avix_allows_nowcast(realtime_quality, realtime_avix):
+        return None
+    # Official same-day (or later) close wins: stop showing intraday nowcast.
     if not realtime_trade_date or realtime_trade_date <= official_trade_date:
         return None
 
@@ -92,7 +101,8 @@ def realtime_nowcast_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None) 
     risk_temperature = round(clip(temp), 1)
     regime, regime_cn = regime_for(risk_temperature)
     baseline_quality = str(official.get("quality", "OK"))
-    quality = merge_quality(["OK_NOWCAST", baseline_quality])
+    # Keep realtime WARN flags visible on the nowcast quality string.
+    quality = merge_quality(["OK_NOWCAST", baseline_quality, realtime_quality])
 
     return {
         "trade_date": realtime_trade_date,
@@ -104,6 +114,13 @@ def realtime_nowcast_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None) 
         "baseline_trade_date": official_trade_date,
         "official_risk_temperature": float(official.get("risk_temperature")),
         "realtime_avix": float(realtime_avix),
+        "realtime_avix_quality": realtime_quality,
         "realtime_valuation_time": realtime_row.get("valuation_time"),
         "method": "Realtime AVIX factors + previous official close non-AVIX factors",
+        "policy": {
+            "nowcast_allows_warn": True,
+            "gap_fill_requires_ok": True,
+            "official_history_immutable": True,
+            "official_wins_when_caught_up": True,
+        },
     }
