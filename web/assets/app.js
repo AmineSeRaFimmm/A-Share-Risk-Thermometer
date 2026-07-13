@@ -14,6 +14,8 @@ const dashboardState = {
   lastUpdateTime: null,
   lastTradeDate: null,
   heavyLoaded: false,
+  flexMode: 'conservative',
+  flexPlaybook: null,
 };
 
 async function loadJSON(path, { bust = true } = {}) {
@@ -455,6 +457,18 @@ function bindRangeControls(onRange) {
   });
 }
 
+function bindFlexModeControls() {
+  document.querySelectorAll('.flex-mode-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const mode = button.dataset.flexMode || 'conservative';
+      dashboardState.flexMode = mode;
+      if (dashboardState.flexPlaybook) {
+        renderFlexTradePanel(dashboardState.flexPlaybook);
+      }
+    });
+  });
+}
+
 async function loadCriticalDashboardData() {
   if (!dashboardState.cacheBust) {
     await resolveCacheBust();
@@ -527,6 +541,19 @@ function pctLabel(value) {
   return Number.isFinite(n) ? `${(n * 100).toFixed(1)}%` : '--';
 }
 
+const FLEX_ACTION_BADGE = {
+  OPEN: { text: '新开', cls: 'buy' },
+  OVERWEIGHT: { text: '超配', cls: 'buy' },
+  BUY: { text: '买入', cls: 'buy' },
+  HOLD: { text: '持有', cls: 'hold' },
+  CLOSE: { text: '平仓', cls: 'sell' },
+  AVOID: { text: '回避', cls: 'avoid' },
+  FLAT: { text: '观望', cls: 'wait' },
+  SELL: { text: '卖出', cls: 'sell' },
+  OVERWEIGHT_RELATIVE: { text: '超配', cls: 'buy' },
+  UNDERWEIGHT_RELATIVE: { text: '低配', cls: 'avoid' },
+};
+
 function renderFlexOrderList(el, items, emptyText) {
   if (!el) return;
   if (!items || !items.length) {
@@ -534,10 +561,8 @@ function renderFlexOrderList(el, items, emptyText) {
     return;
   }
   el.innerHTML = items.map(item => {
-    const side = (item.side || '').toUpperCase();
-    const isBuy = side === 'BUY' || side === 'OVERWEIGHT_RELATIVE';
-    const badge = isBuy ? '买入' : '卖出';
-    const cls = isBuy ? 'buy' : 'sell';
+    const action = (item.action || item.side || '').toUpperCase();
+    const badgeInfo = FLEX_ACTION_BADGE[action] || { text: action || '—', cls: 'wait' };
     const etfCode = item.etf_code || '';
     const etfName = item.etf_name || '';
     const title = etfCode
@@ -545,17 +570,19 @@ function renderFlexOrderList(el, items, emptyText) {
       : (item.instrument_display || item.name || '--');
     const quality = item.etf_quality_cn ? `映射${item.etf_quality_cn}` : null;
     const meta = [
+      item.action_cn || null,
       etfCode ? `ETF ${etfCode}` : null,
       quality,
+      item.weight_hint ? `目标 ${item.weight_hint}` : null,
+      item.days_remaining != null ? `剩${item.days_remaining}日` : null,
       item.entry ? `进: ${item.entry}` : null,
       item.exit ? `出: ${item.exit}` : null,
-      item.weight_hint ? `仓位: ${item.weight_hint}` : null,
       item.win_rate != null ? `胜率 ${pctLabel(item.win_rate)}` : null,
       item.n != null ? `n=${item.n}` : null,
     ].filter(Boolean).join(' · ');
-    const why = item.why || item.etf_note || '';
-    return `<div class="flex-order-item ${cls}">
-      <span class="badge">${badge}</span>
+    const why = item.condition_cn || item.why || item.etf_note || '';
+    return `<div class="flex-order-item ${badgeInfo.cls}">
+      <span class="badge">${badgeInfo.text}</span>
       <div>
         <strong>${title}</strong>
         <span>${meta}</span>
@@ -565,46 +592,157 @@ function renderFlexOrderList(el, items, emptyText) {
   }).join('');
 }
 
+function flexModeStats(flex, mode) {
+  const bt = flex.backtest || {};
+  const block = (bt[mode] || bt.aggressive || {});
+  const full = block.full_sample || bt.full_sample || {};
+  const oos = block.oos || bt.oos || {};
+  const core = bt.core_only || {};
+  return { full, oos, core, stress: bt.cost_stress || {} };
+}
+
+function applyFlexModeOverlay(flex, mode) {
+  // Client-side re-label of weights for aggressive vs conservative without rebuild
+  if (!flex || !flex.allocation) return flex;
+  const modes = flex.modes || {};
+  const cfg = modes[mode];
+  if (!cfg) return flex;
+  const copy = { ...flex, mode };
+  const coreOn = !!(flex.core && (flex.core.active || ['OPEN', 'HOLD'].includes(flex.core.action)));
+  const satOn = !!(flex.satellite && flex.satellite.active);
+  let wCore = coreOn ? Number(cfg.core_when_signal || 0.5) : 0;
+  let wSat = satOn ? Number(cfg.sat_when_signal || 0.3) : 0;
+  if (cfg.flex_single_full) {
+    if (coreOn && !satOn) { wCore = 1; wSat = 0; }
+    else if (satOn && !coreOn) { wCore = 0; wSat = 1; }
+  }
+  let total = wCore + wSat;
+  const cap = Number(cfg.total_cap || 1);
+  if (total > cap && total > 0) {
+    wCore *= cap / total;
+    wSat *= cap / total;
+    total = cap;
+  }
+  if (flex.satellite && flex.satellite.observe_only && wSat > 0) {
+    wSat *= 0.25;
+    total = wCore + wSat;
+  }
+  const allocCn = coreOn && satOn
+    ? `双仓：核心 ${(wCore * 100).toFixed(0)}% + 卫星 ${(wSat * 100).toFixed(0)}%（${cfg.label_cn || mode}）`
+    : coreOn
+      ? `仅核心：${(wCore * 100).toFixed(0)}%（${cfg.label_cn || mode}）`
+      : satOn
+        ? `仅卫星：${(wSat * 100).toFixed(0)}%（${cfg.label_cn || mode}）`
+        : (flex.allocation_cn || '空仓观望');
+  copy.allocation_cn = allocCn;
+  copy.allocation = {
+    ...(flex.allocation || {}),
+    mode,
+    w_core: Math.round(wCore * 10000) / 10000,
+    w_sat: Math.round(wSat * 10000) / 10000,
+    w_cash: Math.round((1 - wCore - wSat) * 10000) / 10000,
+    total_exposure: Math.round((wCore + wSat) * 10000) / 10000,
+    allocation_cn: allocCn,
+  };
+  return copy;
+}
+
 function renderFlexTradePanel(playbook) {
   const panel = document.getElementById('flexTradePanel');
   if (!panel) return;
-  const flex = playbook?.flex_panel;
+  let flex = playbook?.flex_panel;
   if (!flex || playbook?.status === 'missing') {
     setText('flexHeadline', '组合 Flex 信号暂不可用');
     setText('flexStatus', '数据缺失');
-    renderFlexOrderList(document.getElementById('flexBuyList'), [], '暂无买入指令');
-    renderFlexOrderList(document.getElementById('flexSellList'), [], '暂无卖出/低配指令');
+    renderFlexOrderList(document.getElementById('flexMinimalList'), [], '暂无动作');
+    renderFlexOrderList(document.getElementById('flexBuyList'), [], '暂无新开');
+    renderFlexOrderList(document.getElementById('flexHoldList'), [], '无持仓');
+    renderFlexOrderList(document.getElementById('flexSellList'), [], '无平仓');
+    renderFlexOrderList(document.getElementById('flexAvoidList'), [], '无回避项');
     return;
   }
 
-  const bt = flex.backtest || {};
-  const full = bt.full_sample || {};
-  setText('flexStatus', `${flex.status || '--'} · 研究信号`);
+  dashboardState.flexPlaybook = playbook;
+  const mode = dashboardState.flexMode || flex.mode || 'conservative';
+  flex = applyFlexModeOverlay(flex, mode);
+
+  const stats = flexModeStats(flex, mode);
+  const { full, oos, stress } = stats;
+  const coreOnly = stats.core || {};
+  setText('flexStatus', `${flex.status || '--'} · ${mode === 'aggressive' ? '进取' : '保守'} · 研究信号`);
   setText('flexHeadline', flex.headline || '--');
   setText('flexAlloc', flex.allocation_cn || '--');
   setText('flexExec', flex.execution_cn || 'T+1 开盘');
-  setText('flexHold', `${flex.hold_days || 5} 个交易日`);
+  setText(
+    'flexHold',
+    flex.hold_days_sat_cn
+      ? `核心 ${flex.hold_days || 5} 日 · ${flex.hold_days_sat_cn}`
+      : `${flex.hold_days || 5} 个交易日`
+  );
   setText(
     'flexStats',
-    `全样本 ${pctLabel(full.win_rate)} / 年化 ${pctLabel(full.ann_return)} · OOS ${pctLabel((bt.oos || {}).win_rate)}`
+    `胜率 ${pctLabel(full.win_rate)} / 年化 ${pctLabel(full.ann_return)} · OOS ${pctLabel(oos.win_rate)} · 仅核心年化 ${pctLabel(coreOnly.ann_return)}`
   );
   setText('flexDisclaimer', flex.disclaimer || '研究回测指令，非投资建议。');
+  setText('flexMergeNote', flex.merge_note_cn || '');
+  const s15 = stress.stress_15bps?.[mode] || stress.stress_15bps?.conservative;
+  const s30 = stress.stress_30bps?.[mode] || stress.stress_30bps?.conservative;
+  const stressTxt = [
+    flex.backtest_display?.compare_cn || '建议对照「仅核心」',
+    s15 ? `成本15bp年化 ${pctLabel(s15.ann_return)}` : null,
+    s30 ? `成本30bp年化 ${pctLabel(s30.ann_return)}` : null,
+    stress.etf_haircut_note || null,
+  ].filter(Boolean).join(' · ');
+  setText('flexCompare', stressTxt);
+
+  const risk = flex.risk_dashboard || {};
+  setText('flexBeta', risk.estimated_beta != null ? String(risk.estimated_beta) : '--');
+  setText('flexVol', risk.estimated_daily_vol_cn || '--');
+  setText('flexExposure', risk.total_exposure != null ? pctLabel(risk.total_exposure) : '--');
+  setText('flexCorr', risk.correlation_note || '--');
 
   const core = flex.core || {};
   const sat = flex.satellite || {};
   const coreEl = document.getElementById('flexCoreSleeve');
   const satEl = document.getElementById('flexSatSleeve');
   if (coreEl) coreEl.dataset.tone = core.tone || (core.active ? 'buy' : 'wait');
-  if (satEl) satEl.dataset.tone = sat.active ? 'buy' : 'wait';
+  if (satEl) satEl.dataset.tone = sat.tone || (sat.active ? 'buy' : 'wait');
   const coreEtf = core.etf_code ? `${core.etf_code} ${core.etf_name || ''}`.trim() : '';
+  const wCore = flex.allocation?.w_core;
   setText('flexCoreAction', core.action_cn || '--');
   setText('flexCoreDetail', core.detail || '--');
-  setText('flexCoreRule', coreEtf ? `${core.rule || ''} · 标的 ${coreEtf}` : (core.rule || ''));
-  setText('flexSatStage', sat.active ? (sat.stage_cn || '卫星激活') : '卫星未激活');
-  setText('flexSatDetail', sat.detail || (sat.active ? `阶段：${sat.stage_cn || '--'}` : '当前无高置信板块卫星信号。'));
+  setText(
+    'flexCoreRule',
+    [
+      core.rule || '',
+      coreEtf ? `标的 ${coreEtf}` : '',
+      wCore != null ? `目标 ${pctLabel(wCore)}` : '',
+    ].filter(Boolean).join(' · ')
+  );
+  setText('flexSatStage', sat.status_cn || (sat.active ? (sat.stage_cn || '卫星激活') : '卫星未激活'));
+  setText(
+    'flexSatDetail',
+    [
+      sat.detail,
+      sat.stage_cn ? `阶段：${sat.stage_cn}` : null,
+      sat.weight_target != null ? `卫星预算 ${pctLabel(sat.weight_target)}` : null,
+      sat.observe_only ? '观察仓×0.25' : null,
+    ].filter(Boolean).join(' · ') || '当前无高置信板块卫星信号。'
+  );
 
-  renderFlexOrderList(document.getElementById('flexBuyList'), flex.buy_list || [], '今日无买入指令');
-  renderFlexOrderList(document.getElementById('flexSellList'), flex.sell_list || [], '今日无卖出/低配指令');
+  document.querySelectorAll('.flex-mode-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.flexMode === mode);
+  });
+
+  renderFlexOrderList(document.getElementById('flexMinimalList'), flex.minimal_actions || [], '今日无必须动作');
+  renderFlexOrderList(document.getElementById('flexBuyList'), flex.buy_list || [], '今日无新开');
+  renderFlexOrderList(document.getElementById('flexHoldList'), flex.hold_list || [], '无持仓');
+  renderFlexOrderList(
+    document.getElementById('flexSellList'),
+    flex.close_list || flex.sell_list || [],
+    '无平仓'
+  );
+  renderFlexOrderList(document.getElementById('flexAvoidList'), flex.avoid_list || [], '无条件回避项');
 }
 
 function hideLoadError() {
@@ -701,6 +839,7 @@ async function main() {
     dashboardState.activeRange = range;
     dashboardState.timeCharts = renderTimeCharts(dashboardState.history, dashboardState.strategy, range);
   });
+  bindFlexModeControls();
   window.addEventListener('resize', () => {
     dashboardState.componentChart?.resize();
     dashboardState.sectorChart?.resize();

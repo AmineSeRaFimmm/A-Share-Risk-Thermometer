@@ -106,24 +106,55 @@ def _to_markdown(p: dict, mapping_rows: list | None = None) -> str:
     ]
     if flex:
         lines += [
-            f"- Flex 状态: **{flex.get('status')}** · {flex.get('allocation_cn')}",
+            f"- Flex v2 状态: **{flex.get('status')}** · 模式 `{flex.get('mode')}` · {flex.get('allocation_cn')}",
+            f"- 合并: {flex.get('merge_note_cn') or '—'}",
             "",
-            "### 今日买入（已映射 ETF）",
+            "### 今日最小动作",
             "",
         ]
+        for b in flex.get("minimal_actions") or []:
+            lines.append(
+                f"- **{b.get('action_cn') or b.get('action')}** {b.get('instrument_display') or b.get('name')} "
+                f"| 目标 {b.get('weight_hint') or '—'} | {b.get('entry')} → {b.get('exit')}"
+            )
+        lines += ["", "### 新开 / 超配", ""]
         for b in flex.get("buy_list") or []:
             lines.append(
-                f"- **买入** {b.get('instrument_display') or b.get('name')} "
-                f"| {b.get('entry')} → {b.get('exit')}"
+                f"- **{b.get('action_cn') or '新开'}** {b.get('instrument_display') or b.get('name')} "
+                f"| {b.get('weight_hint')} | {b.get('entry')} → {b.get('exit')}"
             )
             if b.get("etf_quality_cn"):
                 lines.append(f"  - 映射: {b.get('etf_quality_cn')} {b.get('etf_note') or ''}".rstrip())
-        lines += ["", "### 今日卖出/低配（已映射 ETF）", ""]
-        sells = flex.get("sell_list") or []
+        lines += ["", "### 持有", ""]
+        holds = flex.get("hold_list") or []
+        if not holds:
+            lines.append("- （无）")
+        for b in holds:
+            lines.append(f"- **持有** {b.get('instrument_display') or b.get('name')} | 剩 {b.get('days_remaining', '—')} 日")
+        lines += ["", "### 平仓 CLOSE", ""]
+        sells = flex.get("close_list") or flex.get("sell_list") or []
         if not sells:
             lines.append("- （无）")
         for b in sells:
-            lines.append(f"- **低配** {b.get('instrument_display') or b.get('name')}")
+            lines.append(f"- **平仓** {b.get('instrument_display') or b.get('name')}")
+        lines += ["", "### 回避 AVOID（条件）", ""]
+        avoids = flex.get("avoid_list") or []
+        if not avoids:
+            lines.append("- （无）")
+        for b in avoids:
+            lines.append(
+                f"- **回避** {b.get('instrument_display') or b.get('name')} — {b.get('condition_cn') or b.get('why')}"
+            )
+        risk = flex.get("risk_dashboard") or {}
+        if risk:
+            lines += [
+                "",
+                "### 风险仪表",
+                "",
+                f"- β≈{risk.get('estimated_beta')} · {risk.get('estimated_daily_vol_cn')} · 暴露 {risk.get('total_exposure')}",
+                f"- {risk.get('correlation_note')}",
+                f"- {risk.get('circuit_breaker_cn')}",
+            ]
         lines.append("")
 
     if p["primary_stage"].get("notes"):

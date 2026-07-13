@@ -1,0 +1,49 @@
+{
+  "as_of": "2026-07-10",
+  "mode": "conservative",
+  "core": {
+    "status": "open",
+    "entry_signal_date": "2026-07-07",
+    "entry_date": "2026-07-08",
+    "exit_due_date": null,
+    "days_held": 2,
+    "days_remaining": 3,
+    "stage_id": "CSI300_CORE_BUY",
+    "names": [
+      "沪深300"
+    ],
+    "weights": {
+      "沪深300": 1.0
+    },
+    "etf_code": "510300"
+  },
+  "satellite": {
+    "status": "open",
+    "entry_signal_date": "2026-06-30",
+    "entry_date": "2026-07-01",
+    "exit_due_date": null,
+    "days_held": 7,
+    "days_remaining": 1,
+    "stage_id": "HIGH_COOLING",
+    "names": [
+      "有色金属",
+      "基础化工",
+      "煤炭",
+      "电力设备",
+      "石油石化",
+      "轻工制造",
+      "传媒"
+    ],
+    "weights": {
+      "有色金属": 0.2858,
+      "基础化工": 0.2439,
+      "煤炭": 0.1695,
+      "电力设备": 0.1429,
+      "石油石化": 0.0574,
+      "轻工制造": 0.0538,
+      "传媒": 0.0468
+    },
+    "etf_code": null
+  },
+  "last_actions": []
+}

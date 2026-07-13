@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260713-flex-panel">
+    <link rel="stylesheet" href="./assets/app.css?v=20260713-flex-v2">
   </head>
   <body>
     <header class="topbar">
@@ -77,15 +77,19 @@
 
       <section class="flex-trade-panel" id="flexTradePanel" aria-label="组合Flex买卖提示">
         <div class="section-head">
-          <h2>组合 Flex 买卖提示</h2>
+          <h2>组合 Flex 买卖提示 <small class="flex-ver">v2</small></h2>
           <span id="flexStatus">研究信号 / 非投资建议</span>
         </div>
         <p class="flex-headline" id="flexHeadline">加载组合信号中…</p>
+        <div class="flex-mode-row" role="group" aria-label="仓位模式">
+          <button type="button" class="flex-mode-btn active" data-flex-mode="conservative" id="flexModeConservative">保守（默认）</button>
+          <button type="button" class="flex-mode-btn" data-flex-mode="aggressive" id="flexModeAggressive">进取 Flex</button>
+        </div>
         <div class="flex-meta-grid">
           <div><span>分配</span><strong id="flexAlloc">--</strong></div>
           <div><span>执行</span><strong id="flexExec">T+1 开盘</strong></div>
           <div><span>持有</span><strong id="flexHold">5 日</strong></div>
-          <div><span>回测胜率</span><strong id="flexStats">--</strong></div>
+          <div><span>回测（本模式）</span><strong id="flexStats">--</strong></div>
         </div>
         <div class="flex-sleeves">
           <article class="flex-sleeve" id="flexCoreSleeve" data-tone="wait">
@@ -104,17 +108,37 @@
             <p id="flexSatDetail">--</p>
           </article>
         </div>
-        <div class="flex-book-grid">
+        <div class="flex-risk" id="flexRiskDash">
+          <div><span>预估 β</span><strong id="flexBeta">--</strong></div>
+          <div><span>日波动启发</span><strong id="flexVol">--</strong></div>
+          <div><span>总暴露</span><strong id="flexExposure">--</strong></div>
+          <div><span>相关风险</span><strong id="flexCorr">--</strong></div>
+        </div>
+        <p class="flex-merge-note" id="flexMergeNote"></p>
+        <div class="flex-book-grid flex-book-grid-3">
           <div class="flex-book buy">
-            <div class="flex-book-title">买入 / 超配</div>
+            <div class="flex-book-title">今日最小动作</div>
+            <div id="flexMinimalList" class="flex-order-list"></div>
+          </div>
+          <div class="flex-book buy">
+            <div class="flex-book-title">新开 / 超配</div>
             <div id="flexBuyList" class="flex-order-list"></div>
           </div>
+          <div class="flex-book hold">
+            <div class="flex-book-title">持有</div>
+            <div id="flexHoldList" class="flex-order-list"></div>
+          </div>
           <div class="flex-book sell">
-            <div class="flex-book-title">卖出 / 低配</div>
+            <div class="flex-book-title">平仓 CLOSE</div>
             <div id="flexSellList" class="flex-order-list"></div>
           </div>
+          <div class="flex-book avoid">
+            <div class="flex-book-title">回避 AVOID（条件）</div>
+            <div id="flexAvoidList" class="flex-order-list"></div>
+          </div>
         </div>
-        <p class="flex-disclaimer" id="flexDisclaimer">组合 Flex 基于历史回测；板块为行业指数代理，不构成投资建议。</p>
+        <p class="flex-compare" id="flexCompare">--</p>
+        <p class="flex-disclaimer" id="flexDisclaimer">组合 Flex v2：状态机 + 质量降权 + 多阶段合并；行业指数代理 ETF，不构成投资建议。</p>
       </section>
 
       <section class="rt-tactical-panel" id="rtTacticalPanel" aria-label="风险温度研究观察" hidden>
@@ -235,7 +259,7 @@
     </main>
 
     <script src="./vendor/echarts.min.js"></script>
-    <script src="./assets/charts.js?v=20260713-flex-panel"></script>
-    <script src="./assets/app.js?v=20260713-flex-panel"></script>
+    <script src="./assets/charts.js?v=20260713-flex-v2"></script>
+    <script src="./assets/app.js?v=20260713-flex-v2"></script>
   </body>
 </html>

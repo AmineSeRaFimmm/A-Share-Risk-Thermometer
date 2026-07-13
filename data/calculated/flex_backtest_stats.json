@@ -1,0 +1,142 @@
+{
+  "mode": "combined_flex_v2",
+  "label_cn": "组合 Flex v2（状态机+质量降权+成本压力）",
+  "default_mode": "conservative",
+  "hold_days_core": 5,
+  "hold_days_sat": "3-8",
+  "execution": "T 收盘信号 → T+1 开盘",
+  "core_only": {
+    "total_return": 0.8936930168090225,
+    "ann_return": 0.10685211297861086,
+    "max_dd": -0.10646793016099376,
+    "win_rate": 0.673469387755102,
+    "trade_count": 49
+  },
+  "conservative": {
+    "note": "默认推荐；总暴露 capped；质量 haircut；事件退出",
+    "full_sample": {
+      "total_return": 1.2385277870923979,
+      "ann_return": 0.13668655716705813,
+      "max_dd": -0.08580163368763527,
+      "win_rate": 0.6324110671936759,
+      "trade_count": 253,
+      "sharpe": 3.3234922125927753
+    },
+    "oos": {
+      "total_return": 0.6127289525037507,
+      "ann_return": 0.21867378391513115,
+      "max_dd": -0.058585523885191004,
+      "win_rate": 0.6470588235294118,
+      "trade_count": 102
+    }
+  },
+  "aggressive": {
+    "note": "单仓满仓 Flex；收益偏高、换手大",
+    "full_sample": {
+      "total_return": 5.733447730768569,
+      "ann_return": 0.3541972365281649,
+      "max_dd": -0.1435763104044009,
+      "win_rate": 0.6324110671936759,
+      "trade_count": 253,
+      "sharpe": 3.4913033880453717
+    },
+    "oos": {
+      "total_return": 2.0461534286645686,
+      "ann_return": 0.5855251959842962,
+      "max_dd": -0.1289786082786819,
+      "win_rate": 0.6470588235294118,
+      "trade_count": 102
+    }
+  },
+  "cost_stress": {
+    "base_bps_one_way": 3,
+    "stress_15bps": {
+      "conservative": {
+        "total_return": 0.8265165167500268,
+        "ann_return": 0.10051426693859788,
+        "max_dd": -0.0965467004764714,
+        "win_rate": 0.6047430830039525,
+        "trade_count": 253,
+        "sharpe": 2.511712383894783
+      },
+      "aggressive": {
+        "total_return": 2.987968985841296,
+        "ann_return": 0.2459879619460681,
+        "max_dd": -0.17059806379113118,
+        "win_rate": 0.6047430830039525,
+        "trade_count": 253,
+        "sharpe": 2.5591344569654964
+      }
+    },
+    "stress_30bps": {
+      "conservative": {
+        "total_return": 0.41656837247971557,
+        "ann_return": 0.05692784045974397,
+        "max_dd": -0.11142103505884215,
+        "win_rate": 0.5652173913043478,
+        "trade_count": 253,
+        "sharpe": 1.472004051639486
+      },
+      "aggressive": {
+        "total_return": 1.072071078654302,
+        "ann_return": 0.12280760317019634,
+        "max_dd": -0.20323642540144038,
+        "win_rate": 0.5652173913043478,
+        "trade_count": 253,
+        "sharpe": 1.374542276472361
+      }
+    },
+    "etf_haircut_note": "proxy×0.85 收益折扣 / weak 剔除；行业指数≠ETF"
+  },
+  "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；实盘收益应低于回测。",
+  "scenarios": [
+    {
+      "mode": "conservative",
+      "cost_label": "base_3bps",
+      "ann_return": 0.13668655716705813,
+      "max_dd": -0.08580163368763527,
+      "win_rate": 0.6324110671936759,
+      "trade_count": 253
+    },
+    {
+      "mode": "conservative",
+      "cost_label": "stress_15bps",
+      "ann_return": 0.10051426693859788,
+      "max_dd": -0.0965467004764714,
+      "win_rate": 0.6047430830039525,
+      "trade_count": 253
+    },
+    {
+      "mode": "conservative",
+      "cost_label": "stress_30bps",
+      "ann_return": 0.05692784045974397,
+      "max_dd": -0.11142103505884215,
+      "win_rate": 0.5652173913043478,
+      "trade_count": 253
+    },
+    {
+      "mode": "aggressive",
+      "cost_label": "base_3bps",
+      "ann_return": 0.3541972365281649,
+      "max_dd": -0.1435763104044009,
+      "win_rate": 0.6324110671936759,
+      "trade_count": 253
+    },
+    {
+      "mode": "aggressive",
+      "cost_label": "stress_15bps",
+      "ann_return": 0.2459879619460681,
+      "max_dd": -0.17059806379113118,
+      "win_rate": 0.6047430830039525,
+      "trade_count": 253
+    },
+    {
+      "mode": "aggressive",
+      "cost_label": "stress_30bps",
+      "ann_return": 0.12280760317019634,
+      "max_dd": -0.20323642540144038,
+      "win_rate": 0.5652173913043478,
+      "trade_count": 253
+    }
+  ]
+}

@@ -357,6 +357,94 @@ dd[data-freshness="unknown"] { color: var(--amber); }
   font-size: 13px;
   line-height: 1.55;
 }
+.flex-ver {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  margin-left: 6px;
+}
+.flex-mode-row {
+  display: flex;
+  gap: 8px;
+  margin: 0 0 12px;
+  flex-wrap: wrap;
+}
+.flex-mode-btn {
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: #344054;
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.flex-mode-btn.active {
+  background: #111827;
+  color: #fff;
+  border-color: #111827;
+}
+.flex-risk {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0 0 12px;
+}
+.flex-risk > div {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.flex-risk span {
+  display: block;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.flex-risk strong {
+  display: block;
+  margin-top: 4px;
+  font-size: 13px;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+.flex-merge-note {
+  margin: 0 0 12px;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.45;
+}
+.flex-book-grid-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.flex-book.hold .flex-book-title {
+  background: #e0f2fe;
+  color: #075985;
+}
+.flex-book.avoid .flex-book-title {
+  background: #f3e8ff;
+  color: #6b21a8;
+}
+.flex-order-item.hold .badge {
+  background: #0284c7;
+  color: #fff;
+}
+.flex-order-item.avoid .badge {
+  background: #7c3aed;
+  color: #fff;
+}
+.flex-order-item.wait .badge {
+  background: #94a3b8;
+  color: #fff;
+}
+.flex-compare {
+  margin: 12px 0 0;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.5;
+}
 .strategy-panel { margin-top: 18px; padding: 20px; }
 .strategy-grid {
   display: grid;
@@ -585,7 +673,7 @@ body.is-loading .temperature-readout span::after {
 @media (max-width: 1100px) {
   .summary-grid, .chart-grid { grid-template-columns: 1fr; }
   .strategy-grid, .strategy-signals, .sector-relation-grid, .low-position-cards,
-  .flex-sleeves, .flex-book-grid, .flex-meta-grid { grid-template-columns: 1fr; }
+  .flex-sleeves, .flex-book-grid, .flex-book-grid-3, .flex-meta-grid, .flex-risk { grid-template-columns: 1fr; }
   .health-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 680px) {

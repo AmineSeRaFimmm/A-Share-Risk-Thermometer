@@ -16,7 +16,8 @@ from typing import Any
 
 import pandas as pd
 
-from src.core.sector_etf_map import attach_etf_fields, map_csi300, map_sector
+from src.core.flex_engine import build_flex_panel_v2, load_backtest_stats_file
+from src.core.sector_etf_map import attach_etf_fields
 
 # ---- CSI300 primary rule (strict backtest, balanced IS/OOS) ----
 CSI300_RULE = {
@@ -455,7 +456,17 @@ def build_playbook_payload(risk_components: pd.DataFrame, index_history: pd.Data
                 )
             )
 
-    flex_panel = _build_flex_panel(feat, stages, detailed, core_buy, primary)
+    flex_panel = build_flex_panel_v2(
+        feat,
+        stages,
+        detailed,
+        core_buy,
+        primary,
+        risk_components=risk_components,
+        index_history=index_history,
+        mode="conservative",
+        backtest_stats=load_backtest_stats_file(),
+    )
 
     return {
         "title": "风险温度分阶段交易指令（严格研究版）",
@@ -464,6 +475,7 @@ def build_playbook_payload(risk_components: pd.DataFrame, index_history: pd.Data
             "csi300_rule": CSI300_RULE,
             "sector_proxy": "excess_return = sector_return - csi300_return",
             "execution_default": "T close signal → T+1 open",
+            "flex_version": "v2_state_machine_quality_merge",
             "sources": [
                 "research/output/strict/strict_rt_csi300_report.md",
                 "research/output/sector_flow/strict_rt_sector_flow_report.md",
@@ -506,251 +518,4 @@ def build_playbook_payload(risk_components: pd.DataFrame, index_history: pd.Data
             }
             for s in STAGE_DEFS
         ],
-    }
-
-
-# Combined flex backtest snapshot (long-only high-conviction satellite)
-FLEX_BACKTEST_STATS = {
-    "mode": "combined_flex_long_only",
-    "label_cn": "组合 Flex（核心+板块超配）",
-    "core_weight_when_both": 0.60,
-    "sat_weight_when_both": 0.40,
-    "flex_rule_cn": "仅一仓激活时 100% 该仓；双仓同时 60% 核心 + 40% 卫星",
-    "hold_days": 5,
-    "execution": "T 收盘信号 → T+1 开盘",
-    "full_sample": {
-        "total_return": 4.0155,
-        "ann_return": 0.2922,
-        "max_dd": -0.1537,
-        "win_rate": 0.625,
-        "trade_count": 256,
-    },
-    "oos": {
-        "total_return": 1.6078,
-        "ann_return": 0.4868,
-        "max_dd": -0.1096,
-        "win_rate": 0.625,
-        "trade_count": 104,
-    },
-    "core_only": {
-        "total_return": 0.8523,
-        "ann_return": 0.1030,
-        "max_dd": -0.1065,
-        "win_rate": 0.6531,
-        "trade_count": 49,
-    },
-    "caveat_cn": "板块用行业指数代理 ETF，卫星交易较密，实盘收益应低于回测。",
-}
-
-# Satellite stage map aligned with backtest_core_plus_sectors.STAGE_LONG (strict)
-FLEX_SAT_LONG = {
-    "RISING_HARD": ["通信", "电子", "机械设备", "国防军工"],
-    "CSI300_CORE_BUY": ["建筑材料", "商贸零售", "传媒", "恒生科技"],
-    "ENTER_70_BOUNCE": ["恒生科技"],
-    "HIGH_COOLING": ["石油石化", "综合", "轻工制造", "煤炭", "传媒"],
-    "FALLING_HARD": ["有色金属", "煤炭", "基础化工", "电力设备"],
-}
-FLEX_SAT_SHORT = {
-    "RISING_HARD": ["美容护理", "房地产", "钢铁"],
-    "CSI300_CORE_BUY": ["公用事业", "银行"],
-    "ENTER_70_BOUNCE": ["石油石化", "公用事业", "银行"],
-    "HIGH_COOLING": ["电子", "计算机"],
-    "FALLING_HARD": ["计算机", "传媒", "美容护理"],
-}
-FLEX_SAT_PRIORITY = [
-    "CSI300_CORE_BUY",
-    "HIGH_COOLING",
-    "ENTER_70_BOUNCE",
-    "RISING_HARD",
-    "FALLING_HARD",
-]
-
-
-def _build_flex_panel(
-    feat: dict[str, Any],
-    stages: list[str],
-    detailed: list[dict],
-    core_buy: bool,
-    primary: dict,
-) -> dict[str, Any]:
-    """Frontend-facing buy/sell panel for combined flex strategy."""
-    sat_stage = next((s for s in FLEX_SAT_PRIORITY if s in stages), None)
-    longs = list(FLEX_SAT_LONG.get(sat_stage or "", []))
-    shorts = list(FLEX_SAT_SHORT.get(sat_stage or "", []))
-
-    # Prefer names from active detailed stage if present (with why/win_rate)
-    long_cards = []
-    short_cards = []
-    if sat_stage:
-        st = next((d for d in detailed if d.get("stage_id") == sat_stage), None)
-        if st:
-            for sec in st.get("sectors_long") or []:
-                if sec.get("name") in longs or not longs:
-                    long_cards.append(
-                        {
-                            "name": sec["name"],
-                            "side": "BUY",
-                            "side_cn": "买入/超配",
-                            "why": sec.get("why"),
-                            "win_rate": sec.get("win_rate"),
-                            "n": sec.get("n"),
-                        }
-                    )
-            for sec in st.get("sectors_short") or []:
-                if sec.get("name") in shorts or not shorts:
-                    short_cards.append(
-                        {
-                            "name": sec["name"],
-                            "side": "SELL",
-                            "side_cn": "卖出/低配",
-                            "why": sec.get("why"),
-                            "win_rate": sec.get("win_rate"),
-                            "n": sec.get("n"),
-                        }
-                    )
-    if not long_cards and longs:
-        long_cards = [{"name": n, "side": "BUY", "side_cn": "买入/超配"} for n in longs]
-    if not short_cards and shorts:
-        short_cards = [{"name": n, "side": "SELL", "side_cn": "卖出/低配"} for n in shorts]
-
-    if core_buy:
-        core_action = "BUY"
-        core_action_cn = "买入"
-        core_detail = "T 日收盘满足条件 → 下一交易日开盘买入；持有 5 个交易日后开盘卖出。"
-        core_tone = "buy"
-    else:
-        core_action = "HOLD_OR_WAIT"
-        core_action_cn = "观望/不新开"
-        core_detail = "未同时满足 60≤RT<80 与 60日回撤≤-5%；核心仓不新开多单。"
-        core_tone = "wait"
-        # if currently would be sell from an open position we cannot know without position state
-        if feat.get("rt", 0) < 60 or (feat.get("hs300_dd60") is not None and feat["hs300_dd60"] > -0.05):
-            core_detail += " 若已持有主策略仓位，仍按 5 日持有到期卖出，不提前因阶段切换强平（回测规则）。"
-
-    sat_active = bool(sat_stage and (long_cards or short_cards))
-    if sat_active and core_buy:
-        alloc_cn = "双仓：约 60% 核心沪深300 + 40% 卫星板块等权"
-        alloc_mode = "BOTH"
-    elif core_buy:
-        alloc_cn = "仅核心：100% 沪深300 主策略（Flex）"
-        alloc_mode = "CORE_ONLY"
-    elif sat_active:
-        alloc_cn = "仅卫星：100% 阶段板块篮子（Flex）"
-        alloc_mode = "SAT_ONLY"
-    else:
-        alloc_cn = "空仓观望"
-        alloc_mode = "FLAT"
-
-    buy_list = []
-    sell_list = []
-    csi = map_csi300()
-    if core_buy:
-        buy_list.append(
-            attach_etf_fields(
-                {
-                    "sleeve": "core",
-                    "name": "沪深300",
-                    "side": "BUY",
-                    "side_cn": "买入",
-                    "weight_hint": "Flex 满仓核心或 60%",
-                    "entry": "T+1 开盘",
-                    "exit": "持有 5 日 → 开盘卖出",
-                    "why": "组合 Flex 核心规则（回测胜率约 65%）",
-                }
-            )
-        )
-    for c in long_cards:
-        buy_list.append(
-            attach_etf_fields(
-                {
-                    "sleeve": "satellite",
-                    "name": c["name"],
-                    "side": "BUY",
-                    "side_cn": "买入/超配",
-                    "weight_hint": "卫星等权" if alloc_mode != "CORE_ONLY" else "—",
-                    "entry": "T+1 开盘",
-                    "exit": "持有约 5 日",
-                    "why": c.get("why") or "阶段超配",
-                    "win_rate": c.get("win_rate"),
-                    "n": c.get("n"),
-                }
-            )
-        )
-    for c in short_cards:
-        sell_list.append(
-            attach_etf_fields(
-                {
-                    "sleeve": "satellite",
-                    "name": c["name"],
-                    "side": "SELL",
-                    "side_cn": "卖出/低配",
-                    "weight_hint": "回避/减配（long-only 不持有）",
-                    "entry": "立即减配",
-                    "exit": "阶段窗口约 5 日",
-                    "why": c.get("why") or "阶段低配",
-                    "win_rate": c.get("win_rate"),
-                    "n": c.get("n"),
-                }
-            )
-        )
-
-    # headline
-    if alloc_mode == "BOTH":
-        headline = "组合 Flex：核心买入 + 板块超配"
-        status_cn = "双仓激活"
-    elif alloc_mode == "CORE_ONLY":
-        headline = "组合 Flex：核心买入（卫星未单独激活）"
-        status_cn = "核心激活"
-    elif alloc_mode == "SAT_ONLY":
-        headline = "组合 Flex：板块卫星买入/轮动"
-        status_cn = "卫星激活"
-    else:
-        headline = "组合 Flex：暂无开仓信号"
-        status_cn = "观望"
-
-    return {
-        "status": status_cn,
-        "status_code": alloc_mode,
-        "headline": headline,
-        "as_of": feat.get("trade_date"),
-        "execution_cn": "信号日 T 收盘确认 → 下一交易日开盘执行",
-        "hold_days": 5,
-        "allocation_cn": alloc_cn,
-        "allocation_mode": alloc_mode,
-        "market_state": {
-            "rt": feat.get("rt"),
-            "rt_d1": feat.get("rt_d1"),
-            "rt_d5": feat.get("rt_d5"),
-            "hs300_dd60": feat.get("hs300_dd60"),
-            "regime_cn": feat.get("regime_cn"),
-        },
-        "core": {
-            "sleeve": "core",
-            "name": "沪深300 主策略",
-            "action": core_action,
-            "action_cn": core_action_cn,
-            "tone": core_tone,
-            "detail": core_detail,
-            "rule": "60≤RT<80 且 60日回撤≤-5%；持有5日",
-            "active": core_buy,
-            "etf_code": csi["etf_code"],
-            "etf_name": csi["etf_name"],
-            "etf_label": csi["etf_label"],
-        },
-        "satellite": {
-            "sleeve": "satellite",
-            "name": "板块超配卫星",
-            "active": sat_active,
-            "stage_id": sat_stage,
-            "stage_cn": next((d.get("name_cn") for d in detailed if d.get("stage_id") == sat_stage), "无"),
-            "buy": [attach_etf_fields(x) for x in long_cards],
-            "sell": [attach_etf_fields(x) for x in short_cards],
-            "detail": "仅高置信阶段；已映射到行业/主题 ETF（见 etf_code）；long-only 默认不做空。",
-        },
-        "buy_list": buy_list,
-        "sell_list": sell_list,
-        "sector_etf_map_version": "config/sector_etf_map.yml",
-        "backtest": FLEX_BACKTEST_STATS,
-        "disclaimer": "研究回测指令，非投资建议。ETF 映射见 config/sector_etf_map.yml；弱代理请降仓。",
-        "primary_stage_cn": primary.get("name_cn"),
     }
