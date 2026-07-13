@@ -344,15 +344,84 @@ body.error .page-shell::before {
   color: #9f1239;
 }
 
+.load-error-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  margin-bottom: 16px;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  color: #9f1239;
+  font-size: 14px;
+}
+.load-error-banner button {
+  border: 1px solid #fecdd3;
+  background: #fff;
+  color: #9f1239;
+  border-radius: 6px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 40px;
+}
+body.is-loading .temperature-readout span::after {
+  content: "";
+  display: inline-block;
+  width: 0.55em;
+  animation: pulse 1s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+
+.rt-tactical-panel {
+  padding: 20px;
+  margin-top: 18px;
+}
+.rt-tactical-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 12px;
+}
+.rt-tactical-grid > div {
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+}
+.rt-tactical-grid span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.rt-tactical-grid strong {
+  display: block;
+  margin-top: 8px;
+  font-size: 16px;
+}
+.rt-tactical-note {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 @media (max-width: 1100px) {
   .summary-grid, .chart-grid { grid-template-columns: 1fr; }
   .strategy-grid, .strategy-signals, .sector-relation-grid, .low-position-cards { grid-template-columns: 1fr; }
   .health-grid { grid-template-columns: repeat(3, 1fr); }
 }
 @media (max-width: 680px) {
-  .topbar { position: static; padding: 12px 16px; align-items: flex-start; gap: 10px; flex-direction: column; }
+  .topbar { position: sticky; padding: 12px 16px; align-items: flex-start; gap: 10px; flex-direction: column; }
   .page-shell { width: 100%; max-width: 100%; padding: 16px; overflow-x: hidden; }
-  .meta-grid, .health-grid, .download-list { grid-template-columns: 1fr; }
+  .meta-grid, .health-grid, .download-list, .rt-tactical-grid { grid-template-columns: 1fr; }
   .temperature-readout span { font-size: 64px; }
   .chart { height: 300px; }
   .chart.large { height: 340px; }
@@ -363,17 +432,23 @@ body.error .page-shell::before {
   .chart-panel,
   .sector-panel,
   .low-position-panel,
-  .health-panel {
-    width: calc(100vw - 48px);
-    max-width: calc(100vw - 48px);
+  .health-panel,
+  .strategy-panel,
+  .rt-tactical-panel {
+    width: 100%;
+    max-width: 100%;
   }
-  .explain-panel h1 { font-size: 22px; line-height: 1.18; }
-  .explain-panel h1 { word-break: break-all; }
+  .explain-panel h1 { font-size: 22px; line-height: 1.25; word-break: break-word; }
   .posture { align-items: flex-start; gap: 8px; flex-direction: column; }
   .section-head { align-items: flex-start; flex-direction: column; }
   .chart-note { margin-top: -4px; font-size: 12px; }
-  .range-controls { width: 100%; justify-content: space-between; }
-  .range-controls button { flex: 1; min-width: 0; }
+  .range-controls { width: 100%; justify-content: space-between; gap: 6px; }
+  .range-controls button {
+    flex: 1;
+    min-width: 0;
+    min-height: 40px;
+    padding: 8px 6px;
+  }
   #avixQvixChart,
   #hs300Chart { height: 360px; }
   .sector-chart { height: 430px; }

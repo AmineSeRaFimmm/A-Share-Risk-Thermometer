@@ -1,10 +1,14 @@
 from __future__ import annotations
 import numpy as np
 import pandas as pd
+from src.utils.config import load_thresholds
 
 REPLICA_WINDOW = 252
 REPLICA_MIN_OBS = 20
 REPLICA_LOW_OBS = 5
+_THRESHOLDS = load_thresholds()
+MIN_QVIX_CORR_60 = float(_THRESHOLDS["min_qvix_corr_60"])
+PERCENTILE_WARNING = float(_THRESHOLDS["percentile_warning"])
 
 
 def _add_qvix_replica(df: pd.DataFrame) -> pd.DataFrame:
@@ -71,13 +75,13 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
     df["rolling_corr_120"] = ret["avix_change_1d"].rolling(120, min_periods=40).corr(ret["qvix_change_1d"])
     av_pct = df["avix_clean"].rolling(504, min_periods=20).apply(lambda x: pd.Series(x).rank(pct=True).iloc[-1], raw=False)
     q_pct = df["qvix_close"].rolling(504, min_periods=20).apply(lambda x: pd.Series(x).rank(pct=True).iloc[-1], raw=False)
-    df["extreme_match"] = (av_pct >= 0.80) == (q_pct >= 0.80)
+    df["extreme_match"] = (av_pct >= PERCENTILE_WARNING) == (q_pct >= PERCENTILE_WARNING)
     def score(row):
         if pd.isna(row.qvix_close):
             return 50.0
-        if bool(row.direction_match) and (pd.isna(row.rolling_corr_60) or row.rolling_corr_60 >= 0.60) and (pd.isna(row.spread_zscore_252) or abs(row.spread_zscore_252) <= 2):
+        if bool(row.direction_match) and (pd.isna(row.rolling_corr_60) or row.rolling_corr_60 >= MIN_QVIX_CORR_60) and (pd.isna(row.spread_zscore_252) or abs(row.spread_zscore_252) <= 2):
             return 100.0
-        if pd.notna(row.rolling_corr_60) and row.rolling_corr_60 >= 0.60:
+        if pd.notna(row.rolling_corr_60) and row.rolling_corr_60 >= MIN_QVIX_CORR_60:
             return 60.0
         return 30.0
     df["qvix_confirmation"] = df.apply(score, axis=1)

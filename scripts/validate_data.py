@@ -77,9 +77,25 @@ def main() -> None:
     realtime = pd.read_csv(realtime_path)
     require(not realtime.empty, "avix_realtime_mid.csv empty")
     require("avix_mid" in realtime.columns, "avix_realtime_mid.csv missing avix_mid")
-    for csv_path in list(Path("data").glob("**/*.csv")):
-        text = csv_path.read_text(encoding="utf-8", errors="ignore")
-        require("SYNTHETIC_FALLBACK" not in text and "FALLBACK_CONSTANT_SHIBOR" not in text, f"{csv_path} contains synthetic/fallback production data")
+    # Scan production layers only — skip thousands of per-contract option OHLC files.
+    scan_roots = [
+        Path("data/normalized"),
+        Path("data/calculated"),
+        Path("data/raw/indices"),
+        Path("data/raw/qvix"),
+        Path("data/raw/shibor"),
+        Path("data/raw/breadth"),
+        Path("data/raw/option_realtime"),
+    ]
+    for root in scan_roots:
+        if not root.exists():
+            continue
+        for csv_path in root.rglob("*.csv"):
+            text = csv_path.read_text(encoding="utf-8", errors="ignore")
+            require(
+                "SYNTHETIC_FALLBACK" not in text and "FALLBACK_CONSTANT_SHIBOR" not in text,
+                f"{csv_path} contains synthetic/fallback production data",
+            )
     breadth = pd.read_csv("data/normalized/breadth_history.csv")
     if not breadth.empty and {"advancing_ratio", "decline_ratio", "big_down_ratio", "limit_down_ratio", "quality"}.issubset(breadth.columns):
         legacy = (

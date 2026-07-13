@@ -1,8 +1,15 @@
 from __future__ import annotations
+
 import math
+
 import numpy as np
 import pandas as pd
 from scipy.stats import norm
+
+from src.utils.config import load_thresholds
+
+_THRESHOLDS = load_thresholds()
+MIN_OPTIONS_PER_TERM = int(_THRESHOLDS["min_options_per_term"])
 
 def black76_price(f: float, k: float, t: float, r: float, sigma: float, cp: str) -> float:
     if min(f, k, t, sigma) <= 0:
@@ -88,7 +95,7 @@ def term_variance(term: pd.DataFrame, price_col: str, r: float) -> dict:
     quality = "OK"
     if variance <= 0:
         quality = "LOW_NEGATIVE_VARIANCE"
-    elif len(otm_rows) < 8:
+    elif len(otm_rows) < MIN_OPTIONS_PER_TERM:
         quality = "WARN_FEW_OPTIONS"
     return {
         "dte": t_days, "t": t, "variance": variance, "n_options": len(otm_rows),

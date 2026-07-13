@@ -1,11 +1,14 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 import os
 import time
 
 import pandas as pd
 
+from src.utils.config import load_data_sources
+from src.utils.retry import retry_call
 
 os.environ.setdefault("NO_PROXY", "*")
 
@@ -15,7 +18,61 @@ def _sector_symbol(code: object) -> str:
     return text.split(".")[0]
 
 
-def fetch_sw_level1_sector_history(sleep_seconds: float = 0.25) -> tuple[pd.DataFrame, pd.DataFrame]:
+def _fetch_one_sector(symbol: str, name: str, fetched_at: str) -> tuple[pd.DataFrame | None, dict[str, object]]:
+    import akshare as ak
+
+    try:
+        raw = ak.index_hist_sw(symbol=symbol, period="day")
+        if raw is None or raw.empty:
+            return None, {
+                "symbol": symbol,
+                "name": name,
+                "status": "EMPTY",
+                "rows": 0,
+                "last_error": "",
+                "last_try": fetched_at,
+            }
+        df = raw.rename(columns={
+            "日期": "date",
+            "代码": "symbol",
+            "开盘": "open",
+            "收盘": "close",
+            "最高": "high",
+            "最低": "low",
+            "成交量": "volume",
+            "成交额": "amount",
+        }).copy()
+        df["symbol"] = symbol
+        df["name"] = str(name)
+        df["source"] = "AKSHARE_SW_LEVEL1_INDEX"
+        df["fetch_time"] = fetched_at
+        frame = df[[
+            "date", "symbol", "name", "open", "close", "high", "low",
+            "volume", "amount", "source", "fetch_time",
+        ]]
+        return frame, {
+            "symbol": symbol,
+            "name": name,
+            "status": "OK",
+            "rows": len(frame),
+            "last_error": "",
+            "last_try": fetched_at,
+        }
+    except Exception as exc:  # noqa: BLE001
+        return None, {
+            "symbol": symbol,
+            "name": name,
+            "status": "ERROR",
+            "rows": 0,
+            "last_error": str(exc),
+            "last_try": fetched_at,
+        }
+
+
+def fetch_sw_level1_sector_history(
+    sleep_seconds: float | None = None,
+    max_workers: int = 4,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Fetch Shenwan level-1 industry index daily history.
 
     Returns normalized daily rows and a manifest. Failed sectors are recorded in
@@ -24,64 +81,58 @@ def fetch_sw_level1_sector_history(sleep_seconds: float = 0.25) -> tuple[pd.Data
     """
     import akshare as ak
 
+    cfg = load_data_sources()
+    if sleep_seconds is None:
+        sleep_seconds = float(cfg["request_gap_seconds"]) * 0.5
+    retry_times = int(cfg["retry_times"])
+    retry_sleep = float(cfg["retry_sleep_seconds"])
+
     fetched_at = datetime.now().isoformat(timespec="seconds")
     info = ak.sw_index_first_info()
     frames: list[pd.DataFrame] = []
     manifest_rows: list[dict[str, object]] = []
 
-    for _, row in info.iterrows():
-        code = row["行业代码"]
-        name = row["行业名称"]
-        symbol = _sector_symbol(code)
-        try:
-            raw = ak.index_hist_sw(symbol=symbol, period="day")
-            if raw is None or raw.empty:
-                manifest_rows.append({
-                    "symbol": symbol,
-                    "name": name,
-                    "status": "EMPTY",
-                    "rows": 0,
-                    "last_error": "",
-                    "last_try": fetched_at,
-                })
-                continue
-            df = raw.rename(columns={
-                "日期": "date",
-                "代码": "symbol",
-                "开盘": "open",
-                "收盘": "close",
-                "最高": "high",
-                "最低": "low",
-                "成交量": "volume",
-                "成交额": "amount",
-            }).copy()
-            df["symbol"] = symbol
-            df["name"] = str(name)
-            df["source"] = "AKSHARE_SW_LEVEL1_INDEX"
-            df["fetch_time"] = fetched_at
-            frames.append(df[[
-                "date", "symbol", "name", "open", "close", "high", "low",
-                "volume", "amount", "source", "fetch_time",
-            ]])
-            manifest_rows.append({
-                "symbol": symbol,
-                "name": name,
-                "status": "OK",
-                "rows": len(df),
-                "last_error": "",
-                "last_try": fetched_at,
-            })
-        except Exception as exc:  # noqa: BLE001
-            manifest_rows.append({
-                "symbol": symbol,
-                "name": name,
-                "status": "ERROR",
-                "rows": 0,
-                "last_error": str(exc),
-                "last_try": fetched_at,
-            })
-        if sleep_seconds:
-            time.sleep(sleep_seconds)
+    tasks = [
+        (_sector_symbol(row["行业代码"]), str(row["行业名称"]))
+        for _, row in info.iterrows()
+    ]
+
+    def work(item: tuple[str, str]) -> tuple[pd.DataFrame | None, dict[str, object]]:
+        symbol, name = item
+        return retry_call(
+            lambda: _fetch_one_sector(symbol, name, fetched_at),
+            times=retry_times,
+            sleep_seconds=retry_sleep,
+        )
+
+    workers = max(1, min(max_workers, len(tasks) or 1))
+    if workers == 1:
+        for item in tasks:
+            frame, manifest = work(item)
+            if frame is not None and not frame.empty:
+                frames.append(frame)
+            manifest_rows.append(manifest)
+            if sleep_seconds:
+                time.sleep(sleep_seconds)
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = {pool.submit(work, item): item for item in tasks}
+            for future in as_completed(futures):
+                try:
+                    frame, manifest = future.result()
+                except Exception as exc:  # noqa: BLE001
+                    symbol, name = futures[future]
+                    frame, manifest = None, {
+                        "symbol": symbol,
+                        "name": name,
+                        "status": "ERROR",
+                        "rows": 0,
+                        "last_error": str(exc),
+                        "last_try": fetched_at,
+                    }
+                if frame is not None and not frame.empty:
+                    frames.append(frame)
+                manifest_rows.append(manifest)
 
     history = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
     manifest = pd.DataFrame(manifest_rows)

@@ -1,5 +1,11 @@
 from __future__ import annotations
 import pandas as pd
+from src.utils.config import load_thresholds
+
+_THRESHOLDS = load_thresholds()
+AVIX_PANIC_LEVEL = float(_THRESHOLDS["fixed_panic_level"])
+AVIX_WARNING_LEVEL = float(_THRESHOLDS["fixed_warning_level"])
+AVIX_CALM_LEVEL = 20.0
 
 
 def _bool(value: object) -> bool:
@@ -60,12 +66,12 @@ def add_s3_s4_signals(df: pd.DataFrame) -> pd.DataFrame:
     out["sse_prev_ma5"] = out["sse_ma5"].shift(1)
 
     out["s3_signal"] = (
-        (out["avix"] >= 25)
+        (out["avix"] >= AVIX_PANIC_LEVEL)
         & (out["sse_ret10"] <= -0.04)
         & (out["sse_ret1"] > 0)
     )
     out["s4_signal"] = (
-        (out["avix"] >= 22)
+        (out["avix"] >= AVIX_WARNING_LEVEL)
         & (out["sse_close"] > out["sse_ma5"])
         & (out["sse_prev_close"] <= out["sse_prev_ma5"])
     )
@@ -103,16 +109,16 @@ def add_trade_signals(df: pd.DataFrame) -> pd.DataFrame:
             hold_days = i - buy_i + 1
             reason = ""
             if strategy == "s3":
-                if float(row["avix"]) < 20:
-                    reason = "AVIX<20"
+                if float(row["avix"]) < AVIX_CALM_LEVEL:
+                    reason = f"AVIX<{AVIX_CALM_LEVEL:g}"
                 elif current_ret >= 0.12:
                     reason = "take_profit_12pct"
                 elif current_ret <= -0.07:
                     reason = "stop_loss_7pct"
                 elif hold_days >= 80:
                     reason = "holding_80_days"
-            elif strategy in {"s4", "s3_s4"} and float(row["avix"]) < 20:
-                reason = "AVIX<20"
+            elif strategy in {"s4", "s3_s4"} and float(row["avix"]) < AVIX_CALM_LEVEL:
+                reason = f"AVIX<{AVIX_CALM_LEVEL:g}"
 
             if reason:
                 out.at[i, f"{strategy}_sell"] = True
@@ -216,15 +222,15 @@ def _rules_payload() -> dict:
         "mode": "OFFICIAL_CLOSE",
         "execution": "next_trade_day_open",
         "s3": {
-            "buy": "AVIX>=25 and SSE 10-day return<=-4% and SSE 1-day return>0",
-            "sell": "AVIX<20 or take profit 12% or stop loss 7% or holding 80 days",
+            "buy": f"AVIX>={AVIX_PANIC_LEVEL:g} and SSE 10-day return<=-4% and SSE 1-day return>0",
+            "sell": f"AVIX<{AVIX_CALM_LEVEL:g} or take profit 12% or stop loss 7% or holding 80 days",
         },
         "s4": {
-            "buy": "AVIX>=22 and SSE close crosses above 5-day moving average",
-            "sell": "AVIX<20",
+            "buy": f"AVIX>={AVIX_WARNING_LEVEL:g} and SSE close crosses above 5-day moving average",
+            "sell": f"AVIX<{AVIX_CALM_LEVEL:g}",
         },
         "s3_s4": {
             "buy": "S3 or S4",
-            "sell": "AVIX<20",
+            "sell": f"AVIX<{AVIX_CALM_LEVEL:g}",
         },
     }

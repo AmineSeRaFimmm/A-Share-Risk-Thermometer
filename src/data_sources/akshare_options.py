@@ -1,9 +1,14 @@
 from __future__ import annotations
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
+import json
 import re
 import time
 import pandas as pd
 import requests
+
+from src.utils.config import load_data_sources
+from src.utils.retry import retry_call
 
 CONTRACT_RE = re.compile(r"(?i)io(?P<yy>\d{2})(?P<mm>\d{2})(?P<cp>[CP])(?P<strike>\d+)")
 
@@ -30,7 +35,17 @@ def fetch_option_daily(symbol: str) -> pd.DataFrame:
     end = data_text.rfind("]")
     if start < 0 or end < start:
         return pd.DataFrame()
-    records = eval(data_text[start : end + 1], {"__builtins__": {}})
+    try:
+        records = json.loads(data_text[start : end + 1])
+    except json.JSONDecodeError:
+        # Sina occasionally returns slightly non-strict JSON; fall back carefully.
+        records = json.loads(
+            data_text[start : end + 1]
+            .replace("'", '"')
+            .replace("None", "null")
+            .replace("True", "true")
+            .replace("False", "false")
+        )
     df = pd.DataFrame(records)
     if df.empty:
         return pd.DataFrame()
@@ -90,7 +105,10 @@ def _extract_realtime_month_symbols(month_payload) -> list[str]:
                 symbols.append(symbol)
     return symbols
 
-def fetch_option_realtime_months(sleep_seconds: float = 0.15) -> tuple[pd.DataFrame, pd.DataFrame]:
+def fetch_option_realtime_months(
+    sleep_seconds: float | None = None,
+    max_workers: int = 3,
+) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Fetch HS300 index option realtime chains month by month.
 
     The legacy Sina/AKShare aggregate symbol can mix terms without reliable expiry
@@ -99,46 +117,70 @@ def fetch_option_realtime_months(sleep_seconds: float = 0.15) -> tuple[pd.DataFr
     """
     import akshare as ak
 
+    cfg = load_data_sources()
+    if sleep_seconds is None:
+        sleep_seconds = min(0.15, float(cfg["request_gap_seconds"]))
+    retry_times = int(cfg["retry_times"])
+    retry_sleep = float(cfg["retry_sleep_seconds"])
+
     fetched_at = datetime.now().isoformat(timespec="seconds")
     month_payload = ak.option_cffex_hs300_list_sina()
     month_symbols = _extract_realtime_month_symbols(month_payload)
     frames: list[pd.DataFrame] = []
     manifest_rows: list[dict[str, object]] = []
 
-    for month_symbol in month_symbols:
-        try:
+    def fetch_one(month_symbol: str) -> tuple[pd.DataFrame | None, dict[str, object]]:
+        def _call() -> pd.DataFrame:
             raw = ak.option_cffex_hs300_spot_sina(symbol=month_symbol)
+            return raw if raw is not None else pd.DataFrame()
+
+        try:
+            raw = retry_call(_call, times=retry_times, sleep_seconds=retry_sleep)
             if raw is None or raw.empty:
-                manifest_rows.append({
+                return None, {
                     "month_symbol": month_symbol,
                     "status": "EMPTY",
                     "last_error": "",
                     "last_try": fetched_at,
                     "rows": 0,
-                })
-                continue
+                }
             df = raw.copy()
             df["month_symbol"] = month_symbol
             df["source"] = "SINA_AKSHARE_REALTIME_MONTH"
             df["fetch_time"] = fetched_at
-            frames.append(df)
-            manifest_rows.append({
+            return df, {
                 "month_symbol": month_symbol,
                 "status": "OK",
                 "last_error": "",
                 "last_try": fetched_at,
                 "rows": len(df),
-            })
+            }
         except Exception as exc:  # noqa: BLE001
-            manifest_rows.append({
+            return None, {
                 "month_symbol": month_symbol,
                 "status": "ERROR",
                 "last_error": str(exc),
                 "last_try": fetched_at,
                 "rows": 0,
-            })
-        if sleep_seconds:
-            time.sleep(sleep_seconds)
+            }
+
+    workers = max(1, min(max_workers, len(month_symbols) or 1))
+    if workers == 1:
+        for month_symbol in month_symbols:
+            frame, manifest = fetch_one(month_symbol)
+            if frame is not None and not frame.empty:
+                frames.append(frame)
+            manifest_rows.append(manifest)
+            if sleep_seconds:
+                time.sleep(sleep_seconds)
+    else:
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            futures = [pool.submit(fetch_one, symbol) for symbol in month_symbols]
+            for future in as_completed(futures):
+                frame, manifest = future.result()
+                if frame is not None and not frame.empty:
+                    frames.append(frame)
+                manifest_rows.append(manifest)
 
     combined = pd.concat(frames, ignore_index=True) if frames else pd.DataFrame()
     manifest = pd.DataFrame(manifest_rows)

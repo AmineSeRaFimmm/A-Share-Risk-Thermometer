@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: realtime-avix
@@ -28,6 +29,7 @@ jobs:
     timeout-minutes: 180
     env:
       PYTHONUNBUFFERED: "1"
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
       - uses: actions/checkout@v6
@@ -85,6 +87,9 @@ jobs:
                 git commit -m "Update realtime AVIX"
                 git pull --rebase --autostash origin main
                 git push
+                # Trigger Pages rebuild so live site sees nowcast sooner than next daily deploy.
+                gh workflow run deploy-pages.yml --ref main \
+                  || echo "::warning::Could not trigger deploy-pages workflow"
               fi
               successful_updates=$((successful_updates + 1))
             else

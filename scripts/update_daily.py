@@ -39,21 +39,27 @@ def main() -> None:
     if latest_done is not None and latest_done >= trade_date:
         build_site_data()
         return
-    try:
-        snap = fetch_a_breadth_snapshot()
-        if not snap.empty:
-            write_csv(snap, RAW / "breadth" / f"{trade_date}.csv")
+    breadth_path = RAW / "breadth" / f"{trade_date}.csv"
+    if breadth_path.exists():
+        snap = read_csv(breadth_path)
         summary = summarize_breadth(snap, trade_date)
-    except Exception:
-        summary = summarize_breadth(pd.DataFrame(), trade_date)
+    else:
+        try:
+            snap = fetch_a_breadth_snapshot()
+            if not snap.empty:
+                write_csv(snap, breadth_path)
+            summary = summarize_breadth(snap, trade_date)
+        except Exception:
+            summary = summarize_breadth(pd.DataFrame(), trade_date)
     breadth_old = drop_legacy_synthetic_breadth(read_csv(NORMALIZED / "breadth_history.csv"))
     breadth = pd.concat([breadth_old, summary], ignore_index=True).drop_duplicates("trade_date", keep="last") if not breadth_old.empty else summary
     write_csv(breadth, NORMALIZED / "breadth_history.csv")
-    fetch_options(index_history, recent_days=120)
-    frames = load_cached_option_frames()
-    master = build_contract_master(frames)
-    write_csv(master, NORMALIZED / "contract_master.csv")
-    calculate_all(master, frames, index_history)
+    master, option_frames = fetch_options(index_history, recent_days=120)
+    if not option_frames:
+        option_frames = load_cached_option_frames()
+        master = build_contract_master(option_frames)
+        write_csv(master, NORMALIZED / "contract_master.csv")
+    calculate_all(master, option_frames, index_history)
     build_site_data()
 
 if __name__ == "__main__":

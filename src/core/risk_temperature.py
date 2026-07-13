@@ -2,27 +2,16 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 from src.core.breadth import compute_index_breadth_proxy
+from src.utils.config import load_regimes, load_thresholds, load_weights
 from src.utils.quality import clip, merge_quality
 
-WEIGHTS = {
-    "avix_percentile_2y": 0.28,
-    "avix_zscore_1y": 0.14,
-    "avix_5d_change": 0.08,
-    "qvix_confirmation": 0.12,
-    "realized_vol_percentile": 0.12,
-    "drawdown_pressure": 0.12,
-    "market_breadth_pressure": 0.10,
-    "turnover_stress": 0.04,
-}
+WEIGHTS = load_weights()
+REGIMES = load_regimes()
+_THRESHOLDS = load_thresholds()
+# Keep warmup at 20 for bit-identical history until methodology PR raises this to config value.
+_PERCENTILE_MIN_PERIODS = 20
+_PERCENTILE_MIN_PERIODS_CONFIG = int(_THRESHOLDS["min_history_days_for_percentile"])
 
-REGIMES = [
-    (20, "CALM", "平静"),
-    (40, "NORMAL", "正常"),
-    (60, "CAUTION", "警戒"),
-    (75, "HIGH_RISK", "高风险"),
-    (90, "PANIC", "恐慌区"),
-    (101, "EXTREME_PANIC", "极端恐慌"),
-]
 
 def regime_for(temp: float) -> tuple[str, str]:
     for upper, code, cn in REGIMES:
@@ -117,8 +106,9 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
         df = avix_clean[["trade_date", "avix_clean", "quality"]].rename(columns={"quality": "avix_quality"}).copy()
         avix_quality = None
     df = df.sort_values("trade_date")
-    df["avix_percentile_2y"] = df["avix_clean"].rolling(504, min_periods=20).apply(lambda x: pd.Series(x).rank(pct=True).iloc[-1] * 100, raw=False).fillna(50)
-    z = (df["avix_clean"] - df["avix_clean"].rolling(252, min_periods=20).mean()) / df["avix_clean"].rolling(252, min_periods=20).std()
+    min_periods = _PERCENTILE_MIN_PERIODS
+    df["avix_percentile_2y"] = df["avix_clean"].rolling(504, min_periods=min_periods).apply(lambda x: pd.Series(x).rank(pct=True).iloc[-1] * 100, raw=False).fillna(50)
+    z = (df["avix_clean"] - df["avix_clean"].rolling(252, min_periods=min_periods).mean()) / df["avix_clean"].rolling(252, min_periods=min_periods).std()
     df["avix_zscore_1y"] = z.map(lambda x: clip(50 + 20 * x) if pd.notna(x) else 50)
     chg5 = df["avix_clean"] / df["avix_clean"].shift(5) - 1
     df["avix_5d_change"] = chg5.map(lambda x: clip(50 + 200 * x) if pd.notna(x) else 50)

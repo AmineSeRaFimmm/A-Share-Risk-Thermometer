@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260709-nowcast-history">
+    <link rel="stylesheet" href="./assets/app.css?v=20260713-optimize">
   </head>
   <body>
     <header class="topbar">
@@ -75,9 +75,31 @@
         </article>
       </section>
 
+      <section class="rt-tactical-panel" id="rtTacticalPanel" aria-label="风险温度研究观察" hidden>
+        <div class="section-head">
+          <h2>风险温度研究观察</h2>
+          <span>研究信号 / 非交易建议</span>
+        </div>
+        <div class="rt-tactical-grid">
+          <div>
+            <span>当前状态</span>
+            <strong id="rtTacticalStatus">--</strong>
+          </div>
+          <div>
+            <span>研究规则</span>
+            <strong id="rtTacticalRule">--</strong>
+          </div>
+          <div>
+            <span>细节</span>
+            <strong id="rtTacticalDetail">--</strong>
+          </div>
+        </div>
+        <p class="rt-tactical-note" id="rtTacticalNote">基于历史回测的研究观察，与下方 S3/S4（AVIX 规则）相互独立。</p>
+      </section>
+
       <section class="strategy-panel" aria-label="S3/S4策略信号">
         <div class="section-head">
-          <h2>S3 / S4 策略信号</h2>
+          <h2>S3 / S4 策略信号（AVIX 规则）</h2>
           <span id="strategyMode">OFFICIAL_CLOSE</span>
         </div>
         <div class="strategy-grid">
@@ -95,7 +117,7 @@
           </div>
         </div>
         <div class="strategy-signals" id="strategySignals"></div>
-        <p class="strategy-note" id="strategyNote">S3/S4 使用收盘正式数据确认，盘中风险温度不改写正式信号。</p>
+        <p class="strategy-note" id="strategyNote">S3/S4 基于 AVIX 与上证价格行为，使用收盘正式数据确认；与上方「风险温度研究观察」是两套独立规则，盘中风险温度不改写正式 S3/S4 信号。</p>
       </section>
 
       <section class="sector-panel" aria-label="风险温度与申万一级行业关系">
@@ -171,7 +193,7 @@
     </main>
 
     <script src="./vendor/echarts.min.js"></script>
-    <script src="./assets/charts.js?v=20260709-nowcast-history"></script>
-    <script src="./assets/app.js?v=20260709-nowcast-history"></script>
+    <script src="./assets/charts.js?v=20260713-optimize"></script>
+    <script src="./assets/app.js?v=20260713-optimize"></script>
   </body>
 </html>

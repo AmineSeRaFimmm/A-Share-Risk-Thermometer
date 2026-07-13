@@ -6,10 +6,12 @@ def build_daily_option_chain(master: pd.DataFrame, option_frames: list[pd.DataFr
     if master.empty or not option_frames:
         return pd.DataFrame()
     raw = pd.concat(option_frames, ignore_index=True)
-    raw["trade_date"] = pd.to_datetime(raw["date"]).dt.date
+    trade_dates = pd.to_datetime(raw["date"], errors="coerce")
+    raw["trade_date"] = trade_dates.dt.date
     expiry_map = {m: get_expiry_date(m, trading_days) for m in raw["month"].dropna().unique()}
     raw["expiry_date"] = raw["month"].map(expiry_map)
-    raw["dte"] = raw.apply(lambda r: (r["expiry_date"] - r["trade_date"]).days, axis=1)
+    expiry_dates = pd.to_datetime(raw["expiry_date"], errors="coerce")
+    raw["dte"] = (expiry_dates - trade_dates).dt.days
     for col in ["open", "high", "low", "close", "volume", "strike"]:
         raw[col] = pd.to_numeric(raw[col], errors="coerce")
     raw["price_raw"] = raw["close"]

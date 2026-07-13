@@ -1,9 +1,3 @@
-async function loadJSON(path) {
-  const res = await fetch(path + '?v=' + Date.now());
-  if (!res.ok) throw new Error('Failed to load ' + path);
-  return await res.json();
-}
-
 const AUTO_REFRESH_MS = 60 * 1000;
 const STALE_THRESHOLD_MS = 15 * 60 * 1000;
 const dashboardState = {
@@ -16,7 +10,35 @@ const dashboardState = {
   nowcastHistory: {},
   strategy: {},
   refreshInFlight: false,
+  cacheBust: null,
+  lastUpdateTime: null,
+  lastTradeDate: null,
+  heavyLoaded: false,
 };
+
+async function loadJSON(path, { bust = true } = {}) {
+  let url = path;
+  if (bust) {
+    const token = dashboardState.cacheBust || String(Date.now());
+    url = path + (path.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(token);
+  }
+  const res = await fetch(url);
+  if (!res.ok) throw new Error('Failed to load ' + path);
+  return await res.json();
+}
+
+async function resolveCacheBust() {
+  try {
+    const info = await loadJSON('./data/build_info.json', { bust: true });
+    if (info?.build_time) {
+      dashboardState.cacheBust = info.build_time;
+      return;
+    }
+  } catch (_) {
+    /* optional */
+  }
+  dashboardState.cacheBust = String(Date.now());
+}
 
 function getTempClass(temp) {
   if (temp < 20) return 'calm';
@@ -415,56 +437,161 @@ function bindRangeControls(onRange) {
   });
 }
 
-async function loadDashboardData() {
-  const [latest, history, nowcastHistory, components, audit, strategy, sector, lowPosition] = await Promise.all([
+async function loadCriticalDashboardData() {
+  if (!dashboardState.cacheBust) {
+    await resolveCacheBust();
+  }
+  const [latest, history, nowcastHistory, components, audit] = await Promise.all([
     loadJSON('./data/latest.json'),
     loadJSON('./data/history.json'),
     loadJSON('./data/nowcast_history.json').catch(() => ({ status: 'missing', rows: [], gaps: [] })),
     loadJSON('./data/components.json'),
     loadJSON('./data/audit.json'),
-    loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' })),
-    loadJSON('./data/sector_correlation.json').catch(() => ({ status: 'missing' })),
-    loadJSON('./data/low_position_sector_study.json').catch(() => ({ status: 'missing' }))
   ]);
-  return { latest, history, nowcastHistory, components, audit, strategy, sector, lowPosition };
+  return { latest, history, nowcastHistory, components, audit };
 }
 
-function renderDashboard({ latest, history, nowcastHistory, components, audit, strategy, sector, lowPosition }) {
+async function loadHeavyDashboardData() {
+  const [strategy, sector, lowPosition, rtTactical] = await Promise.all([
+    loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' })),
+    loadJSON('./data/sector_correlation.json').catch(() => ({ status: 'missing' })),
+    loadJSON('./data/low_position_sector_study.json').catch(() => ({ status: 'missing' })),
+    loadJSON('./data/rt_tactical.json').catch(() => ({ status: 'missing' })),
+  ]);
+  dashboardState.heavyLoaded = true;
+  return { strategy, sector, lowPosition, rtTactical };
+}
+
+function renderCriticalDashboard({ latest, history, nowcastHistory, components, audit }) {
+  document.body.classList.remove('error');
+  hideLoadError();
   renderLatest(latest);
   renderAudit(audit);
-  renderStrategy(strategy);
-  renderSectorCorrelation(sector);
-  renderLowPositionSectorStudy(lowPosition);
   renderNowcastGapSummary(nowcastHistory);
   setText('componentsMode', `${components.temperature_mode || '--'} / ${components.trade_date || '--'}`);
   const componentDom = document.getElementById('componentsChart');
-  const oldComponentChart = echarts.getInstanceByDom(componentDom);
-  if (oldComponentChart) oldComponentChart.dispose();
-  dashboardState.componentChart = renderComponentsChart(components);
+  if (componentDom) {
+    const oldComponentChart = echarts.getInstanceByDom(componentDom);
+    if (oldComponentChart) oldComponentChart.dispose();
+    dashboardState.componentChart = renderComponentsChart(components);
+  }
   const activeHistory = mergeNowcastHistory(history, nowcastHistory, latest);
   dashboardState.history = activeHistory;
   dashboardState.nowcastHistory = nowcastHistory;
-  dashboardState.strategy = strategy;
-  dashboardState.timeCharts = renderTimeCharts(activeHistory, strategy, dashboardState.activeRange);
+  dashboardState.lastUpdateTime = latest?.update_time || null;
+  dashboardState.lastTradeDate = latest?.trade_date || null;
+  dashboardState.timeCharts = renderTimeCharts(
+    activeHistory,
+    dashboardState.strategy || {},
+    dashboardState.activeRange
+  );
 }
 
-async function refreshDashboard() {
+function renderHeavyDashboard({ strategy, sector, lowPosition, rtTactical }) {
+  dashboardState.strategy = strategy || {};
+  renderStrategy(strategy);
+  renderSectorCorrelation(sector);
+  renderLowPositionSectorStudy(lowPosition);
+  renderRtTactical(rtTactical);
+  if (dashboardState.history?.length) {
+    dashboardState.timeCharts = renderTimeCharts(
+      dashboardState.history,
+      dashboardState.strategy,
+      dashboardState.activeRange
+    );
+  }
+}
+
+function hideLoadError() {
+  const banner = document.getElementById('loadErrorBanner');
+  if (banner) banner.hidden = true;
+}
+
+function showLoadError(message) {
+  let banner = document.getElementById('loadErrorBanner');
+  if (!banner) {
+    banner = document.createElement('div');
+    banner.id = 'loadErrorBanner';
+    banner.className = 'load-error-banner';
+    banner.innerHTML = '<span></span><button type="button">重试</button>';
+    banner.querySelector('button').addEventListener('click', () => {
+      refreshDashboard({ forceFull: true });
+    });
+    const shell = document.querySelector('.page-shell');
+    if (shell) shell.prepend(banner);
+  }
+  banner.querySelector('span').textContent = message || '数据加载失败，请稍后重试。';
+  banner.hidden = false;
+}
+
+function renderRtTactical(payload) {
+  const panel = document.getElementById('rtTacticalPanel');
+  if (!panel) return;
+  if (!payload || payload.status === 'missing' || !payload.latest) {
+    panel.hidden = true;
+    return;
+  }
+  panel.hidden = false;
+  const latest = payload.latest || {};
+  setText('rtTacticalStatus', latest.status_cn || latest.status || '--');
+  setText('rtTacticalRule', payload.rule_summary || '--');
+  setText('rtTacticalNote', payload.disclaimer || '研究观察信号，不构成投资建议。');
+  const detail = [
+    `RT ${latest.risk_temperature ?? '--'}`,
+    `60日回撤 ${formatSignedPct(latest.drawdown_60d)}`,
+    latest.in_band ? '落在 60-75 研究带' : '未在研究带',
+  ].join(' / ');
+  setText('rtTacticalDetail', detail);
+}
+
+async function refreshDashboard({ forceFull = false } = {}) {
   if (dashboardState.refreshInFlight) return;
   dashboardState.refreshInFlight = true;
   try {
-    renderDashboard(await loadDashboardData());
+    if (!forceFull && dashboardState.lastUpdateTime) {
+      const latest = await loadJSON('./data/latest.json');
+      if (
+        latest?.update_time === dashboardState.lastUpdateTime
+        && latest?.trade_date === dashboardState.lastTradeDate
+      ) {
+        updateFreshness(latest);
+        updateRefreshStatus('ok', '数据未变化，跳过全量刷新');
+        return;
+      }
+      // New data: refresh cache bust and reload critical + heavy.
+      dashboardState.cacheBust = latest?.update_time || String(Date.now());
+    } else {
+      await resolveCacheBust();
+    }
+
+    const critical = await loadCriticalDashboardData();
+    renderCriticalDashboard(critical);
+    const heavy = await loadHeavyDashboardData();
+    renderHeavyDashboard(heavy);
     updateRefreshStatus('ok');
   } catch (err) {
     console.error(err);
     updateRefreshStatus('error', err.message || String(err));
+    showLoadError(err.message || String(err));
   } finally {
     dashboardState.refreshInFlight = false;
   }
 }
 
 async function main() {
-  renderDashboard(await loadDashboardData());
-  updateRefreshStatus('ok', '初始数据加载完成；页面每 60 秒自动检查最新数据');
+  document.body.classList.add('is-loading');
+  try {
+    const critical = await loadCriticalDashboardData();
+    renderCriticalDashboard(critical);
+    updateRefreshStatus('ok', '核心数据已加载；正在加载策略与板块研究…');
+    document.body.classList.remove('is-loading');
+    const heavy = await loadHeavyDashboardData();
+    renderHeavyDashboard(heavy);
+    updateRefreshStatus('ok', '初始数据加载完成；页面每 60 秒检查 latest 是否更新');
+  } catch (err) {
+    document.body.classList.remove('is-loading');
+    throw err;
+  }
   bindRangeControls(range => {
     dashboardState.activeRange = range;
     dashboardState.timeCharts = renderTimeCharts(dashboardState.history, dashboardState.strategy, range);
@@ -479,6 +606,7 @@ async function main() {
 
 main().catch(err => {
   document.body.classList.add('error');
+  showLoadError(err.message || String(err));
   console.error(err);
 });
 

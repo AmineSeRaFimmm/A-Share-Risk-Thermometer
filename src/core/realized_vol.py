@@ -2,6 +2,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
+
 def compute_realized_vol(index_history: pd.DataFrame) -> pd.DataFrame:
     if index_history.empty:
         return pd.DataFrame()
@@ -11,5 +12,9 @@ def compute_realized_vol(index_history: pd.DataFrame) -> pd.DataFrame:
     hs["ret"] = np.log(hs["close"] / hs["close"].shift(1))
     hs["rv20"] = hs["ret"].rolling(20).std() * np.sqrt(252) * 100
     hs["rv60"] = hs["ret"].rolling(60).std() * np.sqrt(252) * 100
-    hs["realized_vol_percentile"] = hs["rv20"].rolling(504, min_periods=20).rank(pct=True).iloc[:, 0] if False else hs["rv20"].rolling(504, min_periods=20).apply(lambda x: pd.Series(x).rank(pct=True).iloc[-1] * 100, raw=False)
+    # Keep min_periods=20 for bit-identical history with prior releases.
+    hs["realized_vol_percentile"] = hs["rv20"].rolling(504, min_periods=20).apply(
+        lambda x: pd.Series(x).rank(pct=True).iloc[-1] * 100,
+        raw=False,
+    )
     return hs[["date", "rv20", "rv60", "realized_vol_percentile"]].rename(columns={"date": "trade_date"})

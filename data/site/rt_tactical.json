@@ -1,0 +1,22 @@
+{
+  "status": "ready",
+  "rule_id": "research_rt60_75_dd5",
+  "rule_summary": "60 ≤ RT < 75 且 沪深300 60日回撤 ≤ -5%",
+  "entry_low": 60.0,
+  "entry_high": 75.0,
+  "drawdown_confirm": -0.05,
+  "source": "research/output/csi300_risk_temp_strategy_report.md",
+  "disclaimer": "研究观察信号，来自历史回测（推荐区间 60-75 + 60日回撤确认）。不是买卖建议，也不是生产交易指令；与 S3/S4（AVIX 规则）相互独立。",
+  "latest": {
+    "trade_date": "2026-07-02",
+    "risk_temperature": 75.4,
+    "drawdown_60d": -0.0489,
+    "in_band": false,
+    "drawdown_confirmed": false,
+    "active": false,
+    "status": "ABOVE_BAND",
+    "status_cn": "高于研究上沿",
+    "avix_warning_level": 22.0,
+    "avix_panic_level": 25.0
+  }
+}

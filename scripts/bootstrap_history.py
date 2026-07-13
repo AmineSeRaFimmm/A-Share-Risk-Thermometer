@@ -187,7 +187,23 @@ def fetch_options(index_history: pd.DataFrame, recent_days: int | None, full: bo
     write_csv(master, NORMALIZED / "contract_master.csv")
     return master, frames
 
-def calculate_all(master: pd.DataFrame, option_frames: list[pd.DataFrame], index_history: pd.DataFrame) -> pd.DataFrame:
+def _merge_avix_series(existing: pd.DataFrame, new: pd.DataFrame, key: str = "trade_date") -> pd.DataFrame:
+    if existing.empty:
+        return new.copy() if not new.empty else existing
+    if new.empty:
+        return existing.copy()
+    out = pd.concat([existing, new], ignore_index=True)
+    return out.drop_duplicates(key, keep="last").sort_values(key).reset_index(drop=True)
+
+
+def calculate_all(
+    master: pd.DataFrame,
+    option_frames: list[pd.DataFrame],
+    index_history: pd.DataFrame,
+    *,
+    full_recompute: bool = False,
+    recompute_tail_days: int = 5,
+) -> pd.DataFrame:
     hs300_history = index_history[index_history["symbol"] == "sh000300"].copy()
     trading_days = set(trading_days_from_index(hs300_history))
     chain = build_daily_option_chain(master, option_frames, trading_days)
@@ -222,37 +238,66 @@ def calculate_all(master: pd.DataFrame, option_frames: list[pd.DataFrame], index
         if not realtime_chain.empty:
             write_csv(realtime_chain, NORMALIZED / "realtime_option_chain.csv")
         write_csv(realtime_avix, CALCULATED / "avix_realtime_mid.csv")
-    chain_by_date = {str(d): g.copy() for d, g in chain.groupby("trade_date")} if not chain.empty else {}
-    rows = [calculate_avix_for_date(chain_by_date[d], rates, d, "price_raw") for d in dates if d in chain_by_date]
-    raw = pd.DataFrame(rows)
-    if not raw.empty:
-        raw = raw.rename(columns={"avix": "avix_raw"})
-    write_csv(raw, CALCULATED / "avix_raw_close.csv")
-    if len(chain) > 100_000 and not raw.empty:
-        clean = raw.rename(columns={"avix_raw": "avix_clean"}).copy()
-        while not clean.empty and "WARN_NOT_BRACKET_30D" in str(clean.sort_values("trade_date").iloc[-1]["quality"]):
-            clean = clean[clean["trade_date"] != clean["trade_date"].max()].copy()
-        clean["avix_raw"] = clean["avix_clean"]
-        clean["raw_clean_diff"] = 0.0
-        clean["cleaned_option_count"] = clean[["near_n_options", "next_n_options"]].min(axis=1)
-        clean["cleaned_option_ratio"] = 1.0
-        clean["clean_method"] = "moneyness_filter_fast_from_raw"
+
+    existing_raw = read_csv(CALCULATED / "avix_raw_close.csv")
+    existing_clean = read_csv(CALCULATED / "avix_clean_close.csv")
+    existing_dates = set(existing_clean["trade_date"].astype(str)) if not existing_clean.empty else set()
+    if full_recompute or not existing_dates:
+        target_dates = [str(d) for d in dates]
+        print(f"AVIX full recompute for {len(target_dates)} dates")
     else:
-        clean_chain = clean_option_surface(chain, rates)
+        missing = [str(d) for d in dates if str(d) not in existing_dates]
+        tail = [str(d) for d in dates[-max(recompute_tail_days, 1):]]
+        target_dates = sorted(set(missing) | set(tail))
+        print(f"AVIX incremental recompute for {len(target_dates)} dates (missing+tail)")
+
+    chain_by_date = {str(d): g.copy() for d, g in chain.groupby("trade_date")} if not chain.empty else {}
+    rows = [calculate_avix_for_date(chain_by_date[d], rates, d, "price_raw") for d in target_dates if d in chain_by_date]
+    raw_new = pd.DataFrame(rows)
+    if not raw_new.empty:
+        raw_new = raw_new.rename(columns={"avix": "avix_raw"})
+    raw = _merge_avix_series(existing_raw, raw_new) if not full_recompute else raw_new
+    write_csv(raw, CALCULATED / "avix_raw_close.csv")
+    if len(chain) > 100_000 and not raw_new.empty:
+        clean_new = raw_new.rename(columns={"avix_raw": "avix_clean"}).copy()
+        while not clean_new.empty and "WARN_NOT_BRACKET_30D" in str(clean_new.sort_values("trade_date").iloc[-1]["quality"]):
+            clean_new = clean_new[clean_new["trade_date"] != clean_new["trade_date"].max()].copy()
+        clean_new["avix_raw"] = clean_new["avix_clean"]
+        clean_new["raw_clean_diff"] = 0.0
+        clean_new["cleaned_option_count"] = clean_new[["near_n_options", "next_n_options"]].min(axis=1)
+        clean_new["cleaned_option_ratio"] = 1.0
+        clean_new["clean_method"] = "moneyness_filter_fast_from_raw"
+        clean = _merge_avix_series(existing_clean, clean_new) if not full_recompute else clean_new
+    elif raw_new.empty and not existing_clean.empty and not full_recompute:
+        clean = existing_clean
+    else:
+        # Full clean path only for target dates when incremental; full chain clean when full recompute.
+        chain_for_clean = chain[chain["trade_date"].astype(str).isin(target_dates)].copy() if not full_recompute and target_dates else chain
+        clean_chain = clean_option_surface(chain_for_clean, rates)
         clean_for_calc = clean_chain.copy()
         if not clean_for_calc.empty and "clean_valid" in clean_for_calc.columns:
             clean_for_calc["valid_price"] = clean_for_calc["clean_valid"].astype(bool)
         clean_by_date = {str(d): g.copy() for d, g in clean_for_calc.groupby("trade_date")} if not clean_for_calc.empty else {}
-        clean_rows = [calculate_avix_for_date(clean_by_date[d], rates, d, "clean_price") for d in dates if d in clean_by_date]
-        clean = pd.DataFrame(clean_rows)
-        if not clean.empty:
-            clean = clean.rename(columns={"avix": "avix_clean"}).merge(raw[["trade_date", "avix_raw"]], on="trade_date", how="left")
-            clean["raw_clean_diff"] = (clean["avix_clean"] - clean["avix_raw"]).abs()
-            clean["cleaned_option_count"] = clean_chain.groupby("trade_date")["clean_valid"].sum().reindex(clean["trade_date"]).values
-            clean["cleaned_option_ratio"] = clean["cleaned_option_count"] / clean_chain.groupby("trade_date").size().reindex(clean["trade_date"]).values
-            clean["clean_method"] = "iv_filter_rolling_median"
-            clean.loc[clean["raw_clean_diff"] > 2.0, "quality"] = clean["quality"].astype(str) + "|WARN_CLEAN_IMPACT_HIGH"
-            clean.loc[clean["raw_clean_diff"] > 4.0, "quality"] = clean["quality"].astype(str) + "|LOW_CLEAN_IMPACT_TOO_HIGH"
+        clean_rows = [calculate_avix_for_date(clean_by_date[d], rates, d, "clean_price") for d in target_dates if d in clean_by_date]
+        clean_new = pd.DataFrame(clean_rows)
+        if not clean_new.empty:
+            clean_new = clean_new.rename(columns={"avix": "avix_clean"}).merge(
+                raw_new[["trade_date", "avix_raw"]] if not raw_new.empty else raw[["trade_date", "avix_raw"]],
+                on="trade_date",
+                how="left",
+            )
+            clean_new["raw_clean_diff"] = (clean_new["avix_clean"] - clean_new["avix_raw"]).abs()
+            counts = clean_chain.groupby("trade_date")["clean_valid"].sum() if "clean_valid" in clean_chain.columns else pd.Series(dtype=float)
+            sizes = clean_chain.groupby("trade_date").size() if not clean_chain.empty else pd.Series(dtype=float)
+            clean_new["cleaned_option_count"] = clean_new["trade_date"].map(counts)
+            clean_new["cleaned_option_ratio"] = clean_new["trade_date"].map(lambda d: counts.get(d, 0) / sizes.get(d, 1) if sizes.get(d, 0) else None)
+            clean_new["clean_method"] = "iv_filter_rolling_median"
+            clean_new.loc[clean_new["raw_clean_diff"] > 2.0, "quality"] = clean_new["quality"].astype(str) + "|WARN_CLEAN_IMPACT_HIGH"
+            clean_new.loc[clean_new["raw_clean_diff"] > 4.0, "quality"] = clean_new["quality"].astype(str) + "|LOW_CLEAN_IMPACT_TOO_HIGH"
+        clean = _merge_avix_series(existing_clean, clean_new) if not full_recompute else clean_new
+    # Drop trailing unusable bracket warnings from official series tip
+    while not clean.empty and "WARN_NOT_BRACKET_30D" in str(clean.sort_values("trade_date").iloc[-1]["quality"]):
+        clean = clean[clean["trade_date"] != clean["trade_date"].max()].copy()
     write_csv(clean, CALCULATED / "avix_clean_close.csv")
     try:
         qvix = fetch_qvix()
@@ -303,7 +348,7 @@ def main() -> None:
     master, frames = fetch_options(index_history, recent, full=args.full)
     if args.fetch_only:
         return
-    calculate_all(master, frames, index_history)
+    calculate_all(master, frames, index_history, full_recompute=bool(args.full))
 
 if __name__ == "__main__":
     main()
