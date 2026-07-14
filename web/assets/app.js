@@ -735,6 +735,48 @@ function appendFlexJournal(ledger, entry) {
   ].slice(0, 200);
 }
 
+function flexAddCalendarDays(dateStr, days) {
+  const day = String(dateStr || flexDateCn(0)).slice(0, 10);
+  const [y, m, d] = day.split('-').map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  dt.setUTCDate(dt.getUTCDate() + Number(days || 0));
+  return dt.toISOString().slice(0, 10);
+}
+
+function flexCalendarDaysBetween(fromStr, toStr) {
+  const a = String(fromStr || '').slice(0, 10);
+  const b = String(toStr || flexDateCn(0)).slice(0, 10);
+  if (!a || !b) return 0;
+  const [y1, m1, d1] = a.split('-').map(Number);
+  const [y2, m2, d2] = b.split('-').map(Number);
+  const t1 = Date.UTC(y1, m1 - 1, d1);
+  const t2 = Date.UTC(y2, m2 - 1, d2);
+  return Math.max(0, Math.round((t2 - t1) / 86400000));
+}
+
+/** Remaining hold days / exit date — only meaningful after user confirmed buy. */
+function flexPositionExitInfo(pos) {
+  if (!pos || !(Number(pos.qty) > 0)) return { left: null, exitDate: null, label: '—' };
+  const today = flexDateCn(0);
+  let exitDate = pos.exit_date ? String(pos.exit_date).slice(0, 10) : null;
+  if (!exitDate && pos.buy_date && pos.hold_days != null) {
+    exitDate = flexAddCalendarDays(pos.buy_date, Number(pos.hold_days));
+  }
+  let left = null;
+  if (exitDate) {
+    left = flexCalendarDaysBetween(today, exitDate);
+    // if exit in the past, left = 0
+    if (exitDate < today) left = 0;
+  } else if (pos.hold_days != null && pos.buy_date) {
+    left = Math.max(0, Number(pos.hold_days) - flexCalendarDaysBetween(pos.buy_date, today));
+  }
+  const exitMd = exitDate ? flexFormatMdBuy(exitDate)?.replace(/买$/, '清') : null;
+  const label = left != null
+    ? (exitMd ? `剩${left}日 · ${exitMd}` : `剩${left}日`)
+    : '—';
+  return { left, exitDate, label };
+}
+
 function flexApplyBuy(ledger, draft) {
   ledger = normalizeFlexLedger(ledger);
   const amount = Number(draft.amount);
@@ -749,6 +791,16 @@ function flexApplyBuy(ledger, draft) {
   const qty = amount / price;
   const key = draft.key;
   const existing = ledger.positions[key];
+  const buyDate = String(draft.buy_date || flexDateCn(0)).slice(0, 10);
+  const holdDays = draft.hold_days != null && Number(draft.hold_days) >= 0
+    ? Number(draft.hold_days)
+    : null;
+  const exitDate = draft.exit_date
+    ? String(draft.exit_date).slice(0, 10)
+    : holdDays != null
+      ? flexAddCalendarDays(buyDate, holdDays)
+      : null;
+
   if (existing && Number(existing.qty) > 0) {
     const newQty = Number(existing.qty) + qty;
     const newCost = Number(existing.cost_basis) + amount;
@@ -758,6 +810,7 @@ function flexApplyBuy(ledger, draft) {
     existing.last_price = price;
     existing.updated_at = new Date().toISOString();
     if (draft.signal_as_of) existing.signal_as_of = draft.signal_as_of;
+    // Keep original buy_date / exit plan on add; only refresh mark.
   } else {
     ledger.positions[key] = {
       id: flexUid('pos'),
@@ -773,6 +826,9 @@ function flexApplyBuy(ledger, draft) {
       opened_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
       signal_as_of: draft.signal_as_of || '',
+      buy_date: buyDate,
+      hold_days: holdDays,
+      exit_date: exitDate,
       note: draft.note || '',
     };
   }
@@ -902,13 +958,15 @@ function renderFlexHoldings() {
     const pnl = mtm != null ? mtm - Number(pos.cost_basis) : null;
     const pnlCls = pnl == null ? '' : pnl >= 0 ? 'up' : 'down';
     const pnlTxt = pnl == null ? '—' : `${pnl >= 0 ? '+' : ''}${formatMoney(pnl)}`;
-    return `<div class="flex-row flex-row-book" data-pos-key="${escapeHtml(pos.key)}">
+    const exitInfo = flexPositionExitInfo(pos);
+    return `<div class="flex-row flex-row-book" data-pos-key="${escapeHtml(pos.key)}" title="${escapeHtml(exitInfo.label)}">
       <span class="flex-row-code">${escapeHtml(pos.etf_code || '—')}</span>
       <span class="flex-row-name">${escapeHtml(pos.name || '—')}</span>
       <span class="flex-row-num">${formatMoney(pos.cost_basis)}</span>
       <span class="flex-row-num">${formatPrice(pos.avg_price)}</span>
       <span class="flex-row-num">${weight != null ? pctLabel(weight) : '—'}</span>
       <span class="flex-row-num ${pnlCls}">${pnlTxt}</span>
+      <span class="flex-row-num flex-row-exit">${escapeHtml(exitInfo.label)}</span>
       <span class="flex-row-acts">
         <button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">加</button>
         <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(pos.key)}">减</button>
@@ -1097,6 +1155,10 @@ function confirmFlexTradeModal() {
         amount,
         price,
         signal_as_of: state.signal_as_of || '',
+        buy_date: flexDateCn(0),
+        hold_days: state.hold_days != null && Number.isFinite(Number(state.hold_days))
+          ? Number(state.hold_days)
+          : (dashboardState.flexActive?.hold_days ?? 5),
       });
     } else if (state.mode === 'reduce') {
       ledger = flexApplyReduce(ledger, state.key, {
@@ -1292,8 +1354,15 @@ function renderFlexSignalRows(items, flex, options = {}) {
     const name = item.name || '—';
     const w = item.weight_hint || (item.weight_target != null ? pctLabel(item.weight_target) : '—');
     const amt = suggested != null ? formatMoney(suggested) : '—';
-    const left = item.days_remaining != null ? `${item.days_remaining}d` : '—';
+    // 剩余/清仓时间：仅本机已确认买入后才显示（用账本 exit 计划，不用引擎“纸面持仓”天数）
+    const localPos = held ? ledger.positions[key] : null;
+    const left = held ? flexPositionExitInfo(localPos).label : '—';
     const interactive = forceKind !== 'avoid' && action !== 'AVOID' && action !== 'UNDERWEIGHT_RELATIVE' && action !== 'FLAT';
+
+    // Hold plan for new buys: prefer item.days_remaining if engine still open, else flex.hold_days
+    const planDays = item.days_remaining != null && Number(item.days_remaining) >= 0
+      ? Number(item.days_remaining)
+      : (options.defaultHoldDays != null ? Number(options.defaultHoldDays) : null);
 
     let acts = '';
     if (interactive) {
@@ -1316,6 +1385,7 @@ function renderFlexSignalRows(items, flex, options = {}) {
           data-sleeve="${escapeHtml(item.sleeve || '')}"
           data-suggested="${suggested != null ? suggested : ''}"
           data-signal-as-of="${escapeHtml(signalAsOf)}"
+          data-hold-days="${planDays != null ? planDays : ''}"
         >买</button>`;
       }
     }
@@ -1326,7 +1396,7 @@ function renderFlexSignalRows(items, flex, options = {}) {
       <span class="flex-row-name">${escapeHtml(name)}</span>
       <span class="flex-row-num">${escapeHtml(String(w))}</span>
       <span class="flex-row-num">${amt}</span>
-      <span class="flex-row-num flex-row-muted">${left}</span>
+      <span class="flex-row-num flex-row-muted">${escapeHtml(left)}</span>
       <span class="flex-row-acts">${acts}</span>
     </div>`;
   }).join('');
@@ -1334,6 +1404,7 @@ function renderFlexSignalRows(items, flex, options = {}) {
 
 function renderFlexSignalList(flex, options = {}) {
   const buckets = splitFlexSignalBuckets(flex || {});
+  const defaultHoldDays = flex?.hold_days != null ? Number(flex.hold_days) : 5;
   const map = [
     { kind: 'open', id: 'flexOpenList', forceKind: 'open' },
     { kind: 'hold', id: 'flexHoldList', forceKind: 'hold' },
@@ -1353,7 +1424,11 @@ function renderFlexSignalList(flex, options = {}) {
       continue;
     }
     any = true;
-    el.innerHTML = renderFlexSignalRows(items, flex, { ...options, forceKind });
+    el.innerHTML = renderFlexSignalRows(items, flex, {
+      ...options,
+      forceKind,
+      defaultHoldDays,
+    });
   }
 
   const empty = document.getElementById('flexSignalEmpty');
@@ -1472,6 +1547,9 @@ function bindFlexExecControls() {
         etf_name: btn.dataset.etfName || '',
         sleeve: btn.dataset.sleeve || '',
         signal_as_of: btn.dataset.signalAsOf || '',
+        hold_days: btn.dataset.holdDays !== '' && btn.dataset.holdDays != null
+          ? Number(btn.dataset.holdDays)
+          : null,
         defaultAmount: suggested,
         defaultPrice: ledger.positions[key]?.last_price || ledger.positions[key]?.avg_price || null,
       });
