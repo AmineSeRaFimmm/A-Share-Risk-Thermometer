@@ -410,6 +410,21 @@ dd[data-freshness="unknown"] { color: var(--amber); }
 }
 .flex-tab-panel { display: none; }
 .flex-tab-panel.active { display: block; }
+.flex-signal-sections {
+  display: grid;
+  gap: 14px;
+}
+.flex-signal-block[hidden] { display: none !important; }
+.flex-signal-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+.flex-signal-title.buy { color: #047857; }
+.flex-signal-title.hold { color: #0369a1; }
+.flex-signal-title.sell { color: #b91c1c; }
+.flex-signal-title.avoid { color: #6d28d9; }
 .flex-table {
   border: 1px solid var(--line);
   border-radius: 10px;

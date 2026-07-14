@@ -1184,61 +1184,59 @@ function flexActionBadge(item, flex) {
   return base;
 }
 
-/** Dedupe signal lists: one row per instrument, higher-priority action wins. */
-function mergeFlexSignalItems(flex) {
-  const rank = {
-    CLOSE: 0,
-    SELL: 0,
-    OPEN: 1,
-    BUY: 1,
-    OVERWEIGHT: 1,
-    OVERWEIGHT_RELATIVE: 1,
-    HOLD: 2,
-    AVOID: 3,
-    UNDERWEIGHT_RELATIVE: 3,
-    FLAT: 4,
+/** Split engine lists into 4 separate buckets — never mix kinds in one table. */
+function splitFlexSignalBuckets(flex) {
+  const f = flex || {};
+  const openKeys = new Set(['OPEN', 'BUY', 'OVERWEIGHT', 'OVERWEIGHT_RELATIVE']);
+  const holdKeys = new Set(['HOLD']);
+  const closeKeys = new Set(['CLOSE', 'SELL']);
+  const avoidKeys = new Set(['AVOID', 'UNDERWEIGHT_RELATIVE', 'FLAT']);
+
+  const buckets = { open: [], hold: [], close: [], avoid: [] };
+  const seen = { open: new Set(), hold: new Set(), close: new Set(), avoid: new Set() };
+
+  const pushUnique = (kind, item) => {
+    const key = flexPositionKey(item);
+    if (seen[kind].has(key)) return;
+    seen[kind].add(key);
+    buckets[kind].push({ ...item, _key: key });
   };
-  const map = new Map();
-  const lists = [
-    flex.avoid_list,
-    flex.hold_list,
-    flex.minimal_actions,
-    flex.buy_list,
-    flex.sell_list,
-    flex.close_list,
+
+  // Source priority within each kind: explicit lists first, then minimal_actions by action.
+  const sources = [
+    ...(f.buy_list || []),
+    ...(f.minimal_actions || []),
+    ...(f.hold_list || []),
+    ...(f.close_list || []),
+    ...(f.sell_list || []),
+    ...(f.avoid_list || []),
   ];
-  for (const list of lists) {
-    for (const item of list || []) {
-      const key = flexPositionKey(item);
-      const action = String(item.action || item.side || '').toUpperCase();
-      const r = rank[action] ?? 9;
-      const prev = map.get(key);
-      if (!prev || r < prev._rank) {
-        map.set(key, { ...item, _rank: r, _key: key });
-      }
-    }
+
+  for (const item of sources) {
+    const action = String(item.action || item.side || '').toUpperCase();
+    if (openKeys.has(action)) pushUnique('open', item);
+    else if (holdKeys.has(action)) pushUnique('hold', item);
+    else if (closeKeys.has(action)) pushUnique('close', item);
+    else if (avoidKeys.has(action)) pushUnique('avoid', item);
   }
-  return [...map.values()].sort((a, b) => {
-    if (a._rank !== b._rank) return a._rank - b._rank;
-    return String(a.etf_code || a.name || '').localeCompare(String(b.etf_code || b.name || ''), 'zh');
-  });
+
+  // minimal_actions that are HOLD should stay in hold only (already handled by action).
+  // If buy_list empty but minimal has OPEN, already in open.
+
+  return buckets;
 }
 
-function renderFlexSignalList(flex, options = {}) {
-  const el = document.getElementById('flexSignalList');
-  if (!el) return;
-  const items = mergeFlexSignalItems(flex || {});
-  if (!items.length) {
-    el.innerHTML = '<div class="flex-order-empty">—</div>';
-    return;
-  }
+function renderFlexSignalRows(items, flex, options = {}) {
   const ledger = loadFlexLedger();
   const capital = Number(ledger.capital) || 0;
   const signalAsOf = options.signalAsOf || '';
+  const forceKind = options.forceKind || null;
 
-  el.innerHTML = items.map(item => {
+  return items.map(item => {
     const action = String(item.action || item.side || '').toUpperCase();
-    const badgeInfo = flexActionBadge(item, flex);
+    const badgeInfo = forceKind === 'hold' || action === 'HOLD'
+      ? flexActionBadge({ ...item, action: 'HOLD' }, flex)
+      : flexActionBadge(item, flex);
     const key = item._key || flexPositionKey(item);
     const held = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
     const suggested = flexSuggestedAmount(item, capital);
@@ -1247,11 +1245,11 @@ function renderFlexSignalList(flex, options = {}) {
     const w = item.weight_hint || (item.weight_target != null ? pctLabel(item.weight_target) : '—');
     const amt = suggested != null ? formatMoney(suggested) : '—';
     const left = item.days_remaining != null ? `${item.days_remaining}d` : '—';
-    const interactive = action !== 'AVOID' && action !== 'UNDERWEIGHT_RELATIVE' && action !== 'FLAT';
+    const interactive = forceKind !== 'avoid' && action !== 'AVOID' && action !== 'UNDERWEIGHT_RELATIVE' && action !== 'FLAT';
 
     let acts = '';
     if (interactive) {
-      if (FLEX_CLOSE_ACTIONS.has(action)) {
+      if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
         acts = held
           ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
              <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
@@ -1260,7 +1258,7 @@ function renderFlexSignalList(flex, options = {}) {
         acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加</button>
           <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
           <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`;
-      } else if (FLEX_BUY_ACTIONS.has(action) || action === 'HOLD') {
+      } else if (forceKind === 'open' || forceKind === 'hold' || FLEX_BUY_ACTIONS.has(action) || action === 'HOLD') {
         acts = `<button type="button" class="flex-chip primary"
           data-flex-act="buy"
           data-pos-key="${escapeHtml(key)}"
@@ -1284,6 +1282,34 @@ function renderFlexSignalList(flex, options = {}) {
       <span class="flex-row-acts">${acts}</span>
     </div>`;
   }).join('');
+}
+
+function renderFlexSignalList(flex, options = {}) {
+  const buckets = splitFlexSignalBuckets(flex || {});
+  const map = [
+    { kind: 'open', id: 'flexOpenList', forceKind: 'open' },
+    { kind: 'hold', id: 'flexHoldList', forceKind: 'hold' },
+    { kind: 'close', id: 'flexCloseList', forceKind: 'close' },
+    { kind: 'avoid', id: 'flexAvoidList', forceKind: 'avoid' },
+  ];
+
+  let any = false;
+  for (const { kind, id, forceKind } of map) {
+    const block = document.querySelector(`[data-signal-kind="${kind}"]`);
+    const el = document.getElementById(id);
+    const items = buckets[kind] || [];
+    if (block) block.hidden = items.length === 0;
+    if (!el) continue;
+    if (!items.length) {
+      el.innerHTML = '';
+      continue;
+    }
+    any = true;
+    el.innerHTML = renderFlexSignalRows(items, flex, { ...options, forceKind });
+  }
+
+  const empty = document.getElementById('flexSignalEmpty');
+  if (empty) empty.hidden = any;
 }
 
 function bindFlexTabs() {

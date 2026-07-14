@@ -132,13 +132,44 @@
         </div>
 
         <div class="flex-tab-panel active" data-flex-panel="signal">
-          <div class="flex-table" id="flexSignalTable">
-            <div class="flex-table-head">
-              <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>剩</span><span></span>
-            </div>
-            <div id="flexSignalList" class="flex-table-body">
-              <div class="flex-order-empty">—</div>
-            </div>
+          <div class="flex-signal-sections" id="flexSignalSections">
+            <section class="flex-signal-block" data-signal-kind="open" hidden>
+              <h3 class="flex-signal-title buy">新开</h3>
+              <div class="flex-table">
+                <div class="flex-table-head">
+                  <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>剩</span><span></span>
+                </div>
+                <div id="flexOpenList" class="flex-table-body"></div>
+              </div>
+            </section>
+            <section class="flex-signal-block" data-signal-kind="hold" hidden>
+              <h3 class="flex-signal-title hold">持有信号</h3>
+              <div class="flex-table">
+                <div class="flex-table-head">
+                  <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>剩</span><span></span>
+                </div>
+                <div id="flexHoldList" class="flex-table-body"></div>
+              </div>
+            </section>
+            <section class="flex-signal-block" data-signal-kind="close" hidden>
+              <h3 class="flex-signal-title sell">平仓</h3>
+              <div class="flex-table">
+                <div class="flex-table-head">
+                  <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>剩</span><span></span>
+                </div>
+                <div id="flexCloseList" class="flex-table-body"></div>
+              </div>
+            </section>
+            <section class="flex-signal-block" data-signal-kind="avoid" hidden>
+              <h3 class="flex-signal-title avoid">回避</h3>
+              <div class="flex-table">
+                <div class="flex-table-head">
+                  <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>剩</span><span></span>
+                </div>
+                <div id="flexAvoidList" class="flex-table-body"></div>
+              </div>
+            </section>
+            <div id="flexSignalEmpty" class="flex-order-empty" hidden>—</div>
           </div>
         </div>
 
