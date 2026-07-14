@@ -632,12 +632,48 @@ function flexUid(prefix = 'fx') {
 
 function defaultFlexLedger() {
   return {
-    version: 1,
+    version: 2,
     capital: 0,
+    cash: 0,
     positions: {},
     journal: [],
     updated_at: null,
   };
+}
+
+function flexOpenPositions(ledger) {
+  return Object.values(ledger?.positions || {}).filter(p => Number(p.qty) > 1e-9);
+}
+
+function flexDeployedCost(ledger) {
+  return flexOpenPositions(ledger).reduce((sum, p) => sum + (Number(p.cost_basis) || 0), 0);
+}
+
+function flexMarkValue(ledger) {
+  return flexOpenPositions(ledger).reduce((sum, p) => {
+    const mark = Number(p.last_price);
+    const px = Number.isFinite(mark) && mark > 0 ? mark : Number(p.avg_price) || 0;
+    return sum + Number(p.qty) * px;
+  }, 0);
+}
+
+/** Migrate v1 ledgers that derived cash as capital−cost (dropped realized PnL). */
+function normalizeFlexLedger(raw) {
+  const ledger = {
+    version: 2,
+    capital: Number(raw?.capital) || 0,
+    cash: raw?.cash,
+    positions: raw?.positions && typeof raw.positions === 'object' ? raw.positions : {},
+    journal: Array.isArray(raw?.journal) ? raw.journal : [],
+    updated_at: raw?.updated_at || null,
+  };
+  if (ledger.cash == null || !Number.isFinite(Number(ledger.cash))) {
+    // Best-effort migration for pre-v2 books.
+    ledger.cash = Math.max(0, ledger.capital - flexDeployedCost(ledger));
+  } else {
+    ledger.cash = Number(ledger.cash);
+  }
+  return ledger;
 }
 
 function loadFlexLedger() {
@@ -646,22 +682,17 @@ function loadFlexLedger() {
     if (!raw) return defaultFlexLedger();
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return defaultFlexLedger();
-    return {
-      version: 1,
-      capital: Number(parsed.capital) || 0,
-      positions: parsed.positions && typeof parsed.positions === 'object' ? parsed.positions : {},
-      journal: Array.isArray(parsed.journal) ? parsed.journal : [],
-      updated_at: parsed.updated_at || null,
-    };
+    return normalizeFlexLedger(parsed);
   } catch (_) {
     return defaultFlexLedger();
   }
 }
 
 function saveFlexLedger(ledger) {
-  ledger.updated_at = new Date().toISOString();
-  localStorage.setItem(FLEX_LEDGER_KEY, JSON.stringify(ledger));
-  return ledger;
+  const normalized = normalizeFlexLedger(ledger);
+  normalized.updated_at = new Date().toISOString();
+  localStorage.setItem(FLEX_LEDGER_KEY, JSON.stringify(normalized));
+  return normalized;
 }
 
 function flexPositionKey(item) {
@@ -672,17 +703,14 @@ function flexPositionKey(item) {
   return `name:${sleeve}:${name}`;
 }
 
-function flexOpenPositions(ledger) {
-  return Object.values(ledger.positions || {}).filter(p => Number(p.qty) > 1e-9);
-}
-
-function flexDeployedCost(ledger) {
-  return flexOpenPositions(ledger).reduce((sum, p) => sum + (Number(p.cost_basis) || 0), 0);
-}
-
 function flexAvailableCash(ledger) {
-  const capital = Number(ledger.capital) || 0;
-  return Math.max(0, capital - flexDeployedCost(ledger));
+  const cash = Number(ledger?.cash);
+  if (Number.isFinite(cash)) return Math.max(0, cash);
+  return Math.max(0, (Number(ledger?.capital) || 0) - flexDeployedCost(ledger));
+}
+
+function flexEquity(ledger) {
+  return flexAvailableCash(ledger) + flexMarkValue(ledger);
 }
 
 function flexSuggestedAmount(item, capital) {
@@ -708,6 +736,7 @@ function appendFlexJournal(ledger, entry) {
 }
 
 function flexApplyBuy(ledger, draft) {
+  ledger = normalizeFlexLedger(ledger);
   const amount = Number(draft.amount);
   const price = Number(draft.price);
   if (!(amount > 0) || !(price > 0)) {
@@ -747,6 +776,7 @@ function flexApplyBuy(ledger, draft) {
       note: draft.note || '',
     };
   }
+  ledger.cash = cash - amount;
   appendFlexJournal(ledger, {
     type: existing ? 'ADD' : 'BUY',
     type_cn: existing ? '加仓' : '买入',
@@ -762,6 +792,7 @@ function flexApplyBuy(ledger, draft) {
 }
 
 function flexApplyReduce(ledger, key, { amount, price, pct }) {
+  ledger = normalizeFlexLedger(ledger);
   const pos = ledger.positions[key];
   if (!pos || !(Number(pos.qty) > 0)) throw new Error('持仓不存在或已平仓');
   const px = Number(price);
@@ -786,6 +817,10 @@ function flexApplyReduce(ledger, key, { amount, price, pct }) {
 
   const costRemoved = (Number(pos.cost_basis) / Number(pos.qty)) * sellQty;
   const remainQty = Number(pos.qty) - sellQty;
+  const pnl = sellAmount - costRemoved;
+  // Proceeds return to cash (realized PnL included).
+  ledger.cash = Number(ledger.cash) + sellAmount;
+
   if (remainQty <= 1e-8) {
     delete ledger.positions[key];
     appendFlexJournal(ledger, {
@@ -797,7 +832,7 @@ function flexApplyReduce(ledger, key, { amount, price, pct }) {
       amount: sellAmount,
       price: px,
       qty: sellQty,
-      pnl: sellAmount - costRemoved,
+      pnl,
     });
   } else {
     pos.qty = remainQty;
@@ -814,7 +849,7 @@ function flexApplyReduce(ledger, key, { amount, price, pct }) {
       amount: sellAmount,
       price: px,
       qty: sellQty,
-      pnl: sellAmount - costRemoved,
+      pnl,
     });
   }
   return saveFlexLedger(ledger);
@@ -837,11 +872,13 @@ function renderFlexAccountBar() {
   }
   const deployed = flexDeployedCost(ledger);
   const cash = flexAvailableCash(ledger);
+  const equity = flexEquity(ledger);
   const capital = Number(ledger.capital) || 0;
-  const exposure = capital > 0 ? deployed / capital : null;
-  setText('flexExecDeployed', capital > 0 || deployed > 0 ? `${formatMoney(deployed)} 元` : '--');
-  setText('flexExecCash', capital > 0 ? `${formatMoney(cash)} 元` : '先设全仓');
-  setText('flexExecExposure', exposure != null ? pctLabel(exposure) : '--');
+  const exposureBase = equity > 0 ? equity : capital;
+  const exposure = exposureBase > 0 ? flexMarkValue(ledger) / exposureBase : null;
+  setText('flexExecDeployed', deployed > 0 || cash > 0 || capital > 0 ? `${formatMoney(deployed)} 元` : '--');
+  setText('flexExecCash', capital > 0 || cash > 0 ? `${formatMoney(cash)} 元` : '先设全仓');
+  setText('flexExecExposure', exposure != null ? `${pctLabel(exposure)} · 权益 ${formatMoney(equity)}` : '--');
   setText('flexExecCount', String(flexOpenPositions(ledger).length));
 }
 
@@ -1128,7 +1165,8 @@ function renderFlexOrderList(el, items, emptyText, options = {}) {
 
     let actionsHtml = '';
     if (interactive) {
-      if (FLEX_BUY_ACTIONS.has(action) || (action === 'HOLD' && !held && Number(item.weight_target) > 0)) {
+      // BUY/OPEN always actionable; HOLD without local book = open entry (even if weight missing).
+      if (FLEX_BUY_ACTIONS.has(action) || (action === 'HOLD' && !held)) {
         actionsHtml = `<div class="flex-order-actions">
           <button type="button" class="flex-exec-btn primary compact"
             data-flex-act="buy"
@@ -1188,16 +1226,20 @@ function bindFlexExecControls() {
     }
     const ledger = loadFlexLedger();
     const prev = Number(ledger.capital) || 0;
-    ledger.capital = Math.round(capital * 100) / 100;
-    if (prev !== ledger.capital) {
+    const next = Math.round(capital * 100) / 100;
+    const delta = next - prev;
+    // Adjust cash by the same delta so funding changes affect spendable cash.
+    ledger.cash = Math.max(0, Number(ledger.cash) + delta);
+    ledger.capital = next;
+    if (prev !== next) {
       appendFlexJournal(ledger, {
         type: 'CAPITAL',
         type_cn: '调整全仓',
         name: '账户',
-        amount: ledger.capital,
+        amount: next,
         price: 0,
         qty: 0,
-        note: `从 ${formatMoney(prev)} 调整为 ${formatMoney(ledger.capital)}`,
+        note: `从 ${formatMoney(prev)} 调整为 ${formatMoney(next)}（现金同步 ${delta >= 0 ? '+' : ''}${formatMoney(delta)}）`,
       });
     }
     saveFlexLedger(ledger);
@@ -1213,11 +1255,12 @@ function bindFlexExecControls() {
   });
 
   document.getElementById('flexResetLedgerBtn')?.addEventListener('click', () => {
-    if (!confirm('确认清空本机持仓与成交流水？全仓金额可保留。')) return;
+    if (!confirm('确认清空本机持仓与成交流水？全仓金额可保留，现金将重置为全仓。')) return;
     const ledger = loadFlexLedger();
     const capital = Number(ledger.capital) || 0;
     const next = defaultFlexLedger();
     next.capital = capital;
+    next.cash = capital;
     saveFlexLedger(next);
     if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
     else renderFlexExecUi();
