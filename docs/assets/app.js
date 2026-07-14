@@ -14,7 +14,7 @@ const dashboardState = {
   lastUpdateTime: null,
   lastTradeDate: null,
   heavyLoaded: false,
-  flexMode: 'conservative',
+  flexMode: 'aggressive',
   flexPlaybook: null,
   flexActive: null,
   flexLedgerBound: false,
@@ -580,16 +580,16 @@ function pctLabel(value) {
 }
 
 const FLEX_ACTION_BADGE = {
-  OPEN: { text: '开', cls: 'buy' },
-  OVERWEIGHT: { text: '超', cls: 'buy' },
-  BUY: { text: '买', cls: 'buy' },
-  HOLD: { text: '持', cls: 'hold' },
-  CLOSE: { text: '平', cls: 'sell' },
-  AVOID: { text: '避', cls: 'avoid' },
-  FLAT: { text: '空', cls: 'wait' },
-  SELL: { text: '卖', cls: 'sell' },
-  OVERWEIGHT_RELATIVE: { text: '超', cls: 'buy' },
-  UNDERWEIGHT_RELATIVE: { text: '低', cls: 'avoid' },
+  OPEN: { text: '新开', cls: 'buy' },
+  OVERWEIGHT: { text: '超配', cls: 'buy' },
+  BUY: { text: '买入', cls: 'buy' },
+  HOLD: { text: '持有信号', cls: 'hold' },
+  CLOSE: { text: '平仓', cls: 'sell' },
+  AVOID: { text: '回避', cls: 'avoid' },
+  FLAT: { text: '观望', cls: 'wait' },
+  SELL: { text: '卖出', cls: 'sell' },
+  OVERWEIGHT_RELATIVE: { text: '超配', cls: 'buy' },
+  UNDERWEIGHT_RELATIVE: { text: '低配', cls: 'avoid' },
 };
 
 const FLEX_LEDGER_KEY = 'ashare_flex_exec_ledger_v1';
@@ -1125,11 +1125,63 @@ function flexShortAction(action, actionCn) {
   const a = String(action || '').toUpperCase();
   if (FLEX_ACTION_BADGE[a]) return FLEX_ACTION_BADGE[a].text;
   const cn = String(actionCn || '');
-  if (/持有|持仓/.test(cn)) return '持';
-  if (/买|开|超配/.test(cn)) return '买';
-  if (/卖|平/.test(cn)) return '平';
-  if (/回避|低配/.test(cn)) return '避';
-  return cn.slice(0, 2) || '—';
+  if (/持有|持仓/.test(cn)) return '持有信号';
+  if (/新开|开仓/.test(cn)) return '新开';
+  if (/买|超配/.test(cn)) return '买入';
+  if (/卖|平/.test(cn)) return '平仓';
+  if (/回避|低配/.test(cn)) return '回避';
+  return cn.slice(0, 4) || '—';
+}
+
+function flexFormatMdBuy(dateStr) {
+  if (!dateStr || dateStr === '—' || dateStr === '-') return null;
+  const m = String(dateStr).match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if (m) return `${Number(m[2])}月${Number(m[3])}日买`;
+  const m2 = String(dateStr).match(/(\d{1,2})月(\d{1,2})日/);
+  if (m2) return `${Number(m2[1])}月${Number(m2[2])}日买`;
+  return null;
+}
+
+/** Resolve execution entry date for HOLD badge: sleeve state → item fields. */
+function flexResolveEntryDate(item, flex) {
+  const direct = item?.entry_date || item?.entry_signal_date || null;
+  if (direct && String(direct).includes('-')) return String(direct).slice(0, 10);
+  const entryTxt = flexFormatMdBuy(item?.entry);
+  if (entryTxt) {
+    // entry was display text only; fall through to state
+  } else if (item?.entry && String(item.entry).match(/\d{4}-\d{2}-\d{2}/)) {
+    return String(item.entry).match(/\d{4}-\d{2}-\d{2}/)[0];
+  }
+  const state = flex?.position_state || {};
+  const sleeve = String(item?.sleeve || '').toLowerCase();
+  if (sleeve === 'core' && state.core?.entry_date) return String(state.core.entry_date).slice(0, 10);
+  if (sleeve === 'satellite' && state.satellite?.entry_date) return String(state.satellite.entry_date).slice(0, 10);
+  // Match by etf/name against core sleeve
+  const code = String(item?.etf_code || '');
+  const name = String(item?.name || '');
+  if (state.core?.etf_code && code && state.core.etf_code === code && state.core.entry_date) {
+    return String(state.core.entry_date).slice(0, 10);
+  }
+  if (Array.isArray(state.core?.names) && state.core.names.includes(name) && state.core.entry_date) {
+    return String(state.core.entry_date).slice(0, 10);
+  }
+  if (Array.isArray(state.satellite?.names) && state.satellite.names.includes(name) && state.satellite.entry_date) {
+    return String(state.satellite.entry_date).slice(0, 10);
+  }
+  return null;
+}
+
+function flexActionBadge(item, flex) {
+  const action = String(item?.action || item?.side || '').toUpperCase();
+  const base = FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item?.action_cn), cls: 'wait' };
+  if (action === 'HOLD') {
+    const md = flexFormatMdBuy(flexResolveEntryDate(item, flex));
+    return {
+      text: md ? `持有信号-${md}` : '持有信号',
+      cls: 'hold',
+    };
+  }
+  return base;
 }
 
 /** Dedupe signal lists: one row per instrument, higher-priority action wins. */
@@ -1186,7 +1238,7 @@ function renderFlexSignalList(flex, options = {}) {
 
   el.innerHTML = items.map(item => {
     const action = String(item.action || item.side || '').toUpperCase();
-    const badgeInfo = FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item.action_cn), cls: 'wait' };
+    const badgeInfo = flexActionBadge(item, flex);
     const key = item._key || flexPositionKey(item);
     const held = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
     const suggested = flexSuggestedAmount(item, capital);
@@ -1223,7 +1275,7 @@ function renderFlexSignalList(flex, options = {}) {
     }
 
     return `<div class="flex-row ${badgeInfo.cls}${held ? ' is-held' : ''}">
-      <span class="badge">${badgeInfo.text}</span>
+      <span class="badge badge-wide">${escapeHtml(badgeInfo.text)}</span>
       <span class="flex-row-code">${escapeHtml(etfCode || '—')}</span>
       <span class="flex-row-name">${escapeHtml(name)}</span>
       <span class="flex-row-num">${escapeHtml(String(w))}</span>
@@ -1466,7 +1518,7 @@ function renderFlexTradePanel(playbook) {
   }
 
   dashboardState.flexPlaybook = playbook;
-  const mode = dashboardState.flexMode || flex.mode || 'conservative';
+  const mode = dashboardState.flexMode || flex.mode || 'aggressive';
   flex = applyFlexModeOverlay(flex, mode);
   dashboardState.flexActive = flex;
 
@@ -1509,9 +1561,13 @@ function renderFlexTradePanel(playbook) {
   const satEl = document.getElementById('flexSatSleeve');
   if (coreEl) coreEl.dataset.tone = core.tone || (core.active ? 'buy' : 'wait');
   if (satEl) satEl.dataset.tone = sat.tone || (sat.active ? 'buy' : 'wait');
+  // Sleeve cards: short status only (date detail lives in signal table rows)
   setText('flexCoreAction', flexShortAction(core.action, core.action_cn));
   setText('flexCoreWeight', wCore != null ? pctLabel(wCore) : (core.etf_code || '—'));
-  setText('flexSatStage', sat.active ? flexShortAction(sat.action, sat.status_cn || sat.action_cn) || '持' : '空');
+  setText(
+    'flexSatStage',
+    sat.active ? flexShortAction(sat.action, sat.status_cn || sat.action_cn) || '持有信号' : '空仓'
+  );
   setText('flexSatWeight', wSat != null ? pctLabel(wSat) : '—');
   if (coreEl) coreEl.title = [core.action_cn, core.etf_code].filter(Boolean).join(' · ');
   if (satEl) satEl.title = [sat.status_cn, sat.stage_cn].filter(Boolean).join(' · ');

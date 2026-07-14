@@ -257,6 +257,10 @@ dd[data-freshness="unknown"] { color: var(--amber); }
   color: #0f172a;
   box-shadow: 0 1px 2px rgba(15, 23, 42, 0.1);
 }
+.flex-mode-btn.secondary:not(.active) {
+  color: #94a3b8;
+  font-weight: 600;
+}
 .flex-strip {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -415,7 +419,7 @@ dd[data-freshness="unknown"] { color: var(--amber); }
 .flex-table-head,
 .flex-row {
   display: grid;
-  grid-template-columns: 44px 72px minmax(0, 1.2fr) 56px 80px 40px 92px;
+  grid-template-columns: minmax(108px, 1.35fr) 72px minmax(0, 1fr) 56px 80px 40px 92px;
   gap: 8px;
   align-items: center;
   padding: 0 12px;
@@ -460,6 +464,19 @@ dd[data-freshness="unknown"] { color: var(--amber); }
   font-weight: 800;
   background: #e2e8f0;
   color: #0f172a;
+  white-space: nowrap;
+}
+.flex-row .badge.badge-wide {
+  width: auto;
+  max-width: 100%;
+  min-height: 22px;
+  height: auto;
+  padding: 3px 8px;
+  font-size: 11px;
+  line-height: 1.25;
+  justify-content: flex-start;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .flex-row.buy .badge { background: #059669; color: #fff; }
 .flex-row.sell .badge { background: #dc2626; color: #fff; }
