@@ -1405,14 +1405,22 @@ function renderFlexSignalRows(items, flex, options = {}) {
     // 剩余/清仓时间：仅本机已确认买入后才显示（用账本 exit 计划）
     const localPos = held ? ledger.positions[key] : null;
     const left = held ? flexPositionExitInfo(localPos).label : '—';
-    const interactive = forceKind !== 'avoid' && action !== 'AVOID' && action !== 'UNDERWEIGHT_RELATIVE' && action !== 'FLAT';
+    const isAvoid = forceKind === 'avoid' || action === 'AVOID' || action === 'UNDERWEIGHT_RELATIVE' || action === 'FLAT';
+    // Avoid rows only appear when held; allow reduce/close. Other non-avoid keep prior rules.
+    const interactive = !isAvoid || held;
 
     // Buy plan starts when user confirms (today's bookkeeping); full default hold window.
     const planDays = options.defaultHoldDays != null ? Number(options.defaultHoldDays) : null;
 
     let acts = '';
     if (interactive) {
-      if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
+      if (isAvoid) {
+        // Only listed when user holds it — tip + act
+        acts = held
+          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
+             <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
+          : '<span class="flex-row-muted">—</span>';
+      } else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
         acts = held
           ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
              <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
