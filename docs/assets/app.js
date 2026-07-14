@@ -1186,16 +1186,6 @@ function flexActionBadge(item, flex) {
 
 /** Shanghai calendar YYYY-MM-DD. */
 function flexDateCn(offsetDays = 0) {
-  const fmt = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'Asia/Shanghai',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  });
-  // en-CA → YYYY-MM-DD
-  const base = new Date();
-  if (offsetDays) base.setTime(base.getTime() + offsetDays * 86400000);
-  // Re-read via timezone parts so offset is applied in local then formatted in SH
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Asia/Shanghai',
     year: 'numeric',
@@ -1205,8 +1195,7 @@ function flexDateCn(offsetDays = 0) {
   const y = parts.find(p => p.type === 'year')?.value;
   const m = parts.find(p => p.type === 'month')?.value;
   const d = parts.find(p => p.type === 'day')?.value;
-  if (y && m && d) return `${y}-${m}-${d}`;
-  return fmt.format(new Date());
+  return `${y}-${m}-${d}`;
 }
 
 /**
