@@ -16,6 +16,9 @@ const dashboardState = {
   heavyLoaded: false,
   flexMode: 'conservative',
   flexPlaybook: null,
+  flexActive: null,
+  flexLedgerBound: false,
+  flexModal: null,
 };
 
 async function loadJSON(path, { bust = true } = {}) {
@@ -589,42 +592,728 @@ const FLEX_ACTION_BADGE = {
   UNDERWEIGHT_RELATIVE: { text: '低配', cls: 'avoid' },
 };
 
-function renderFlexOrderList(el, items, emptyText) {
+const FLEX_LEDGER_KEY = 'ashare_flex_exec_ledger_v1';
+const FLEX_BUY_ACTIONS = new Set(['OPEN', 'OVERWEIGHT', 'BUY', 'OVERWEIGHT_RELATIVE']);
+const FLEX_CLOSE_ACTIONS = new Set(['CLOSE', 'SELL']);
+
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function formatMoney(value, digits = 0) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '--';
+  return n.toLocaleString('zh-CN', {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+function formatPrice(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '--';
+  return n.toLocaleString('zh-CN', { minimumFractionDigits: 3, maximumFractionDigits: 4 });
+}
+
+function formatShares(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '--';
+  return n.toLocaleString('zh-CN', { maximumFractionDigits: 2 });
+}
+
+function flexUid(prefix = 'fx') {
+  return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+function defaultFlexLedger() {
+  return {
+    version: 1,
+    capital: 0,
+    positions: {},
+    journal: [],
+    updated_at: null,
+  };
+}
+
+function loadFlexLedger() {
+  try {
+    const raw = localStorage.getItem(FLEX_LEDGER_KEY);
+    if (!raw) return defaultFlexLedger();
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return defaultFlexLedger();
+    return {
+      version: 1,
+      capital: Number(parsed.capital) || 0,
+      positions: parsed.positions && typeof parsed.positions === 'object' ? parsed.positions : {},
+      journal: Array.isArray(parsed.journal) ? parsed.journal : [],
+      updated_at: parsed.updated_at || null,
+    };
+  } catch (_) {
+    return defaultFlexLedger();
+  }
+}
+
+function saveFlexLedger(ledger) {
+  ledger.updated_at = new Date().toISOString();
+  localStorage.setItem(FLEX_LEDGER_KEY, JSON.stringify(ledger));
+  return ledger;
+}
+
+function flexPositionKey(item) {
+  const code = String(item?.etf_code || item?.code || '').trim();
+  if (code) return `etf:${code}`;
+  const name = String(item?.name || item?.sector || 'unknown').trim();
+  const sleeve = String(item?.sleeve || 'na').trim();
+  return `name:${sleeve}:${name}`;
+}
+
+function flexOpenPositions(ledger) {
+  return Object.values(ledger.positions || {}).filter(p => Number(p.qty) > 1e-9);
+}
+
+function flexDeployedCost(ledger) {
+  return flexOpenPositions(ledger).reduce((sum, p) => sum + (Number(p.cost_basis) || 0), 0);
+}
+
+function flexAvailableCash(ledger) {
+  const capital = Number(ledger.capital) || 0;
+  return Math.max(0, capital - flexDeployedCost(ledger));
+}
+
+function flexSuggestedAmount(item, capital) {
+  const cap = Number(capital) || 0;
+  if (!(cap > 0)) return null;
+  const w = Number(item?.weight_target);
+  if (Number.isFinite(w) && w > 0) return Math.round(cap * w);
+  const hint = String(item?.weight_hint || '');
+  const m = hint.match(/(\d+(?:\.\d+)?)\s*%/);
+  if (m) return Math.round(cap * (Number(m[1]) / 100));
+  return null;
+}
+
+function appendFlexJournal(ledger, entry) {
+  ledger.journal = [
+    {
+      id: flexUid('jn'),
+      ts: new Date().toISOString(),
+      ...entry,
+    },
+    ...(ledger.journal || []),
+  ].slice(0, 200);
+}
+
+function flexApplyBuy(ledger, draft) {
+  const amount = Number(draft.amount);
+  const price = Number(draft.price);
+  if (!(amount > 0) || !(price > 0)) {
+    throw new Error('请输入有效的买入金额和成交价');
+  }
+  const cash = flexAvailableCash(ledger);
+  if (amount > cash + 1e-6) {
+    throw new Error(`可用现金不足（约 ${formatMoney(cash)} 元）`);
+  }
+  const qty = amount / price;
+  const key = draft.key;
+  const existing = ledger.positions[key];
+  if (existing && Number(existing.qty) > 0) {
+    const newQty = Number(existing.qty) + qty;
+    const newCost = Number(existing.cost_basis) + amount;
+    existing.qty = newQty;
+    existing.cost_basis = newCost;
+    existing.avg_price = newCost / newQty;
+    existing.last_price = price;
+    existing.updated_at = new Date().toISOString();
+    if (draft.signal_as_of) existing.signal_as_of = draft.signal_as_of;
+  } else {
+    ledger.positions[key] = {
+      id: flexUid('pos'),
+      key,
+      name: draft.name,
+      etf_code: draft.etf_code || '',
+      etf_name: draft.etf_name || '',
+      sleeve: draft.sleeve || '',
+      qty,
+      avg_price: price,
+      cost_basis: amount,
+      last_price: price,
+      opened_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      signal_as_of: draft.signal_as_of || '',
+      note: draft.note || '',
+    };
+  }
+  appendFlexJournal(ledger, {
+    type: existing ? 'ADD' : 'BUY',
+    type_cn: existing ? '加仓' : '买入',
+    key,
+    name: draft.name,
+    etf_code: draft.etf_code || '',
+    amount,
+    price,
+    qty,
+    signal_as_of: draft.signal_as_of || '',
+  });
+  return saveFlexLedger(ledger);
+}
+
+function flexApplyReduce(ledger, key, { amount, price, pct }) {
+  const pos = ledger.positions[key];
+  if (!pos || !(Number(pos.qty) > 0)) throw new Error('持仓不存在或已平仓');
+  const px = Number(price);
+  if (!(px > 0)) throw new Error('请输入有效成交价');
+
+  let sellQty = 0;
+  let sellAmount = 0;
+  // Prefer explicit amount when provided; otherwise use percent.
+  if (amount != null && Number(amount) > 0) {
+    sellAmount = Number(amount);
+    sellQty = sellAmount / px;
+  } else if (pct != null && Number(pct) > 0) {
+    const ratio = Math.min(100, Math.max(0, Number(pct))) / 100;
+    sellQty = Number(pos.qty) * ratio;
+    sellAmount = sellQty * px;
+  } else {
+    throw new Error('请输入减仓金额或比例');
+  }
+  if (sellQty > Number(pos.qty) + 1e-9) {
+    throw new Error('减仓数量超过持仓');
+  }
+
+  const costRemoved = (Number(pos.cost_basis) / Number(pos.qty)) * sellQty;
+  const remainQty = Number(pos.qty) - sellQty;
+  if (remainQty <= 1e-8) {
+    delete ledger.positions[key];
+    appendFlexJournal(ledger, {
+      type: 'CLOSE',
+      type_cn: '平仓',
+      key,
+      name: pos.name,
+      etf_code: pos.etf_code || '',
+      amount: sellAmount,
+      price: px,
+      qty: sellQty,
+      pnl: sellAmount - costRemoved,
+    });
+  } else {
+    pos.qty = remainQty;
+    pos.cost_basis = Math.max(0, Number(pos.cost_basis) - costRemoved);
+    pos.avg_price = pos.cost_basis / remainQty;
+    pos.last_price = px;
+    pos.updated_at = new Date().toISOString();
+    appendFlexJournal(ledger, {
+      type: 'REDUCE',
+      type_cn: '减仓',
+      key,
+      name: pos.name,
+      etf_code: pos.etf_code || '',
+      amount: sellAmount,
+      price: px,
+      qty: sellQty,
+      pnl: sellAmount - costRemoved,
+    });
+  }
+  return saveFlexLedger(ledger);
+}
+
+function flexApplyClose(ledger, key, price) {
+  const pos = ledger.positions[key];
+  if (!pos || !(Number(pos.qty) > 0)) throw new Error('持仓不存在或已平仓');
+  return flexApplyReduce(ledger, key, {
+    amount: Number(pos.qty) * Number(price),
+    price,
+  });
+}
+
+function renderFlexAccountBar() {
+  const ledger = loadFlexLedger();
+  const capitalInput = document.getElementById('flexCapitalInput');
+  if (capitalInput && document.activeElement !== capitalInput) {
+    capitalInput.value = ledger.capital > 0 ? String(ledger.capital) : '';
+  }
+  const deployed = flexDeployedCost(ledger);
+  const cash = flexAvailableCash(ledger);
+  const capital = Number(ledger.capital) || 0;
+  const exposure = capital > 0 ? deployed / capital : null;
+  setText('flexExecDeployed', capital > 0 || deployed > 0 ? `${formatMoney(deployed)} 元` : '--');
+  setText('flexExecCash', capital > 0 ? `${formatMoney(cash)} 元` : '先设全仓');
+  setText('flexExecExposure', exposure != null ? pctLabel(exposure) : '--');
+  setText('flexExecCount', String(flexOpenPositions(ledger).length));
+}
+
+function renderFlexHoldings() {
+  const el = document.getElementById('flexHoldingsList');
+  if (!el) return;
+  const ledger = loadFlexLedger();
+  const positions = flexOpenPositions(ledger);
+  const capital = Number(ledger.capital) || 0;
+  if (!positions.length) {
+    el.innerHTML = '<div class="flex-order-empty">暂无本机持仓。在上方信号卡片点击「确认买入」开始记账。</div>';
+    return;
+  }
+  positions.sort((a, b) => (Number(b.cost_basis) || 0) - (Number(a.cost_basis) || 0));
+  el.innerHTML = positions.map(pos => {
+    const weight = capital > 0 ? (Number(pos.cost_basis) / capital) : null;
+    const title = pos.etf_code
+      ? `${escapeHtml(pos.name || '--')} → ${escapeHtml(pos.etf_code)} ${escapeHtml(pos.etf_name || '')}`.trim()
+      : escapeHtml(pos.name || '--');
+    const mark = Number(pos.last_price);
+    const mtm = Number.isFinite(mark) ? Number(pos.qty) * mark : null;
+    const pnl = mtm != null ? mtm - Number(pos.cost_basis) : null;
+    const pnlCls = pnl == null ? '' : pnl >= 0 ? 'up' : 'down';
+    return `<article class="flex-holding-card" data-pos-key="${escapeHtml(pos.key)}">
+      <div class="flex-holding-main">
+        <strong>${title}</strong>
+        <span>${pos.sleeve ? `袖筒 ${escapeHtml(pos.sleeve)} · ` : ''}成本 ${formatMoney(pos.cost_basis)} 元 · 均价 ${formatPrice(pos.avg_price)} · 份额 ${formatShares(pos.qty)}${weight != null ? ` · 仓位 ${pctLabel(weight)}` : ''}</span>
+        <span class="flex-holding-pnl ${pnlCls}">${pnl == null ? '浮盈亏：待更新价' : `浮盈亏（按最近成交价） ${pnl >= 0 ? '+' : ''}${formatMoney(pnl)} 元`}</span>
+      </div>
+      <div class="flex-holding-actions">
+        <button type="button" class="flex-exec-btn ghost" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">加仓</button>
+        <button type="button" class="flex-exec-btn ghost" data-flex-act="reduce" data-pos-key="${escapeHtml(pos.key)}">减仓</button>
+        <button type="button" class="flex-exec-btn danger" data-flex-act="close" data-pos-key="${escapeHtml(pos.key)}">平仓</button>
+      </div>
+    </article>`;
+  }).join('');
+}
+
+function renderFlexJournal() {
+  const el = document.getElementById('flexJournalList');
+  if (!el) return;
+  const ledger = loadFlexLedger();
+  const rows = (ledger.journal || []).slice(0, 20);
+  if (!rows.length) {
+    el.innerHTML = '<div class="flex-order-empty">暂无流水</div>';
+    return;
+  }
+  el.innerHTML = rows.map(row => {
+    const when = row.ts ? new Date(row.ts).toLocaleString('zh-CN', { hour12: false }) : '--';
+    const label = row.type_cn || row.type || '--';
+    const title = row.etf_code
+      ? `${escapeHtml(row.name || '')} ${escapeHtml(row.etf_code)}`
+      : escapeHtml(row.name || row.key || '--');
+    const pnl = row.pnl != null && Number.isFinite(Number(row.pnl))
+      ? ` · 实现 ${Number(row.pnl) >= 0 ? '+' : ''}${formatMoney(row.pnl)}`
+      : '';
+    return `<div class="flex-journal-item">
+      <em>${escapeHtml(label)}</em>
+      <div>
+        <strong>${title}</strong>
+        <span>${when} · ${formatMoney(row.amount)} 元 @ ${formatPrice(row.price)} · 份额 ${formatShares(row.qty)}${pnl}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderFlexExecUi() {
+  renderFlexAccountBar();
+  renderFlexHoldings();
+  renderFlexJournal();
+}
+
+function closeFlexTradeModal() {
+  const modal = document.getElementById('flexTradeModal');
+  if (modal) modal.hidden = true;
+  dashboardState.flexModal = null;
+  const err = document.getElementById('flexModalError');
+  if (err) {
+    err.hidden = true;
+    err.textContent = '';
+  }
+}
+
+function updateFlexModalPreview() {
+  const state = dashboardState.flexModal;
+  if (!state) return;
+  const preview = document.getElementById('flexModalPreview');
+  const amountEl = document.getElementById('flexModalAmount');
+  const priceEl = document.getElementById('flexModalPrice');
+  const pctEl = document.getElementById('flexModalPct');
+  if (!preview) return;
+
+  const price = Number(priceEl?.value);
+  const amount = Number(amountEl?.value);
+  const pct = Number(pctEl?.value);
+  const capital = Number(loadFlexLedger().capital) || 0;
+
+  if (state.mode === 'buy' || state.mode === 'add') {
+    if (amount > 0 && price > 0) {
+      const qty = amount / price;
+      const w = capital > 0 ? pctLabel(amount / capital) : '--';
+      preview.textContent = `约 ${formatShares(qty)} 份 · 占全仓 ${w} · 成交后可用现金将减少`;
+    } else {
+      preview.textContent = '输入金额与成交价后预览份额';
+    }
+    return;
+  }
+  if (state.mode === 'reduce') {
+    const pos = loadFlexLedger().positions[state.key];
+    if (!pos) {
+      preview.textContent = '持仓已不存在';
+      return;
+    }
+    let sellQty = 0;
+    let sellAmt = 0;
+    if (pct > 0 && price > 0) {
+      sellQty = Number(pos.qty) * (Math.min(100, pct) / 100);
+      sellAmt = sellQty * price;
+    } else if (amount > 0 && price > 0) {
+      sellAmt = amount;
+      sellQty = amount / price;
+    }
+    if (sellQty > 0) {
+      preview.textContent = `减约 ${formatShares(sellQty)} 份 / ${formatMoney(sellAmt)} 元 · 剩余约 ${formatShares(Math.max(0, Number(pos.qty) - sellQty))} 份`;
+    } else {
+      preview.textContent = '输入减仓比例（或金额）与成交价';
+    }
+    return;
+  }
+  if (state.mode === 'close') {
+    const pos = loadFlexLedger().positions[state.key];
+    if (!pos) {
+      preview.textContent = '持仓已不存在';
+      return;
+    }
+    if (price > 0) {
+      const amt = Number(pos.qty) * price;
+      const pnl = amt - Number(pos.cost_basis);
+      preview.textContent = `全部平仓 ${formatShares(pos.qty)} 份 · 约 ${formatMoney(amt)} 元 · 实现盈亏 ${pnl >= 0 ? '+' : ''}${formatMoney(pnl)}`;
+    } else {
+      preview.textContent = '输入平仓成交价';
+    }
+  }
+}
+
+function openFlexTradeModal(spec) {
+  const modal = document.getElementById('flexTradeModal');
+  if (!modal) return;
+  const ledger = loadFlexLedger();
+  if ((spec.mode === 'buy' || spec.mode === 'add') && !(Number(ledger.capital) > 0)) {
+    alert('请先在个人执行台填写并保存「全仓金额」');
+    document.getElementById('flexCapitalInput')?.focus();
+    return;
+  }
+
+  dashboardState.flexModal = { ...spec };
+  setText('flexModalTitle', spec.title || '确认成交');
+  setText('flexModalSub', spec.subtitle || '');
+
+  const amountField = document.getElementById('flexModalAmountField');
+  const priceField = document.getElementById('flexModalPriceField');
+  const pctField = document.getElementById('flexModalPctField');
+  const amountEl = document.getElementById('flexModalAmount');
+  const priceEl = document.getElementById('flexModalPrice');
+  const pctEl = document.getElementById('flexModalPct');
+  const amountLabel = document.getElementById('flexModalAmountLabel');
+  const err = document.getElementById('flexModalError');
+  if (err) {
+    err.hidden = true;
+    err.textContent = '';
+  }
+
+  if (spec.mode === 'buy' || spec.mode === 'add') {
+    if (amountField) amountField.hidden = false;
+    if (priceField) priceField.hidden = false;
+    if (pctField) pctField.hidden = true;
+    if (amountLabel) amountLabel.textContent = spec.mode === 'add' ? '加仓金额（元）' : '买入金额（元）';
+    if (amountEl) amountEl.value = spec.defaultAmount != null ? String(spec.defaultAmount) : '';
+    if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
+  } else if (spec.mode === 'reduce') {
+    if (amountField) amountField.hidden = false;
+    if (priceField) priceField.hidden = false;
+    if (pctField) pctField.hidden = false;
+    if (amountLabel) amountLabel.textContent = '减仓金额（元，可空）';
+    if (amountEl) amountEl.value = '';
+    if (pctEl) pctEl.value = '50';
+    if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
+  } else if (spec.mode === 'close') {
+    if (amountField) amountField.hidden = true;
+    if (priceField) priceField.hidden = false;
+    if (pctField) pctField.hidden = true;
+    if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
+  }
+
+  modal.hidden = false;
+  updateFlexModalPreview();
+  (priceEl || amountEl)?.focus();
+}
+
+function confirmFlexTradeModal() {
+  const state = dashboardState.flexModal;
+  if (!state) return;
+  const err = document.getElementById('flexModalError');
+  const amount = Number(document.getElementById('flexModalAmount')?.value);
+  const price = Number(document.getElementById('flexModalPrice')?.value);
+  const pct = Number(document.getElementById('flexModalPct')?.value);
+  try {
+    let ledger = loadFlexLedger();
+    if (state.mode === 'buy' || state.mode === 'add') {
+      ledger = flexApplyBuy(ledger, {
+        key: state.key,
+        name: state.name,
+        etf_code: state.etf_code,
+        etf_name: state.etf_name,
+        sleeve: state.sleeve,
+        amount,
+        price,
+        signal_as_of: state.signal_as_of || '',
+      });
+    } else if (state.mode === 'reduce') {
+      ledger = flexApplyReduce(ledger, state.key, {
+        amount: amount > 0 ? amount : null,
+        price,
+        pct: pct > 0 ? pct : null,
+      });
+    } else if (state.mode === 'close') {
+      ledger = flexApplyClose(ledger, state.key, price);
+    }
+    closeFlexTradeModal();
+    if (dashboardState.flexPlaybook) {
+      renderFlexTradePanel(dashboardState.flexPlaybook);
+    } else {
+      renderFlexExecUi();
+    }
+  } catch (e) {
+    if (err) {
+      err.hidden = false;
+      err.textContent = e.message || String(e);
+    }
+  }
+}
+
+function flexSignalItemTitle(item) {
+  const etfCode = item.etf_code || '';
+  const etfName = item.etf_name || '';
+  if (etfCode) return `${item.name || '--'} → ${etfCode} ${etfName}`.trim();
+  return item.instrument_display || item.name || '--';
+}
+
+function renderFlexOrderList(el, items, emptyText, options = {}) {
   if (!el) return;
   if (!items || !items.length) {
     el.innerHTML = `<div class="flex-order-empty">${emptyText}</div>`;
     return;
   }
+  const ledger = loadFlexLedger();
+  const capital = Number(ledger.capital) || 0;
+  const interactive = options.interactive !== false;
+  const signalAsOf = options.signalAsOf || '';
+
   el.innerHTML = items.map(item => {
     const action = (item.action || item.side || '').toUpperCase();
     const badgeInfo = FLEX_ACTION_BADGE[action] || { text: action || '—', cls: 'wait' };
+    const key = flexPositionKey(item);
+    const held = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
+    const suggested = flexSuggestedAmount(item, capital);
     const etfCode = item.etf_code || '';
-    const etfName = item.etf_name || '';
-    const title = etfCode
-      ? `${item.name || '--'} → ${etfCode} ${etfName}`.trim()
-      : (item.instrument_display || item.name || '--');
+    const title = flexSignalItemTitle(item);
     const quality = item.etf_quality_cn ? `映射${item.etf_quality_cn}` : null;
     const meta = [
       item.action_cn || null,
       etfCode ? `ETF ${etfCode}` : null,
       quality,
       item.weight_hint ? `目标 ${item.weight_hint}` : null,
+      suggested != null ? `建议金额 ${formatMoney(suggested)} 元` : (capital > 0 ? null : '设全仓后显示建议金额'),
       item.days_remaining != null ? `剩${item.days_remaining}日` : null,
       item.entry ? `进: ${item.entry}` : null,
       item.exit ? `出: ${item.exit}` : null,
+      held ? '本机已持仓' : null,
       item.win_rate != null ? `胜率 ${pctLabel(item.win_rate)}` : null,
       item.n != null ? `n=${item.n}` : null,
     ].filter(Boolean).join(' · ');
     const why = item.condition_cn || item.why || item.etf_note || '';
-    return `<div class="flex-order-item ${badgeInfo.cls}">
+
+    let actionsHtml = '';
+    if (interactive) {
+      if (FLEX_BUY_ACTIONS.has(action) || (action === 'HOLD' && !held && Number(item.weight_target) > 0)) {
+        actionsHtml = `<div class="flex-order-actions">
+          <button type="button" class="flex-exec-btn primary compact"
+            data-flex-act="buy"
+            data-pos-key="${escapeHtml(key)}"
+            data-name="${escapeHtml(item.name || '')}"
+            data-etf-code="${escapeHtml(etfCode)}"
+            data-etf-name="${escapeHtml(item.etf_name || '')}"
+            data-sleeve="${escapeHtml(item.sleeve || '')}"
+            data-suggested="${suggested != null ? suggested : ''}"
+            data-signal-as-of="${escapeHtml(signalAsOf)}"
+          >${held ? '确认加仓' : '确认买入'}</button>
+        </div>`;
+      } else if (FLEX_CLOSE_ACTIONS.has(action)) {
+        actionsHtml = held
+          ? `<div class="flex-order-actions">
+              <button type="button" class="flex-exec-btn danger compact"
+                data-flex-act="close"
+                data-pos-key="${escapeHtml(key)}"
+              >确认平仓</button>
+              <button type="button" class="flex-exec-btn ghost compact"
+                data-flex-act="reduce"
+                data-pos-key="${escapeHtml(key)}"
+              >减仓</button>
+            </div>`
+          : `<div class="flex-order-actions"><span class="flex-order-note">信号要求平仓 · 本机无此持仓</span></div>`;
+      } else if (action === 'HOLD' && held) {
+        actionsHtml = `<div class="flex-order-actions">
+          <button type="button" class="flex-exec-btn ghost compact" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加仓</button>
+          <button type="button" class="flex-exec-btn ghost compact" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减仓</button>
+          <button type="button" class="flex-exec-btn danger compact" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平仓</button>
+        </div>`;
+      }
+    }
+
+    return `<div class="flex-order-item ${badgeInfo.cls}${held ? ' is-held' : ''}">
       <span class="badge">${badgeInfo.text}</span>
-      <div>
-        <strong>${title}</strong>
-        <span>${meta}</span>
-        ${why ? `<span>${why}</span>` : ''}
+      <div class="flex-order-body">
+        <strong>${escapeHtml(title)}</strong>
+        <span>${escapeHtml(meta)}</span>
+        ${why ? `<span>${escapeHtml(why)}</span>` : ''}
+        ${actionsHtml}
       </div>
     </div>`;
   }).join('');
+}
+
+function bindFlexExecControls() {
+  if (dashboardState.flexLedgerBound) return;
+  dashboardState.flexLedgerBound = true;
+
+  document.getElementById('flexCapitalSaveBtn')?.addEventListener('click', () => {
+    const input = document.getElementById('flexCapitalInput');
+    const capital = Number(input?.value);
+    if (!(capital > 0)) {
+      alert('请输入大于 0 的全仓金额');
+      return;
+    }
+    const ledger = loadFlexLedger();
+    const prev = Number(ledger.capital) || 0;
+    ledger.capital = Math.round(capital * 100) / 100;
+    if (prev !== ledger.capital) {
+      appendFlexJournal(ledger, {
+        type: 'CAPITAL',
+        type_cn: '调整全仓',
+        name: '账户',
+        amount: ledger.capital,
+        price: 0,
+        qty: 0,
+        note: `从 ${formatMoney(prev)} 调整为 ${formatMoney(ledger.capital)}`,
+      });
+    }
+    saveFlexLedger(ledger);
+    if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
+    else renderFlexExecUi();
+  });
+
+  document.getElementById('flexCapitalInput')?.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Enter') {
+      ev.preventDefault();
+      document.getElementById('flexCapitalSaveBtn')?.click();
+    }
+  });
+
+  document.getElementById('flexResetLedgerBtn')?.addEventListener('click', () => {
+    if (!confirm('确认清空本机持仓与成交流水？全仓金额可保留。')) return;
+    const ledger = loadFlexLedger();
+    const capital = Number(ledger.capital) || 0;
+    const next = defaultFlexLedger();
+    next.capital = capital;
+    saveFlexLedger(next);
+    if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
+    else renderFlexExecUi();
+  });
+
+  document.getElementById('flexExportLedgerBtn')?.addEventListener('click', () => {
+    const ledger = loadFlexLedger();
+    const blob = new Blob([JSON.stringify(ledger, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `flex-ledger-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  });
+
+  document.getElementById('flexModalCloseBtn')?.addEventListener('click', closeFlexTradeModal);
+  document.getElementById('flexModalCancelBtn')?.addEventListener('click', closeFlexTradeModal);
+  document.getElementById('flexModalConfirmBtn')?.addEventListener('click', confirmFlexTradeModal);
+  document.getElementById('flexTradeModal')?.addEventListener('click', (ev) => {
+    if (ev.target?.id === 'flexTradeModal') closeFlexTradeModal();
+  });
+  ['flexModalAmount', 'flexModalPrice', 'flexModalPct'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updateFlexModalPreview);
+  });
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') closeFlexTradeModal();
+  });
+
+  document.getElementById('flexTradePanel')?.addEventListener('click', (ev) => {
+    const btn = ev.target.closest('[data-flex-act]');
+    if (!btn) return;
+    const act = btn.dataset.flexAct;
+    const key = btn.dataset.posKey;
+    const ledger = loadFlexLedger();
+
+    if (act === 'buy') {
+      const suggested = btn.dataset.suggested ? Number(btn.dataset.suggested) : null;
+      openFlexTradeModal({
+        mode: ledger.positions[key] && Number(ledger.positions[key].qty) > 0 ? 'add' : 'buy',
+        title: ledger.positions[key] && Number(ledger.positions[key].qty) > 0 ? '确认加仓' : '确认买入',
+        subtitle: `${btn.dataset.name || ''}${btn.dataset.etfCode ? ` · ${btn.dataset.etfCode} ${btn.dataset.etfName || ''}` : ''}`.trim(),
+        key,
+        name: btn.dataset.name || '',
+        etf_code: btn.dataset.etfCode || '',
+        etf_name: btn.dataset.etfName || '',
+        sleeve: btn.dataset.sleeve || '',
+        signal_as_of: btn.dataset.signalAsOf || '',
+        defaultAmount: suggested,
+        defaultPrice: ledger.positions[key]?.last_price || ledger.positions[key]?.avg_price || null,
+      });
+      return;
+    }
+
+    if (act === 'add' || act === 'reduce' || act === 'close') {
+      const pos = ledger.positions[key];
+      if (!pos || !(Number(pos.qty) > 0)) {
+        if (act === 'add') {
+          alert('本机尚无此持仓，请从信号卡片「确认买入」开仓');
+        } else {
+          alert('本机无此持仓');
+        }
+        return;
+      }
+      if (act === 'add') {
+        openFlexTradeModal({
+          mode: 'add',
+          title: '确认加仓',
+          subtitle: `${pos.name}${pos.etf_code ? ` · ${pos.etf_code}` : ''}`,
+          key,
+          name: pos.name,
+          etf_code: pos.etf_code,
+          etf_name: pos.etf_name,
+          sleeve: pos.sleeve,
+          defaultAmount: null,
+          defaultPrice: pos.last_price || pos.avg_price,
+        });
+      } else if (act === 'reduce') {
+        openFlexTradeModal({
+          mode: 'reduce',
+          title: '确认减仓',
+          subtitle: `${pos.name}${pos.etf_code ? ` · ${pos.etf_code}` : ''} · 现有 ${formatShares(pos.qty)} 份`,
+          key,
+          defaultPrice: pos.last_price || pos.avg_price,
+        });
+      } else {
+        openFlexTradeModal({
+          mode: 'close',
+          title: '确认全部平仓',
+          subtitle: `${pos.name}${pos.etf_code ? ` · ${pos.etf_code}` : ''} · ${formatShares(pos.qty)} 份`,
+          key,
+          defaultPrice: pos.last_price || pos.avg_price,
+        });
+      }
+    }
+  });
 }
 
 function flexModeStats(flex, mode) {
@@ -694,12 +1383,15 @@ function renderFlexTradePanel(playbook) {
     renderFlexOrderList(document.getElementById('flexHoldList'), [], '无持仓');
     renderFlexOrderList(document.getElementById('flexSellList'), [], '无平仓');
     renderFlexOrderList(document.getElementById('flexAvoidList'), [], '无回避项');
+    dashboardState.flexActive = null;
+    renderFlexExecUi();
     return;
   }
 
   dashboardState.flexPlaybook = playbook;
   const mode = dashboardState.flexMode || flex.mode || 'conservative';
   flex = applyFlexModeOverlay(flex, mode);
+  dashboardState.flexActive = flex;
 
   const stats = flexModeStats(flex, mode);
   const { full, oos, stress } = stats;
@@ -769,15 +1461,20 @@ function renderFlexTradePanel(playbook) {
     btn.classList.toggle('active', btn.dataset.flexMode === mode);
   });
 
-  renderFlexOrderList(document.getElementById('flexMinimalList'), flex.minimal_actions || [], '今日无必须动作');
-  renderFlexOrderList(document.getElementById('flexBuyList'), flex.buy_list || [], '今日无新开');
-  renderFlexOrderList(document.getElementById('flexHoldList'), flex.hold_list || [], '无持仓');
+  const listOpts = { interactive: true, signalAsOf: flex.as_of || playbook?.as_of || '' };
+  renderFlexOrderList(document.getElementById('flexMinimalList'), flex.minimal_actions || [], '今日无必须动作', listOpts);
+  renderFlexOrderList(document.getElementById('flexBuyList'), flex.buy_list || [], '今日无新开', listOpts);
+  renderFlexOrderList(document.getElementById('flexHoldList'), flex.hold_list || [], '无持仓', listOpts);
   renderFlexOrderList(
     document.getElementById('flexSellList'),
     flex.close_list || flex.sell_list || [],
-    '无平仓'
+    '无平仓',
+    listOpts
   );
-  renderFlexOrderList(document.getElementById('flexAvoidList'), flex.avoid_list || [], '无条件回避项');
+  renderFlexOrderList(document.getElementById('flexAvoidList'), flex.avoid_list || [], '无条件回避项', {
+    interactive: false,
+  });
+  renderFlexExecUi();
 }
 
 function hideLoadError() {
@@ -875,6 +1572,8 @@ async function main() {
     dashboardState.timeCharts = renderTimeCharts(dashboardState.history, dashboardState.strategy, range);
   });
   bindFlexModeControls();
+  bindFlexExecControls();
+  renderFlexExecUi();
   window.addEventListener('resize', () => {
     dashboardState.componentChart?.resize();
     dashboardState.sectorChart?.resize();
