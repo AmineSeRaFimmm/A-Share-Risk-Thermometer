@@ -1,13 +1,27 @@
 name: Update Realtime AVIX
 
+# Professional reliability model:
+# - Dense short "ticks" every ~10 minutes during A-share hours (not two long jobs/day).
+# - If GitHub delays one schedule, the next tick still keeps data relatively fresh.
+# - Outside the market window, schedule runs exit 0 (skip) instead of failing.
+# - workflow_dispatch session mode still supports a full in-session loop.
+
 on:
   schedule:
-    - cron: "25 1 * * 1-5"
-    - cron: "55 4 * * 1-5"
+    # Times are UTC. A-share: morning 09:15–11:35 CST, afternoon 12:50–15:10 CST.
+    # Morning 01:15–03:35 UTC
+    - cron: "15,25,35,45,55 1 * * 1-5"
+    - cron: "5,15,25,35,45,55 2 * * 1-5"
+    - cron: "5,15,25,35 3 * * 1-5"
+    # Afternoon 04:50–07:10 UTC
+    - cron: "50,55 4 * * 1-5"
+    - cron: "5,15,25,35,45,55 5 * * 1-5"
+    - cron: "5,15,25,35,45,55 6 * * 1-5"
+    - cron: "5 7 * * 1-5"
   workflow_dispatch:
     inputs:
       mode:
-        description: "single runs once; session loops until the current A-share session ends"
+        description: "single = one update; session = loop until the current A-share session ends"
         required: false
         default: "single"
         type: choice
@@ -20,51 +34,139 @@ permissions:
   actions: write
 
 concurrency:
-  # Share group with daily update so pushes to main do not race.
-  group: risk-thermometer-main
+  # Keep realtime independent of the daily close pipeline so morning ticks are not blocked.
+  # cancel-in-progress=false avoids killing a job mid push/rebase.
+  group: risk-thermometer-realtime
   cancel-in-progress: false
 
 jobs:
   update-realtime-avix:
     runs-on: ubuntu-latest
+    # Session loops need headroom; single ticks finish in a few minutes.
     timeout-minutes: 180
     env:
       PYTHONUNBUFFERED: "1"
       GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
+      - name: Decide whether to run
+        id: gate
+        run: |
+          set -euo pipefail
+
+          utc_now="$(date -u --iso-8601=seconds)"
+          utc_hour="$(date -u +%H)"
+          utc_minute="$(date -u +%M)"
+          utc_total=$((10#$utc_hour * 60 + 10#$utc_minute))
+          echo "UTC now=${utc_now} total_minutes=${utc_total}"
+
+          # Padded windows so mildly delayed runners still update.
+          # Morning: 01:15–03:40 UTC (09:15–11:40 CST)
+          # Afternoon: 04:50–07:15 UTC (12:50–15:15 CST)
+          in_morning=0
+          in_afternoon=0
+          if (( utc_total >= 75 && utc_total <= 220 )); then in_morning=1; fi
+          if (( utc_total >= 290 && utc_total <= 435 )); then in_afternoon=1; fi
+
+          event_name="${{ github.event_name }}"
+          mode="${{ github.event.inputs.mode || 'single' }}"
+
+          if [[ "${event_name}" == "workflow_dispatch" ]]; then
+            echo "Manual dispatch (mode=${mode}) — always run."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "mode=${mode}" >> "$GITHUB_OUTPUT"
+            if (( in_morning == 1 )); then
+              echo "session_end_utc=03:40" >> "$GITHUB_OUTPUT"
+            else
+              echo "session_end_utc=07:15" >> "$GITHUB_OUTPUT"
+            fi
+            exit 0
+          fi
+
+          # schedule: only tick inside market windows
+          if (( in_morning == 1 )); then
+            echo "Schedule tick inside morning window."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "mode=single" >> "$GITHUB_OUTPUT"
+            echo "session_end_utc=03:40" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if (( in_afternoon == 1 )); then
+            echo "Schedule tick inside afternoon window."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "mode=single" >> "$GITHUB_OUTPUT"
+            echo "session_end_utc=07:15" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Outside A-share realtime window — skip (not a failure)."
+          echo "should_run=false" >> "$GITHUB_OUTPUT"
+          echo "mode=single" >> "$GITHUB_OUTPUT"
+          echo "session_end_utc=" >> "$GITHUB_OUTPUT"
+
       - uses: actions/checkout@v6
+        if: steps.gate.outputs.should_run == 'true'
 
       - uses: actions/setup-python@v6
+        if: steps.gate.outputs.should_run == 'true'
         with:
           python-version: "3.12"
           cache: "pip"
 
       - name: Install dependencies
+        if: steps.gate.outputs.should_run == 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Update realtime AVIX session
+      - name: Update realtime AVIX
+        if: steps.gate.outputs.should_run == 'true'
         run: |
+          set -euo pipefail
+
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ inputs.mode }}" != "session" ]]; then
-            max_iterations=1
-            session_end_epoch=0
-          else
+          mode="${{ steps.gate.outputs.mode }}"
+          session_end_utc="${{ steps.gate.outputs.session_end_utc }}"
+
+          if [[ "${mode}" == "session" ]]; then
             max_iterations=40
-            current_utc_hour="$(date -u +%H)"
-            current_utc_minute="$(date -u +%M)"
-            current_utc_total=$((10#$current_utc_hour * 60 + 10#$current_utc_minute))
-            if (( current_utc_total < 240 )); then
-              session_end_utc="03:35"
-            else
-              session_end_utc="07:05"
-            fi
+            sleep_seconds=300
             session_end_epoch="$(date -u -d "$(date -u +%F) ${session_end_utc}:00" +%s)"
+          else
+            # Dense schedule ticks: one update per run keeps jobs short and failure-isolated.
+            max_iterations=1
+            sleep_seconds=0
+            session_end_epoch=0
           fi
+
+          echo "mode=${mode} max_iterations=${max_iterations} session_end_utc=${session_end_utc:-none}"
+
+          run_one_update() {
+            git pull --rebase origin main
+
+            if ! timeout 240s python scripts/update_realtime_avix.py; then
+              echo "::warning::Realtime AVIX fetch/calc timed out or failed."
+              return 1
+            fi
+
+            python scripts/validate_realtime_avix.py
+            python scripts/stage_realtime_outputs.py
+
+            if git diff --cached --quiet; then
+              echo "No realtime AVIX changes to commit."
+              return 0
+            fi
+
+            git commit -m "Update realtime AVIX"
+            git pull --rebase --autostash origin main
+            git push
+            # Trigger Pages rebuild so live site sees nowcast sooner than next daily deploy.
+            gh workflow run deploy-pages.yml --ref main \
+              || echo "::warning::Could not trigger deploy-pages workflow"
+            return 0
+          }
 
           iteration=0
           successful_updates=0
@@ -76,34 +178,24 @@ jobs:
             fi
 
             iteration=$((iteration + 1))
-            echo "Realtime AVIX iteration ${iteration} started at $(date -u --iso-8601=seconds)"
-            git pull --rebase origin main
+            echo "Realtime AVIX iteration ${iteration}/${max_iterations} at $(date -u --iso-8601=seconds)"
 
-            if timeout 240s python scripts/update_realtime_avix.py; then
-              python scripts/validate_realtime_avix.py
-              python scripts/stage_realtime_outputs.py
-              if git diff --cached --quiet; then
-                echo "No realtime AVIX changes to commit."
-              else
-                git commit -m "Update realtime AVIX"
-                git pull --rebase --autostash origin main
-                git push
-                # Trigger Pages rebuild so live site sees nowcast sooner than next daily deploy.
-                gh workflow run deploy-pages.yml --ref main \
-                  || echo "::warning::Could not trigger deploy-pages workflow"
-              fi
+            # One immediate retry inside the tick for transient network/source blips.
+            if run_one_update || run_one_update; then
               successful_updates=$((successful_updates + 1))
             else
-              echo "::warning::Realtime AVIX update timed out or failed; next loop will retry."
+              echo "::warning::Realtime AVIX iteration ${iteration} failed after retry."
             fi
 
             if (( max_iterations == 1 )); then
               break
             fi
-            sleep 300
+            sleep "${sleep_seconds}"
           done
 
           if (( successful_updates == 0 )); then
             echo "::error::Realtime AVIX did not complete successfully in this run."
             exit 1
           fi
+
+          echo "Realtime AVIX completed successfully (${successful_updates} update(s))."
