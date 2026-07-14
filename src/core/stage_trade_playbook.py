@@ -356,7 +356,98 @@ def _stage_by_id(stage_id: str) -> dict | None:
     return None
 
 
-def build_playbook_payload(risk_components: pd.DataFrame, index_history: pd.DataFrame | None = None) -> dict[str, Any]:
+def extend_risk_for_playbook(
+    risk_components: pd.DataFrame,
+    index_history: pd.DataFrame | None = None,
+    *,
+    nowcast_rt: float | None = None,
+    nowcast_trade_date: str | None = None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
+    """Append missing HS300 sessions after last official risk row for Flex/playbook only.
+
+    Official risk_components often lags index by 1–N sessions when option close fetch fails.
+    Latest/nowcast can already be on the index date. Bridge those days so as_of matches
+    the latest market session the site is talking about.
+
+    Does NOT rewrite official history used for temperature charts — caller must keep
+    official risk separate from this extended frame.
+    """
+    meta: dict[str, Any] = {
+        "bridged": False,
+        "official_as_of": None,
+        "bridged_dates": [],
+        "bridge_source": None,
+    }
+    if risk_components is None or risk_components.empty:
+        return risk_components, meta
+
+    risk = risk_components.copy()
+    risk["trade_date"] = pd.to_datetime(risk["trade_date"], errors="coerce")
+    risk = risk.dropna(subset=["trade_date"]).sort_values("trade_date")
+    official_last = risk["trade_date"].max()
+    meta["official_as_of"] = str(official_last.date())
+
+    if index_history is None or index_history.empty:
+        return risk_components, meta
+
+    hs = index_history[index_history["symbol"].astype(str) == "sh000300"].copy()
+    if hs.empty:
+        return risk_components, meta
+    hs["date"] = pd.to_datetime(hs["date"], errors="coerce")
+    hs["close"] = pd.to_numeric(hs["close"], errors="coerce")
+    hs = hs.dropna(subset=["date", "close"]).sort_values("date")
+    future = hs[hs["date"] > official_last]
+    if future.empty:
+        return risk_components, meta
+
+    # Prefer explicit nowcast for the tip day; otherwise carry last official RT.
+    last_row = risk.iloc[-1].to_dict()
+    fill_rt = float(last_row.get("risk_temperature"))
+    bridge_source = "CARRY_OFFICIAL_RT"
+    if nowcast_rt is not None and pd.notna(nowcast_rt):
+        fill_rt = float(nowcast_rt)
+        bridge_source = "NOWCAST_RT"
+    meta["bridge_source"] = bridge_source
+
+    closes = hs.set_index("date")["close"]
+    roll_max = closes.rolling(60, min_periods=20).max()
+    dd_series = closes / roll_max - 1.0
+
+    add_rows: list[dict[str, Any]] = []
+    for _, r in future.iterrows():
+        d = pd.Timestamp(r["date"])
+        # Use nowcast RT only on the nowcast trade_date when provided; earlier gaps carry official.
+        rt_use = fill_rt
+        if nowcast_trade_date and str(d.date()) != str(nowcast_trade_date)[:10]:
+            rt_use = float(last_row.get("risk_temperature"))
+        row = {c: last_row.get(c) for c in risk.columns}
+        row["trade_date"] = d
+        row["risk_temperature"] = rt_use
+        row["sh000300_close"] = float(r["close"])
+        if d in dd_series.index and pd.notna(dd_series.loc[d]):
+            row["sh000300_dd60"] = float(dd_series.loc[d])
+        q = str(row.get("quality") or "")
+        row["quality"] = (q + "|" if q and q != "nan" else "") + "NOWCAST_BRIDGE"
+        row["regime"] = row.get("regime") or "HIGH_RISK"
+        row["regime_cn"] = row.get("regime_cn") or "桥接"
+        add_rows.append(row)
+        meta["bridged_dates"].append(str(d.date()))
+
+    if not add_rows:
+        return risk_components, meta
+
+    ext = pd.concat([risk, pd.DataFrame(add_rows)], ignore_index=True)
+    ext["trade_date"] = pd.to_datetime(ext["trade_date"]).dt.strftime("%Y-%m-%d")
+    meta["bridged"] = True
+    return ext, meta
+
+
+def build_playbook_payload(
+    risk_components: pd.DataFrame,
+    index_history: pd.DataFrame | None = None,
+    *,
+    bridge_meta: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     feat = classify_features(risk_components, index_history)
     stages = active_stages(feat)
     # sort by priority desc
@@ -468,6 +559,21 @@ def build_playbook_payload(risk_components: pd.DataFrame, index_history: pd.Data
         backtest_stats=load_backtest_stats_file(),
     )
 
+    data_quality: dict[str, Any] = {
+        "risk_source": "OFFICIAL_CLOSE",
+        "official_as_of": None if not bridge_meta else bridge_meta.get("official_as_of"),
+        "bridged": bool(bridge_meta and bridge_meta.get("bridged")),
+        "bridged_dates": [] if not bridge_meta else list(bridge_meta.get("bridged_dates") or []),
+        "bridge_source": None if not bridge_meta else bridge_meta.get("bridge_source"),
+        "note_cn": (
+            "策略书 as_of 已用指数日历 + NOWCAST/桥接补齐正式 RT 缺口；温度图正式序列仍以 official 为准。"
+            if bridge_meta and bridge_meta.get("bridged")
+            else "策略书 as_of 与正式 risk_components 一致。"
+        ),
+    }
+    if bridge_meta and bridge_meta.get("bridged"):
+        data_quality["risk_source"] = "OFFICIAL_PLUS_NOWCAST_BRIDGE"
+
     return {
         "title": "风险温度分阶段交易指令（严格研究版）",
         "disclaimer": "历史统计规律生成的研究指令，不构成投资建议；请控制仓位并自担风险。",
@@ -483,6 +589,7 @@ def build_playbook_payload(risk_components: pd.DataFrame, index_history: pd.Data
             ],
         },
         "as_of": feat["trade_date"],
+        "data_quality": data_quality,
         "market_state": feat,
         "active_stage_ids": stages,
         "primary_stage": {

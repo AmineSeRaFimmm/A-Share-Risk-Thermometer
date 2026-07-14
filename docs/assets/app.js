@@ -1268,7 +1268,7 @@ function flexDateCn(offsetDays = 0) {
 
 /**
  * Actionable window for the desk: 今天 + 明天（上海日历）.
- * User only wants signals they can act on now — not research book still-open from last week.
+ * Also used as a soft "book is current" check (see flexBookLagDays).
  */
 function flexActionableDateSet() {
   return new Set([flexDateCn(0), flexDateCn(1)]);
@@ -1278,6 +1278,28 @@ function flexDateInActionWindow(dateStr, windowSet = flexActionableDateSet()) {
   if (!dateStr) return false;
   const day = String(dateStr).slice(0, 10);
   return windowSet.has(day);
+}
+
+/** Calendar day lag from as_of → Shanghai today (0 = same day). */
+function flexBookLagDays(asOf) {
+  const a = String(asOf || '').slice(0, 10);
+  const b = flexDateCn(0);
+  if (!a || !/^\d{4}-\d{2}-\d{2}$/.test(a)) return null;
+  const [y1, m1, d1] = a.split('-').map(Number);
+  const [y2, m2, d2] = b.split('-').map(Number);
+  const t1 = Date.UTC(y1, m1 - 1, d1);
+  const t2 = Date.UTC(y2, m2 - 1, d2);
+  return Math.round((t2 - t1) / 86400000);
+}
+
+/**
+ * Book is "current enough" for NEW open/close if as_of is today or within a short
+ * weekend/holiday buffer (≤3 calendar days). Beyond that OPEN is stale.
+ */
+function flexBookIsCurrentForOpens(asOf) {
+  const lag = flexBookLagDays(asOf);
+  if (lag == null) return false;
+  return lag >= 0 && lag <= 3;
 }
 
 /** Split engine lists into 4 separate buckets — never mix kinds in one table. */
@@ -1316,20 +1338,27 @@ function splitFlexSignalBuckets(flex) {
     else if (avoidKeys.has(action)) pushUnique('avoid', item);
   }
 
-  // Only keep rows actionable today / tomorrow (CN). Stale research holds (e.g. 7/8 buy) drop out.
-  const windowSet = flexActionableDateSet();
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
-  const bookIsFresh = flexDateInActionWindow(asOf, windowSet);
+  const lag = flexBookLagDays(asOf);
+  const opensCurrent = flexBookIsCurrentForOpens(asOf);
 
+  // HOLD: keep paper holds from the current book (multi-day). Do NOT require entry=today.
+  // Drop only if engine marks exhausted remaining days.
   buckets.hold = buckets.hold.filter(item => {
-    const entry = flexResolveEntryDate(item, f);
-    return flexDateInActionWindow(entry, windowSet);
+    if (item.days_remaining != null && Number.isFinite(Number(item.days_remaining))) {
+      return Number(item.days_remaining) >= 0;
+    }
+    return true;
   });
-  // 新开 / 平仓 / 回避：跟当日 playbook 日期走；书本日期不是今天/明天则整类不展示
-  if (!bookIsFresh) {
+
+  // OPEN / 新开：仅当策略书日期仍接近今日（含周末缓冲）；过旧书的新开会误导
+  if (!opensCurrent) {
     buckets.open = [];
-    buckets.close = [];
     buckets.avoid = [];
+  }
+  // CLOSE: still useful while lag is moderate (≤5d); else hide to avoid zombie exits
+  if (lag != null && lag > 5) {
+    buckets.close = [];
   }
 
   // Stable display order within each bucket.
@@ -1447,11 +1476,29 @@ function renderFlexSignalList(flex, options = {}) {
     if (!any) {
       const title = document.getElementById('flexSignalEmptyTitle');
       const body = document.getElementById('flexSignalEmptyBody');
-      if (title) title.textContent = '今日无行动信号';
-      if (body) {
-        body.textContent = flex?.as_of
-          ? `策略书日期 ${String(flex.as_of).slice(0, 10)}：今明窗口没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位。`
-          : '策略书在今明窗口没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位，或等待下一交易日更新。';
+      const asOf = String(flex?.as_of || '').slice(0, 10);
+      const today = flexDateCn(0);
+      const lag = flexBookLagDays(asOf);
+      const dq = flex?.data_quality || {};
+      const officialAsOf = dq.official_as_of || asOf;
+      if (title && body) {
+        if (lag != null && lag > 0) {
+          title.textContent = `策略书日期 ${asOf || '—'}（落后今日 ${today} ${lag} 天）`;
+          body.textContent = [
+            officialAsOf && officialAsOf !== asOf
+              ? `正式 RT 收盘序列停在 ${officialAsOf}，书页 as_of 为桥接/估算后的 ${asOf}。`
+              : `正式策略书 as_of=${asOf}，日历今日=${today}。`,
+            dq.bridged
+              ? `已标注桥接：${(dq.bridged_dates || []).join(', ') || '—'}（${dq.bridge_source || 'bridge'}）。`
+              : '若 latest 已是 NOWCAST 而 as_of 仍旧，说明正式 AVIX 日线尚未补齐，站点正在用实时温度但策略书未重建。',
+            '无新开/持有/平仓行时：可能是该日确实无信号，或书日过旧已隐藏过期新开。请看「持仓」本机账本，或等正式日线/桥接刷新。',
+          ].filter(Boolean).join(' ');
+        } else {
+          title.textContent = '今日无行动信号';
+          body.textContent = asOf
+            ? `策略书日期 ${asOf}：当前没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位。`
+            : '当前没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位，或等待数据更新。';
+        }
       }
     }
   }
@@ -1759,6 +1806,12 @@ function renderFlexTradePanel(playbook) {
   dashboardState.flexPlaybook = playbook;
   const mode = dashboardState.flexMode || flex.mode || 'aggressive';
   flex = applyFlexModeOverlay(flex, mode);
+  // Promote root playbook metadata onto flex for signal filters / empty-state copy.
+  flex = {
+    ...flex,
+    as_of: flex.as_of || playbook?.as_of || '',
+    data_quality: playbook?.data_quality || flex.data_quality || null,
+  };
   dashboardState.flexActive = flex;
 
   const stats = flexModeStats(flex, mode);
@@ -1768,8 +1821,19 @@ function renderFlexTradePanel(playbook) {
   const asOfEl = document.getElementById('flexAsOf');
   if (asOfEl) {
     asOfEl.hidden = !asOf;
-    asOfEl.textContent = asOf ? asOf.slice(5) : '';
-    asOfEl.title = asOf;
+    const lag = flexBookLagDays(asOf);
+    const dq = flex.data_quality || {};
+    let label = asOf ? asOf.slice(5) : '';
+    if (dq.bridged) label = `${label}·桥`;
+    else if (lag != null && lag > 0) label = `${label}·滞${lag}d`;
+    asOfEl.textContent = label;
+    asOfEl.title = [
+      `策略书 as_of=${asOf}`,
+      dq.official_as_of ? `正式 RT=${dq.official_as_of}` : '',
+      dq.bridged ? `桥接日 ${(dq.bridged_dates || []).join(',')}` : '',
+      lag != null && lag > 0 ? `落后今日 ${lag} 个日历日` : '与今日对齐',
+    ].filter(Boolean).join(' · ');
+    asOfEl.classList.toggle('warn', !!(lag != null && lag > 0));
   }
   setText('flexHold', String(flex.hold_days || 5));
   setText('flexStatsShort', pctLabel(full.win_rate));

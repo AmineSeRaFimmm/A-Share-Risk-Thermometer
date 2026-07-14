@@ -14,7 +14,7 @@ from src.core.sector_correlation import analyze_sector_correlation
 from src.core.low_position_sector_study import analyze_low_position_sector_study
 from src.core.nowcast_history import build_nowcast_history_from_files, nowcast_rows_csv
 from src.core.rt_tactical import build_rt_tactical_payload
-from src.core.stage_trade_playbook import build_playbook_payload
+from src.core.stage_trade_playbook import build_playbook_payload, extend_risk_for_playbook
 import pandas as pd
 
 
@@ -98,7 +98,36 @@ def main() -> None:
     write_json(audit_payload(risk, realtime, nowcast_history), SITE / "audit.json")
     write_json(strategy_payload(strategy), SITE / "strategy.json")
     write_json(build_rt_tactical_payload(risk, index_history), SITE / "rt_tactical.json")
-    write_json(build_playbook_payload(risk, index_history), SITE / "stage_playbook.json")
+    # Flex/playbook may advance past official risk when HS300 has newer sessions
+    # but option-close AVIX (official RT) still lags — bridge with site nowcast RT.
+    nowcast_rt = None
+    nowcast_td = None
+    try:
+        latest_probe = latest_payload(risk, raw, realtime, nowcast_history)
+        nc = latest_probe.get("nowcast") or {}
+        if latest_probe.get("temperature_mode") in {"NOWCAST", "ESTIMATED_CLOSE"}:
+            nowcast_rt = latest_probe.get("risk_temperature")
+            nowcast_td = latest_probe.get("trade_date") or nc.get("trade_date")
+        elif nc.get("risk_temperature") is not None:
+            nowcast_rt = nc.get("risk_temperature")
+            nowcast_td = nc.get("trade_date")
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN playbook nowcast probe failed: {exc}")
+    risk_playbook, bridge_meta = extend_risk_for_playbook(
+        risk,
+        index_history,
+        nowcast_rt=float(nowcast_rt) if nowcast_rt is not None else None,
+        nowcast_trade_date=str(nowcast_td) if nowcast_td else None,
+    )
+    if bridge_meta.get("bridged"):
+        print(
+            f"Playbook bridge: official={bridge_meta.get('official_as_of')} "
+            f"+ {bridge_meta.get('bridged_dates')} via {bridge_meta.get('bridge_source')}"
+        )
+    write_json(
+        build_playbook_payload(risk_playbook, index_history, bridge_meta=bridge_meta),
+        SITE / "stage_playbook.json",
+    )
     _load_or_build_sector_payloads(risk, index_history)
     write_json({
         "title": "A-Share Risk Thermometer methodology",

@@ -243,6 +243,11 @@ dd[data-freshness="unknown"] { color: var(--amber); }
   background: #eef2f7;
   color: #64748b;
 }
+.flex-pill.warn {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fcd34d;
+}
 .flex-trust {
   margin: 0 0 12px;
   padding: 10px 12px;
