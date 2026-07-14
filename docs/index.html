@@ -75,70 +75,55 @@
         </article>
       </section>
 
-      <section class="flex-trade-panel flex-minimal" id="flexTradePanel" aria-label="Flex">
-        <div class="flex-top">
+      <section class="flex-trade-panel" id="flexTradePanel" aria-label="Flex">
+        <header class="flex-top">
           <div class="flex-top-left">
             <h2>Flex</h2>
-            <span class="flex-pill" id="flexStatus">--</span>
+            <span class="flex-pill" id="flexStatus">—</span>
             <span class="flex-pill muted" id="flexAsOf" hidden></span>
           </div>
           <div class="flex-mode-row" role="group" aria-label="模式">
             <button type="button" class="flex-mode-btn active" data-flex-mode="conservative" id="flexModeConservative">保守</button>
             <button type="button" class="flex-mode-btn" data-flex-mode="aggressive" id="flexModeAggressive">进取</button>
           </div>
-        </div>
+        </header>
 
         <div class="flex-strip" id="flexExecDesk">
           <div class="flex-strip-fund">
-            <input type="number" id="flexCapitalInput" min="0" step="1000" placeholder="全仓" inputmode="decimal" aria-label="全仓金额" />
-            <button type="button" class="flex-exec-btn primary" id="flexCapitalSaveBtn">✓</button>
+            <input type="number" id="flexCapitalInput" min="0" step="1000" placeholder="全仓金额" inputmode="decimal" aria-label="全仓金额" />
+            <button type="button" class="flex-exec-btn primary" id="flexCapitalSaveBtn">保存</button>
           </div>
           <div class="flex-kpis">
-            <div><b id="flexExecCash">--</b><i>现金</i></div>
-            <div><b id="flexExecDeployed">--</b><i>成本</i></div>
-            <div><b id="flexExecExposure">--</b><i>仓位</i></div>
-            <div><b id="flexExecCount">--</b><i>持仓</i></div>
-            <div class="flex-kpi-actions">
-              <button type="button" class="flex-icon-btn" id="flexExportLedgerBtn" title="导出">↓</button>
-              <button type="button" class="flex-icon-btn danger" id="flexResetLedgerBtn" title="清空">⌫</button>
-            </div>
+            <div><b id="flexExecCash">—</b><i>现金</i></div>
+            <div><b id="flexExecDeployed">—</b><i>成本</i></div>
+            <div><b id="flexExecExposure">—</b><i>仓位</i></div>
+            <div><b id="flexExecCount">0</b><i>持仓</i></div>
+          </div>
+          <div class="flex-kpi-actions">
+            <button type="button" class="flex-text-btn" id="flexExportLedgerBtn">导出</button>
+            <button type="button" class="flex-text-btn danger" id="flexResetLedgerBtn">清空</button>
           </div>
         </div>
 
-        <div class="flex-sleeves">
+        <div class="flex-summary">
           <article class="flex-sleeve" id="flexCoreSleeve" data-tone="wait">
-            <span class="flex-sleeve-tag">核心</span>
-            <strong id="flexCoreAction">--</strong>
-            <em id="flexCoreWeight">--</em>
+            <span>核心</span>
+            <strong id="flexCoreAction">—</strong>
+            <em id="flexCoreWeight">—</em>
           </article>
           <article class="flex-sleeve" id="flexSatSleeve" data-tone="wait">
-            <span class="flex-sleeve-tag">卫星</span>
-            <strong id="flexSatStage">--</strong>
-            <em id="flexSatWeight">--</em>
+            <span>卫星</span>
+            <strong id="flexSatStage">—</strong>
+            <em id="flexSatWeight">—</em>
           </article>
+          <div class="flex-mini-kpis">
+            <div><b id="flexAllocShort">—</b><i>核心/卫星</i></div>
+            <div><b id="flexExposure">—</b><i>暴露</i></div>
+            <div><b id="flexBeta">—</b><i>β</i></div>
+            <div><b id="flexHold">—</b><i>持有日</i></div>
+            <div><b id="flexStatsShort">—</b><i>胜率</i></div>
+          </div>
         </div>
-
-        <div class="flex-kpis flex-kpis-signal">
-          <div><b id="flexAllocShort">--</b><i>分配</i></div>
-          <div><b id="flexExposure">--</b><i>暴露</i></div>
-          <div><b id="flexBeta">--</b><i>β</i></div>
-          <div><b id="flexHold">--</b><i>持有</i></div>
-          <div><b id="flexStatsShort">--</b><i>胜率</i></div>
-        </div>
-
-        <!-- hidden sinks for legacy setText fields -->
-        <span id="flexHeadline" hidden></span>
-        <span id="flexAlloc" hidden></span>
-        <span id="flexExec" hidden></span>
-        <span id="flexStats" hidden></span>
-        <span id="flexCoreDetail" hidden></span>
-        <span id="flexCoreRule" hidden></span>
-        <span id="flexSatDetail" hidden></span>
-        <span id="flexVol" hidden></span>
-        <span id="flexCorr" hidden></span>
-        <span id="flexMergeNote" hidden></span>
-        <span id="flexCompare" hidden></span>
-        <span id="flexDisclaimer" hidden></span>
 
         <div class="flex-tabs" role="tablist">
           <button type="button" class="flex-tab active" data-flex-tab="signal">信号</button>
@@ -147,39 +132,35 @@
         </div>
 
         <div class="flex-tab-panel active" data-flex-panel="signal">
-          <div class="flex-book-grid flex-book-grid-compact">
-            <div class="flex-book buy">
-              <div class="flex-book-title">必做</div>
-              <div id="flexMinimalList" class="flex-order-list"></div>
+          <div class="flex-table" id="flexSignalTable">
+            <div class="flex-table-head">
+              <span>动作</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>剩</span><span></span>
             </div>
-            <div class="flex-book buy">
-              <div class="flex-book-title">开</div>
-              <div id="flexBuyList" class="flex-order-list"></div>
-            </div>
-            <div class="flex-book hold">
-              <div class="flex-book-title">持</div>
-              <div id="flexHoldList" class="flex-order-list"></div>
-            </div>
-            <div class="flex-book sell">
-              <div class="flex-book-title">平</div>
-              <div id="flexSellList" class="flex-order-list"></div>
-            </div>
-            <div class="flex-book avoid">
-              <div class="flex-book-title">避</div>
-              <div id="flexAvoidList" class="flex-order-list"></div>
+            <div id="flexSignalList" class="flex-table-body">
+              <div class="flex-order-empty">—</div>
             </div>
           </div>
         </div>
 
         <div class="flex-tab-panel" data-flex-panel="book" id="flexHoldingsPanel">
-          <div id="flexHoldingsList" class="flex-holdings-list">
-            <div class="flex-order-empty">—</div>
+          <div class="flex-table">
+            <div class="flex-table-head flex-table-head-book">
+              <span>代码</span><span>名称</span><span>成本</span><span>均价</span><span>仓位</span><span>浮盈亏</span><span></span>
+            </div>
+            <div id="flexHoldingsList" class="flex-table-body">
+              <div class="flex-order-empty">—</div>
+            </div>
           </div>
         </div>
 
         <div class="flex-tab-panel" data-flex-panel="log" id="flexJournalPanel">
-          <div id="flexJournalList" class="flex-journal-list">
-            <div class="flex-order-empty">—</div>
+          <div class="flex-table">
+            <div class="flex-table-head flex-table-head-log">
+              <span>类型</span><span>代码</span><span>金额</span><span>价格</span><span>盈亏</span><span>时间</span>
+            </div>
+            <div id="flexJournalList" class="flex-table-body">
+              <div class="flex-order-empty">—</div>
+            </div>
           </div>
         </div>
       </section>
@@ -201,7 +182,7 @@
               <input type="number" id="flexModalPrice" min="0" step="0.001" inputmode="decimal" />
             </label>
             <label class="flex-modal-field" id="flexModalPctField" hidden>
-              <span>%</span>
+              <span>比例%</span>
               <input type="number" id="flexModalPct" min="1" max="100" step="1" value="50" inputmode="decimal" />
             </label>
             <p class="flex-modal-preview" id="flexModalPreview"></p>

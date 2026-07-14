@@ -897,24 +897,22 @@ function renderFlexHoldings() {
   positions.sort((a, b) => (Number(b.cost_basis) || 0) - (Number(a.cost_basis) || 0));
   el.innerHTML = positions.map(pos => {
     const weight = capital > 0 ? (Number(pos.cost_basis) / capital) : null;
-    const code = pos.etf_code || '—';
-    const name = pos.name || '—';
     const mark = Number(pos.last_price);
     const mtm = Number.isFinite(mark) ? Number(pos.qty) * mark : null;
     const pnl = mtm != null ? mtm - Number(pos.cost_basis) : null;
     const pnlCls = pnl == null ? '' : pnl >= 0 ? 'up' : 'down';
     const pnlTxt = pnl == null ? '—' : `${pnl >= 0 ? '+' : ''}${formatMoney(pnl)}`;
-    return `<div class="flex-row" data-pos-key="${escapeHtml(pos.key)}">
-      <span class="flex-row-code">${escapeHtml(code)}</span>
-      <span class="flex-row-name">${escapeHtml(name)}</span>
+    return `<div class="flex-row flex-row-book" data-pos-key="${escapeHtml(pos.key)}">
+      <span class="flex-row-code">${escapeHtml(pos.etf_code || '—')}</span>
+      <span class="flex-row-name">${escapeHtml(pos.name || '—')}</span>
       <span class="flex-row-num">${formatMoney(pos.cost_basis)}</span>
       <span class="flex-row-num">${formatPrice(pos.avg_price)}</span>
       <span class="flex-row-num">${weight != null ? pctLabel(weight) : '—'}</span>
-      <span class="flex-row-num flex-holding-pnl ${pnlCls}">${pnlTxt}</span>
+      <span class="flex-row-num ${pnlCls}">${pnlTxt}</span>
       <span class="flex-row-acts">
-        <button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">+</button>
-        <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(pos.key)}">−</button>
-        <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(pos.key)}">×</button>
+        <button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">加</button>
+        <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(pos.key)}">减</button>
+        <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(pos.key)}">平</button>
       </span>
     </div>`;
   }).join('');
@@ -937,13 +935,14 @@ function renderFlexJournal() {
     const code = row.etf_code || row.name || '—';
     const pnl = row.pnl != null && Number.isFinite(Number(row.pnl))
       ? `${Number(row.pnl) >= 0 ? '+' : ''}${formatMoney(row.pnl)}`
-      : '';
+      : '—';
+    const pnlCls = Number(row.pnl) > 0 ? 'up' : Number(row.pnl) < 0 ? 'down' : '';
     return `<div class="flex-row flex-row-log">
       <span class="flex-row-tag">${escapeHtml(label)}</span>
       <span class="flex-row-code">${escapeHtml(code)}</span>
       <span class="flex-row-num">${formatMoney(row.amount)}</span>
-      <span class="flex-row-num">${formatPrice(row.price)}</span>
-      <span class="flex-row-num ${Number(row.pnl) >= 0 ? 'up' : Number(row.pnl) < 0 ? 'down' : ''}">${pnl || '—'}</span>
+      <span class="flex-row-num">${Number(row.price) > 0 ? formatPrice(row.price) : '—'}</span>
+      <span class="flex-row-num ${pnlCls}">${pnl}</span>
       <span class="flex-row-time">${when}</span>
     </div>`;
   }).join('');
@@ -1122,38 +1121,94 @@ function confirmFlexTradeModal() {
   }
 }
 
-function flexSignalItemTitle(item) {
-  const etfCode = item.etf_code || '';
-  if (etfCode) return `${item.name || '—'} ${etfCode}`.trim();
-  return item.name || item.instrument_display || '—';
+function flexShortAction(action, actionCn) {
+  const a = String(action || '').toUpperCase();
+  if (FLEX_ACTION_BADGE[a]) return FLEX_ACTION_BADGE[a].text;
+  const cn = String(actionCn || '');
+  if (/持有|持仓/.test(cn)) return '持';
+  if (/买|开|超配/.test(cn)) return '买';
+  if (/卖|平/.test(cn)) return '平';
+  if (/回避|低配/.test(cn)) return '避';
+  return cn.slice(0, 2) || '—';
 }
 
-function renderFlexOrderList(el, items, emptyText, options = {}) {
+/** Dedupe signal lists: one row per instrument, higher-priority action wins. */
+function mergeFlexSignalItems(flex) {
+  const rank = {
+    CLOSE: 0,
+    SELL: 0,
+    OPEN: 1,
+    BUY: 1,
+    OVERWEIGHT: 1,
+    OVERWEIGHT_RELATIVE: 1,
+    HOLD: 2,
+    AVOID: 3,
+    UNDERWEIGHT_RELATIVE: 3,
+    FLAT: 4,
+  };
+  const map = new Map();
+  const lists = [
+    flex.avoid_list,
+    flex.hold_list,
+    flex.minimal_actions,
+    flex.buy_list,
+    flex.sell_list,
+    flex.close_list,
+  ];
+  for (const list of lists) {
+    for (const item of list || []) {
+      const key = flexPositionKey(item);
+      const action = String(item.action || item.side || '').toUpperCase();
+      const r = rank[action] ?? 9;
+      const prev = map.get(key);
+      if (!prev || r < prev._rank) {
+        map.set(key, { ...item, _rank: r, _key: key });
+      }
+    }
+  }
+  return [...map.values()].sort((a, b) => {
+    if (a._rank !== b._rank) return a._rank - b._rank;
+    return String(a.etf_code || a.name || '').localeCompare(String(b.etf_code || b.name || ''), 'zh');
+  });
+}
+
+function renderFlexSignalList(flex, options = {}) {
+  const el = document.getElementById('flexSignalList');
   if (!el) return;
-  if (!items || !items.length) {
-    el.innerHTML = `<div class="flex-order-empty">${emptyText || '—'}</div>`;
+  const items = mergeFlexSignalItems(flex || {});
+  if (!items.length) {
+    el.innerHTML = '<div class="flex-order-empty">—</div>';
     return;
   }
   const ledger = loadFlexLedger();
   const capital = Number(ledger.capital) || 0;
-  const interactive = options.interactive !== false;
   const signalAsOf = options.signalAsOf || '';
 
   el.innerHTML = items.map(item => {
-    const action = (item.action || item.side || '').toUpperCase();
-    const badgeInfo = FLEX_ACTION_BADGE[action] || { text: action || '—', cls: 'wait' };
-    const key = flexPositionKey(item);
+    const action = String(item.action || item.side || '').toUpperCase();
+    const badgeInfo = FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item.action_cn), cls: 'wait' };
+    const key = item._key || flexPositionKey(item);
     const held = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
     const suggested = flexSuggestedAmount(item, capital);
     const etfCode = item.etf_code || '';
     const name = item.name || '—';
     const w = item.weight_hint || (item.weight_target != null ? pctLabel(item.weight_target) : '—');
     const amt = suggested != null ? formatMoney(suggested) : '—';
-    const left = item.days_remaining != null ? `${item.days_remaining}d` : '';
+    const left = item.days_remaining != null ? `${item.days_remaining}d` : '—';
+    const interactive = action !== 'AVOID' && action !== 'UNDERWEIGHT_RELATIVE' && action !== 'FLAT';
 
     let acts = '';
     if (interactive) {
-      if (FLEX_BUY_ACTIONS.has(action) || (action === 'HOLD' && !held)) {
+      if (FLEX_CLOSE_ACTIONS.has(action)) {
+        acts = held
+          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
+             <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
+          : '<span class="flex-row-muted">—</span>';
+      } else if (held) {
+        acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加</button>
+          <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
+          <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`;
+      } else if (FLEX_BUY_ACTIONS.has(action) || action === 'HOLD') {
         acts = `<button type="button" class="flex-chip primary"
           data-flex-act="buy"
           data-pos-key="${escapeHtml(key)}"
@@ -1163,24 +1218,15 @@ function renderFlexOrderList(el, items, emptyText, options = {}) {
           data-sleeve="${escapeHtml(item.sleeve || '')}"
           data-suggested="${suggested != null ? suggested : ''}"
           data-signal-as-of="${escapeHtml(signalAsOf)}"
-        >${held ? '+' : '买'}</button>`;
-      } else if (FLEX_CLOSE_ACTIONS.has(action)) {
-        acts = held
-          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">−</button>
-             <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">×</button>`
-          : `<span class="flex-row-muted">—</span>`;
-      } else if (action === 'HOLD' && held) {
-        acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">+</button>
-          <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">−</button>
-          <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">×</button>`;
+        >买</button>`;
       }
     }
 
-    return `<div class="flex-row ${badgeInfo.cls}${held ? ' is-held' : ''}" title="${escapeHtml(flexSignalItemTitle(item))}">
+    return `<div class="flex-row ${badgeInfo.cls}${held ? ' is-held' : ''}">
       <span class="badge">${badgeInfo.text}</span>
       <span class="flex-row-code">${escapeHtml(etfCode || '—')}</span>
       <span class="flex-row-name">${escapeHtml(name)}</span>
-      <span class="flex-row-num">${escapeHtml(w)}</span>
+      <span class="flex-row-num">${escapeHtml(String(w))}</span>
       <span class="flex-row-num">${amt}</span>
       <span class="flex-row-num flex-row-muted">${left}</span>
       <span class="flex-row-acts">${acts}</span>
@@ -1410,11 +1456,10 @@ function renderFlexTradePanel(playbook) {
     setText('flexSatWeight', '—');
     setText('flexAllocShort', '—');
     setText('flexStatsShort', '—');
-    renderFlexOrderList(document.getElementById('flexMinimalList'), [], '—');
-    renderFlexOrderList(document.getElementById('flexBuyList'), [], '—');
-    renderFlexOrderList(document.getElementById('flexHoldList'), [], '—');
-    renderFlexOrderList(document.getElementById('flexSellList'), [], '—');
-    renderFlexOrderList(document.getElementById('flexAvoidList'), [], '—');
+    setText('flexExposure', '—');
+    setText('flexBeta', '—');
+    setText('flexHold', '—');
+    renderFlexSignalList({}, {});
     dashboardState.flexActive = null;
     renderFlexExecUi();
     return;
@@ -1435,28 +1480,26 @@ function renderFlexTradePanel(playbook) {
     asOfEl.textContent = asOf ? asOf.slice(5) : '';
     asOfEl.title = asOf;
   }
-  setText('flexHeadline', flex.headline || '');
-  setText('flexAlloc', flex.allocation_cn || '');
-  setText('flexExec', flex.execution_cn || 'T+1');
   setText('flexHold', String(flex.hold_days || 5));
-  setText('flexStats', '');
   setText('flexStatsShort', pctLabel(full.win_rate));
-  setText('flexDisclaimer', '');
-  setText('flexMergeNote', '');
-  setText('flexCompare', '');
 
   const risk = flex.risk_dashboard || {};
   const alloc = flex.allocation || {};
-  setText('flexBeta', risk.estimated_beta != null ? String(risk.estimated_beta) : '—');
-  setText('flexVol', '');
-  setText('flexExposure', alloc.total_exposure != null ? pctLabel(alloc.total_exposure) : (risk.total_exposure != null ? pctLabel(risk.total_exposure) : '—'));
-  setText('flexCorr', '');
+  setText('flexBeta', risk.estimated_beta != null ? Number(risk.estimated_beta).toFixed(2) : '—');
+  setText(
+    'flexExposure',
+    alloc.total_exposure != null
+      ? pctLabel(alloc.total_exposure)
+      : risk.total_exposure != null
+        ? pctLabel(risk.total_exposure)
+        : '—'
+  );
   const wCore = alloc.w_core;
   const wSat = alloc.w_sat;
   setText(
     'flexAllocShort',
     wCore != null || wSat != null
-      ? `${Math.round((wCore || 0) * 100)}/${Math.round((wSat || 0) * 100)}`
+      ? `${Math.round((Number(wCore) || 0) * 100)}/${Math.round((Number(wSat) || 0) * 100)}`
       : '—'
   );
 
@@ -1466,33 +1509,18 @@ function renderFlexTradePanel(playbook) {
   const satEl = document.getElementById('flexSatSleeve');
   if (coreEl) coreEl.dataset.tone = core.tone || (core.active ? 'buy' : 'wait');
   if (satEl) satEl.dataset.tone = sat.tone || (sat.active ? 'buy' : 'wait');
-  setText('flexCoreAction', core.action || core.action_cn || '—');
+  setText('flexCoreAction', flexShortAction(core.action, core.action_cn));
   setText('flexCoreWeight', wCore != null ? pctLabel(wCore) : (core.etf_code || '—'));
-  setText('flexCoreDetail', '');
-  setText('flexCoreRule', '');
-  setText('flexSatStage', sat.active ? (sat.action || sat.status_cn || 'ON') : 'OFF');
+  setText('flexSatStage', sat.active ? flexShortAction(sat.action, sat.status_cn || sat.action_cn) || '持' : '空');
   setText('flexSatWeight', wSat != null ? pctLabel(wSat) : '—');
-  setText('flexSatDetail', '');
-  if (coreEl) coreEl.title = [core.action_cn, core.etf_code, core.detail].filter(Boolean).join(' · ');
-  if (satEl) satEl.title = [sat.status_cn, sat.stage_cn, sat.detail].filter(Boolean).join(' · ');
+  if (coreEl) coreEl.title = [core.action_cn, core.etf_code].filter(Boolean).join(' · ');
+  if (satEl) satEl.title = [sat.status_cn, sat.stage_cn].filter(Boolean).join(' · ');
 
   document.querySelectorAll('.flex-mode-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.flexMode === mode);
   });
 
-  const listOpts = { interactive: true, signalAsOf: asOf };
-  renderFlexOrderList(document.getElementById('flexMinimalList'), flex.minimal_actions || [], '—', listOpts);
-  renderFlexOrderList(document.getElementById('flexBuyList'), flex.buy_list || [], '—', listOpts);
-  renderFlexOrderList(document.getElementById('flexHoldList'), flex.hold_list || [], '—', listOpts);
-  renderFlexOrderList(
-    document.getElementById('flexSellList'),
-    flex.close_list || flex.sell_list || [],
-    '—',
-    listOpts
-  );
-  renderFlexOrderList(document.getElementById('flexAvoidList'), flex.avoid_list || [], '—', {
-    interactive: false,
-  });
+  renderFlexSignalList(flex, { signalAsOf: asOf });
   renderFlexExecUi();
 }
 
