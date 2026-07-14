@@ -498,7 +498,7 @@ function bindRangeControls(onRange) {
 function bindFlexModeControls() {
   document.querySelectorAll('.flex-mode-btn').forEach(button => {
     button.addEventListener('click', () => {
-      const mode = button.dataset.flexMode || 'conservative';
+      const mode = button.dataset.flexMode || 'aggressive';
       dashboardState.flexMode = mode;
       if (dashboardState.flexPlaybook) {
         renderFlexTradePanel(dashboardState.flexPlaybook);
@@ -1220,8 +1220,12 @@ function splitFlexSignalBuckets(flex) {
     else if (avoidKeys.has(action)) pushUnique('avoid', item);
   }
 
-  // minimal_actions that are HOLD should stay in hold only (already handled by action).
-  // If buy_list empty but minimal has OPEN, already in open.
+  // Stable display order within each bucket.
+  for (const kind of Object.keys(buckets)) {
+    buckets[kind].sort((a, b) =>
+      String(a.etf_code || a.name || '').localeCompare(String(b.etf_code || b.name || ''), 'zh')
+    );
+  }
 
   return buckets;
 }
