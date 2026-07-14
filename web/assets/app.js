@@ -1184,6 +1184,45 @@ function flexActionBadge(item, flex) {
   return base;
 }
 
+/** Shanghai calendar YYYY-MM-DD. */
+function flexDateCn(offsetDays = 0) {
+  const fmt = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  // en-CA → YYYY-MM-DD
+  const base = new Date();
+  if (offsetDays) base.setTime(base.getTime() + offsetDays * 86400000);
+  // Re-read via timezone parts so offset is applied in local then formatted in SH
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date(Date.now() + offsetDays * 86400000));
+  const y = parts.find(p => p.type === 'year')?.value;
+  const m = parts.find(p => p.type === 'month')?.value;
+  const d = parts.find(p => p.type === 'day')?.value;
+  if (y && m && d) return `${y}-${m}-${d}`;
+  return fmt.format(new Date());
+}
+
+/**
+ * Actionable window for the desk: 今天 + 明天（上海日历）.
+ * User only wants signals they can act on now — not research book still-open from last week.
+ */
+function flexActionableDateSet() {
+  return new Set([flexDateCn(0), flexDateCn(1)]);
+}
+
+function flexDateInActionWindow(dateStr, windowSet = flexActionableDateSet()) {
+  if (!dateStr) return false;
+  const day = String(dateStr).slice(0, 10);
+  return windowSet.has(day);
+}
+
 /** Split engine lists into 4 separate buckets — never mix kinds in one table. */
 function splitFlexSignalBuckets(flex) {
   const f = flex || {};
@@ -1218,6 +1257,22 @@ function splitFlexSignalBuckets(flex) {
     else if (holdKeys.has(action)) pushUnique('hold', item);
     else if (closeKeys.has(action)) pushUnique('close', item);
     else if (avoidKeys.has(action)) pushUnique('avoid', item);
+  }
+
+  // Only keep rows actionable today / tomorrow (CN). Stale research holds (e.g. 7/8 buy) drop out.
+  const windowSet = flexActionableDateSet();
+  const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
+  const bookIsFresh = flexDateInActionWindow(asOf, windowSet);
+
+  buckets.hold = buckets.hold.filter(item => {
+    const entry = flexResolveEntryDate(item, f);
+    return flexDateInActionWindow(entry, windowSet);
+  });
+  // 新开 / 平仓 / 回避：跟当日 playbook 日期走；书本日期不是今天/明天则整类不展示
+  if (!bookIsFresh) {
+    buckets.open = [];
+    buckets.close = [];
+    buckets.avoid = [];
   }
 
   // Stable display order within each bucket.
