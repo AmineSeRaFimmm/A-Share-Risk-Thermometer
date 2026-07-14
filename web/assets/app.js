@@ -492,7 +492,7 @@ const FLEX_ACTION_BADGE = {
   OPEN: { text: '新开', cls: 'buy' },
   OVERWEIGHT: { text: '超配', cls: 'buy' },
   BUY: { text: '买入', cls: 'buy' },
-  HOLD: { text: '持有信号', cls: 'hold' },
+  HOLD: { text: '今日买入', cls: 'buy' },
   CLOSE: { text: '平仓', cls: 'sell' },
   AVOID: { text: '回避', cls: 'avoid' },
   FLAT: { text: '观望', cls: 'wait' },
@@ -1239,15 +1239,22 @@ function flexResolveEntryDate(item, flex) {
   return null;
 }
 
-function flexActionBadge(item, flex) {
+/**
+ * Desk badge copy (execution semantics, not paper-book archaeology).
+ * HOLD on the book = still a valid long setup; for the user that means:
+ *   - not yet in local ledger → 今日买入 (buy today)
+ *   - already in local ledger → 持有中
+ * Never label with paper entry like「7月8日买」as if that were the order date.
+ */
+function flexActionBadge(item, flex, options = {}) {
   const action = String(item?.action || item?.side || '').toUpperCase();
   const base = FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item?.action_cn), cls: 'wait' };
   if (action === 'HOLD') {
-    const md = flexFormatMdBuy(flexResolveEntryDate(item, flex));
-    return {
-      text: md ? `持有信号-${md}` : '持有信号',
-      cls: 'hold',
-    };
+    if (options.localHeld) {
+      return { text: '持有中', cls: 'hold' };
+    }
+    // Execution desk: treat paper HOLD as a buy signal for today.
+    return { text: '今日买入', cls: 'buy' };
   }
   return base;
 }
@@ -1379,25 +1386,29 @@ function renderFlexSignalRows(items, flex, options = {}) {
 
   return items.map(item => {
     const action = String(item.action || item.side || '').toUpperCase();
-    const badgeInfo = forceKind === 'hold' || action === 'HOLD'
-      ? flexActionBadge({ ...item, action: 'HOLD' }, flex)
-      : flexActionBadge(item, flex);
     const key = item._key || flexPositionKey(item);
     const held = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
+    const isHoldRow = forceKind === 'hold' || action === 'HOLD';
+    const badgeInfo = isHoldRow
+      ? flexActionBadge({ ...item, action: 'HOLD' }, flex, { localHeld: held })
+      : flexActionBadge(item, flex, { localHeld: held });
     const suggested = flexSuggestedAmount(item, capital);
     const etfCode = item.etf_code || '';
     const name = item.name || '—';
     const w = item.weight_hint || (item.weight_target != null ? pctLabel(item.weight_target) : '—');
     const amt = suggested != null ? formatMoney(suggested) : '—';
-    // 剩余/清仓时间：仅本机已确认买入后才显示（用账本 exit 计划，不用引擎“纸面持仓”天数）
+    // 剩余/清仓时间：仅本机已确认买入后才显示（用账本 exit 计划）
     const localPos = held ? ledger.positions[key] : null;
     const left = held ? flexPositionExitInfo(localPos).label : '—';
     const interactive = forceKind !== 'avoid' && action !== 'AVOID' && action !== 'UNDERWEIGHT_RELATIVE' && action !== 'FLAT';
 
-    // Hold plan for new buys: prefer item.days_remaining if engine still open, else flex.hold_days
-    const planDays = item.days_remaining != null && Number(item.days_remaining) >= 0
-      ? Number(item.days_remaining)
-      : (options.defaultHoldDays != null ? Number(options.defaultHoldDays) : null);
+    // Desk buy today: plan hold from *today's* fill, not paper book's leftover days.
+    // (HOLD-as-buy = full default hold window starting at user confirm.)
+    const planDays = options.defaultHoldDays != null
+      ? Number(options.defaultHoldDays)
+      : (item.days_remaining != null && Number(item.days_remaining) >= 0
+        ? Number(item.days_remaining)
+        : null);
 
     let acts = '';
     if (interactive) {

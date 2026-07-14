@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260714-playbook-bridge">
+    <link rel="stylesheet" href="./assets/app.css?v=20260714-hold-as-buy">
   </head>
   <body>
     <header class="topbar">
@@ -166,7 +166,7 @@
             </section>
             <section class="flex-signal-block" data-signal-kind="hold" hidden>
               <h3 class="flex-signal-title hold">持有信号 <span class="flex-signal-count" id="flexHoldCount"></span></h3>
-              <p class="flex-block-hint">策略书仍建议持有；不等于本机已买入。确认买入后才显示剩余/清仓日。</p>
+              <p class="flex-block-hint">执行台语义：可当作<strong>今日买入</strong>信号（点「买」按今天成交记账）。不是「按纸面历史入场日补买」。本机确认买入后才显示剩余/清仓日。</p>
               <div class="flex-table">
                 <div class="flex-table-head">
                   <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>清仓</span><span></span>
@@ -344,6 +344,6 @@
 
     <script src="./vendor/echarts.min.js"></script>
     <script src="./assets/charts.js?v=20260713-nowcast-dual"></script>
-    <script src="./assets/app.js?v=20260714-playbook-bridge"></script>
+    <script src="./assets/app.js?v=20260714-hold-as-buy"></script>
   </body>
 </html>
