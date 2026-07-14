@@ -1345,13 +1345,34 @@ function splitFlexSignalBuckets(flex) {
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
   const isToday = flexBookIsToday(asOf);
 
-  // Only today's book can produce 明天买入 / 今日平仓
+  // Only today's book can produce 明天买入 / 平仓 / 回避
   if (!isToday) {
     buckets.open = [];
     buckets.close = [];
     buckets.avoid = [];
   }
   buckets.hold = []; // never show paper HOLD as a desk signal
+
+  // 回避：只提示本机账本里真正持有的标的；没持仓就不吵
+  if (buckets.avoid.length) {
+    const ledger = loadFlexLedger();
+    const openPos = flexOpenPositions(ledger);
+    const codes = new Set(
+      openPos.map(p => String(p.etf_code || '').trim()).filter(Boolean)
+    );
+    const names = new Set(
+      openPos.map(p => String(p.name || '').trim()).filter(Boolean)
+    );
+    buckets.avoid = buckets.avoid.filter(item => {
+      const code = String(item.etf_code || item.code || '').trim();
+      const name = String(item.name || item.sector || '').trim();
+      if (code && codes.has(code)) return true;
+      if (name && names.has(name)) return true;
+      // also match by position key
+      const key = item._key || flexPositionKey(item);
+      return !!(ledger.positions && ledger.positions[key] && Number(ledger.positions[key].qty) > 0);
+    });
+  }
 
   for (const kind of Object.keys(buckets)) {
     buckets[kind].sort((a, b) =>
