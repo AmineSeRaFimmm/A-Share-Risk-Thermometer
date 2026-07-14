@@ -1,10 +1,25 @@
 const AUTO_REFRESH_MS = 60 * 1000;
 const STALE_THRESHOLD_MS = 15 * 60 * 1000;
+const FLEX_MODE_KEY = 'ashare_flex_mode_v1';
+
+function loadFlexModePreference() {
+  try {
+    const m = localStorage.getItem(FLEX_MODE_KEY);
+    if (m === 'conservative' || m === 'aggressive') return m;
+  } catch (_) { /* ignore */ }
+  return 'aggressive';
+}
+
+function saveFlexModePreference(mode) {
+  try {
+    localStorage.setItem(FLEX_MODE_KEY, mode === 'conservative' ? 'conservative' : 'aggressive');
+  } catch (_) { /* ignore */ }
+}
+
 const dashboardState = {
   activeRange: '1Y',
   componentChart: null,
-  sectorChart: null,
-  lowPositionChart: null,
+
   timeCharts: [],
   history: [],
   nowcastHistory: {},
@@ -14,7 +29,7 @@ const dashboardState = {
   lastUpdateTime: null,
   lastTradeDate: null,
   heavyLoaded: false,
-  flexMode: 'aggressive',
+  flexMode: loadFlexModePreference(),
   flexPlaybook: null,
   flexActive: null,
   flexLedgerBound: false,
@@ -279,118 +294,11 @@ function renderStrategy(strategy) {
   }).join('');
 }
 
-function formatCorr(value) {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric.toFixed(3) : '--';
-}
-
 function formatSignedPct(value) {
   const numeric = Number(value);
   if (!Number.isFinite(numeric)) return '--';
   const pct = numeric * 100;
   return `${pct > 0 ? '+' : ''}${pct.toFixed(2)}%`;
-}
-
-function sectorRow(row, direction) {
-  const tone = direction === 'positive' ? 'positive' : 'negative';
-  return `<div class="sector-item" data-tone="${tone}">
-    <div>
-      <strong>${row.name || '--'}</strong>
-      <span>${row.symbol || '--'} / ${row.strength || '--'} / ${row.stability || '--'} / 样本 ${row.sample_size || '--'}</span>
-    </div>
-    <div class="sector-metrics">
-      <b>${formatCorr(row.corr_temp_fwd_excess)}</b>
-      <em>高风险 ${formatSignedPct(row.high_risk_avg_excess)} / n=${row.high_risk_sample ?? '--'}</em>
-    </div>
-  </div>`;
-}
-
-function renderSectorCorrelation(sector) {
-  const panel = document.querySelector('.sector-panel');
-  if (!panel) return;
-  if (!sector?.rankings) {
-    panel.hidden = true;
-    return;
-  }
-  panel.hidden = false;
-  setText('sectorAsOf', `申万一级 / ${sector.as_of || '--'} / 近一年5日超额收益`);
-  const positive = sector.rankings.positive || [];
-  const negative = sector.rankings.negative || [];
-  const positiveBox = document.getElementById('sectorPositiveList');
-  const negativeBox = document.getElementById('sectorNegativeList');
-  if (positiveBox) {
-    positiveBox.innerHTML = positive.slice(0, 5).map(row => sectorRow(row, 'positive')).join('');
-  }
-  if (negativeBox) {
-    negativeBox.innerHTML = negative.slice(0, 5).map(row => sectorRow(row, 'negative')).join('');
-  }
-  const oldSectorChart = echarts.getInstanceByDom(document.getElementById('sectorCorrelationChart'));
-  if (oldSectorChart) oldSectorChart.dispose();
-  dashboardState.sectorChart = renderSectorCorrelationChart(sector);
-}
-
-function formatScore(value) {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? numeric.toFixed(1) : '--';
-}
-
-function formatPercentile(value) {
-  const numeric = Number(value);
-  return Number.isFinite(numeric) ? `${(numeric * 100).toFixed(1)}%` : '--';
-}
-
-function lowPositionCard(row) {
-  return `<div class="low-position-card">
-    <div>
-      <strong>${row.name || '--'}</strong>
-      <span>${row.symbol || '--'} / ${row.relationship_type || '--'}</span>
-    </div>
-    <dl>
-      <div><dt>低位分</dt><dd>${formatScore(row.low_position_score)}</dd></div>
-      <div><dt>5Y分位</dt><dd>${formatPercentile(row.price_percentile_5y)}</dd></div>
-      <div><dt>5Y回撤</dt><dd>${formatSignedPct(row.drawdown_5y)}</dd></div>
-      <div><dt>PB</dt><dd>${row.pb ?? '--'}</dd></div>
-    </dl>
-  </div>`;
-}
-
-function renderLowPositionSectorStudy(study) {
-  const panel = document.querySelector('.low-position-panel');
-  if (!panel) return;
-  if (!study?.selected_sectors?.length) {
-    panel.hidden = true;
-    return;
-  }
-  panel.hidden = false;
-  setText('lowPositionAsOf', `申万一级 / ${study.as_of || '--'} / 近1Y-2Y关系`);
-  const cards = document.getElementById('lowPositionCards');
-  if (cards) cards.innerHTML = study.selected_sectors.map(lowPositionCard).join('');
-
-  const signalRows = [];
-  const selectedBySymbol = new Map(study.selected_sectors.map(row => [row.symbol, row]));
-  (study.signals || []).forEach(row => {
-    if (row.window === '1Y' && row.horizon === '20D' && row.signal === 'risk_pullback_after_high') {
-      signalRows.push(row);
-    }
-  });
-  const tbody = document.getElementById('lowPositionSignals');
-  if (tbody) {
-    tbody.innerHTML = signalRows.map(row => {
-      const selected = selectedBySymbol.get(row.symbol) || {};
-      return `<tr>
-        <td>${row.name || '--'}</td>
-        <td>${selected.relationship_type || '--'}</td>
-        <td>${formatSignedPct(row.avg_fwd_excess)}</td>
-        <td>${row.sample_size ?? '--'}</td>
-        <td>${formatPercentile(row.win_rate)}</td>
-      </tr>`;
-    }).join('');
-  }
-
-  const lowPositionDom = document.getElementById('lowPositionChart');
-  const oldLowPositionChart = echarts.getInstanceByDom(lowPositionDom);
-  if (oldLowPositionChart) oldLowPositionChart.dispose();
-  dashboardState.lowPositionChart = renderLowPositionSectorChart(study);
 }
 
 function mergeNowcastHistory(history, nowcastHistory, latest) {
@@ -496,10 +404,15 @@ function bindRangeControls(onRange) {
 }
 
 function bindFlexModeControls() {
+  // Reflect persisted mode on first paint.
+  document.querySelectorAll('.flex-mode-btn').forEach(button => {
+    button.classList.toggle('active', button.dataset.flexMode === dashboardState.flexMode);
+  });
   document.querySelectorAll('.flex-mode-btn').forEach(button => {
     button.addEventListener('click', () => {
       const mode = button.dataset.flexMode || 'aggressive';
       dashboardState.flexMode = mode;
+      saveFlexModePreference(mode);
       if (dashboardState.flexPlaybook) {
         renderFlexTradePanel(dashboardState.flexPlaybook);
       }
@@ -522,15 +435,13 @@ async function loadCriticalDashboardData() {
 }
 
 async function loadHeavyDashboardData() {
-  const [strategy, sector, lowPosition, rtTactical, stagePlaybook] = await Promise.all([
+  const [strategy, rtTactical, stagePlaybook] = await Promise.all([
     loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' })),
-    loadJSON('./data/sector_correlation.json').catch(() => ({ status: 'missing' })),
-    loadJSON('./data/low_position_sector_study.json').catch(() => ({ status: 'missing' })),
     loadJSON('./data/rt_tactical.json').catch(() => ({ status: 'missing' })),
     loadJSON('./data/stage_playbook.json').catch(() => ({ status: 'missing' })),
   ]);
   dashboardState.heavyLoaded = true;
-  return { strategy, sector, lowPosition, rtTactical, stagePlaybook };
+  return { strategy, rtTactical, stagePlaybook };
 }
 
 function renderCriticalDashboard({ latest, history, nowcastHistory, components, audit }) {
@@ -558,12 +469,10 @@ function renderCriticalDashboard({ latest, history, nowcastHistory, components, 
   );
 }
 
-function renderHeavyDashboard({ strategy, sector, lowPosition, rtTactical, stagePlaybook }) {
+function renderHeavyDashboard({ strategy, rtTactical, stagePlaybook }) {
   dashboardState.strategy = strategy || {};
   renderFlexTradePanel(stagePlaybook);
   renderStrategy(strategy);
-  renderSectorCorrelation(sector);
-  renderLowPositionSectorStudy(lowPosition);
   renderRtTactical(rtTactical);
   if (dashboardState.history?.length) {
     dashboardState.timeCharts = renderTimeCharts(
@@ -713,6 +622,29 @@ function flexEquity(ledger) {
   return flexAvailableCash(ledger) + flexMarkValue(ledger);
 }
 
+function flexUnrealizedPnl(ledger) {
+  return flexMarkValue(ledger) - flexDeployedCost(ledger);
+}
+
+/** Sum realized PnL from journal (CLOSE / REDUCE with pnl). */
+function flexRealizedPnl(ledger) {
+  return (ledger?.journal || []).reduce((sum, row) => {
+    const t = String(row.type || '').toUpperCase();
+    if (t !== 'CLOSE' && t !== 'REDUCE') return sum;
+    const p = Number(row.pnl);
+    return sum + (Number.isFinite(p) ? p : 0);
+  }, 0);
+}
+
+function flexFormatSignedMoney(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return '—';
+  const abs = formatMoney(Math.abs(n));
+  if (n > 0) return `+${abs}`;
+  if (n < 0) return `-${abs}`;
+  return abs;
+}
+
 function flexSuggestedAmount(item, capital) {
   const cap = Number(capital) || 0;
   if (!(cap > 0)) return null;
@@ -722,6 +654,19 @@ function flexSuggestedAmount(item, capital) {
   const m = hint.match(/(\d+(?:\.\d+)?)\s*%/);
   if (m) return Math.round(cap * (Number(m[1]) / 100));
   return null;
+}
+
+function setFlexTabBadge(id, count) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const n = Number(count) || 0;
+  if (n > 0) {
+    el.hidden = false;
+    el.textContent = n > 99 ? '99+' : String(n);
+  } else {
+    el.hidden = true;
+    el.textContent = '0';
+  }
 }
 
 function appendFlexJournal(ledger, entry) {
@@ -928,16 +873,50 @@ function renderFlexAccountBar() {
   }
   const deployed = flexDeployedCost(ledger);
   const cash = flexAvailableCash(ledger);
+  const mtm = flexMarkValue(ledger);
   const equity = flexEquity(ledger);
+  const uPnl = flexUnrealizedPnl(ledger);
+  const rPnl = flexRealizedPnl(ledger);
   const capital = Number(ledger.capital) || 0;
+  const hasBook = capital > 0 || cash > 0 || deployed > 0 || mtm > 0;
   const exposureBase = equity > 0 ? equity : capital;
-  const exposure = exposureBase > 0 ? flexMarkValue(ledger) / exposureBase : null;
-  setText('flexExecDeployed', deployed > 0 || cash > 0 || capital > 0 ? formatMoney(deployed) : '—');
-  setText('flexExecCash', capital > 0 || cash > 0 ? formatMoney(cash) : '—');
+  const exposure = exposureBase > 0 && mtm > 0 ? mtm / exposureBase : (hasBook ? 0 : null);
+
+  setText('flexExecEquity', hasBook ? formatMoney(equity) : '—');
+  setText('flexExecCash', hasBook ? formatMoney(cash) : '—');
+  setText('flexExecMtm', hasBook ? formatMoney(mtm) : '—');
+  setText('flexExecDeployed', hasBook ? formatMoney(deployed) : '—');
   setText('flexExecExposure', exposure != null ? pctLabel(exposure) : '—');
   setText('flexExecCount', String(flexOpenPositions(ledger).length));
-  const cashEl = document.getElementById('flexExecCash');
-  if (cashEl) cashEl.title = equity > 0 ? `权益 ${formatMoney(equity)}` : '';
+
+  const uEl = document.getElementById('flexExecUPnl');
+  if (uEl) {
+    uEl.textContent = hasBook && deployed > 0 ? flexFormatSignedMoney(uPnl) : (hasBook ? '0' : '—');
+    uEl.classList.remove('up', 'down');
+    if (hasBook && deployed > 0) uEl.classList.add(uPnl > 0 ? 'up' : uPnl < 0 ? 'down' : '');
+  }
+  const rEl = document.getElementById('flexExecRPnl');
+  if (rEl) {
+    rEl.textContent = hasBook ? flexFormatSignedMoney(rPnl) : '—';
+    rEl.classList.remove('up', 'down');
+    if (hasBook) rEl.classList.add(rPnl > 0 ? 'up' : rPnl < 0 ? 'down' : '');
+  }
+
+  const note = document.getElementById('flexMarkNote');
+  if (note) {
+    note.textContent = mtm > 0
+      ? '估值说明：市值 / 浮动盈亏按最近一次录入成交价计算，非实时行情。'
+      : '估值说明：录入成交价后计算市值与浮动盈亏；本机记账不会自动下单。';
+  }
+
+  const capitalHint = document.getElementById('flexCapitalHint');
+  if (capitalHint) {
+    // Shown only on signal tab when capital unset — toggled in renderFlexSignalList too
+    capitalHint.hidden = capital > 0;
+  }
+
+  setFlexTabBadge('flexTabBadgeBook', flexOpenPositions(ledger).length);
+  setFlexTabBadge('flexTabBadgeLog', (ledger.journal || []).length);
 }
 
 function renderFlexHoldings() {
@@ -947,7 +926,10 @@ function renderFlexHoldings() {
   const positions = flexOpenPositions(ledger);
   const capital = Number(ledger.capital) || 0;
   if (!positions.length) {
-    el.innerHTML = '<div class="flex-order-empty">—</div>';
+    el.innerHTML = `<div class="flex-empty-state soft">
+      <strong>本机暂无持仓</strong>
+      <p>在「信号」里点「买」并录入成交价后，会记入本机账本。数据只存在当前浏览器。</p>
+    </div>`;
     return;
   }
   positions.sort((a, b) => (Number(b.cost_basis) || 0) - (Number(a.cost_basis) || 0));
@@ -957,17 +939,17 @@ function renderFlexHoldings() {
     const mtm = Number.isFinite(mark) ? Number(pos.qty) * mark : null;
     const pnl = mtm != null ? mtm - Number(pos.cost_basis) : null;
     const pnlCls = pnl == null ? '' : pnl >= 0 ? 'up' : 'down';
-    const pnlTxt = pnl == null ? '—' : `${pnl >= 0 ? '+' : ''}${formatMoney(pnl)}`;
+    const pnlTxt = pnl == null ? '—' : flexFormatSignedMoney(pnl);
     const exitInfo = flexPositionExitInfo(pos);
     return `<div class="flex-row flex-row-book" data-pos-key="${escapeHtml(pos.key)}" title="${escapeHtml(exitInfo.label)}">
-      <span class="flex-row-code">${escapeHtml(pos.etf_code || '—')}</span>
-      <span class="flex-row-name">${escapeHtml(pos.name || '—')}</span>
-      <span class="flex-row-num">${formatMoney(pos.cost_basis)}</span>
-      <span class="flex-row-num">${formatPrice(pos.avg_price)}</span>
-      <span class="flex-row-num">${weight != null ? pctLabel(weight) : '—'}</span>
-      <span class="flex-row-num ${pnlCls}">${pnlTxt}</span>
-      <span class="flex-row-num flex-row-exit">${escapeHtml(exitInfo.label)}</span>
-      <span class="flex-row-acts">
+      <span class="flex-row-code" data-label="代码">${escapeHtml(pos.etf_code || '—')}</span>
+      <span class="flex-row-name" data-label="名称">${escapeHtml(pos.name || '—')}</span>
+      <span class="flex-row-num" data-label="成本">${formatMoney(pos.cost_basis)}</span>
+      <span class="flex-row-num" data-label="均价">${formatPrice(pos.avg_price)}</span>
+      <span class="flex-row-num" data-label="仓位">${weight != null ? pctLabel(weight) : '—'}</span>
+      <span class="flex-row-num ${pnlCls}" data-label="浮盈亏">${pnlTxt}</span>
+      <span class="flex-row-num flex-row-exit" data-label="清仓">${escapeHtml(exitInfo.label)}</span>
+      <span class="flex-row-acts" data-label="操作">
         <button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">加</button>
         <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(pos.key)}">减</button>
         <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(pos.key)}">平</button>
@@ -980,9 +962,12 @@ function renderFlexJournal() {
   const el = document.getElementById('flexJournalList');
   if (!el) return;
   const ledger = loadFlexLedger();
-  const rows = (ledger.journal || []).slice(0, 20);
+  const rows = (ledger.journal || []).slice(0, 50);
   if (!rows.length) {
-    el.innerHTML = '<div class="flex-order-empty">—</div>';
+    el.innerHTML = `<div class="flex-empty-state soft">
+      <strong>暂无流水</strong>
+      <p>买卖、调仓、调整全仓金额会记录在此。可导出 JSON 备份。</p>
+    </div>`;
     return;
   }
   el.innerHTML = rows.map(row => {
@@ -992,16 +977,16 @@ function renderFlexJournal() {
     const label = row.type_cn || row.type || '—';
     const code = row.etf_code || row.name || '—';
     const pnl = row.pnl != null && Number.isFinite(Number(row.pnl))
-      ? `${Number(row.pnl) >= 0 ? '+' : ''}${formatMoney(row.pnl)}`
+      ? flexFormatSignedMoney(row.pnl)
       : '—';
     const pnlCls = Number(row.pnl) > 0 ? 'up' : Number(row.pnl) < 0 ? 'down' : '';
     return `<div class="flex-row flex-row-log">
-      <span class="flex-row-tag">${escapeHtml(label)}</span>
-      <span class="flex-row-code">${escapeHtml(code)}</span>
-      <span class="flex-row-num">${formatMoney(row.amount)}</span>
-      <span class="flex-row-num">${Number(row.price) > 0 ? formatPrice(row.price) : '—'}</span>
-      <span class="flex-row-num ${pnlCls}">${pnl}</span>
-      <span class="flex-row-time">${when}</span>
+      <span class="flex-row-tag" data-label="类型">${escapeHtml(label)}</span>
+      <span class="flex-row-code" data-label="代码">${escapeHtml(code)}</span>
+      <span class="flex-row-num" data-label="金额">${formatMoney(row.amount)}</span>
+      <span class="flex-row-num" data-label="价格">${Number(row.price) > 0 ? formatPrice(row.price) : '—'}</span>
+      <span class="flex-row-num ${pnlCls}" data-label="盈亏">${pnl}</span>
+      <span class="flex-row-time" data-label="时间">${when}</span>
     </div>`;
   }).join('');
 }
@@ -1037,18 +1022,24 @@ function updateFlexModalPreview() {
   const pct = Number(pctEl?.value);
   const capital = Number(loadFlexLedger().capital) || 0;
 
+  const ledger = loadFlexLedger();
+  const cash = flexAvailableCash(ledger);
+
   if (state.mode === 'buy' || state.mode === 'add') {
     if (amount > 0 && price > 0) {
       const qty = amount / price;
       const w = capital > 0 ? pctLabel(amount / capital) : '—';
-      preview.textContent = `${formatShares(qty)} · ${w}`;
+      const afterCash = cash - amount;
+      preview.textContent = `约 ${formatShares(qty)} 份 · 占全仓 ${w} · 成交后现金约 ${formatMoney(Math.max(0, afterCash))}`;
+    } else if (state.defaultAmount) {
+      preview.textContent = `建议金额 ${formatMoney(state.defaultAmount)}（目标权重 × 全仓）；请填写成交价`;
     } else {
-      preview.textContent = '';
+      preview.textContent = cash > 0 ? `可用现金 ${formatMoney(cash)}` : '请填写金额与成交价';
     }
     return;
   }
   if (state.mode === 'reduce') {
-    const pos = loadFlexLedger().positions[state.key];
+    const pos = ledger.positions[state.key];
     if (!pos) {
       preview.textContent = '—';
       return;
@@ -1062,13 +1053,17 @@ function updateFlexModalPreview() {
       sellQty = Number(pos.qty) * (Math.min(100, pct) / 100);
       sellAmt = sellQty * price;
     }
-    preview.textContent = sellQty > 0
-      ? `−${formatShares(sellQty)} / ${formatMoney(sellAmt)} → ${formatShares(Math.max(0, Number(pos.qty) - sellQty))}`
-      : '';
+    if (sellQty > 0) {
+      const costRemoved = (Number(pos.cost_basis) / Number(pos.qty)) * sellQty;
+      const pnl = sellAmt - costRemoved;
+      preview.textContent = `卖出 ${formatShares(sellQty)} · 金额 ${formatMoney(sellAmt)} · 预计盈亏 ${flexFormatSignedMoney(pnl)} · 剩余 ${formatShares(Math.max(0, Number(pos.qty) - sellQty))}`;
+    } else {
+      preview.textContent = '填写金额或比例，以及成交价';
+    }
     return;
   }
   if (state.mode === 'close') {
-    const pos = loadFlexLedger().positions[state.key];
+    const pos = ledger.positions[state.key];
     if (!pos) {
       preview.textContent = '—';
       return;
@@ -1076,9 +1071,9 @@ function updateFlexModalPreview() {
     if (price > 0) {
       const amt = Number(pos.qty) * price;
       const pnl = amt - Number(pos.cost_basis);
-      preview.textContent = `${formatMoney(amt)} · ${pnl >= 0 ? '+' : ''}${formatMoney(pnl)}`;
+      preview.textContent = `全平约 ${formatMoney(amt)} · 预计盈亏 ${flexFormatSignedMoney(pnl)} · 回现金`;
     } else {
-      preview.textContent = '';
+      preview.textContent = '请填写成交价（按本机持仓全平）';
     }
   }
 }
@@ -1109,18 +1104,21 @@ function openFlexTradeModal(spec) {
     err.textContent = '';
   }
 
+  const chips = document.getElementById('flexModalAmountChips');
   if (spec.mode === 'buy' || spec.mode === 'add') {
     if (amountField) amountField.hidden = false;
     if (priceField) priceField.hidden = false;
     if (pctField) pctField.hidden = true;
-    if (amountLabel) amountLabel.textContent = '金额';
+    if (chips) chips.hidden = false;
+    if (amountLabel) amountLabel.textContent = '金额（元）';
     if (amountEl) amountEl.value = spec.defaultAmount != null ? String(spec.defaultAmount) : '';
     if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
   } else if (spec.mode === 'reduce') {
     if (amountField) amountField.hidden = false;
     if (priceField) priceField.hidden = false;
     if (pctField) pctField.hidden = false;
-    if (amountLabel) amountLabel.textContent = '金额';
+    if (chips) chips.hidden = true;
+    if (amountLabel) amountLabel.textContent = '金额（元）';
     if (amountEl) amountEl.value = '';
     if (pctEl) pctEl.value = '50';
     if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
@@ -1128,6 +1126,7 @@ function openFlexTradeModal(spec) {
     if (amountField) amountField.hidden = true;
     if (priceField) priceField.hidden = false;
     if (pctField) pctField.hidden = true;
+    if (chips) chips.hidden = true;
     if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
   }
 
@@ -1391,13 +1390,13 @@ function renderFlexSignalRows(items, flex, options = {}) {
     }
 
     return `<div class="flex-row ${badgeInfo.cls}${held ? ' is-held' : ''}">
-      <span class="badge badge-wide">${escapeHtml(badgeInfo.text)}</span>
-      <span class="flex-row-code">${escapeHtml(etfCode || '—')}</span>
-      <span class="flex-row-name">${escapeHtml(name)}</span>
-      <span class="flex-row-num">${escapeHtml(String(w))}</span>
-      <span class="flex-row-num">${amt}</span>
-      <span class="flex-row-num flex-row-muted">${escapeHtml(left)}</span>
-      <span class="flex-row-acts">${acts}</span>
+      <span class="badge badge-wide" data-label="信号">${escapeHtml(badgeInfo.text)}</span>
+      <span class="flex-row-code" data-label="代码">${escapeHtml(etfCode || '—')}</span>
+      <span class="flex-row-name" data-label="名称">${escapeHtml(name)}</span>
+      <span class="flex-row-num" data-label="目标">${escapeHtml(String(w))}</span>
+      <span class="flex-row-num" data-label="建议">${amt}</span>
+      <span class="flex-row-num flex-row-muted" data-label="清仓">${escapeHtml(left)}</span>
+      <span class="flex-row-acts" data-label="操作">${acts}</span>
     </div>`;
   }).join('');
 }
@@ -1406,18 +1405,22 @@ function renderFlexSignalList(flex, options = {}) {
   const buckets = splitFlexSignalBuckets(flex || {});
   const defaultHoldDays = flex?.hold_days != null ? Number(flex.hold_days) : 5;
   const map = [
-    { kind: 'open', id: 'flexOpenList', forceKind: 'open' },
-    { kind: 'hold', id: 'flexHoldList', forceKind: 'hold' },
-    { kind: 'close', id: 'flexCloseList', forceKind: 'close' },
-    { kind: 'avoid', id: 'flexAvoidList', forceKind: 'avoid' },
+    { kind: 'open', id: 'flexOpenList', forceKind: 'open', countId: 'flexOpenCount' },
+    { kind: 'hold', id: 'flexHoldList', forceKind: 'hold', countId: 'flexHoldCount' },
+    { kind: 'close', id: 'flexCloseList', forceKind: 'close', countId: 'flexCloseCount' },
+    { kind: 'avoid', id: 'flexAvoidList', forceKind: 'avoid', countId: 'flexAvoidCount' },
   ];
 
   let any = false;
-  for (const { kind, id, forceKind } of map) {
+  let actionable = 0;
+  for (const { kind, id, forceKind, countId } of map) {
     const block = document.querySelector(`[data-signal-kind="${kind}"]`);
     const el = document.getElementById(id);
     const items = buckets[kind] || [];
+    const countEl = document.getElementById(countId);
+    if (countEl) countEl.textContent = items.length ? `(${items.length})` : '';
     if (block) block.hidden = items.length === 0;
+    if (kind !== 'avoid') actionable += items.length;
     if (!el) continue;
     if (!items.length) {
       el.innerHTML = '';
@@ -1432,7 +1435,27 @@ function renderFlexSignalList(flex, options = {}) {
   }
 
   const empty = document.getElementById('flexSignalEmpty');
-  if (empty) empty.hidden = any;
+  if (empty) {
+    empty.hidden = any;
+    if (!any) {
+      const title = document.getElementById('flexSignalEmptyTitle');
+      const body = document.getElementById('flexSignalEmptyBody');
+      if (title) title.textContent = '今日无行动信号';
+      if (body) {
+        body.textContent = flex?.as_of
+          ? `策略书日期 ${String(flex.as_of).slice(0, 10)}：今明窗口没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位。`
+          : '策略书在今明窗口没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位，或等待下一交易日更新。';
+      }
+    }
+  }
+
+  const capital = Number(loadFlexLedger().capital) || 0;
+  const capitalHint = document.getElementById('flexCapitalHint');
+  if (capitalHint) {
+    capitalHint.hidden = !(capital <= 0 && any);
+  }
+
+  setFlexTabBadge('flexTabBadgeSignal', actionable);
 }
 
 function bindFlexTabs() {
@@ -1442,7 +1465,11 @@ function bindFlexTabs() {
   panel.querySelectorAll('.flex-tab').forEach(tab => {
     tab.addEventListener('click', () => {
       const id = tab.dataset.flexTab;
-      panel.querySelectorAll('.flex-tab').forEach(t => t.classList.toggle('active', t === tab));
+      panel.querySelectorAll('.flex-tab').forEach(t => {
+        const on = t === tab;
+        t.classList.toggle('active', on);
+        t.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
       panel.querySelectorAll('.flex-tab-panel').forEach(p => {
         p.classList.toggle('active', p.dataset.flexPanel === id);
       });
@@ -1515,6 +1542,29 @@ function bindFlexExecControls() {
     URL.revokeObjectURL(url);
   });
 
+  document.getElementById('flexImportLedgerBtn')?.addEventListener('click', () => {
+    document.getElementById('flexImportLedgerFile')?.click();
+  });
+  document.getElementById('flexImportLedgerFile')?.addEventListener('change', async (ev) => {
+    const file = ev.target?.files?.[0];
+    ev.target.value = '';
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      if (!parsed || typeof parsed !== 'object') throw new Error('无效账本文件');
+      const ledger = normalizeFlexLedger(parsed);
+      if (!confirm(`导入账本？将覆盖本机当前持仓与流水。\n全仓 ${formatMoney(ledger.capital)} · 持仓 ${flexOpenPositions(ledger).length} · 流水 ${(ledger.journal || []).length}`)) {
+        return;
+      }
+      saveFlexLedger(ledger);
+      if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
+      else renderFlexExecUi();
+    } catch (e) {
+      alert(e.message || '导入失败');
+    }
+  });
+
   document.getElementById('flexModalCloseBtn')?.addEventListener('click', closeFlexTradeModal);
   document.getElementById('flexModalCancelBtn')?.addEventListener('click', closeFlexTradeModal);
   document.getElementById('flexModalConfirmBtn')?.addEventListener('click', confirmFlexTradeModal);
@@ -1523,6 +1573,32 @@ function bindFlexExecControls() {
   });
   ['flexModalAmount', 'flexModalPrice', 'flexModalPct'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateFlexModalPreview);
+    document.getElementById(id)?.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Enter') {
+        ev.preventDefault();
+        confirmFlexTradeModal();
+      }
+    });
+  });
+  document.getElementById('flexModalAmountChips')?.addEventListener('click', (ev) => {
+    const chip = ev.target.closest('[data-flex-amt-chip]');
+    if (!chip) return;
+    const state = dashboardState.flexModal;
+    if (!state || (state.mode !== 'buy' && state.mode !== 'add')) return;
+    const amountEl = document.getElementById('flexModalAmount');
+    if (!amountEl) return;
+    const ledger = loadFlexLedger();
+    const cash = flexAvailableCash(ledger);
+    const kind = chip.dataset.flexAmtChip;
+    let next = null;
+    if (kind === 'suggest' && state.defaultAmount != null) next = Number(state.defaultAmount);
+    else if (kind === '25') next = Math.floor(cash * 0.25);
+    else if (kind === '50') next = Math.floor(cash * 0.5);
+    else if (kind === '100') next = Math.floor(cash);
+    if (next != null && next > 0) {
+      amountEl.value = String(next);
+      updateFlexModalPreview();
+    }
   });
   document.addEventListener('keydown', (ev) => {
     if (ev.key === 'Escape') closeFlexTradeModal();
@@ -1537,10 +1613,12 @@ function bindFlexExecControls() {
 
     if (act === 'buy') {
       const suggested = btn.dataset.suggested ? Number(btn.dataset.suggested) : null;
+      const isAdd = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
+      const codeName = `${btn.dataset.etfCode || ''} ${btn.dataset.name || ''}`.trim();
       openFlexTradeModal({
-        mode: ledger.positions[key] && Number(ledger.positions[key].qty) > 0 ? 'add' : 'buy',
-        title: ledger.positions[key] && Number(ledger.positions[key].qty) > 0 ? '+' : '买',
-        subtitle: `${btn.dataset.etfCode || btn.dataset.name || ''}`.trim(),
+        mode: isAdd ? 'add' : 'buy',
+        title: isAdd ? '加仓记账' : '买入记账',
+        subtitle: `${codeName}${suggested ? ` · 建议 ${formatMoney(suggested)}` : ''} · 请填实际成交价`,
         key,
         name: btn.dataset.name || '',
         etf_code: btn.dataset.etfCode || '',
@@ -1559,11 +1637,12 @@ function bindFlexExecControls() {
     if (act === 'add' || act === 'reduce' || act === 'close') {
       const pos = ledger.positions[key];
       if (!pos || !(Number(pos.qty) > 0)) return;
+      const sub = `${pos.etf_code || pos.name || ''} · 成本 ${formatMoney(pos.cost_basis)}`;
       if (act === 'add') {
         openFlexTradeModal({
           mode: 'add',
-          title: '+',
-          subtitle: pos.etf_code || pos.name || '',
+          title: '加仓记账',
+          subtitle: sub,
           key,
           name: pos.name,
           etf_code: pos.etf_code,
@@ -1575,16 +1654,16 @@ function bindFlexExecControls() {
       } else if (act === 'reduce') {
         openFlexTradeModal({
           mode: 'reduce',
-          title: '−',
-          subtitle: pos.etf_code || pos.name || '',
+          title: '减仓记账',
+          subtitle: sub,
           key,
           defaultPrice: pos.last_price || pos.avg_price,
         });
       } else {
         openFlexTradeModal({
           mode: 'close',
-          title: '×',
-          subtitle: pos.etf_code || pos.name || '',
+          title: '平仓记账',
+          subtitle: sub,
           key,
           defaultPrice: pos.last_price || pos.avg_price,
         });
@@ -1663,6 +1742,7 @@ function renderFlexTradePanel(playbook) {
     setText('flexExposure', '—');
     setText('flexBeta', '—');
     setText('flexHold', '—');
+    setText('flexModeHint', '—');
     renderFlexSignalList({}, {});
     dashboardState.flexActive = null;
     renderFlexExecUi();
@@ -1727,6 +1807,19 @@ function renderFlexTradePanel(playbook) {
   document.querySelectorAll('.flex-mode-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.flexMode === mode);
   });
+
+  const modeCfg = (flex.modes || {})[mode] || {};
+  const modeLabel = mode === 'conservative' ? '保守' : '进取';
+  const modeDetail = modeCfg.label_cn
+    || (mode === 'conservative' ? '50/30 · cap80%' : '60/40 · 单仓满');
+  setText('flexModeHint', modeLabel);
+  const modeHintEl = document.getElementById('flexModeHint');
+  if (modeHintEl) modeHintEl.title = modeDetail;
+
+  const trust = document.getElementById('flexTrustLine');
+  if (trust && asOf) {
+    trust.innerHTML = `<strong>双状态</strong>：核心/卫星为策略纸面书（as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>）；持仓与盈亏来自浏览器本机账本。成交价自行录入；浮盈亏按录入价估值，非实时行情。`;
+  }
 
   renderFlexSignalList(flex, { signalAsOf: asOf });
   renderFlexExecUi();
@@ -1813,7 +1906,7 @@ async function main() {
   try {
     const critical = await loadCriticalDashboardData();
     renderCriticalDashboard(critical);
-    updateRefreshStatus('ok', '核心数据已加载；正在加载策略与板块研究…');
+    updateRefreshStatus('ok', '核心数据已加载；正在加载策略与 Flex…');
     document.body.classList.remove('is-loading');
     const heavy = await loadHeavyDashboardData();
     renderHeavyDashboard(heavy);
@@ -1831,8 +1924,6 @@ async function main() {
   renderFlexExecUi();
   window.addEventListener('resize', () => {
     dashboardState.componentChart?.resize();
-    dashboardState.sectorChart?.resize();
-    dashboardState.lowPositionChart?.resize();
     dashboardState.timeCharts.forEach(chart => chart.resize());
   });
 }
