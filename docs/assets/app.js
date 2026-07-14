@@ -489,15 +489,15 @@ function pctLabel(value) {
 }
 
 const FLEX_ACTION_BADGE = {
-  OPEN: { text: '新开', cls: 'buy' },
-  OVERWEIGHT: { text: '超配', cls: 'buy' },
-  BUY: { text: '买入', cls: 'buy' },
-  HOLD: { text: '今日买入', cls: 'buy' },
+  OPEN: { text: '明天买入', cls: 'buy' },
+  OVERWEIGHT: { text: '明天买入', cls: 'buy' },
+  BUY: { text: '明天买入', cls: 'buy' },
+  HOLD: { text: '—', cls: 'wait' }, // desk never promotes paper HOLD as a buy
   CLOSE: { text: '平仓', cls: 'sell' },
   AVOID: { text: '回避', cls: 'avoid' },
   FLAT: { text: '观望', cls: 'wait' },
   SELL: { text: '卖出', cls: 'sell' },
-  OVERWEIGHT_RELATIVE: { text: '超配', cls: 'buy' },
+  OVERWEIGHT_RELATIVE: { text: '明天买入', cls: 'buy' },
   UNDERWEIGHT_RELATIVE: { text: '低配', cls: 'avoid' },
 };
 
@@ -1240,23 +1240,20 @@ function flexResolveEntryDate(item, flex) {
 }
 
 /**
- * Desk badge copy (execution semantics, not paper-book archaeology).
- * HOLD on the book = still a valid long setup; for the user that means:
- *   - not yet in local ledger → 今日买入 (buy today)
- *   - already in local ledger → 持有中
- * Never label with paper entry like「7月8日买」as if that were the order date.
+ * Desk badge: T-day signal → next open = 明天买入.
+ * Paper HOLD is not a desk buy signal (no「7月8日买」, no「今日买入」).
  */
 function flexActionBadge(item, flex, options = {}) {
   const action = String(item?.action || item?.side || '').toUpperCase();
-  const base = FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item?.action_cn), cls: 'wait' };
   if (action === 'HOLD') {
-    if (options.localHeld) {
-      return { text: '持有中', cls: 'hold' };
-    }
-    // Execution desk: treat paper HOLD as a buy signal for today.
-    return { text: '今日买入', cls: 'buy' };
+    return options.localHeld
+      ? { text: '持有中', cls: 'hold' }
+      : { text: '—', cls: 'wait' };
   }
-  return base;
+  if (FLEX_BUY_ACTIONS.has(action) || action === 'OPEN') {
+    return { text: '明天买入', cls: 'buy' };
+  }
+  return FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item?.action_cn), cls: 'wait' };
 }
 
 /** Shanghai calendar YYYY-MM-DD. */
@@ -1300,20 +1297,21 @@ function flexBookLagDays(asOf) {
 }
 
 /**
- * Book is "current enough" for NEW open/close if as_of is today or within a short
- * weekend/holiday buffer (≤3 calendar days). Beyond that OPEN is stale.
+ * Desk rule (user):
+ * - Only care about TODAY's book (as_of == 上海今天).
+ * - If today has OPEN/BUY signal → show as 明天买入 (T close → T+1 open).
+ * - If today has no such signal → empty. Period.
+ * - Paper multi-day HOLD is NOT a buy signal — do not list it for buying.
  */
-function flexBookIsCurrentForOpens(asOf) {
-  const lag = flexBookLagDays(asOf);
-  if (lag == null) return false;
-  return lag >= 0 && lag <= 3;
+function flexBookIsToday(asOf) {
+  const a = String(asOf || '').slice(0, 10);
+  return !!a && a === flexDateCn(0);
 }
 
 /** Split engine lists into 4 separate buckets — never mix kinds in one table. */
 function splitFlexSignalBuckets(flex) {
   const f = flex || {};
   const openKeys = new Set(['OPEN', 'BUY', 'OVERWEIGHT', 'OVERWEIGHT_RELATIVE']);
-  const holdKeys = new Set(['HOLD']);
   const closeKeys = new Set(['CLOSE', 'SELL']);
   const avoidKeys = new Set(['AVOID', 'UNDERWEIGHT_RELATIVE', 'FLAT']);
 
@@ -1327,11 +1325,10 @@ function splitFlexSignalBuckets(flex) {
     buckets[kind].push({ ...item, _key: key });
   };
 
-  // Source priority within each kind: explicit lists first, then minimal_actions by action.
+  // Desk only: buy_list + minimal_actions OPEN — ignore hold_list (paper archaeology).
   const sources = [
     ...(f.buy_list || []),
     ...(f.minimal_actions || []),
-    ...(f.hold_list || []),
     ...(f.close_list || []),
     ...(f.sell_list || []),
     ...(f.avoid_list || []),
@@ -1340,35 +1337,22 @@ function splitFlexSignalBuckets(flex) {
   for (const item of sources) {
     const action = String(item.action || item.side || '').toUpperCase();
     if (openKeys.has(action)) pushUnique('open', item);
-    else if (holdKeys.has(action)) pushUnique('hold', item);
     else if (closeKeys.has(action)) pushUnique('close', item);
     else if (avoidKeys.has(action)) pushUnique('avoid', item);
+    // HOLD intentionally ignored on the execution desk
   }
 
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
-  const lag = flexBookLagDays(asOf);
-  const opensCurrent = flexBookIsCurrentForOpens(asOf);
+  const isToday = flexBookIsToday(asOf);
 
-  // HOLD: keep paper holds from the current book (multi-day). Do NOT require entry=today.
-  // Drop only if engine marks exhausted remaining days.
-  buckets.hold = buckets.hold.filter(item => {
-    if (item.days_remaining != null && Number.isFinite(Number(item.days_remaining))) {
-      return Number(item.days_remaining) >= 0;
-    }
-    return true;
-  });
-
-  // OPEN / 新开：仅当策略书日期仍接近今日（含周末缓冲）；过旧书的新开会误导
-  if (!opensCurrent) {
+  // Only today's book can produce 明天买入 / 今日平仓
+  if (!isToday) {
     buckets.open = [];
+    buckets.close = [];
     buckets.avoid = [];
   }
-  // CLOSE: still useful while lag is moderate (≤5d); else hide to avoid zombie exits
-  if (lag != null && lag > 5) {
-    buckets.close = [];
-  }
+  buckets.hold = []; // never show paper HOLD as a desk signal
 
-  // Stable display order within each bucket.
   for (const kind of Object.keys(buckets)) {
     buckets[kind].sort((a, b) =>
       String(a.etf_code || a.name || '').localeCompare(String(b.etf_code || b.name || ''), 'zh')
@@ -1402,13 +1386,8 @@ function renderFlexSignalRows(items, flex, options = {}) {
     const left = held ? flexPositionExitInfo(localPos).label : '—';
     const interactive = forceKind !== 'avoid' && action !== 'AVOID' && action !== 'UNDERWEIGHT_RELATIVE' && action !== 'FLAT';
 
-    // Desk buy today: plan hold from *today's* fill, not paper book's leftover days.
-    // (HOLD-as-buy = full default hold window starting at user confirm.)
-    const planDays = options.defaultHoldDays != null
-      ? Number(options.defaultHoldDays)
-      : (item.days_remaining != null && Number(item.days_remaining) >= 0
-        ? Number(item.days_remaining)
-        : null);
+    // Buy plan starts when user confirms (today's bookkeeping); full default hold window.
+    const planDays = options.defaultHoldDays != null ? Number(options.defaultHoldDays) : null;
 
     let acts = '';
     if (interactive) {
@@ -1421,7 +1400,8 @@ function renderFlexSignalRows(items, flex, options = {}) {
         acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加</button>
           <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
           <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`;
-      } else if (forceKind === 'open' || forceKind === 'hold' || FLEX_BUY_ACTIONS.has(action) || action === 'HOLD') {
+      } else if (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action)) {
+        // Only true OPEN/BUY — never paper HOLD
         acts = `<button type="button" class="flex-chip primary"
           data-flex-act="buy"
           data-pos-key="${escapeHtml(key)}"
@@ -1432,7 +1412,7 @@ function renderFlexSignalRows(items, flex, options = {}) {
           data-suggested="${suggested != null ? suggested : ''}"
           data-signal-as-of="${escapeHtml(signalAsOf)}"
           data-hold-days="${planDays != null ? planDays : ''}"
-        >买</button>`;
+        >记买入</button>`;
       }
     }
 
@@ -1494,21 +1474,13 @@ function renderFlexSignalList(flex, options = {}) {
       const officialAsOf = dq.official_as_of || asOf;
       if (title && body) {
         if (lag != null && lag > 0) {
-          title.textContent = `策略书日期 ${asOf || '—'}（落后今日 ${today} ${lag} 天）`;
-          body.textContent = [
-            officialAsOf && officialAsOf !== asOf
-              ? `正式 RT 收盘序列停在 ${officialAsOf}，书页 as_of 为桥接/估算后的 ${asOf}。`
-              : `正式策略书 as_of=${asOf}，日历今日=${today}。`,
-            dq.bridged
-              ? `已标注桥接：${(dq.bridged_dates || []).join(', ') || '—'}（${dq.bridge_source || 'bridge'}）。`
-              : '若 latest 已是 NOWCAST 而 as_of 仍旧，说明正式 AVIX 日线尚未补齐，站点正在用实时温度但策略书未重建。',
-            '无新开/持有/平仓行时：可能是该日确实无信号，或书日过旧已隐藏过期新开。请看「持仓」本机账本，或等正式日线/桥接刷新。',
-          ].filter(Boolean).join(' ');
+          title.textContent = '今天没有买入信号';
+          body.textContent = `策略书 as_of=${asOf || '—'}，日历今天=${today}（差 ${lag} 天）。只有 as_of=今天 的新开才显示「明天买入」。没有就空着。已持仓请看「持仓」页。`;
         } else {
-          title.textContent = '今日无行动信号';
+          title.textContent = '今天没有买入信号';
           body.textContent = asOf
-            ? `策略书日期 ${asOf}：当前没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位。`
-            : '当前没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位，或等待数据更新。';
+            ? `策略书 as_of=${asOf}：今天没有新开信号，故不显示「明天买入」。纸面多日持有不会列在这里。已持仓请看「持仓」页。`
+            : '今天没有买入信号。已持仓请看「持仓」页。';
         }
       }
     }

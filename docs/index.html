@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260714-hold-as-buy">
+    <link rel="stylesheet" href="./assets/app.css?v=20260714-tmr-buy-only">
   </head>
   <body>
     <header class="topbar">
@@ -156,7 +156,8 @@
         <div class="flex-tab-panel active" data-flex-panel="signal" role="tabpanel">
           <div class="flex-signal-sections" id="flexSignalSections">
             <section class="flex-signal-block" data-signal-kind="open" hidden>
-              <h3 class="flex-signal-title buy">新开 <span class="flex-signal-count" id="flexOpenCount"></span></h3>
+              <h3 class="flex-signal-title buy">明天买入 <span class="flex-signal-count" id="flexOpenCount"></span></h3>
+              <p class="flex-block-hint">仅当<strong>今天</strong>策略书有新开信号才显示：T 日信号 → <strong>明天开盘</strong>买入。没有就空着。纸面多日「持有」不会出现在这里。</p>
               <div class="flex-table">
                 <div class="flex-table-head">
                   <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>清仓</span><span></span>
@@ -165,8 +166,7 @@
               </div>
             </section>
             <section class="flex-signal-block" data-signal-kind="hold" hidden>
-              <h3 class="flex-signal-title hold">持有信号 <span class="flex-signal-count" id="flexHoldCount"></span></h3>
-              <p class="flex-block-hint">执行台语义：可当作<strong>今日买入</strong>信号（点「买」按今天成交记账）。不是「按纸面历史入场日补买」。本机确认买入后才显示剩余/清仓日。</p>
+              <h3 class="flex-signal-title hold">持有 <span class="flex-signal-count" id="flexHoldCount"></span></h3>
               <div class="flex-table">
                 <div class="flex-table-head">
                   <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>清仓</span><span></span>
@@ -344,6 +344,6 @@
 
     <script src="./vendor/echarts.min.js"></script>
     <script src="./assets/charts.js?v=20260713-nowcast-dual"></script>
-    <script src="./assets/app.js?v=20260714-hold-as-buy"></script>
+    <script src="./assets/app.js?v=20260714-tmr-buy-only"></script>
   </body>
 </html>
