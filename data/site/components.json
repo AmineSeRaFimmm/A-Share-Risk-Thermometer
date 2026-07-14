@@ -10,15 +10,15 @@
     },
     {
       "name": "AVIX Z-score",
-      "score": 58.7478,
+      "score": 58.7655,
       "weight": 0.14,
-      "contribution": 8.2247
+      "contribution": 8.2272
     },
     {
       "name": "AVIX 5日变化",
-      "score": 26.384,
+      "score": 26.4009,
       "weight": 0.08,
-      "contribution": 2.1107
+      "contribution": 2.1121
     },
     {
       "name": "QVIX确认",
