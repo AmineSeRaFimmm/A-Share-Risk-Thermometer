@@ -1,24 +1,24 @@
 {
   "trade_date": "2026-07-14",
-  "temperature_mode": "NOWCAST",
+  "temperature_mode": "OFFICIAL_CLOSE",
   "components": [
     {
       "name": "AVIX两年分位",
-      "score": 70.4365,
+      "score": 78.1312,
       "weight": 0.28,
-      "contribution": 19.7222
+      "contribution": 21.8767
     },
     {
       "name": "AVIX Z-score",
-      "score": 59.5344,
+      "score": 68.329,
       "weight": 0.14,
-      "contribution": 8.3348
+      "contribution": 9.5661
     },
     {
       "name": "AVIX 5日变化",
-      "score": 27.1344,
+      "score": 37.2655,
       "weight": 0.08,
-      "contribution": 2.1708
+      "contribution": 2.9812
     },
     {
       "name": "QVIX确认",
@@ -34,21 +34,21 @@
     },
     {
       "name": "回撤压力",
-      "score": 49.5754,
+      "score": 49.8168,
       "weight": 0.12,
-      "contribution": 5.9491
+      "contribution": 5.978
     },
     {
       "name": "市场宽度",
-      "score": 91.7293,
+      "score": 32.1147,
       "weight": 0.1,
-      "contribution": 9.1729
+      "contribution": 3.2115
     },
     {
       "name": "成交压力",
-      "score": 14.2418,
+      "score": 9.9761,
       "weight": 0.04,
-      "contribution": 0.5697
+      "contribution": 0.399
     }
   ]
 }
