@@ -8,6 +8,12 @@
       "official_status": "缺失",
       "estimate_status": "不可用",
       "reason": "实时AVIX仅可盘中: WARN_NOT_BRACKET_30D"
+    },
+    {
+      "date": "2026-07-14",
+      "official_status": "缺失",
+      "estimate_status": "不可用",
+      "reason": "实时AVIX仅可盘中: WARN_NOT_BRACKET_30D"
     }
   ],
   "methodology": {
