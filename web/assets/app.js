@@ -893,13 +893,20 @@ function renderFlexAccountBar() {
   if (uEl) {
     uEl.textContent = hasBook && deployed > 0 ? flexFormatSignedMoney(uPnl) : (hasBook ? '0' : '—');
     uEl.classList.remove('up', 'down');
-    if (hasBook && deployed > 0) uEl.classList.add(uPnl > 0 ? 'up' : uPnl < 0 ? 'down' : '');
+    // Never classList.add('') — DOMTokenList rejects empty tokens.
+    if (hasBook && deployed > 0) {
+      if (uPnl > 0) uEl.classList.add('up');
+      else if (uPnl < 0) uEl.classList.add('down');
+    }
   }
   const rEl = document.getElementById('flexExecRPnl');
   if (rEl) {
     rEl.textContent = hasBook ? flexFormatSignedMoney(rPnl) : '—';
     rEl.classList.remove('up', 'down');
-    if (hasBook) rEl.classList.add(rPnl > 0 ? 'up' : rPnl < 0 ? 'down' : '');
+    if (hasBook) {
+      if (rPnl > 0) rEl.classList.add('up');
+      else if (rPnl < 0) rEl.classList.add('down');
+    }
   }
 
   const note = document.getElementById('flexMarkNote');
