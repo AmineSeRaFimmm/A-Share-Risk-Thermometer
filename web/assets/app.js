@@ -502,8 +502,12 @@ const FLEX_ACTION_BADGE = {
 };
 
 const FLEX_LEDGER_KEY = 'ashare_flex_exec_ledger_v1';
+/** Cache of strategy OPEN rows so T+1 can still confirm after daily rebuild clears buy_list. */
+const FLEX_OPEN_SIGNAL_CACHE_KEY = 'ashare_flex_open_signal_cache_v1';
 const FLEX_BUY_ACTIONS = new Set(['OPEN', 'OVERWEIGHT', 'BUY', 'OVERWEIGHT_RELATIVE']);
 const FLEX_CLOSE_ACTIONS = new Set(['CLOSE', 'SELL']);
+/** Open signal lives on signal day T and next calendar day T+1; gone from T+2. */
+const FLEX_OPEN_SIGNAL_MAX_LAG_DAYS = 1;
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -1240,8 +1244,10 @@ function flexResolveEntryDate(item, flex) {
 }
 
 /**
- * Desk badge: T-day signal → next open = 明天买入.
- * Paper HOLD is not a desk buy signal (no「7月8日买」, no「今日买入」).
+ * Desk badge for open signals:
+ * - signal day T → 可买(至T+1)
+ * - T+1 → T+1可确认
+ * Paper HOLD is never a buy badge.
  */
 function flexActionBadge(item, flex, options = {}) {
   const action = String(item?.action || item?.side || '').toUpperCase();
@@ -1251,7 +1257,10 @@ function flexActionBadge(item, flex, options = {}) {
       : { text: '—', cls: 'wait' };
   }
   if (FLEX_BUY_ACTIONS.has(action) || action === 'OPEN') {
-    return { text: '明天买入', cls: 'buy' };
+    const asOf = options.signalAsOf || item?.signal_as_of || flex?.as_of || '';
+    const lag = flexBookLagDays(asOf);
+    if (lag === 1) return { text: 'T+1可确认', cls: 'buy' };
+    return { text: '可买·至T+1', cls: 'buy' };
   }
   return FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item?.action_cn), cls: 'wait' };
 }
@@ -1298,16 +1307,52 @@ function flexBookLagDays(asOf) {
 
 /**
  * Desk rule (personal execution, not paper simulation):
- * 1) Strategy emits a buy signal only on the signal day (as_of == 上海今天).
- * 2) It becomes YOUR holding only after you click 买 and confirm fill.
- * 3) If you do not click 买, the open signal is gone the next day — no catch-up,
- *    no promoting multi-day paper HOLD into "still buyable".
+ * 1) Strategy buy signal is actionable on signal day T and the next day T+1.
+ * 2) It becomes YOUR holding only after you click 买 and confirm fill (T or T+1).
+ * 3) If you do not click by T+2, the open signal disappears (no paper HOLD catch-up).
  * 4) CLOSE / AVOID only apply to names you personally hold in the local ledger.
  * 5) Your own hold clock starts on the day you confirmed the buy.
  */
 function flexBookIsToday(asOf) {
   const a = String(asOf || '').slice(0, 10);
   return !!a && a === flexDateCn(0);
+}
+
+/** Signal open window: lag 0 (T) or 1 (T+1). lag≥2 → gone. */
+function deskSignalWindowOpen(asOf) {
+  const lag = flexBookLagDays(asOf);
+  return lag != null && lag >= 0 && lag <= FLEX_OPEN_SIGNAL_MAX_LAG_DAYS;
+}
+
+function loadOpenSignalCache() {
+  try {
+    const raw = localStorage.getItem(FLEX_OPEN_SIGNAL_CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== 'object') return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+
+function saveOpenSignalCache(asOf, items) {
+  const day = String(asOf || '').slice(0, 10);
+  if (!day || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
+  const rows = (items || []).map(item => ({
+    ...item,
+    signal_as_of: day,
+    action: item.action || 'OPEN',
+  }));
+  localStorage.setItem(FLEX_OPEN_SIGNAL_CACHE_KEY, JSON.stringify({
+    as_of: day,
+    items: rows,
+    saved_at: new Date().toISOString(),
+  }));
+}
+
+function clearOpenSignalCache() {
+  try { localStorage.removeItem(FLEX_OPEN_SIGNAL_CACHE_KEY); } catch { /* ignore */ }
 }
 
 /** True when local ledger has an open position matching this signal row. */
@@ -1328,10 +1373,11 @@ function flexIsLocallyHeld(item, ledger = loadFlexLedger()) {
   });
 }
 
-/** True fresh OPEN rows from engine for today only (never paper HOLD archaeology). */
+/** Engine OPEN rows only (never paper HOLD archaeology). */
 function deskFreshOpenSignals(flex) {
   const f = flex || {};
   const openKeys = new Set(['OPEN', 'BUY', 'OVERWEIGHT', 'OVERWEIGHT_RELATIVE']);
+  const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
   const byKey = new Map();
   const put = (item) => {
     if (!item) return;
@@ -1339,13 +1385,107 @@ function deskFreshOpenSignals(flex) {
     if (!openKeys.has(action)) return;
     const key = flexPositionKey(item);
     if (!key || byKey.has(key)) return;
-    byKey.set(key, { ...item, action: action === 'BUY' ? 'OPEN' : item.action || 'OPEN' });
+    byKey.set(key, {
+      ...item,
+      action: action === 'BUY' ? 'OPEN' : item.action || 'OPEN',
+      signal_as_of: item.signal_as_of || asOf,
+    });
   };
   for (const item of f.buy_list || []) put(item);
   for (const item of f.minimal_actions || []) put(item);
-  // Intentionally ignore hold_list / satellite.buy / paper CLOSE-as-reopen.
-  // Missed the signal day → disappears; do not resurrect next day.
   return [...byKey.values()];
+}
+
+/**
+ * If user never loaded the page on signal day T, buy_list is already empty on T+1.
+ * Recover only paper holds that are still brand-new (days_held 0 or 1) → still in T..T+1.
+ */
+function deskSeedOpensFromRecentPaperHold(flex) {
+  const f = flex || {};
+  const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
+  if (!asOf) return [];
+  const rows = [];
+  const seen = new Set();
+  const consider = (item) => {
+    if (!item) return;
+    const dh = item.days_held != null ? Number(item.days_held) : null;
+    // Brand-new paper position only; older holds are not reopened.
+    if (dh != null && Number.isFinite(dh) && dh > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS) return;
+    let signalDay = String(item.entry_signal_date || item.signal_as_of || '').slice(0, 10);
+    if (!signalDay || !/^\d{4}-\d{2}-\d{2}$/.test(signalDay)) {
+      if (dh === 0 || dh == null) signalDay = asOf;
+      else if (dh === 1) signalDay = flexAddCalendarDays(asOf, -1);
+      else return;
+    }
+    if (!deskSignalWindowOpen(signalDay)) return;
+    const key = flexPositionKey(item);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    rows.push({
+      ...item,
+      action: 'OPEN',
+      action_cn: '新开确认（T～T+1）',
+      side: item.side && FLEX_BUY_ACTIONS.has(String(item.side).toUpperCase()) ? item.side : 'OPEN',
+      side_cn: '买入',
+      entry: item.entry && item.entry !== '—' ? item.entry : '可确认买入',
+      signal_as_of: signalDay,
+      why: item.why || '策略新开窗口：信号日 T 与 T+1 可点买确认',
+      _deskSeededFromHold: true,
+    });
+  };
+  for (const item of f.hold_list || []) consider(item);
+  // Core still OPEN in engine (rare on T+1 but keep).
+  const core = f.core || {};
+  if (String(core.action || '').toUpperCase() === 'OPEN') {
+    consider({
+      sleeve: 'core',
+      name: '沪深300',
+      etf_code: core.etf_code || '510300',
+      etf_name: core.etf_name,
+      weight_target: core.weight_target,
+      weight_hint: core.weight_hint,
+      days_held: 0,
+      signal_as_of: asOf,
+      why: core.rule || core.detail,
+    });
+  }
+  return rows;
+}
+
+/**
+ * Open signals for the desk: fresh engine OPEN on T, or cached/seeded OPEN still within T..T+1.
+ * Daily rebuild often clears buy_list on T+1 — cache/seed keeps confirm window until T+2.
+ */
+function deskCollectOpenSignals(flex) {
+  const f = flex || {};
+  const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
+  const fresh = deskFreshOpenSignals(f);
+
+  if (fresh.length) {
+    // New strategy opens for this as_of → refresh cache (T window starts here).
+    saveOpenSignalCache(asOf, fresh);
+    return fresh.map(item => ({ ...item, signal_as_of: item.signal_as_of || asOf }));
+  }
+
+  const cache = loadOpenSignalCache();
+  if (cache?.as_of && deskSignalWindowOpen(cache.as_of) && Array.isArray(cache.items) && cache.items.length) {
+    return cache.items.map(item => ({
+      ...item,
+      signal_as_of: cache.as_of,
+      action: item.action || 'OPEN',
+    }));
+  }
+
+  if (cache && !deskSignalWindowOpen(cache?.as_of)) clearOpenSignalCache();
+
+  // First visit on T+1: recover from brand-new paper holds only.
+  const seeded = deskSeedOpensFromRecentPaperHold(f);
+  if (seeded.length) {
+    const sig = seeded[0].signal_as_of || asOf;
+    saveOpenSignalCache(sig, seeded);
+    return seeded;
+  }
+  return [];
 }
 
 /** Personal positions whose hold window has ended (user's buy_date clock). */
@@ -1398,38 +1538,45 @@ function splitFlexSignalBuckets(flex) {
   };
 
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
-  const isToday = flexBookIsToday(asOf);
+  // Open/strategy tips live for T and T+1 (calendar lag 0..1). T+2+ → only personal due closes.
+  const inSignalWindow = deskSignalWindowOpen(asOf) || (() => {
+    const cache = loadOpenSignalCache();
+    return !!(cache?.as_of && deskSignalWindowOpen(cache.as_of));
+  })();
 
-  // Stale strategy book → no open/close/avoid from strategy (missed day is gone).
-  // Still surface personal due closes so hold clocks keep working.
-  if (!isToday) {
+  if (!inSignalWindow) {
+    clearOpenSignalCache();
     for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
     buckets.hold = [];
     return buckets;
   }
 
-  // OPEN: only today's fresh strategy opens, and only if you have not already bought.
-  for (const item of deskFreshOpenSignals(f)) {
+  // OPEN: T / T+1 strategy opens (fresh or cached), only if not already bought by user.
+  for (const item of deskCollectOpenSignals(f)) {
     if (flexIsLocallyHeld(item, ledger)) continue;
     pushUnique('open', item);
   }
 
-  // CLOSE: strategy exit tips only if you personally hold the name.
-  for (const item of [...(f.close_list || []), ...(f.sell_list || []), ...(f.minimal_actions || [])]) {
-    const action = String(item.action || item.side || '').toUpperCase();
-    if (!closeKeys.has(action)) continue;
-    if (!flexIsLocallyHeld(item, ledger)) continue;
-    pushUnique('close', item);
+  // CLOSE: strategy exit tips only if you personally hold the name (while book is in window).
+  if (deskSignalWindowOpen(asOf)) {
+    for (const item of [...(f.close_list || []), ...(f.sell_list || []), ...(f.minimal_actions || [])]) {
+      const action = String(item.action || item.side || '').toUpperCase();
+      if (!closeKeys.has(action)) continue;
+      if (!flexIsLocallyHeld(item, ledger)) continue;
+      pushUnique('close', item);
+    }
   }
   // Plus: your own hold-days expired (independent of paper engine).
   for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
 
   // AVOID: only tip names you actually hold.
-  for (const item of f.avoid_list || []) {
-    const action = String(item.action || item.side || '').toUpperCase();
-    if (!avoidKeys.has(action) && action !== 'FLAT') continue;
-    if (!flexIsLocallyHeld(item, ledger)) continue;
-    pushUnique('avoid', item);
+  if (deskSignalWindowOpen(asOf)) {
+    for (const item of f.avoid_list || []) {
+      const action = String(item.action || item.side || '').toUpperCase();
+      if (!avoidKeys.has(action) && action !== 'FLAT') continue;
+      if (!flexIsLocallyHeld(item, ledger)) continue;
+      pushUnique('avoid', item);
+    }
   }
 
   buckets.hold = []; // never list paper HOLD; real holds live under 持仓 tab
@@ -1455,8 +1602,11 @@ function renderFlexSignalRows(items, flex, options = {}) {
     const held = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
     const isHoldRow = forceKind === 'hold' || action === 'HOLD';
     const badgeInfo = isHoldRow
-      ? flexActionBadge({ ...item, action: 'HOLD' }, flex, { localHeld: held })
-      : flexActionBadge(item, flex, { localHeld: held });
+      ? flexActionBadge({ ...item, action: 'HOLD' }, flex, { localHeld: held, signalAsOf })
+      : flexActionBadge(item, flex, {
+        localHeld: held,
+        signalAsOf: item.signal_as_of || signalAsOf,
+      });
     const suggested = flexSuggestedAmount(item, capital);
     const etfCode = item.etf_code || '';
     const name = item.name || '—';
@@ -1562,14 +1712,14 @@ function renderFlexSignalList(flex, options = {}) {
       const dq = flex?.data_quality || {};
       const officialAsOf = dq.official_as_of || asOf;
       if (title && body) {
-        if (lag != null && lag > 0) {
-          title.textContent = '今天没有买入信号';
-          body.textContent = `策略书 as_of=${asOf || '—'}，日历今天=${today}（差 ${lag} 天）。买入信号只活「信号当天」；不点买，过一天就消失。已点买的看「持仓」页。`;
+        if (lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS) {
+          title.textContent = '买入窗口已过';
+          body.textContent = `策略书 as_of=${asOf || '—'}，今天=${today}（已过 ${lag} 天）。规则：信号日 T 与 T+1 可点买确认；到 T+2 信号消失。已点买的看「持仓」页。`;
         } else {
-          title.textContent = '今天没有买入信号';
+          title.textContent = '当前没有可买信号';
           body.textContent = asOf
-            ? `策略书 as_of=${asOf}：今天没有新开信号。规则：当天点「买」才进你的仓；不点，过一天信号消失，不会把纸面多日持有再当成可买。`
-            : '今天没有买入信号。信号只活一天；不点买就过期。';
+            ? `策略书 as_of=${asOf}：窗口内（T～T+1）没有未确认的新开。点「买」才进你的仓；T+2 起未点的信号消失。`
+            : '当前没有可买信号。信号日 T 与 T+1 可确认；T+2 消失。';
         }
       }
     }
@@ -1814,8 +1964,8 @@ function applyFlexModeOverlay(flex, mode) {
   const cfg = modes[mode];
   if (!cfg) return flex;
   const copy = { ...flex, mode };
-  // Allocation strip: true engine OPEN today, or personal holdings — not paper HOLD archaeology.
-  const freshOpen = deskFreshOpenSignals(flex);
+  // Allocation strip: open signals in T..T+1 window, or personal holdings.
+  const freshOpen = deskCollectOpenSignals(flex);
   const hasCoreOpen = freshOpen.some(x => String(x.sleeve || '') === 'core'
     || String(x.name || '').includes('沪深300')
     || String(x.etf_code || '') === '510300');
@@ -1921,7 +2071,8 @@ function renderFlexTradePanel(playbook) {
       dq.bridged ? `桥接日 ${(dq.bridged_dates || []).join(',')}` : '',
       lag != null && lag > 0 ? `落后今日 ${lag} 个日历日` : '与今日对齐',
     ].filter(Boolean).join(' · ');
-    asOfEl.classList.toggle('warn', !!(lag != null && lag > 0));
+    // lag 1 is still inside T+1 buy window; only warn when past T+1
+    asOfEl.classList.toggle('warn', !!(lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS));
   }
   setText('flexHold', String(flex.hold_days || 5));
   setText('flexStatsShort', pctLabel(full.win_rate));
@@ -1949,12 +2100,12 @@ function renderFlexTradePanel(playbook) {
   const core = flex.core || {};
   const sat = flex.satellite || {};
   const ledgerNow = loadFlexLedger();
-  const fresh = deskFreshOpenSignals(flex);
-  const coreOpenToday = fresh.some(x =>
+  const openNow = deskCollectOpenSignals(flex);
+  const coreOpenNow = openNow.some(x =>
     String(x.sleeve || '') === 'core'
     || String(x.name || '').includes('沪深300')
     || String(x.etf_code || '') === (core.etf_code || '510300'));
-  const satOpenToday = fresh.some(x =>
+  const satOpenNow = openNow.some(x =>
     String(x.sleeve || '') === 'satellite'
     || (String(x.etf_code || '') && String(x.etf_code || '') !== (core.etf_code || '510300')
       && !String(x.name || '').includes('沪深300')));
@@ -1967,33 +2118,33 @@ function renderFlexTradePanel(playbook) {
   const coreEl = document.getElementById('flexCoreSleeve');
   const satEl = document.getElementById('flexSatSleeve');
   if (coreEl) {
-    coreEl.dataset.tone = coreHeld ? 'buy' : (coreOpenToday ? 'buy' : 'wait');
+    coreEl.dataset.tone = coreHeld ? 'buy' : (coreOpenNow ? 'buy' : 'wait');
   }
   if (satEl) {
-    satEl.dataset.tone = satHeld ? 'buy' : (satOpenToday ? 'buy' : 'wait');
+    satEl.dataset.tone = satHeld ? 'buy' : (satOpenNow ? 'buy' : 'wait');
   }
-  // Sleeve cards: personal fill + today's fresh open only
+  // Sleeve cards: personal fill + T..T+1 open window
   let coreActionLabel = '观望';
   if (coreHeld) coreActionLabel = '本机持有';
-  else if (coreOpenToday) coreActionLabel = '今日可买';
+  else if (coreOpenNow) coreActionLabel = '可买·至T+1';
   setText('flexCoreAction', coreActionLabel);
   setText('flexCoreWeight', wCore != null ? pctLabel(wCore) : (core.etf_code || '—'));
   let satActionLabel = '空仓';
   if (satHeld) satActionLabel = '本机持有';
-  else if (satOpenToday) satActionLabel = '今日可买';
+  else if (satOpenNow) satActionLabel = '可买·至T+1';
   setText('flexSatStage', satActionLabel);
   setText('flexSatWeight', wSat != null ? pctLabel(wSat) : '—');
   if (coreEl) {
     coreEl.title = [
       coreHeld ? '本机已点买' : '本机未点买',
-      coreOpenToday ? '今日有新开信号' : '今日无新开（错过即消失）',
+      coreOpenNow ? 'T～T+1 可确认' : '窗口外无新开',
       core.etf_code,
     ].filter(Boolean).join(' · ');
   }
   if (satEl) {
     satEl.title = [
       satHeld ? '本机已点买' : '本机未点买',
-      satOpenToday ? '今日有新开信号' : '今日无新开（错过即消失）',
+      satOpenNow ? 'T～T+1 可确认' : '窗口外无新开',
       sat.stage_cn,
     ].filter(Boolean).join(' · ');
   }
@@ -2012,7 +2163,7 @@ function renderFlexTradePanel(playbook) {
 
   const trust = document.getElementById('flexTrustLine');
   if (trust && asOf) {
-    trust.innerHTML = `<strong>执行台规则</strong>：信号 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>。<strong>当天点「买」才算你的仓</strong>；不点，过一天信号消失。纸面模拟仓≠你的 hold。清仓按你买入日起算的持有期。成交价自行录入。`;
+    trust.innerHTML = `<strong>执行台规则</strong>：信号 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>。<strong>T 与 T+1 可点「买」确认</strong>；到 <strong>T+2 未点则信号消失</strong>。只有你点买的才算仓。清仓按你买入日起算。成交价自行录入。`;
   }
 
   renderFlexSignalList(flex, { signalAsOf: asOf });
