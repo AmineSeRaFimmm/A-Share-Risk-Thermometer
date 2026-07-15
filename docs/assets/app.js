@@ -502,11 +502,11 @@ const FLEX_ACTION_BADGE = {
 };
 
 const FLEX_LEDGER_KEY = 'ashare_flex_exec_ledger_v1';
-/** Cache of strategy OPEN rows so T+1 can still confirm after daily rebuild clears buy_list. */
-const FLEX_OPEN_SIGNAL_CACHE_KEY = 'ashare_flex_open_signal_cache_v1';
+/** Cache of strategy OPEN rows so T+1 can still confirm after daily rebuild clears buy_list. v2 invalidates bad seeds. */
+const FLEX_OPEN_SIGNAL_CACHE_KEY = 'ashare_flex_open_signal_cache_v2';
 const FLEX_BUY_ACTIONS = new Set(['OPEN', 'OVERWEIGHT', 'BUY', 'OVERWEIGHT_RELATIVE']);
 const FLEX_CLOSE_ACTIONS = new Set(['CLOSE', 'SELL']);
-/** Open signal lives on signal day T and next calendar day T+1; gone from T+2. */
+/** Open signal lives on real signal day T and next calendar day T+1; gone from T+2. */
 const FLEX_OPEN_SIGNAL_MAX_LAG_DAYS = 1;
 
 function escapeHtml(value) {
@@ -1306,39 +1306,48 @@ function flexBookLagDays(asOf) {
 }
 
 /**
- * Desk rule (personal execution, not paper simulation):
- * 1) Strategy buy signal is actionable on signal day T and the next day T+1.
- * 2) It becomes YOUR holding only after you click 买 and confirm fill (T or T+1).
- * 3) If you do not click by T+2, the open signal disappears (no paper HOLD catch-up).
- * 4) CLOSE / AVOID only apply to names you personally hold in the local ledger.
- * 5) Your own hold clock starts on the day you confirmed the buy.
+ * Desk rule (personal execution — strict):
+ * 1) T = real strategy signal day (entry_signal_date / day engine emits OPEN), NOT playbook as_of alone.
+ * 2) Buy/confirm allowed only on T and T+1 (Shanghai calendar lag 0..1).
+ * 3) From T+2 the open signal is gone — never invent signal day from days_held.
+ * 4) Holding only after user clicks 买. Paper HOLD ≠ user hold.
+ * 5) Hold clock starts on the day the user confirmed the buy.
  */
 function flexBookIsToday(asOf) {
   const a = String(asOf || '').slice(0, 10);
   return !!a && a === flexDateCn(0);
 }
 
-/** Signal open window: lag 0 (T) or 1 (T+1). lag≥2 → gone. */
-function deskSignalWindowOpen(asOf) {
-  const lag = flexBookLagDays(asOf);
+/** True when signalDay is T or T+1 relative to Shanghai today. lag≥2 → false. */
+function deskSignalWindowOpen(signalDay) {
+  const lag = flexBookLagDays(signalDay);
   return lag != null && lag >= 0 && lag <= FLEX_OPEN_SIGNAL_MAX_LAG_DAYS;
 }
 
 function loadOpenSignalCache() {
   try {
+    // Drop legacy bad caches (v1 seeded from as_of-1 / days_held).
+    try { localStorage.removeItem('ashare_flex_open_signal_cache_v1'); } catch { /* ignore */ }
     const raw = localStorage.getItem(FLEX_OPEN_SIGNAL_CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed || typeof parsed !== 'object') return null;
+    const day = String(parsed.as_of || '').slice(0, 10);
+    if (!deskSignalWindowOpen(day)) {
+      clearOpenSignalCache();
+      return null;
+    }
     return parsed;
   } catch {
     return null;
   }
 }
 
-function saveOpenSignalCache(asOf, items) {
-  const day = String(asOf || '').slice(0, 10);
+function saveOpenSignalCache(signalDay, items) {
+  const day = String(signalDay || '').slice(0, 10);
   if (!day || !/^\d{4}-\d{2}-\d{2}$/.test(day)) return;
+  // Never cache opens outside the live T..T+1 window.
+  if (!deskSignalWindowOpen(day)) return;
   const rows = (items || []).map(item => ({
     ...item,
     signal_as_of: day,
@@ -1353,6 +1362,7 @@ function saveOpenSignalCache(asOf, items) {
 
 function clearOpenSignalCache() {
   try { localStorage.removeItem(FLEX_OPEN_SIGNAL_CACHE_KEY); } catch { /* ignore */ }
+  try { localStorage.removeItem('ashare_flex_open_signal_cache_v1'); } catch { /* ignore */ }
 }
 
 /** True when local ledger has an open position matching this signal row. */
@@ -1373,11 +1383,17 @@ function flexIsLocallyHeld(item, ledger = loadFlexLedger()) {
   });
 }
 
-/** Engine OPEN rows only (never paper HOLD archaeology). */
+/**
+ * Engine true OPEN rows only.
+ * signal day T = playbook as_of on the day the engine still emits OPEN (not HOLD).
+ */
 function deskFreshOpenSignals(flex) {
   const f = flex || {};
   const openKeys = new Set(['OPEN', 'BUY', 'OVERWEIGHT', 'OVERWEIGHT_RELATIVE']);
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
+  // If as_of itself is already past T+1, these opens are stale — ignore.
+  if (!deskSignalWindowOpen(asOf)) return [];
+
   const byKey = new Map();
   const put = (item) => {
     if (!item) return;
@@ -1388,7 +1404,7 @@ function deskFreshOpenSignals(flex) {
     byKey.set(key, {
       ...item,
       action: action === 'BUY' ? 'OPEN' : item.action || 'OPEN',
-      signal_as_of: item.signal_as_of || asOf,
+      signal_as_of: asOf,
     });
   };
   for (const item of f.buy_list || []) put(item);
@@ -1397,27 +1413,17 @@ function deskFreshOpenSignals(flex) {
 }
 
 /**
- * If user never loaded the page on signal day T, buy_list is already empty on T+1.
- * Recover only paper holds that are still brand-new (days_held 0 or 1) → still in T..T+1.
+ * T+1 recovery when buy_list is already empty: use REAL entry_signal_date only.
+ * Never invent signal day from days_held or as_of-1 (that wrongly extended 07-13 to 07-15).
  */
-function deskSeedOpensFromRecentPaperHold(flex) {
+function deskRecoverOpensFromSignalDate(flex) {
   const f = flex || {};
-  const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
-  if (!asOf) return [];
+  const pos = f.position_state || {};
   const rows = [];
   const seen = new Set();
-  const consider = (item) => {
-    if (!item) return;
-    const dh = item.days_held != null ? Number(item.days_held) : null;
-    // Brand-new paper position only; older holds are not reopened.
-    if (dh != null && Number.isFinite(dh) && dh > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS) return;
-    let signalDay = String(item.entry_signal_date || item.signal_as_of || '').slice(0, 10);
-    if (!signalDay || !/^\d{4}-\d{2}-\d{2}$/.test(signalDay)) {
-      if (dh === 0 || dh == null) signalDay = asOf;
-      else if (dh === 1) signalDay = flexAddCalendarDays(asOf, -1);
-      else return;
-    }
-    if (!deskSignalWindowOpen(signalDay)) return;
+
+  const pushRow = (item, signalDay) => {
+    if (!item || !signalDay || !deskSignalWindowOpen(signalDay)) return;
     const key = flexPositionKey(item);
     if (!key || seen.has(key)) return;
     seen.add(key);
@@ -1425,48 +1431,81 @@ function deskSeedOpensFromRecentPaperHold(flex) {
       ...item,
       action: 'OPEN',
       action_cn: '新开确认（T～T+1）',
-      side: item.side && FLEX_BUY_ACTIONS.has(String(item.side).toUpperCase()) ? item.side : 'OPEN',
+      side: 'OPEN',
       side_cn: '买入',
-      entry: item.entry && item.entry !== '—' ? item.entry : '可确认买入',
+      entry: '可确认买入',
       signal_as_of: signalDay,
-      why: item.why || '策略新开窗口：信号日 T 与 T+1 可点买确认',
-      _deskSeededFromHold: true,
+      why: item.why || `策略信号日 ${signalDay}：T 与 T+1 可点买确认`,
+      _deskRecovered: true,
     });
   };
-  for (const item of f.hold_list || []) consider(item);
-  // Core still OPEN in engine (rare on T+1 but keep).
+
+  // Satellite: T = entry_signal_date from state machine (authoritative).
+  const satState = pos.satellite || f.satellite?.position || {};
+  const satSignal = String(satState.entry_signal_date || '').slice(0, 10);
+  if (satSignal && deskSignalWindowOpen(satSignal)) {
+    const names = satState.names || [];
+    const weights = satState.weights || {};
+    const holdByName = new Map((f.hold_list || [])
+      .filter(h => String(h.sleeve || '') === 'satellite')
+      .map(h => [String(h.name || ''), h]));
+    const buyByName = new Map((f.satellite?.buy || []).map(b => [String(b.name || ''), b]));
+    for (const name of names) {
+      const base = holdByName.get(name) || buyByName.get(name) || { name, sleeve: 'satellite' };
+      const w = weights[name];
+      pushRow({
+        ...base,
+        sleeve: 'satellite',
+        name,
+        weight_target: base.weight_target != null ? base.weight_target : w,
+        weight_hint: base.weight_hint || (w != null ? `${Math.round(Number(w) * 100)}%` : '—'),
+      }, satSignal);
+    }
+  }
+
+  // Core: only if still true OPEN, or entry_signal_date still inside T..T+1.
   const core = f.core || {};
-  if (String(core.action || '').toUpperCase() === 'OPEN') {
-    consider({
+  const coreState = pos.core || core.position || {};
+  const coreSignal = String(coreState.entry_signal_date || '').slice(0, 10);
+  const coreIsOpen = String(core.action || '').toUpperCase() === 'OPEN';
+  if (coreIsOpen && deskSignalWindowOpen(String(f.as_of || '').slice(0, 10))) {
+    pushRow({
       sleeve: 'core',
       name: '沪深300',
       etf_code: core.etf_code || '510300',
       etf_name: core.etf_name,
       weight_target: core.weight_target,
       weight_hint: core.weight_hint,
-      days_held: 0,
-      signal_as_of: asOf,
       why: core.rule || core.detail,
-    });
+    }, String(f.as_of || '').slice(0, 10));
+  } else if (coreSignal && deskSignalWindowOpen(coreSignal)) {
+    pushRow({
+      sleeve: 'core',
+      name: '沪深300',
+      etf_code: coreState.etf_code || core.etf_code || '510300',
+      etf_name: core.etf_name,
+      why: core.rule || core.detail,
+    }, coreSignal);
   }
+
   return rows;
 }
 
 /**
- * Open signals for the desk: fresh engine OPEN on T, or cached/seeded OPEN still within T..T+1.
- * Daily rebuild often clears buy_list on T+1 — cache/seed keeps confirm window until T+2.
+ * Collect desk OPEN rows strictly inside T..T+1 of the real signal day.
  */
 function deskCollectOpenSignals(flex) {
   const f = flex || {};
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
-  const fresh = deskFreshOpenSignals(f);
 
+  // 1) Live engine OPEN on as_of (as_of is T that day).
+  const fresh = deskFreshOpenSignals(f);
   if (fresh.length) {
-    // New strategy opens for this as_of → refresh cache (T window starts here).
     saveOpenSignalCache(asOf, fresh);
-    return fresh.map(item => ({ ...item, signal_as_of: item.signal_as_of || asOf }));
+    return fresh;
   }
 
+  // 2) Browser cache only if its stored signal day is still T or T+1.
   const cache = loadOpenSignalCache();
   if (cache?.as_of && deskSignalWindowOpen(cache.as_of) && Array.isArray(cache.items) && cache.items.length) {
     return cache.items.map(item => ({
@@ -1476,15 +1515,15 @@ function deskCollectOpenSignals(flex) {
     }));
   }
 
-  if (cache && !deskSignalWindowOpen(cache?.as_of)) clearOpenSignalCache();
-
-  // First visit on T+1: recover from brand-new paper holds only.
-  const seeded = deskSeedOpensFromRecentPaperHold(f);
-  if (seeded.length) {
-    const sig = seeded[0].signal_as_of || asOf;
-    saveOpenSignalCache(sig, seeded);
-    return seeded;
+  // 3) Recover using authoritative entry_signal_date only (no days_held invention).
+  const recovered = deskRecoverOpensFromSignalDate(f);
+  if (recovered.length) {
+    const sig = recovered[0].signal_as_of;
+    saveOpenSignalCache(sig, recovered);
+    return recovered;
   }
+
+  clearOpenSignalCache();
   return [];
 }
 
@@ -1537,46 +1576,30 @@ function splitFlexSignalBuckets(flex) {
     buckets[kind].push({ ...item, _key: key });
   };
 
-  const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
-  // Open/strategy tips live for T and T+1 (calendar lag 0..1). T+2+ → only personal due closes.
-  const inSignalWindow = deskSignalWindowOpen(asOf) || (() => {
-    const cache = loadOpenSignalCache();
-    return !!(cache?.as_of && deskSignalWindowOpen(cache.as_of));
-  })();
-
-  if (!inSignalWindow) {
-    clearOpenSignalCache();
-    for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
-    buckets.hold = [];
-    return buckets;
-  }
-
-  // OPEN: T / T+1 strategy opens (fresh or cached), only if not already bought by user.
+  // OPEN: only real signal day T..T+1 (entry_signal_date / engine OPEN), never paper multi-day HOLD.
   for (const item of deskCollectOpenSignals(f)) {
+    const sig = String(item.signal_as_of || '').slice(0, 10);
+    if (sig && !deskSignalWindowOpen(sig)) continue;
     if (flexIsLocallyHeld(item, ledger)) continue;
     pushUnique('open', item);
   }
 
-  // CLOSE: strategy exit tips only if you personally hold the name (while book is in window).
-  if (deskSignalWindowOpen(asOf)) {
-    for (const item of [...(f.close_list || []), ...(f.sell_list || []), ...(f.minimal_actions || [])]) {
-      const action = String(item.action || item.side || '').toUpperCase();
-      if (!closeKeys.has(action)) continue;
-      if (!flexIsLocallyHeld(item, ledger)) continue;
-      pushUnique('close', item);
-    }
+  // CLOSE: strategy tips only if user personally holds (paper-only closes are ignored).
+  for (const item of [...(f.close_list || []), ...(f.sell_list || []), ...(f.minimal_actions || [])]) {
+    const action = String(item.action || item.side || '').toUpperCase();
+    if (!closeKeys.has(action)) continue;
+    if (!flexIsLocallyHeld(item, ledger)) continue;
+    pushUnique('close', item);
   }
-  // Plus: your own hold-days expired (independent of paper engine).
+  // Personal hold-days expired (from the day user clicked 买).
   for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
 
-  // AVOID: only tip names you actually hold.
-  if (deskSignalWindowOpen(asOf)) {
-    for (const item of f.avoid_list || []) {
-      const action = String(item.action || item.side || '').toUpperCase();
-      if (!avoidKeys.has(action) && action !== 'FLAT') continue;
-      if (!flexIsLocallyHeld(item, ledger)) continue;
-      pushUnique('avoid', item);
-    }
+  // AVOID: only tip names the user actually holds.
+  for (const item of f.avoid_list || []) {
+    const action = String(item.action || item.side || '').toUpperCase();
+    if (!avoidKeys.has(action) && action !== 'FLAT') continue;
+    if (!flexIsLocallyHeld(item, ledger)) continue;
+    pushUnique('avoid', item);
   }
 
   buckets.hold = []; // never list paper HOLD; real holds live under 持仓 tab
