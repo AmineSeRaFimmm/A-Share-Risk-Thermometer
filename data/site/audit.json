@@ -15,13 +15,13 @@
     "usable_nowcast": true,
     "usable_gap_fill": false,
     "note": "nearest two terms do not bracket 30D",
-    "avix_mid": 19.6969
+    "avix_mid": 19.721
   },
   "nowcast": {
     "active": true,
-    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
-    "risk_temperature": 56.0,
-    "baseline_trade_date": "2026-07-14",
+    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
+    "risk_temperature": 62.0,
+    "baseline_trade_date": "2026-07-10",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
   "model_confidence": {
@@ -34,5 +34,5 @@
     "WARN_NOT_BRACKET_30D",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-15T15:00:58+08:00"
+  "last_successful_update": "2026-07-15T20:11:39+08:00"
 }
