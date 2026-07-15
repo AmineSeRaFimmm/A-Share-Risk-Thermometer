@@ -1297,12 +1297,13 @@ function flexBookLagDays(asOf) {
 }
 
 /**
- * Desk rule:
- * - Only care about TODAY's book (as_of == 上海今天).
- * - HOLDING = only positions the user confirmed via 买 on this desk (local ledger).
- * - Strategy paper state (engine simulate_positions) is NOT the user's book.
- * - Paper HOLD / still-wanted targets → 明天买入 when user does not hold them.
- * - Paper CLOSE → 平仓 only when user actually holds that name/code.
+ * Desk rule (personal execution, not paper simulation):
+ * 1) Strategy emits a buy signal only on the signal day (as_of == 上海今天).
+ * 2) It becomes YOUR holding only after you click 买 and confirm fill.
+ * 3) If you do not click 买, the open signal is gone the next day — no catch-up,
+ *    no promoting multi-day paper HOLD into "still buyable".
+ * 4) CLOSE / AVOID only apply to names you personally hold in the local ledger.
+ * 5) Your own hold clock starts on the day you confirmed the buy.
  */
 function flexBookIsToday(asOf) {
   const a = String(asOf || '').slice(0, 10);
@@ -1327,146 +1328,59 @@ function flexIsLocallyHeld(item, ledger = loadFlexLedger()) {
   });
 }
 
-/** Core sleeve still preferred by strategy (ignore paper hold-day clock). */
-function deskCoreStrategyWanted(flex) {
+/** True fresh OPEN rows from engine for today only (never paper HOLD archaeology). */
+function deskFreshOpenSignals(flex) {
   const f = flex || {};
-  const stages = f.active_stages || f.satellite?.stage_ids || [];
-  if (stages.includes('CSI300_CORE_BUY')) return true;
-  const action = String(f.core?.action || '').toUpperCase();
-  if (action === 'OPEN' || action === 'HOLD') return true;
-  const ms = f.market_state || {};
-  const rt = Number(ms.rt);
-  const dd = Number(ms.hs300_dd60);
-  return Number.isFinite(rt) && Number.isFinite(dd) && rt >= 60 && rt < 80 && dd <= -0.05;
-}
-
-/** Satellite sleeve still preferred (has live long basket or stage signal). */
-function deskSatStrategyWanted(flex) {
-  const f = flex || {};
-  if (f.satellite?.active) return true;
-  if ((f.satellite?.buy || []).length) return true;
-  const stages = f.active_stages || f.satellite?.stage_ids || [];
-  return stages.some(s => s && s !== 'CALM');
-}
-
-function deskAsOpenRow(item, extra = {}) {
-  const row = {
-    ...item,
-    action: 'OPEN',
-    action_cn: extra.action_cn || '新开买入',
-    side: item.side && FLEX_BUY_ACTIONS.has(String(item.side).toUpperCase())
-      ? item.side
-      : 'OPEN',
-    side_cn: '买入',
-    entry: item.entry && item.entry !== '—' ? item.entry : 'T+1 开盘',
-    ...extra,
-  };
-  return row;
-}
-
-/**
- * Strategy names the desk may still buy — independent of paper HOLD/CLOSE clock.
- * Sources: buy_list, hold_list (paper archaeology), satellite.buy, core when wanted.
- */
-function deskStrategyBuyCandidates(flex) {
-  const f = flex || {};
-  const mode = f.mode || 'aggressive';
-  const cfg = (f.modes || {})[mode] || {};
-  const useCore = deskCoreStrategyWanted(f);
-  const useSat = deskSatStrategyWanted(f);
-  let coreW = useCore ? Number(cfg.core_when_signal != null ? cfg.core_when_signal : 0.5) : 0;
-  let satW = useSat ? Number(cfg.sat_when_signal != null ? cfg.sat_when_signal : 0.3) : 0;
-  if (cfg.flex_single_full) {
-    if (useCore && !useSat) { coreW = 1; satW = 0; }
-    else if (useSat && !useCore) { coreW = 0; satW = 1; }
-  }
-  let total = coreW + satW;
-  const cap = Number(cfg.total_cap != null ? cfg.total_cap : 1);
-  if (total > cap && total > 0) {
-    coreW *= cap / total;
-    satW *= cap / total;
-  }
-  if (f.satellite?.observe_only && satW > 0) satW *= 0.25;
-  coreW = Math.round(coreW * 10000) / 10000;
-  satW = Math.round(satW * 10000) / 10000;
-
+  const openKeys = new Set(['OPEN', 'BUY', 'OVERWEIGHT', 'OVERWEIGHT_RELATIVE']);
   const byKey = new Map();
   const put = (item) => {
     if (!item) return;
+    const action = String(item.action || item.side || '').toUpperCase();
+    if (!openKeys.has(action)) return;
     const key = flexPositionKey(item);
     if (!key || byKey.has(key)) return;
-    byKey.set(key, item);
+    byKey.set(key, { ...item, action: action === 'BUY' ? 'OPEN' : item.action || 'OPEN' });
   };
-
   for (const item of f.buy_list || []) put(item);
-  for (const item of f.minimal_actions || []) {
-    const a = String(item.action || item.side || '').toUpperCase();
-    if (FLEX_BUY_ACTIONS.has(a) || a === 'OPEN') put(item);
-  }
-  // Paper HOLD = strategy still wants; desk without local fill → treat as buy candidate.
-  for (const item of f.hold_list || []) {
-    put(deskAsOpenRow(item, {
-      action_cn: '策略仍偏好（本机未持仓）',
-      why: item.why || '策略纸面持有中；你未点买则不算持仓，按可买处理',
-      _deskFromPaperHold: true,
-    }));
-  }
-  // Live satellite basket (even when engine is mid paper-hold and buy_list is empty).
-  if (useSat) {
-    const buys = f.satellite?.buy || [];
-    const weightSum = buys.reduce((s, x) => s + (Number(x.weight_in_sat) || 0), 0) || 1;
-    for (const x of buys) {
-      const tw = Math.round(satW * ((Number(x.weight_in_sat) || 0) / weightSum) * 10000) / 10000;
-      put(deskAsOpenRow({
-        sleeve: 'satellite',
-        name: x.name,
-        sector: x.sector || x.name,
-        etf_code: x.etf_code,
-        etf_name: x.etf_name,
-        etf_label: x.etf_label,
-        etf_quality: x.etf_quality,
-        etf_quality_cn: x.etf_quality_cn,
-        etf_note: x.etf_note,
-        weight_target: tw,
-        weight_hint: tw ? `${Math.round(tw * 100)}%` : '—',
-        weight_in_sat: x.weight_in_sat,
-        why: x.why,
-        win_rate: x.win_rate,
-        n: x.n,
-        score: x.score,
-        observe_only: x.observe_only,
-        priority: (x.n || 0) >= 100 ? 'P1' : 'P2',
-      }, { action_cn: '新开超配', _deskFromSatBuy: true }));
-    }
-  }
-  // Core: strategy window still open; do not inherit paper 5-day exit if user never bought.
-  if (useCore) {
-    const core = f.core || {};
-    put(deskAsOpenRow({
-      sleeve: 'core',
-      name: '沪深300',
-      sector: '沪深300',
-      etf_code: core.etf_code || '510300',
-      etf_name: core.etf_name || '沪深300ETF华泰柏瑞',
-      etf_label: core.etf_label,
-      weight_target: coreW,
-      weight_hint: `${Math.round(coreW * 100)}%`,
-      why: core.rule || '60≤RT<80 且 60日回撤≤-5%；持有5日',
-      win_rate: 0.6531,
-      n: 49,
-      priority: 'P0',
-      exit: `持有 ${f.hold_days || 5} 日 → 开盘卖出`,
-    }, {
-      action_cn: '新开买入',
-      why: '策略核心窗口仍在；本机未持仓，不继承纸面到期平仓',
-      _deskFromCoreWanted: true,
-    }));
-  }
-
+  for (const item of f.minimal_actions || []) put(item);
+  // Intentionally ignore hold_list / satellite.buy / paper CLOSE-as-reopen.
+  // Missed the signal day → disappears; do not resurrect next day.
   return [...byKey.values()];
 }
 
-/** Split engine lists into desk buckets — holdings only from local ledger. */
+/** Personal positions whose hold window has ended (user's buy_date clock). */
+function deskLocalDueCloses(ledger = loadFlexLedger()) {
+  const today = flexDateCn(0);
+  const rows = [];
+  for (const pos of flexOpenPositions(ledger)) {
+    const info = flexPositionExitInfo(pos);
+    const due = (info.exitDate && info.exitDate <= today)
+      || (info.left != null && info.left <= 0);
+    if (!due) continue;
+    rows.push({
+      action: 'CLOSE',
+      action_cn: '持有期满卖出',
+      side: 'CLOSE',
+      side_cn: '卖出',
+      sleeve: pos.sleeve || '',
+      name: pos.name || '—',
+      etf_code: pos.etf_code || '',
+      etf_name: pos.etf_name || '',
+      priority: 'P0',
+      entry: '下一交易日开盘',
+      exit: '平仓',
+      why: `本机买入日起持有期满（买 ${pos.buy_date || '—'} · 计划 ${pos.hold_days ?? '—'} 日）`,
+      days_held: pos.buy_date ? flexCalendarDaysBetween(pos.buy_date, today) : null,
+      weight_target: 0,
+      weight_hint: '0%',
+      _key: pos.key || flexPositionKey(pos),
+      _deskLocalDue: true,
+    });
+  }
+  return rows;
+}
+
+/** Split engine lists into desk buckets — personal book only. */
 function splitFlexSignalBuckets(flex) {
   const f = flex || {};
   const closeKeys = new Set(['CLOSE', 'SELL']);
@@ -1477,7 +1391,7 @@ function splitFlexSignalBuckets(flex) {
   const ledger = loadFlexLedger();
 
   const pushUnique = (kind, item) => {
-    const key = flexPositionKey(item);
+    const key = item._key || flexPositionKey(item);
     if (seen[kind].has(key)) return;
     seen[kind].add(key);
     buckets[kind].push({ ...item, _key: key });
@@ -1486,27 +1400,31 @@ function splitFlexSignalBuckets(flex) {
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
   const isToday = flexBookIsToday(asOf);
 
-  // Only today's book can produce 明天买入 / 平仓 / 回避
+  // Stale strategy book → no open/close/avoid from strategy (missed day is gone).
+  // Still surface personal due closes so hold clocks keep working.
   if (!isToday) {
+    for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
     buckets.hold = [];
     return buckets;
   }
 
-  // OPEN: strategy wants + user does not hold (paper HOLD is not a user hold).
-  for (const item of deskStrategyBuyCandidates(f)) {
+  // OPEN: only today's fresh strategy opens, and only if you have not already bought.
+  for (const item of deskFreshOpenSignals(f)) {
     if (flexIsLocallyHeld(item, ledger)) continue;
-    pushUnique('open', deskAsOpenRow(item));
+    pushUnique('open', item);
   }
 
-  // CLOSE: only if user personally bought (local ledger). Never close paper-only fills.
+  // CLOSE: strategy exit tips only if you personally hold the name.
   for (const item of [...(f.close_list || []), ...(f.sell_list || []), ...(f.minimal_actions || [])]) {
     const action = String(item.action || item.side || '').toUpperCase();
     if (!closeKeys.has(action)) continue;
     if (!flexIsLocallyHeld(item, ledger)) continue;
     pushUnique('close', item);
   }
+  // Plus: your own hold-days expired (independent of paper engine).
+  for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
 
-  // AVOID: only tip names the user actually holds.
+  // AVOID: only tip names you actually hold.
   for (const item of f.avoid_list || []) {
     const action = String(item.action || item.side || '').toUpperCase();
     if (!avoidKeys.has(action) && action !== 'FLAT') continue;
@@ -1514,7 +1432,7 @@ function splitFlexSignalBuckets(flex) {
     pushUnique('avoid', item);
   }
 
-  buckets.hold = []; // desk never lists paper HOLD; user holds live under 持仓 tab
+  buckets.hold = []; // never list paper HOLD; real holds live under 持仓 tab
 
   for (const kind of Object.keys(buckets)) {
     buckets[kind].sort((a, b) =>
@@ -1646,12 +1564,12 @@ function renderFlexSignalList(flex, options = {}) {
       if (title && body) {
         if (lag != null && lag > 0) {
           title.textContent = '今天没有买入信号';
-          body.textContent = `策略书 as_of=${asOf || '—'}，日历今天=${today}（差 ${lag} 天）。只有 as_of=今天 的新开才显示「明天买入」。没有就空着。已持仓请看「持仓」页。`;
+          body.textContent = `策略书 as_of=${asOf || '—'}，日历今天=${today}（差 ${lag} 天）。买入信号只活「信号当天」；不点买，过一天就消失。已点买的看「持仓」页。`;
         } else {
           title.textContent = '今天没有买入信号';
           body.textContent = asOf
-            ? `策略书 as_of=${asOf}：当前没有可新开标的。只有你在本机点过「买」的才算持仓；策略纸面仓不会自动变成你的 hold。已点买的看「持仓」页。`
-            : '今天没有买入信号。只有本机点买才算持仓。';
+            ? `策略书 as_of=${asOf}：今天没有新开信号。规则：当天点「买」才进你的仓；不点，过一天信号消失，不会把纸面多日持有再当成可买。`
+            : '今天没有买入信号。信号只活一天；不点买就过期。';
         }
       }
     }
@@ -1896,11 +1814,24 @@ function applyFlexModeOverlay(flex, mode) {
   const cfg = modes[mode];
   if (!cfg) return flex;
   const copy = { ...flex, mode };
-  // Prefer live strategy want over paper hold-day clock (user may never have filled).
-  const coreOn = deskCoreStrategyWanted(flex)
-    || !!(flex.core && (flex.core.active || ['OPEN', 'HOLD'].includes(String(flex.core.action || '').toUpperCase())));
-  const satOn = deskSatStrategyWanted(flex)
-    || !!(flex.satellite && flex.satellite.active);
+  // Allocation strip: true engine OPEN today, or personal holdings — not paper HOLD archaeology.
+  const freshOpen = deskFreshOpenSignals(flex);
+  const hasCoreOpen = freshOpen.some(x => String(x.sleeve || '') === 'core'
+    || String(x.name || '').includes('沪深300')
+    || String(x.etf_code || '') === '510300');
+  const hasSatOpen = freshOpen.some(x => String(x.sleeve || '') === 'satellite'
+    || (String(x.name || '') && !String(x.name || '').includes('沪深300') && String(x.etf_code || '') !== '510300'));
+  const ledgerForAlloc = loadFlexLedger();
+  const coreHeld = flexIsLocallyHeld({
+    sleeve: 'core',
+    name: '沪深300',
+    etf_code: (flex.core && flex.core.etf_code) || '510300',
+  }, ledgerForAlloc);
+  const satHeld = flexOpenPositions(ledgerForAlloc).some(p => String(p.sleeve || '') === 'satellite');
+  const coreOn = hasCoreOpen || coreHeld
+    || !!(flex.core && flex.core.active && String(flex.core.action || '').toUpperCase() === 'OPEN');
+  const satOn = hasSatOpen || satHeld
+    || !!(flex.satellite && flex.satellite.active && String(flex.satellite.action || flex.satellite.status_cn || '').includes('新开'));
   let wCore = coreOn ? Number(cfg.core_when_signal || 0.5) : 0;
   let wSat = satOn ? Number(cfg.sat_when_signal || 0.3) : 0;
   if (cfg.flex_single_full) {
@@ -2018,48 +1949,51 @@ function renderFlexTradePanel(playbook) {
   const core = flex.core || {};
   const sat = flex.satellite || {};
   const ledgerNow = loadFlexLedger();
+  const fresh = deskFreshOpenSignals(flex);
+  const coreOpenToday = fresh.some(x =>
+    String(x.sleeve || '') === 'core'
+    || String(x.name || '').includes('沪深300')
+    || String(x.etf_code || '') === (core.etf_code || '510300'));
+  const satOpenToday = fresh.some(x =>
+    String(x.sleeve || '') === 'satellite'
+    || (String(x.etf_code || '') && String(x.etf_code || '') !== (core.etf_code || '510300')
+      && !String(x.name || '').includes('沪深300')));
   const coreHeld = flexIsLocallyHeld({
     sleeve: 'core',
     name: '沪深300',
     etf_code: core.etf_code || '510300',
   }, ledgerNow);
-  const satHeld = (sat.buy || []).some(x => flexIsLocallyHeld(x, ledgerNow))
-    || (sat.position?.names || []).some(n => flexIsLocallyHeld({ name: n, sleeve: 'satellite' }, ledgerNow));
-  const coreWanted = deskCoreStrategyWanted(flex);
-  const satWanted = deskSatStrategyWanted(flex);
+  const satHeld = flexOpenPositions(ledgerNow).some(p => String(p.sleeve || '') === 'satellite');
   const coreEl = document.getElementById('flexCoreSleeve');
   const satEl = document.getElementById('flexSatSleeve');
-  // Sleeve tone: personal book first, then strategy want (never pretend paper hold is yours).
   if (coreEl) {
-    coreEl.dataset.tone = coreHeld
-      ? (String(core.action || '').toUpperCase() === 'CLOSE' ? 'sell' : 'buy')
-      : (coreWanted ? 'buy' : 'wait');
+    coreEl.dataset.tone = coreHeld ? 'buy' : (coreOpenToday ? 'buy' : 'wait');
   }
   if (satEl) {
-    satEl.dataset.tone = satHeld ? 'buy' : (satWanted ? 'buy' : 'wait');
+    satEl.dataset.tone = satHeld ? 'buy' : (satOpenToday ? 'buy' : 'wait');
   }
-  // Sleeve cards: short status only (date detail lives in signal table rows)
+  // Sleeve cards: personal fill + today's fresh open only
   let coreActionLabel = '观望';
-  if (coreHeld) coreActionLabel = flexShortAction(core.action, core.action_cn) || '持有中';
-  else if (coreWanted) coreActionLabel = '可买';
+  if (coreHeld) coreActionLabel = '本机持有';
+  else if (coreOpenToday) coreActionLabel = '今日可买';
   setText('flexCoreAction', coreActionLabel);
   setText('flexCoreWeight', wCore != null ? pctLabel(wCore) : (core.etf_code || '—'));
   let satActionLabel = '空仓';
   if (satHeld) satActionLabel = '本机持有';
-  else if (satWanted) satActionLabel = '可买';
+  else if (satOpenToday) satActionLabel = '今日可买';
   setText('flexSatStage', satActionLabel);
   setText('flexSatWeight', wSat != null ? pctLabel(wSat) : '—');
   if (coreEl) {
     coreEl.title = [
-      coreHeld ? '本机已持仓' : '本机未持仓',
-      coreWanted ? '策略窗口开' : '策略窗口关',
+      coreHeld ? '本机已点买' : '本机未点买',
+      coreOpenToday ? '今日有新开信号' : '今日无新开（错过即消失）',
       core.etf_code,
     ].filter(Boolean).join(' · ');
   }
   if (satEl) {
     satEl.title = [
-      satHeld ? '本机已持仓' : '本机未持仓',
-      sat.status_cn,
+      satHeld ? '本机已点买' : '本机未点买',
+      satOpenToday ? '今日有新开信号' : '今日无新开（错过即消失）',
       sat.stage_cn,
     ].filter(Boolean).join(' · ');
   }
@@ -2078,7 +2012,7 @@ function renderFlexTradePanel(playbook) {
 
   const trust = document.getElementById('flexTrustLine');
   if (trust && asOf) {
-    trust.innerHTML = `<strong>双状态</strong>：信号来自策略书（as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>）。<strong>只有你点过「买」的才算持仓</strong>——策略纸面模拟仓不算 hold，也不会替你平仓。成交价自行录入；浮盈亏按录入价估值，非实时行情。`;
+    trust.innerHTML = `<strong>执行台规则</strong>：信号 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>。<strong>当天点「买」才算你的仓</strong>；不点，过一天信号消失。纸面模拟仓≠你的 hold。清仓按你买入日起算的持有期。成交价自行录入。`;
   }
 
   renderFlexSignalList(flex, { signalAsOf: asOf });
