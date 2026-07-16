@@ -124,10 +124,20 @@ def main() -> None:
             f"Playbook bridge: official={bridge_meta.get('official_as_of')} "
             f"+ {bridge_meta.get('bridged_dates')} via {bridge_meta.get('bridge_source')}"
         )
-    write_json(
-        build_playbook_payload(risk_playbook, index_history, bridge_meta=bridge_meta),
-        SITE / "stage_playbook.json",
-    )
+    playbook_payload = build_playbook_payload(risk_playbook, index_history, bridge_meta=bridge_meta)
+    write_json(playbook_payload, SITE / "stage_playbook.json")
+    # EOD ETF marks for Flex simulation book (entry=open, mark=close)
+    try:
+        from src.core.etf_marks import write_etf_marks_site
+
+        as_of = str(playbook_payload.get("as_of") or "")[:10] or None
+        marks = write_etf_marks_site(as_of=as_of, playbook=playbook_payload)
+        print(
+            f"ETF marks as_of={marks.get('as_of')} codes={marks.get('code_count')} "
+            f"missing={len(marks.get('missing_codes') or [])}"
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN etf_daily_marks build failed: {exc}")
     _load_or_build_sector_payloads(risk, index_history)
     write_json({
         "title": "A-Share Risk Thermometer methodology",

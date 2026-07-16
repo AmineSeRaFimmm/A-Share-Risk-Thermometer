@@ -12,3 +12,4 @@ data/raw/sectors/etf_holdings_2025/
 data/raw/sectors/StockClassifyUse_stock.xls
 research/output/charts/
 research/**/__pycache__/
+data/calculated/etf_daily_cache/
