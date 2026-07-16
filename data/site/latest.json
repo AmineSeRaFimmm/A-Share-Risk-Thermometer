@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-07-16",
-  "update_time": "2026-07-16T17:42:23+08:00",
+  "update_time": "2026-07-16T18:28:46+08:00",
   "risk_temperature": 70.1,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
@@ -71,7 +71,7 @@
     "official_risk_temperature": 66.4,
     "realtime_avix": 21.8387,
     "realtime_avix_quality": "WARN_NOT_BRACKET_30D",
-    "realtime_valuation_time": "2026-07-16T17:39:45+08:00",
+    "realtime_valuation_time": "2026-07-16T18:26:14+08:00",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors",
     "active": true
   },
