@@ -689,7 +689,11 @@ function defaultFlexLedger(book = dashboardState.flexBook) {
 }
 
 function flexOpenPositions(ledger) {
-  return Object.values(ledger?.positions || {}).filter(p => Number(p.qty) > 1e-9);
+  // Sim missing-price sleeves may keep cost_basis with qty=0; still show the row.
+  return Object.values(ledger?.positions || {}).filter(p => {
+    if (Number(p.qty) > 1e-9) return true;
+    return Number(p.cost_basis) > 0 && String(p.mark_quality || '') === 'MISSING';
+  });
 }
 
 function flexDeployedCost(ledger) {
@@ -698,6 +702,10 @@ function flexDeployedCost(ledger) {
 
 function flexMarkValue(ledger) {
   return flexOpenPositions(ledger).reduce((sum, p) => {
+    // Never invent P&L from unit-price fallback when EOD marks are missing.
+    if (String(p.mark_quality || '') === 'MISSING') {
+      return sum + (Number(p.cost_basis) || 0);
+    }
     const mark = Number(p.last_price);
     const px = Number.isFinite(mark) && mark > 0 ? mark : Number(p.avg_price) || 0;
     return sum + Number(p.qty) * px;
@@ -936,24 +944,28 @@ function rebuildSimLedgerFromStrategy(flex) {
     let entryPx = px.entry_open;
     let markPx = px.mark_close;
     let note = '模拟·策略纸面·入场开盘/盯市收盘';
+    let quality = px.quality;
+    // Missing EOD: keep notional weight visible, but NEVER invent unit price → fake 0% return.
     if (!(entryPx > 0) || !(markPx > 0)) {
       missingPx += 1;
-      // Degraded: keep weight notional with unit price so sleeve still visible.
-      entryPx = entryPx > 0 ? entryPx : 1;
-      markPx = markPx > 0 ? markPx : entryPx;
-      note = '模拟·缺行情降级(单位名义)·请跑日更生成 etf_daily_marks';
+      quality = 'MISSING';
+      note = '模拟·缺行情·涨跌幅不可用（请更新 etf_daily_marks）';
     } else {
       marked += 1;
-      if (px.quality === 'SNAP') note += '·日期已吸附';
+      if (quality === 'SNAP') note += '·日期已吸附';
     }
 
-    const qty = notional / entryPx;
     const costBasis = notional;
+    const hasEntry = entryPx > 0;
+    const hasMark = markPx > 0;
+    const qty = hasEntry ? notional / entryPx : 0;
     const key = flexPositionKey(t);
     const old = prev.positions?.[key];
-    const mtm = qty * markPx;
-    const uPnl = mtm - costBasis;
-    uPnlParts.push(uPnl);
+    // Only real marks contribute to portfolio return; missing stays flat at cost.
+    if (quality !== 'MISSING' && hasEntry && hasMark) {
+      const mtm = qty * markPx;
+      uPnlParts.push(mtm - costBasis);
+    }
 
     positions[key] = {
       id: old?.id || flexUid('sim'),
@@ -963,9 +975,9 @@ function rebuildSimLedgerFromStrategy(flex) {
       etf_name: t.etf_name || '',
       sleeve: t.sleeve || '',
       qty,
-      avg_price: entryPx,
+      avg_price: hasEntry ? entryPx : 0,
       cost_basis: costBasis,
-      last_price: markPx,
+      last_price: hasMark ? markPx : 0,
       opened_at: old?.opened_at || new Date().toISOString(),
       updated_at: new Date().toISOString(),
       signal_as_of: t.signal_as_of || '',
@@ -976,7 +988,7 @@ function rebuildSimLedgerFromStrategy(flex) {
       mark_price_type: 'close',
       entry_bar_date: px.entry_bar_date,
       mark_bar_date: px.mark_bar_date,
-      mark_quality: px.quality,
+      mark_quality: quality,
       note,
       sim: true,
     };
@@ -1082,8 +1094,9 @@ function flexFormatSignedPct(ratio, digits = 2) {
   return `${sign}${pct.toFixed(digits)}%`;
 }
 
-/** Unrealized return: (mark - cost) / cost */
+/** Unrealized return: (mark - cost) / cost. null when marks missing (never fake 0%). */
 function flexPositionReturnPct(pos) {
+  if (String(pos?.mark_quality || '') === 'MISSING') return null;
   const cost = Number(pos?.cost_basis);
   if (!(cost > 0)) {
     const avg = Number(pos?.avg_price);
@@ -1525,10 +1538,14 @@ function renderFlexAccountBar() {
     if (isFlexSimBook()) {
       const marksOk = dashboardState.etfMarks?.by_code
         && Object.keys(dashboardState.etfMarks.by_code).length > 0;
+      const missN = flexOpenPositions(ledger)
+        .filter(p => String(p.mark_quality || '') === 'MISSING').length;
       note.textContent = capital > 0
-        ? (marksOk
-          ? '模拟仓专业EOD：入场=入场日开盘价，盯市=as_of收盘价；严格跟随策略纸面；与真实账本分离。'
-          : '模拟仓：缺 etf_daily_marks 日线，暂用降级名义价。请跑日更 Update Risk Thermometer Data。')
+        ? (missN > 0
+          ? `模拟仓：${missN} 只缺 EOD 行情，对应涨跌幅显示「缺价」（不会假显示 0%）。请更新 etf_daily_marks。`
+          : (marksOk
+            ? '模拟仓专业EOD：入场=入场日开盘价，盯市=as_of收盘价；严格跟随策略纸面；与真实账本分离。'
+            : '模拟仓：缺 etf_daily_marks 日线。涨跌幅显示「缺价」，不会假显示 0%。请跑日更。'))
         : '模拟仓：先保存全仓金额，将按策略目标权重自动铺仓（EOD 开盘入场/收盘盯市）。';
     } else {
       note.textContent = mtm > 0
@@ -1565,21 +1582,23 @@ function renderFlexHoldings() {
   positions.sort((a, b) => (Number(b.cost_basis) || 0) - (Number(a.cost_basis) || 0));
   el.innerHTML = positions.map(pos => {
     const weight = capital > 0 ? (Number(pos.cost_basis) / capital) : null;
+    const missingPx = String(pos.mark_quality || '') === 'MISSING';
     const ret = flexPositionReturnPct(pos);
     const pnlCls = ret == null ? '' : ret > 0 ? 'up' : ret < 0 ? 'down' : '';
-    const pnlTxt = ret == null ? '—' : flexFormatSignedPct(ret);
+    const pnlTxt = missingPx ? '缺价' : (ret == null ? '—' : flexFormatSignedPct(ret));
     const exitInfo = flexPositionExitInfo(pos);
     const titleBits = [
       exitInfo.label,
-      ret != null ? `涨跌幅 ${flexFormatSignedPct(ret)}` : '',
-      Number(pos.avg_price) > 0 ? `入场 ${formatPrice(pos.avg_price)}` : '',
-      Number(pos.last_price) > 0 ? `盯市 ${formatPrice(pos.last_price)}` : '',
+      missingPx ? '缺 EOD 行情，涨跌幅不可用' : (ret != null ? `涨跌幅 ${flexFormatSignedPct(ret)}` : ''),
+      Number(pos.avg_price) > 0 ? `入场 ${formatPrice(pos.avg_price)}` : (missingPx ? '入场价缺失' : ''),
+      Number(pos.last_price) > 0 ? `盯市 ${formatPrice(pos.last_price)}` : (missingPx ? '盯市价缺失' : ''),
+      pos.note || '',
     ].filter(Boolean).join(' · ');
     return `<div class="flex-row flex-row-book" data-pos-key="${escapeHtml(pos.key)}" title="${escapeHtml(titleBits)}">
       <span class="flex-row-code" data-label="代码">${escapeHtml(pos.etf_code || '—')}</span>
       <span class="flex-row-name" data-label="名称">${escapeHtml(pos.name || '—')}</span>
       <span class="flex-row-num" data-label="成本">${formatMoney(pos.cost_basis)}</span>
-      <span class="flex-row-num" data-label="均价">${formatPrice(pos.avg_price)}</span>
+      <span class="flex-row-num" data-label="均价">${Number(pos.avg_price) > 0 ? formatPrice(pos.avg_price) : (missingPx ? '缺价' : '—')}</span>
       <span class="flex-row-num" data-label="仓位">${weight != null ? pctLabel(weight) : '—'}</span>
       <span class="flex-row-num ${pnlCls}" data-label="涨跌幅">${pnlTxt}</span>
       <span class="flex-row-num flex-row-exit" data-label="清仓">${escapeHtml(exitInfo.label)}</span>
