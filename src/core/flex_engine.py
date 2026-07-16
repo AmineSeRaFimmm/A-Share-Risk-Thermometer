@@ -787,7 +787,9 @@ def build_flex_panel_v2(
                     "exit": "平仓",
                     "weight_target": 0.0,
                     "weight_hint": "0%",
-                    "why": f"核心持有满 {CORE_HOLD_DAYS} 日，按规则卖出",
+                    "why": f"核心持有满 {CORE_HOLD_DAYS} 日，按规则卖出（CORE_MAX_HOLD 确定性路径）",
+                    "close_code": "CORE_MAX_HOLD",
+                    "guaranteed": True,
                     "days_held": state.core.days_held,
                 }
             )
@@ -879,8 +881,9 @@ def build_flex_panel_v2(
             )
         )
 
-    # Satellite CLOSE
-    if _sat_should_close(state, stages):
+    # Satellite CLOSE — every triggered path must land in close_list with explicit close_code
+    sat_close = _sat_close_meta(state, stages)
+    if sat_close:
         for name in state.satellite.names or ["卫星篮子"]:
             actions.append(
                 attach_etf_fields(
@@ -888,15 +891,17 @@ def build_flex_panel_v2(
                         "sleeve": "satellite",
                         "name": name,
                         "action": "CLOSE",
-                        "action_cn": "减仓/到期退出",
+                        "action_cn": sat_close.get("action_cn") or "减仓/到期退出",
                         "side": "CLOSE",
                         "side_cn": "卖出",
-                        "priority": "P1",
+                        "priority": sat_close.get("priority") or "P0",
                         "entry": "下一交易日开盘",
                         "exit": "平仓",
                         "weight_target": 0.0,
                         "weight_hint": "0%",
-                        "why": "卫星事件翻转或达最大持有期",
+                        "why": sat_close.get("why") or "卫星退出",
+                        "close_code": sat_close.get("close_code"),
+                        "guaranteed": True,
                         "days_held": state.satellite.days_held,
                     }
                 )
@@ -1052,6 +1057,20 @@ def build_flex_panel_v2(
     mode_bt = (bt.get(mode) or bt.get("aggressive") or {})
     full = mode_bt.get("full_sample") or (bt.get("aggressive") or {}).get("full_sample") or {}
 
+    trade_dates: list[str] = []
+    if risk_components is not None and not risk_components.empty and "trade_date" in risk_components.columns:
+        trade_dates = (
+            risk_components.sort_values("trade_date")["trade_date"]
+            .astype(str)
+            .str.slice(0, 10)
+            .drop_duplicates()
+            .tolist()
+        )
+    exit_plan = build_sleeve_exit_plan(state, stages, trade_dates=trade_dates)
+    # Persist exit_due_date into position state file
+    state.as_of = str(feat.get("trade_date") or state.as_of or "")[:10] or state.as_of
+    save_position_state(state)
+
     if alloc["allocation_mode"] == "BOTH":
         headline = "组合 Flex v2：核心 + 卫星（多阶段合并）"
         status_cn = "双仓"
@@ -1116,6 +1135,7 @@ def build_flex_panel_v2(
             + ("；升温日不追恒科/电子/计算机（除非 CORE 同步）" if rising else "")
         ),
         "position_state": state.to_dict(),
+        "exit_plan": exit_plan,
         "core": {
             "sleeve": "core",
             "name": "沪深300 主策略",
@@ -1197,20 +1217,162 @@ def _core_should_close(state: FlexState) -> bool:
     return state.core.status == "open" and state.core.days_held >= CORE_HOLD_DAYS
 
 
-def _sat_should_close(state: FlexState, stages: list[str]) -> bool:
+def _sat_close_meta(state: FlexState, stages: list[str]) -> dict[str, Any] | None:
+    """Return close reason metadata when satellite must exit; None if still hold.
+
+    Codes (deterministic evaluation order):
+      MAX_HOLD      — days_held >= SAT_MAX_HOLD (always fires if held long enough)
+      EVENT_FLIP    — days_held >= SAT_MIN_HOLD and opposite stage present
+      DEFAULT_NO_STAGE — days_held >= SAT_DEFAULT_HOLD and no high/observe stage
+    """
     if state.satellite.status != "open":
-        return False
-    if state.satellite.days_held >= SAT_MAX_HOLD:
-        return True
+        return None
+    held = int(state.satellite.days_held or 0)
     open_stage = state.satellite.stage_id or ""
     opposites = STAGE_OPPOSITES.get(open_stage, set())
-    if state.satellite.days_held >= SAT_MIN_HOLD and opposites.intersection(stages):
-        return True
-    if state.satellite.days_held >= SAT_DEFAULT_HOLD and not any(
-        STAGE_TIER.get(s) in {"high", "observe"} for s in stages
-    ):
-        return True
-    return False
+    hit_opp = sorted(opposites.intersection(stages))
+    has_live_stage = any(STAGE_TIER.get(s) in {"high", "observe"} for s in stages)
+
+    if held >= SAT_MAX_HOLD:
+        return {
+            "close_code": "MAX_HOLD",
+            "priority": "P0",
+            "action_cn": "最长持有到期卖出",
+            "why": f"卫星已持有 {held} 日 ≥ 最长 {SAT_MAX_HOLD} 日，必须平仓（确定性路径）",
+            "guaranteed": True,
+        }
+    if held >= SAT_MIN_HOLD and hit_opp:
+        return {
+            "close_code": "EVENT_FLIP",
+            "priority": "P0",
+            "action_cn": "事件翻转卖出",
+            "why": (
+                f"卫星已持有 {held} 日 ≥ 最短 {SAT_MIN_HOLD} 日，"
+                f"开仓阶段 {open_stage or '—'} 命中对立 {','.join(hit_opp)}，提前平仓"
+            ),
+            "guaranteed": True,
+            "flip_stages": hit_opp,
+        }
+    if held >= SAT_DEFAULT_HOLD and not has_live_stage:
+        return {
+            "close_code": "DEFAULT_NO_STAGE",
+            "priority": "P1",
+            "action_cn": "默认持有期满卖出",
+            "why": (
+                f"卫星已持有 {held} 日 ≥ 默认 {SAT_DEFAULT_HOLD} 日，"
+                f"且当日无 high/observe 阶段，按默认路径平仓"
+            ),
+            "guaranteed": True,
+        }
+    return None
+
+
+def _sat_should_close(state: FlexState, stages: list[str]) -> bool:
+    return _sat_close_meta(state, stages) is not None
+
+
+def _nth_trade_date(trade_dates: list[str], entry_date: str | None, held_offset: int) -> str | None:
+    """Date when days_held would equal held_offset if entry_date is hold day 0."""
+    if not entry_date or not trade_dates:
+        return None
+    ed = str(entry_date)[:10]
+    try:
+        ei = trade_dates.index(ed)
+    except ValueError:
+        return None
+    j = ei + int(held_offset)
+    if 0 <= j < len(trade_dates):
+        return trade_dates[j]
+    # Extrapolate weekdays beyond known history
+    from datetime import datetime, timedelta
+
+    d = datetime.strptime(trade_dates[-1], "%Y-%m-%d").date()
+    need = j - (len(trade_dates) - 1)
+    while need > 0:
+        d += timedelta(days=1)
+        if d.weekday() < 5:
+            need -= 1
+    return d.isoformat()
+
+
+def build_sleeve_exit_plan(
+    state: FlexState,
+    stages: list[str],
+    *,
+    trade_dates: list[str] | None = None,
+) -> dict[str, Any]:
+    """Publish deterministic exit calendar so the desk can always show countdown / tips."""
+    dates = list(trade_dates or [])
+    sat = state.satellite
+    core = state.core
+    sat_meta = _sat_close_meta(state, stages) if sat.status == "open" else None
+
+    sat_plan: dict[str, Any] = {
+        "status": sat.status,
+        "entry_signal_date": sat.entry_signal_date,
+        "entry_date": sat.entry_date,
+        "days_held": sat.days_held,
+        "stage_id": sat.stage_id,
+        "rules": {
+            "min_hold": SAT_MIN_HOLD,
+            "default_hold": SAT_DEFAULT_HOLD,
+            "max_hold": SAT_MAX_HOLD,
+            "opposites": sorted(STAGE_OPPOSITES.get(sat.stage_id or "", set())),
+        },
+        "triggered_close": sat_meta,
+        "paths": {},
+        "note_cn": (
+            "四只卫星同一 sleeve 同日进出。"
+            "MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。"
+        ),
+    }
+    if sat.status == "open" and sat.entry_date:
+        sat_plan["paths"] = {
+            "event_earliest_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_MIN_HOLD),
+            "default_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_DEFAULT_HOLD),
+            "max_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_MAX_HOLD),
+            "max_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_MAX_HOLD + 1),
+            "default_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_DEFAULT_HOLD + 1),
+            "event_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_MIN_HOLD + 1),
+        }
+        # Authoritative due date for longest path (always scheduled at open).
+        sat.exit_due_date = sat_plan["paths"].get("max_signal_date")
+        sat_plan["exit_due_date"] = sat.exit_due_date
+        sat_plan["days_to_max"] = max(0, SAT_MAX_HOLD - int(sat.days_held or 0))
+
+    core_plan: dict[str, Any] = {
+        "status": core.status,
+        "entry_signal_date": core.entry_signal_date,
+        "entry_date": core.entry_date,
+        "days_held": core.days_held,
+        "hold_days": CORE_HOLD_DAYS,
+        "triggered_close": (
+            {
+                "close_code": "CORE_MAX_HOLD",
+                "why": f"核心已持有 {core.days_held} 日 ≥ {CORE_HOLD_DAYS} 日，必须平仓",
+                "guaranteed": True,
+            }
+            if _core_should_close(state)
+            else None
+        ),
+    }
+    if core.status == "open" and core.entry_date:
+        core_plan["max_signal_date"] = _nth_trade_date(dates, core.entry_date, CORE_HOLD_DAYS)
+        core_plan["max_exec_next_open"] = _nth_trade_date(dates, core.entry_date, CORE_HOLD_DAYS + 1)
+        core.exit_due_date = core_plan.get("max_signal_date")
+        core_plan["exit_due_date"] = core.exit_due_date
+        core_plan["days_to_max"] = max(0, CORE_HOLD_DAYS - int(core.days_held or 0))
+
+    return {
+        "as_of": state.as_of,
+        "core": core_plan,
+        "satellite": sat_plan,
+        "guarantee_cn": (
+            "日更成功且 as_of=当日时：任一 close_code 触发必写入 close_list；"
+            "执行台必须展示策略平仓提示（本机未点买也可看，点买后可记账平仓）。"
+            "日更失败则页面不会刷新——需看 Actions。"
+        ),
+    }
 
 
 def _select_minimal_actions(actions: list[dict[str, Any]]) -> list[dict[str, Any]]:

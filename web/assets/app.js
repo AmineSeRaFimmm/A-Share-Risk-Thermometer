@@ -494,6 +494,7 @@ const FLEX_ACTION_BADGE = {
   BUY: { text: '明天买入', cls: 'buy' },
   HOLD: { text: '—', cls: 'wait' }, // desk never promotes paper HOLD as a buy
   CLOSE: { text: '平仓', cls: 'sell' },
+  STRATEGY_CLOSE: { text: '策略平仓', cls: 'sell' },
   AVOID: { text: '回避', cls: 'avoid' },
   FLAT: { text: '观望', cls: 'wait' },
   SELL: { text: '卖出', cls: 'sell' },
@@ -1262,6 +1263,16 @@ function flexActionBadge(item, flex, options = {}) {
     if (lag === 1) return { text: 'T+1可确认', cls: 'buy' };
     return { text: '可买·至T+1', cls: 'buy' };
   }
+  if (FLEX_CLOSE_ACTIONS.has(action) || action === 'CLOSE') {
+    if (item?._strategyPaper && !options.localHeld) {
+      return { text: '策略平仓', cls: 'sell' };
+    }
+    const code = item?.close_code || '';
+    if (code === 'MAX_HOLD' || code === 'CORE_MAX_HOLD') return { text: '到期平仓', cls: 'sell' };
+    if (code === 'EVENT_FLIP') return { text: '事件平仓', cls: 'sell' };
+    if (code === 'DEFAULT_NO_STAGE') return { text: '默认平仓', cls: 'sell' };
+    return { text: '平仓', cls: 'sell' };
+  }
   return FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item?.action_cn), cls: 'wait' };
 }
 
@@ -1584,14 +1595,28 @@ function splitFlexSignalBuckets(flex) {
     pushUnique('open', item);
   }
 
-  // CLOSE: strategy tips only if user personally holds (paper-only closes are ignored).
-  for (const item of [...(f.close_list || []), ...(f.sell_list || []), ...(f.minimal_actions || [])]) {
-    const action = String(item.action || item.side || '').toUpperCase();
-    if (!closeKeys.has(action)) continue;
-    if (!flexIsLocallyHeld(item, ledger)) continue;
-    pushUnique('close', item);
+  // CLOSE: ALWAYS surface engine close_list when as_of is today (guaranteed tip path).
+  // - You hold it → actionable 平
+  // - You don't → still show as 策略平仓 (paper book), never silent-drop
+  const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
+  const bookIsLive = flexBookIsToday(asOf) || flexBookLagDays(asOf) === 0;
+  if (bookIsLive || deskSignalWindowOpen(asOf)) {
+    for (const item of [...(f.close_list || []), ...(f.sell_list || []), ...(f.minimal_actions || [])]) {
+      const action = String(item.action || item.side || '').toUpperCase();
+      if (!closeKeys.has(action)) continue;
+      const held = flexIsLocallyHeld(item, ledger);
+      pushUnique('close', {
+        ...item,
+        _strategyPaper: !held,
+        _deskForceShow: true,
+        action_cn: held
+          ? (item.action_cn || '平仓')
+          : `策略纸面·${item.action_cn || item.close_code || '平仓'}`,
+        why: item.why || item.close_code || '策略退出',
+      });
+    }
   }
-  // Personal hold-days expired (from the day user clicked 买).
+  // Personal hold-days expired (from the day user clicked 买) — always.
   for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
 
   // AVOID: only tip names the user actually holds.
@@ -1635,11 +1660,15 @@ function renderFlexSignalRows(items, flex, options = {}) {
     const name = item.name || '—';
     const w = item.weight_hint || (item.weight_target != null ? pctLabel(item.weight_target) : '—');
     const amt = suggested != null ? formatMoney(suggested) : '—';
-    // 剩余/清仓时间：仅本机已确认买入后才显示（用账本 exit 计划）
+    // 清仓列：本机持仓用个人 exit 计划；策略平仓提示用「下一交易日开盘」
     const localPos = held ? ledger.positions[key] : null;
-    const left = held ? flexPositionExitInfo(localPos).label : '—';
+    let left = '—';
+    if (held) left = flexPositionExitInfo(localPos).label;
+    else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
+      left = item.entry && item.entry !== '—' ? String(item.entry) : '下一交易日开盘';
+    }
     const isAvoid = forceKind === 'avoid' || action === 'AVOID' || action === 'UNDERWEIGHT_RELATIVE' || action === 'FLAT';
-    // Avoid rows only appear when held; allow reduce/close. Other non-avoid keep prior rules.
+    // Avoid rows only appear when held; strategy CLOSE always listed (tip if not held).
     const interactive = !isAvoid || held;
 
     // Buy plan starts when user confirms (today's bookkeeping); full default hold window.
@@ -2186,7 +2215,24 @@ function renderFlexTradePanel(playbook) {
 
   const trust = document.getElementById('flexTrustLine');
   if (trust && asOf) {
-    trust.innerHTML = `<strong>执行台规则</strong>：信号 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>。<strong>T 与 T+1 可点「买」确认</strong>；到 <strong>T+2 未点则信号消失</strong>。只有你点买的才算仓。清仓按你买入日起算。成交价自行录入。`;
+    const ep = flex.exit_plan || {};
+    const satEp = ep.satellite || {};
+    const paths = satEp.paths || {};
+    const trig = satEp.triggered_close || (ep.core || {}).triggered_close;
+    const planBits = [];
+    if (satEp.status === 'open') {
+      if (paths.max_signal_date) {
+        planBits.push(`卫星最长到期信号 <code>${escapeHtml(paths.max_signal_date)}</code>→执行 <code>${escapeHtml(paths.max_exec_next_open || '次日开')}</code>`);
+      }
+      if (satEp.days_to_max != null) planBits.push(`距最长还 ${escapeHtml(String(satEp.days_to_max))} 日`);
+    }
+    if (trig?.close_code) {
+      planBits.push(`已触发 <code>${escapeHtml(trig.close_code)}</code>`);
+    }
+    const planHtml = planBits.length
+      ? ` · <strong>退出日程</strong>：${planBits.join('；')}`
+      : '';
+    trust.innerHTML = `<strong>执行台规则</strong>：信号 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>。<strong>T 与 T+1 可点「买」</strong>；T+2 消失。策略平仓触发必展示（含未点买的纸面提示）。${planHtml} 成交价自行录入。`;
   }
 
   renderFlexSignalList(flex, { signalAsOf: asOf });
