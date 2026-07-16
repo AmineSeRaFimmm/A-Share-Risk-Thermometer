@@ -321,8 +321,9 @@ def main() -> None:
     print(f"n={len(df)} {df.trade_date.min().date()} → {df.trade_date.max().date()}")
 
     scenarios = []
+    # Base one-way cost: 1bp (user-verified channel). Stress keeps 15/30 bps.
     for mode in (MODE_CONSERVATIVE, MODE_AGGRESSIVE):
-        for bps, label in ((3, "base_3bps"), (15, "stress_15bps"), (30, "stress_30bps")):
+        for bps, label in ((1, "base_1bps"), (15, "stress_15bps"), (30, "stress_30bps")):
             cost = bps / 10000.0
             r = backtest_v2(df, meta, buy_cost=cost, sell_cost=cost, mode=mode, apply_haircut=True, event_exit=True)
             pack = pack_stats(r)
@@ -337,8 +338,8 @@ def main() -> None:
     def find(mode, label):
         return next(s for s in scenarios if s["mode"] == mode and s["cost_label"] == label)
 
-    cons = find(MODE_CONSERVATIVE, "base_3bps")
-    agg = find(MODE_AGGRESSIVE, "base_3bps")
+    cons = find(MODE_CONSERVATIVE, "base_1bps")
+    agg = find(MODE_AGGRESSIVE, "base_1bps")
     core_only = {
         "total_return": cons["core"]["total_return"],
         "ann_return": cons["core"]["ann_return"],
@@ -366,7 +367,7 @@ def main() -> None:
             "oos": agg["oos"],
         },
         "cost_stress": {
-            "base_bps_one_way": 3,
+            "base_bps_one_way": 1,
             "stress_15bps": {
                 MODE_CONSERVATIVE: find(MODE_CONSERVATIVE, "stress_15bps")["full_sample"],
                 MODE_AGGRESSIVE: find(MODE_AGGRESSIVE, "stress_15bps")["full_sample"],
@@ -377,7 +378,7 @@ def main() -> None:
             },
             "etf_haircut_note": "proxy×0.85 收益折扣 / weak 剔除；行业指数≠ETF",
         },
-        "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；实盘收益应低于回测。",
+        "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；实盘收益应低于回测。基线单边成本 1bp。",
         "scenarios": [
             {
                 "mode": s["mode"],
