@@ -640,7 +640,7 @@ function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
     book: raw?.book === 'sim' || book === 'sim' ? 'sim' : 'real',
     capital: Number(raw?.capital) || 0,
     cash: raw?.cash,
-    positions: raw?.positions && typeof raw.positions === 'object' ? raw.positions : {},
+    positions: raw?.positions && typeof raw.positions === 'object' ? { ...raw.positions } : {},
     journal: Array.isArray(raw?.journal) ? raw.journal : [],
     updated_at: raw?.updated_at || null,
     strategy_as_of: raw?.strategy_as_of || null,
@@ -650,6 +650,14 @@ function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
     ledger.cash = Math.max(0, ledger.capital - flexDeployedCost(ledger));
   } else {
     ledger.cash = Number(ledger.cash);
+  }
+  // Recompute every open position's exit_date on trading-day axis (migrate old calendar exits).
+  for (const key of Object.keys(ledger.positions || {})) {
+    const p = ledger.positions[key];
+    if (!p || !(Number(p.qty) > 1e-9)) continue;
+    if (p.buy_date && p.hold_days != null && Number.isFinite(Number(p.hold_days))) {
+      p.exit_date = flexAddTradingDays(p.buy_date, Number(p.hold_days));
+    }
   }
   return ledger;
 }
@@ -801,10 +809,11 @@ function rebuildSimLedgerFromStrategy(flex) {
     const key = flexPositionKey(t);
     const buyDate = String(t.buy_date || asOf || flexDateCn(0)).slice(0, 10);
     const holdDays = t.hold_days != null ? Number(t.hold_days) : null;
+    // Prefer strategy exit_due (trade calendar); else buy + hold_days trading steps.
     const exitDate = t.exit_date
       ? String(t.exit_date).slice(0, 10)
       : holdDays != null
-        ? flexAddCalendarDays(buyDate, holdDays)
+        ? flexAddTradingDays(buyDate, holdDays)
         : null;
     // Preserve last_price if same key existed (manual mark) so sim can show marks.
     const old = prev.positions?.[key];
@@ -939,6 +948,7 @@ function appendFlexJournal(ledger, entry) {
   ].slice(0, 200);
 }
 
+/** Natural-day helpers (ONLY for desk buy-window T/T+1 calendar, not hold length). */
 function flexAddCalendarDays(dateStr, days) {
   const day = String(dateStr || flexDateCn(0)).slice(0, 10);
   const [y, m, d] = day.split('-').map(Number);
@@ -958,27 +968,181 @@ function flexCalendarDaysBetween(fromStr, toStr) {
   return Math.max(0, Math.round((t2 - t1) / 86400000));
 }
 
-/** Remaining hold days / exit date — only meaningful after user confirmed buy. */
-function flexPositionExitInfo(pos) {
-  if (!pos || !(Number(pos.qty) > 0)) return { left: null, exitDate: null, label: '—' };
-  const today = flexDateCn(0);
-  let exitDate = pos.exit_date ? String(pos.exit_date).slice(0, 10) : null;
-  if (!exitDate && pos.buy_date && pos.hold_days != null) {
-    exitDate = flexAddCalendarDays(pos.buy_date, Number(pos.hold_days));
+// ---------------------------------------------------------------------------
+// Trading-day calendar — MUST match flex_engine / backtest:
+//   days_held = index(as_of) - index(entry_date) on trade_date list
+//   close when days_held >= hold_days  → exit signal date = entry + hold_days trade steps
+// ---------------------------------------------------------------------------
+
+function flexExtendTradeDatesForward(sorted, extraN) {
+  const out = (sorted || []).slice();
+  if (!out.length) return out;
+  let d = new Date(`${out[out.length - 1]}T00:00:00Z`);
+  let added = 0;
+  const need = Math.max(0, Number(extraN) || 0);
+  while (added < need) {
+    d.setUTCDate(d.getUTCDate() + 1);
+    const wd = d.getUTCDay(); // 0=Sun … 6=Sat
+    if (wd !== 0 && wd !== 6) {
+      out.push(d.toISOString().slice(0, 10));
+      added += 1;
+    }
   }
+  return out;
+}
+
+function flexGenerateWeekdayRange(fromStr, toStr) {
+  const out = [];
+  let d = new Date(`${String(fromStr).slice(0, 10)}T00:00:00Z`);
+  const end = new Date(`${String(toStr).slice(0, 10)}T00:00:00Z`);
+  if (Number.isNaN(d.getTime()) || Number.isNaN(end.getTime())) return out;
+  while (d <= end) {
+    const wd = d.getUTCDay();
+    if (wd !== 0 && wd !== 6) out.push(d.toISOString().slice(0, 10));
+    d.setUTCDate(d.getUTCDate() + 1);
+  }
+  return out;
+}
+
+/** Build sorted trade_date list from site history + nowcast + flex as_of; extend weekdays forward. */
+function flexEnsureTradeCalendar() {
+  const set = new Set();
+  const add = (v) => {
+    const s = String(v || '').slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) set.add(s);
+  };
+  for (const row of dashboardState.history || []) add(row.date || row.trade_date);
+  const nh = dashboardState.nowcastHistory;
+  const nhRows = Array.isArray(nh) ? nh : (nh?.rows || []);
+  for (const row of nhRows) add(row.date || row.trade_date);
+  add(dashboardState.lastTradeDate);
+  const flex = dashboardState.flexActive || dashboardState.flexPlaybook?.flex_panel;
+  add(flex?.as_of);
+  add(flex?.market_state?.trade_date);
+  const satPaths = flex?.exit_plan?.satellite?.paths || {};
+  Object.values(satPaths).forEach(add);
+  const coreEp = flex?.exit_plan?.core || {};
+  add(coreEp.max_signal_date);
+  add(coreEp.max_exec_next_open);
+  add(coreEp.exit_due_date);
+  add(flex?.position_state?.core?.entry_date);
+  add(flex?.position_state?.satellite?.entry_date);
+
+  let list = Array.from(set).sort();
+  // Fallback if history not loaded yet: Mon–Fri skeleton (A-share proxy; no holiday table).
+  if (list.length < 30) {
+    const today = flexDateCn(0);
+    const skeleton = flexGenerateWeekdayRange('2020-01-01', flexAddCalendarDays(today, 200));
+    list = Array.from(new Set([...skeleton, ...list])).sort();
+  } else {
+    list = flexExtendTradeDatesForward(list, 100);
+  }
+  dashboardState.flexTradeDates = list;
+  return list;
+}
+
+/** Index of trade date on or after day (entry snap). */
+function flexTradeDateIndexOnOrAfter(dateStr, dates = flexEnsureTradeCalendar()) {
+  const day = String(dateStr || '').slice(0, 10);
+  if (!day || !dates.length) return 0;
+  const exact = dates.indexOf(day);
+  if (exact >= 0) return exact;
+  for (let k = 0; k < dates.length; k += 1) {
+    if (dates[k] >= day) return k;
+  }
+  return dates.length - 1;
+}
+
+/** Index of trade date on or before day (as_of / "today" snap). */
+function flexTradeDateIndexOnOrBefore(dateStr, dates = flexEnsureTradeCalendar()) {
+  const day = String(dateStr || '').slice(0, 10);
+  if (!day || !dates.length) return 0;
+  const exact = dates.indexOf(day);
+  if (exact >= 0) return exact;
+  for (let k = dates.length - 1; k >= 0; k -= 1) {
+    if (dates[k] <= day) return k;
+  }
+  return 0;
+}
+
+/**
+ * Advance N trading sessions from dateStr (N can be 0).
+ * Aligns with engine: exit_i = entry_i + HOLD_DAYS on trade_date array.
+ */
+function flexAddTradingDays(dateStr, n) {
+  const steps = Math.trunc(Number(n) || 0);
+  let dates = flexEnsureTradeCalendar();
+  let i = flexTradeDateIndexOnOrAfter(dateStr, dates);
+  let j = i + steps;
+  // Ensure enough future sessions (weekends skipped; holidays only if present in history).
+  while (j >= dates.length) {
+    dates = flexExtendTradeDatesForward(dates, 40);
+    dashboardState.flexTradeDates = dates;
+  }
+  j = Math.max(0, Math.min(j, dates.length - 1));
+  return dates[j];
+}
+
+/**
+ * Trading-day distance index(to) - index(from), matching flex_engine days_held
+ * when from=entry_date and to=as_of (as_of snapped on-or-before).
+ */
+function flexTradingDaysBetween(fromStr, toStr) {
+  const dates = flexEnsureTradeCalendar();
+  if (!fromStr || !toStr || !dates.length) return 0;
+  const i = flexTradeDateIndexOnOrAfter(fromStr, dates);
+  const j = flexTradeDateIndexOnOrBefore(toStr, dates);
+  return j - i;
+}
+
+/** Engine-equivalent days_held for a local position. */
+function flexPositionDaysHeld(pos, asOf = flexDateCn(0)) {
+  if (!pos?.buy_date) return 0;
+  return Math.max(0, flexTradingDaysBetween(pos.buy_date, asOf));
+}
+
+/**
+ * Exit signal date = buy_date + hold_days trading steps (days_held >= hold_days).
+ * Same formula as backtest exit_i = entry_i + HOLD_DAYS.
+ */
+function flexPositionExitSignalDate(pos) {
+  if (!pos) return null;
+  if (pos.buy_date && pos.hold_days != null && Number.isFinite(Number(pos.hold_days))) {
+    return flexAddTradingDays(pos.buy_date, Number(pos.hold_days));
+  }
+  // Strategy-provided due date (already on trade calendar when from exit_plan).
+  if (pos.exit_date) return String(pos.exit_date).slice(0, 10);
+  return null;
+}
+
+/** Remaining hold days / exit date — trading days only (real + sim books). */
+function flexPositionExitInfo(pos) {
+  if (!pos || !(Number(pos.qty) > 0)) return { left: null, exitDate: null, label: '—', daysHeld: null };
+  const today = flexDateCn(0);
+  const holdDays = pos.hold_days != null && Number.isFinite(Number(pos.hold_days))
+    ? Number(pos.hold_days)
+    : null;
+  const daysHeld = pos.buy_date ? flexPositionDaysHeld(pos, today) : null;
+  const exitDate = flexPositionExitSignalDate(pos);
   let left = null;
-  if (exitDate) {
-    left = flexCalendarDaysBetween(today, exitDate);
-    // if exit in the past, left = 0
-    if (exitDate < today) left = 0;
-  } else if (pos.hold_days != null && pos.buy_date) {
-    left = Math.max(0, Number(pos.hold_days) - flexCalendarDaysBetween(pos.buy_date, today));
+  if (holdDays != null && daysHeld != null) {
+    left = Math.max(0, holdDays - daysHeld);
+  } else if (exitDate) {
+    // Trading sessions from today (on/before) to exit signal date.
+    left = Math.max(0, flexTradingDaysBetween(today, exitDate));
+    if (exitDate < String(today).slice(0, 10) && left > 0) {
+      // today after exit on calendar but snap can still be positive; force 0 if exit passed
+      const dates = flexEnsureTradeCalendar();
+      const jToday = flexTradeDateIndexOnOrBefore(today, dates);
+      const jExit = flexTradeDateIndexOnOrAfter(exitDate, dates);
+      if (jToday >= jExit) left = 0;
+    }
   }
   const exitMd = exitDate ? flexFormatMdBuy(exitDate)?.replace(/买$/, '清') : null;
   const label = left != null
-    ? (exitMd ? `剩${left}日 · ${exitMd}` : `剩${left}日`)
+    ? (exitMd ? `剩${left}交易日 · ${exitMd}` : `剩${left}交易日`)
     : '—';
-  return { left, exitDate, label };
+  return { left, exitDate, label, daysHeld };
 }
 
 function flexApplyBuy(ledger, draft) {
@@ -999,11 +1163,10 @@ function flexApplyBuy(ledger, draft) {
   const holdDays = draft.hold_days != null && Number(draft.hold_days) >= 0
     ? Number(draft.hold_days)
     : null;
-  const exitDate = draft.exit_date
-    ? String(draft.exit_date).slice(0, 10)
-    : holdDays != null
-      ? flexAddCalendarDays(buyDate, holdDays)
-      : null;
+  // Exit signal date on trade calendar (engine: entry_i + HOLD_DAYS). Prefer recompute from hold_days.
+  const exitDate = holdDays != null
+    ? flexAddTradingDays(buyDate, holdDays)
+    : (draft.exit_date ? String(draft.exit_date).slice(0, 10) : null);
 
   if (existing && Number(existing.qty) > 0) {
     const newQty = Number(existing.qty) + qty;
@@ -1804,7 +1967,10 @@ function deskLocalDueCloses(ledger = loadFlexLedger()) {
   const rows = [];
   for (const pos of flexOpenPositions(ledger)) {
     const info = flexPositionExitInfo(pos);
-    const due = (info.exitDate && info.exitDate <= today)
+    const daysHeld = info.daysHeld != null ? info.daysHeld : flexPositionDaysHeld(pos, today);
+    const holdDays = pos.hold_days != null ? Number(pos.hold_days) : null;
+    // Same rule as engine: days_held >= hold_days → CLOSE signal (execute next trade open).
+    const due = (holdDays != null && daysHeld >= holdDays)
       || (info.left != null && info.left <= 0);
     if (!due) continue;
     rows.push({
@@ -1819,8 +1985,10 @@ function deskLocalDueCloses(ledger = loadFlexLedger()) {
       priority: 'P0',
       entry: '下一交易日开盘',
       exit: '平仓',
-      why: `本机买入日起持有期满（买 ${pos.buy_date || '—'} · 计划 ${pos.hold_days ?? '—'} 日）`,
-      days_held: pos.buy_date ? flexCalendarDaysBetween(pos.buy_date, today) : null,
+      why: `本机买入日起持有期满（买 ${pos.buy_date || '—'} · 计划 ${holdDays ?? '—'} 个交易日 · 已持有 ${daysHeld} 交易日）`,
+      days_held: daysHeld,
+      close_code: 'LOCAL_MAX_HOLD',
+      guaranteed: true,
       weight_target: 0,
       weight_hint: '0%',
       _key: pos.key || flexPositionKey(pos),
@@ -2400,7 +2568,7 @@ function renderFlexTradePanel(playbook) {
     // lag 1 is still inside T+1 buy window; only warn when past T+1
     asOfEl.classList.toggle('warn', !!(lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS));
   }
-  setText('flexHold', String(flex.hold_days || 5));
+  setText('flexHold', `${flex.hold_days || 5}交易日`);
   setText('flexStatsShort', pctLabel(full.win_rate));
 
   const risk = flex.risk_dashboard || {};
