@@ -19,9 +19,9 @@
   },
   "nowcast": {
     "active": true,
-    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
-    "risk_temperature": 69.4,
-    "baseline_trade_date": "2026-07-15",
+    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
+    "risk_temperature": 70.1,
+    "baseline_trade_date": "2026-07-10",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
   "model_confidence": {
@@ -34,5 +34,5 @@
     "WARN_NOT_BRACKET_30D",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-16T16:23:29+08:00"
+  "last_successful_update": "2026-07-16T17:42:23+08:00"
 }
