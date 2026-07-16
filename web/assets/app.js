@@ -430,10 +430,66 @@ function bindRangeControls(onRange) {
   });
 }
 
+const FLEX_GUIDE_KEY = 'ashare_flex_guide_dismissed_v1';
+
+function flexToast(message, kind = 'ok', ms = 2200) {
+  const el = document.getElementById('flexToast');
+  if (!el || !message) return;
+  el.hidden = false;
+  el.className = `flex-toast ${kind || 'ok'}`;
+  el.textContent = message;
+  clearTimeout(flexToast._timer);
+  flexToast._timer = setTimeout(() => {
+    el.hidden = true;
+  }, Math.max(1200, Number(ms) || 2200));
+}
+
+function paintFlexBookChrome() {
+  const sim = isFlexSimBook();
+  const panel = document.getElementById('flexTradePanel');
+  panel?.classList.toggle('is-sim-book', sim);
+  const realBtn = document.getElementById('flexBookRealBtn');
+  const simBtn = document.getElementById('flexBookSimBtn');
+  realBtn?.classList.toggle('active', !sim);
+  simBtn?.classList.toggle('active', sim);
+  realBtn?.setAttribute('aria-pressed', sim ? 'false' : 'true');
+  simBtn?.setAttribute('aria-pressed', sim ? 'true' : 'false');
+  const sub = document.getElementById('flexTitleSub');
+  if (sub) {
+    sub.textContent = sim
+      ? '模拟仓 · 严格跟随策略纸面 · EOD开盘入/收盘估 · 与真实分离'
+      : '真实仓 · 点买记账 · 收益看涨跌幅% · 非券商委托';
+  }
+  const pill = document.getElementById('flexBookPill');
+  if (pill) {
+    pill.textContent = sim ? '模拟仓' : '真实仓';
+    pill.title = sim ? '当前：模拟账本（自动跟策略）' : '当前：真实账本（仅点买入账）';
+  }
+}
+
+function bindFlexGuide() {
+  const guide = document.getElementById('flexGuide');
+  const dismiss = document.getElementById('flexGuideDismiss');
+  if (!guide) return;
+  let dismissed = false;
+  try { dismissed = localStorage.getItem(FLEX_GUIDE_KEY) === '1'; } catch (_) { /* ignore */ }
+  guide.hidden = dismissed;
+  if (dismiss && dismiss.dataset.bound !== '1') {
+    dismiss.dataset.bound = '1';
+    dismiss.addEventListener('click', () => {
+      guide.hidden = true;
+      try { localStorage.setItem(FLEX_GUIDE_KEY, '1'); } catch (_) { /* ignore */ }
+      flexToast('已收起引导，可随时从说明区回顾规则', 'ok');
+    });
+  }
+}
+
 function bindFlexModeControls() {
-  // Strategy sizing mode: 进取 / 保守 only (not 模拟).
+  // Strategy sizing mode: 进取 / 保守 only.
   document.querySelectorAll('.flex-mode-btn[data-flex-mode]').forEach(button => {
     button.classList.toggle('active', button.dataset.flexMode === dashboardState.flexMode);
+    if (button.dataset.bound === '1') return;
+    button.dataset.bound = '1';
     button.addEventListener('click', () => {
       const mode = button.dataset.flexMode || 'aggressive';
       dashboardState.flexMode = mode;
@@ -441,41 +497,52 @@ function bindFlexModeControls() {
       document.querySelectorAll('.flex-mode-btn[data-flex-mode]').forEach(b => {
         b.classList.toggle('active', b.dataset.flexMode === mode);
       });
+      flexToast(mode === 'aggressive' ? '已切换：进取（单仓可满）' : '已切换：保守（暴露封顶）', 'ok', 1600);
       if (dashboardState.flexPlaybook) {
         renderFlexTradePanel(dashboardState.flexPlaybook);
       }
     });
   });
   bindFlexBookToggle();
+  bindFlexGuide();
+  paintFlexBookChrome();
 }
 
 function bindFlexBookToggle() {
-  const btn = document.getElementById('flexBookSimBtn');
-  if (!btn || btn.dataset.bound === '1') return;
-  btn.dataset.bound = '1';
-  const paint = () => {
-    const sim = isFlexSimBook();
-    btn.classList.toggle('active', sim);
-    btn.setAttribute('aria-pressed', sim ? 'true' : 'false');
-    document.getElementById('flexTradePanel')?.classList.toggle('is-sim-book', sim);
-    const sub = document.getElementById('flexTitleSub');
-    if (sub) {
-      sub.textContent = sim
-        ? '模拟仓 · 严格跟随策略纸面 · 与真实账本分离 · 非券商委托'
-        : '真实仓 · 本机点买记账 · 非券商实盘委托';
-    }
+  const setBook = (book) => {
+    const next = book === 'sim' ? 'sim' : 'real';
+    if (dashboardState.flexBook === next) return;
+    dashboardState.flexBook = next;
+    saveFlexBookPreference(next);
+    dashboardState.flexSimSyncedAsOf = null;
+    paintFlexBookChrome();
+    flexToast(next === 'sim' ? '已切换到模拟仓（自动跟策略）' : '已切换到真实仓（点买记账）', 'ok', 1800);
+    if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
+    else renderFlexExecUi();
   };
-  paint();
-  btn.addEventListener('click', () => {
-    dashboardState.flexBook = isFlexSimBook() ? 'real' : 'sim';
-    saveFlexBookPreference(dashboardState.flexBook);
-    dashboardState.flexSimSyncedAsOf = null; // force resync when entering sim
-    paint();
-    if (dashboardState.flexPlaybook) {
-      renderFlexTradePanel(dashboardState.flexPlaybook);
-    } else {
-      renderFlexExecUi();
-    }
+  const realBtn = document.getElementById('flexBookRealBtn');
+  const simBtn = document.getElementById('flexBookSimBtn');
+  if (realBtn && realBtn.dataset.bound !== '1') {
+    realBtn.dataset.bound = '1';
+    realBtn.addEventListener('click', () => setBook('real'));
+  }
+  if (simBtn && simBtn.dataset.bound !== '1') {
+    simBtn.dataset.bound = '1';
+    simBtn.addEventListener('click', () => setBook('sim'));
+  }
+  paintFlexBookChrome();
+}
+
+function flexSwitchTab(tabId) {
+  const panel = document.getElementById('flexTradePanel');
+  if (!panel) return;
+  panel.querySelectorAll('.flex-tab').forEach(t => {
+    const on = t.dataset.flexTab === tabId;
+    t.classList.toggle('active', on);
+    t.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+  panel.querySelectorAll('.flex-tab-panel').forEach(p => {
+    p.classList.toggle('active', p.dataset.flexPanel === tabId);
   });
 }
 
@@ -1488,8 +1555,10 @@ function renderFlexHoldings() {
   const capital = Number(ledger.capital) || 0;
   if (!positions.length) {
     el.innerHTML = `<div class="flex-empty-state soft">
-      <strong>本机暂无持仓</strong>
-      <p>在「信号」里点「买」并录入成交价后，会记入本机账本。数据只存在当前浏览器。</p>
+      <strong>${isFlexSimBook() ? '模拟仓暂无持仓' : '真实仓暂无持仓'}</strong>
+      <p>${isFlexSimBook()
+        ? '请先保存全仓金额；策略纸面 open 时将自动同步持仓（EOD 开盘入场/收盘盯市）。'
+        : '在「信号」里点「记买入」并录入成交价后入账。数据只存在当前浏览器，可导出备份。'}</p>
     </div>`;
     return;
   }
@@ -1755,16 +1824,23 @@ function confirmFlexTradeModal() {
       ledger = flexApplyClose(ledger, state.key, price);
     }
     closeFlexTradeModal();
+    const labels = { buy: '买入已记账', add: '加仓已记账', reduce: '减仓已记账', close: '平仓已记账' };
+    flexToast(labels[state.mode] || '已记账', 'ok', 1800);
     if (dashboardState.flexPlaybook) {
       renderFlexTradePanel(dashboardState.flexPlaybook);
     } else {
       renderFlexExecUi();
+    }
+    // After fill, take user to holdings to see the result.
+    if (state.mode === 'buy' || state.mode === 'add' || state.mode === 'close') {
+      flexSwitchTab('book');
     }
   } catch (e) {
     if (err) {
       err.hidden = false;
       err.textContent = e.message || String(e);
     }
+    flexToast(e.message || '记账失败', 'err', 2800);
   }
 }
 
@@ -2262,37 +2338,51 @@ function renderFlexSignalRows(items, flex, options = {}) {
              <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
           : '<span class="flex-row-muted">—</span>';
       } else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
-        acts = held
-          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
-             <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
-          : '<span class="flex-row-muted">—</span>';
+        if (isFlexSimBook()) {
+          acts = held
+            ? '<span class="flex-chip ghost" title="模拟仓由策略自动同步平仓">模拟跟单</span>'
+            : '<span class="flex-row-muted" title="策略提示，模拟仓未持有">提示</span>';
+        } else {
+          acts = held
+            ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
+               <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
+            : '<span class="flex-row-muted" title="未点买，仅策略提示">仅提示</span>';
+        }
       } else if (held) {
-        acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加</button>
-          <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
-          <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`;
+        if (isFlexSimBook()) {
+          acts = '<span class="flex-chip ghost" title="模拟仓自动跟随策略">已同步</span>';
+        } else {
+          acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加</button>
+            <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
+            <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`;
+        }
       } else if (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action)) {
-        // Only true OPEN/BUY — never paper HOLD
-        acts = `<button type="button" class="flex-chip primary"
-          data-flex-act="buy"
-          data-pos-key="${escapeHtml(key)}"
-          data-name="${escapeHtml(item.name || '')}"
-          data-etf-code="${escapeHtml(etfCode)}"
-          data-etf-name="${escapeHtml(item.etf_name || '')}"
-          data-sleeve="${escapeHtml(item.sleeve || '')}"
-          data-suggested="${suggested != null ? suggested : ''}"
-          data-signal-as-of="${escapeHtml(signalAsOf)}"
-          data-hold-days="${planDays != null ? planDays : ''}"
-        >记买入</button>`;
+        if (isFlexSimBook()) {
+          acts = '<span class="flex-chip ghost" title="模拟仓将在策略 open 时自动铺仓">自动跟</span>';
+        } else {
+          acts = `<button type="button" class="flex-chip primary"
+            data-flex-act="buy"
+            data-pos-key="${escapeHtml(key)}"
+            data-name="${escapeHtml(item.name || '')}"
+            data-etf-code="${escapeHtml(etfCode)}"
+            data-etf-name="${escapeHtml(item.etf_name || '')}"
+            data-sleeve="${escapeHtml(item.sleeve || '')}"
+            data-suggested="${suggested != null ? suggested : ''}"
+            data-signal-as-of="${escapeHtml(signalAsOf)}"
+            data-hold-days="${planDays != null ? planDays : ''}"
+          >记买入</button>`;
+        }
       }
     }
 
-    return `<div class="flex-row ${badgeInfo.cls}${held ? ' is-held' : ''}">
-      <span class="badge badge-wide" data-label="信号">${escapeHtml(badgeInfo.text)}</span>
+    const whyTip = item.why ? ` title="${escapeHtml(String(item.why))}"` : '';
+    return `<div class="flex-row ${badgeInfo.cls}${held ? ' is-held' : ''}"${whyTip}>
+      <span class="badge badge-wide" data-label="动作">${escapeHtml(badgeInfo.text)}</span>
       <span class="flex-row-code" data-label="代码">${escapeHtml(etfCode || '—')}</span>
       <span class="flex-row-name" data-label="名称">${escapeHtml(name)}</span>
-      <span class="flex-row-num" data-label="目标">${escapeHtml(String(w))}</span>
+      <span class="flex-row-num" data-label="权重">${escapeHtml(String(w))}</span>
       <span class="flex-row-num" data-label="建议">${amt}</span>
-      <span class="flex-row-num flex-row-muted" data-label="清仓">${escapeHtml(left)}</span>
+      <span class="flex-row-num flex-row-muted" data-label="说明">${escapeHtml(left)}</span>
       <span class="flex-row-acts" data-label="操作">${acts}</span>
     </div>`;
   }).join('');
@@ -2301,12 +2391,30 @@ function renderFlexSignalRows(items, flex, options = {}) {
 function renderFlexSignalList(flex, options = {}) {
   const buckets = splitFlexSignalBuckets(flex || {});
   const defaultHoldDays = flex?.hold_days != null ? Number(flex.hold_days) : 5;
+  // hold bucket intentionally omitted (paper HOLD is not a desk action)
   const map = [
     { kind: 'open', id: 'flexOpenList', forceKind: 'open', countId: 'flexOpenCount' },
-    { kind: 'hold', id: 'flexHoldList', forceKind: 'hold', countId: 'flexHoldCount' },
     { kind: 'close', id: 'flexCloseList', forceKind: 'close', countId: 'flexCloseCount' },
     { kind: 'avoid', id: 'flexAvoidList', forceKind: 'avoid', countId: 'flexAvoidCount' },
   ];
+
+  // Dynamic open title: T vs T+1
+  const asOfForTitle = String(options.signalAsOf || flex?.as_of || '').slice(0, 10);
+  const lagOpen = flexBookLagDays(asOfForTitle);
+  const openTitle = document.getElementById('flexOpenTitle');
+  if (openTitle) {
+    const countSpan = document.getElementById('flexOpenCount');
+    const countHtml = countSpan ? countSpan.outerHTML : '';
+    openTitle.innerHTML = lagOpen === 1
+      ? `T+1 可确认 ${countHtml}`
+      : `可买信号 ${countHtml}`;
+  }
+  const openHint = document.getElementById('flexOpenHint');
+  if (openHint) {
+    openHint.innerHTML = isFlexSimBook()
+      ? '模拟仓：新开由策略纸面自动同步，无需点买。下列为窗口内策略新开提示。'
+      : '真实仓：信号日 <strong>T</strong> 与 <strong>T+1</strong> 可点「记买入」；未点则 <strong>T+2</strong> 消失。';
+  }
 
   let any = false;
   let actionable = 0;
@@ -2340,17 +2448,20 @@ function renderFlexSignalList(flex, options = {}) {
       const asOf = String(flex?.as_of || '').slice(0, 10);
       const today = flexDateCn(0);
       const lag = flexBookLagDays(asOf);
-      const dq = flex?.data_quality || {};
-      const officialAsOf = dq.official_as_of || asOf;
       if (title && body) {
-        if (lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS) {
-          title.textContent = '买入窗口已过';
-          body.textContent = `策略书 as_of=${asOf || '—'}，今天=${today}（已过 ${lag} 天）。规则：信号日 T 与 T+1 可点买确认；到 T+2 信号消失。已点买的看「持仓」页。`;
-        } else {
-          title.textContent = '当前没有可买信号';
+        if (isFlexSimBook()) {
+          title.textContent = '模拟仓：暂无新开/平仓动作';
           body.textContent = asOf
-            ? `策略书 as_of=${asOf}：窗口内（T～T+1）没有未确认的新开。点「买」才进你的仓；T+2 起未点的信号消失。`
-            : '当前没有可买信号。信号日 T 与 T+1 可确认；T+2 消失。';
+            ? `策略 as_of=${asOf}。若袖标已 open，请到「持仓」查看自动同步仓位；日更约 15:40 后刷新。`
+            : '设置全仓后，模拟仓将按策略纸面自动铺仓。';
+        } else if (lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS) {
+          title.textContent = '买入窗口已过';
+          body.textContent = `策略 as_of=${asOf || '—'}，今天=${today}（差 ${lag} 天）。仅 T～T+1 可买；已过期信号不会补显示。持仓见「持仓」页。`;
+        } else {
+          title.textContent = '今日无行动信号';
+          body.textContent = asOf
+            ? `策略 as_of=${asOf}：当前没有可买/须平提示。点买才进真实仓；T+2 起未确认信号消失。`
+            : '等待策略日更，或检查网络后刷新页面。';
         }
       }
     }
@@ -2393,7 +2504,8 @@ function bindFlexExecControls() {
     const input = document.getElementById('flexCapitalInput');
     const capital = Number(input?.value);
     if (!(capital > 0)) {
-      alert('请输入大于 0 的全仓金额');
+      flexToast('请输入大于 0 的全仓金额', 'err', 2600);
+      input?.focus();
       return;
     }
     const ledger = loadFlexLedger();
@@ -2415,6 +2527,7 @@ function bindFlexExecControls() {
       });
     }
     saveFlexLedger(ledger);
+    flexToast(`${isFlexSimBook() ? '模拟' : '真实'}仓全仓已保存：${formatMoney(next)} 元`, 'ok');
     if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
     else renderFlexExecUi();
   });
@@ -2427,13 +2540,15 @@ function bindFlexExecControls() {
   });
 
   document.getElementById('flexResetLedgerBtn')?.addEventListener('click', () => {
-    if (!confirm('确认清空本机持仓与成交流水？全仓金额可保留，现金将重置为全仓。')) return;
+    const bookName = isFlexSimBook() ? '模拟仓' : '真实仓';
+    if (!confirm(`确认清空【${bookName}】持仓与流水？\n全仓金额保留，现金重置为全仓。\n（另一账本不受影响）`)) return;
     const ledger = loadFlexLedger();
     const capital = Number(ledger.capital) || 0;
     const next = defaultFlexLedger();
     next.capital = capital;
     next.cash = capital;
     saveFlexLedger(next);
+    flexToast(`${bookName}已清空（本金 ${formatMoney(capital)} 保留）`, 'warn');
     if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
     else renderFlexExecUi();
   });
@@ -2444,9 +2559,11 @@ function bindFlexExecControls() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `flex-ledger-${new Date().toISOString().slice(0, 10)}.json`;
+    const tag = isFlexSimBook() ? 'sim' : 'real';
+    a.download = `flex-ledger-${tag}-${new Date().toISOString().slice(0, 10)}.json`;
     a.click();
     URL.revokeObjectURL(url);
+    flexToast(`已导出${isFlexSimBook() ? '模拟' : '真实'}账本`, 'ok', 1500);
   });
 
   document.getElementById('flexImportLedgerBtn')?.addEventListener('click', () => {
@@ -2461,14 +2578,16 @@ function bindFlexExecControls() {
       const parsed = JSON.parse(text);
       if (!parsed || typeof parsed !== 'object') throw new Error('无效账本文件');
       const ledger = normalizeFlexLedger(parsed);
-      if (!confirm(`导入账本？将覆盖本机当前持仓与流水。\n全仓 ${formatMoney(ledger.capital)} · 持仓 ${flexOpenPositions(ledger).length} · 流水 ${(ledger.journal || []).length}`)) {
+      const bookName = isFlexSimBook() ? '模拟仓' : '真实仓';
+      if (!confirm(`导入到【${bookName}】？将覆盖该账本持仓与流水。\n全仓 ${formatMoney(ledger.capital)} · 持仓 ${flexOpenPositions(ledger).length} · 流水 ${(ledger.journal || []).length}`)) {
         return;
       }
       saveFlexLedger(ledger);
+      flexToast(`已导入到${bookName}`, 'ok');
       if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
       else renderFlexExecUi();
     } catch (e) {
-      alert(e.message || '导入失败');
+      flexToast(e.message || '导入失败', 'err', 3200);
     }
   });
 
@@ -2508,7 +2627,11 @@ function bindFlexExecControls() {
     }
   });
   document.addEventListener('keydown', (ev) => {
-    if (ev.key === 'Escape') closeFlexTradeModal();
+    const modal = document.getElementById('flexTradeModal');
+    if (ev.key === 'Escape' && modal && !modal.hidden) {
+      ev.preventDefault();
+      closeFlexTradeModal();
+    }
   });
 
   document.getElementById('flexTradePanel')?.addEventListener('click', (ev) => {
@@ -2688,14 +2811,7 @@ function renderFlexTradePanel(playbook) {
   if (isFlexSimBook()) {
     rebuildSimLedgerFromStrategy(flex);
   }
-  panel.classList.toggle('is-sim-book', isFlexSimBook());
-  document.getElementById('flexBookSimBtn')?.classList.toggle('active', isFlexSimBook());
-  const sub = document.getElementById('flexTitleSub');
-  if (sub) {
-    sub.textContent = isFlexSimBook()
-      ? '模拟仓 · 严格跟随策略纸面 · 与真实账本分离 · 非券商委托'
-      : '真实仓 · 本机点买记账 · 非券商实盘委托';
-  }
+  paintFlexBookChrome();
 
   const stats = flexModeStats(flex, mode);
   const { full } = stats;
@@ -2720,7 +2836,16 @@ function renderFlexTradePanel(playbook) {
     asOfEl.classList.toggle('warn', !!(lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS));
   }
   setText('flexHold', `${flex.hold_days || 5}交易日`);
-  setText('flexStatsShort', pctLabel(full.win_rate));
+  // Win rate + ann return (1bp baseline when present in stats)
+  const win = full.win_rate;
+  const ann = full.ann_return;
+  if (win != null && Number.isFinite(Number(win)) && ann != null && Number.isFinite(Number(ann))) {
+    setText('flexStatsShort', `${(Number(win) * 100).toFixed(0)}%·${(Number(ann) * 100).toFixed(0)}%`);
+  } else if (win != null && Number.isFinite(Number(win))) {
+    setText('flexStatsShort', pctLabel(win));
+  } else {
+    setText('flexStatsShort', '—');
+  }
 
   const risk = flex.risk_dashboard || {};
   const alloc = flex.allocation || {};
@@ -2768,28 +2893,43 @@ function renderFlexTradePanel(playbook) {
   if (satEl) {
     satEl.dataset.tone = satHeld ? 'buy' : (satOpenNow ? 'buy' : 'wait');
   }
-  // Sleeve cards: personal fill + T..T+1 open window
+  // Sleeve cards: strategy status + book holdings
+  const paperCoreOpen = String(flex.position_state?.core?.status || '') === 'open'
+    || String(core.action || '').toUpperCase() === 'HOLD'
+    || String(core.action || '').toUpperCase() === 'CLOSE';
+  const paperSatOpen = String(flex.position_state?.satellite?.status || '') === 'open'
+    || !!sat.active;
   let coreActionLabel = '观望';
-  if (coreHeld) coreActionLabel = '本机持有';
-  else if (coreOpenNow) coreActionLabel = '可买·至T+1';
+  if (isFlexSimBook()) {
+    if (coreHeld || paperCoreOpen) coreActionLabel = paperCoreOpen && String(core.action || '').toUpperCase() === 'CLOSE' ? '策略待平' : '策略持有';
+    else if (coreOpenNow) coreActionLabel = '策略可开';
+  } else {
+    if (coreHeld) coreActionLabel = '已持有';
+    else if (coreOpenNow) coreActionLabel = '可买·T～T+1';
+  }
   setText('flexCoreAction', coreActionLabel);
   setText('flexCoreWeight', wCore != null ? pctLabel(wCore) : (core.etf_code || '—'));
   let satActionLabel = '空仓';
-  if (satHeld) satActionLabel = '本机持有';
-  else if (satOpenNow) satActionLabel = '可买·至T+1';
+  if (isFlexSimBook()) {
+    if (satHeld || paperSatOpen) satActionLabel = '策略持有';
+    else if (satOpenNow) satActionLabel = '策略可开';
+  } else {
+    if (satHeld) satActionLabel = '已持有';
+    else if (satOpenNow) satActionLabel = '可买·T～T+1';
+  }
   setText('flexSatStage', satActionLabel);
   setText('flexSatWeight', wSat != null ? pctLabel(wSat) : '—');
   if (coreEl) {
     coreEl.title = [
-      coreHeld ? '本机已点买' : '本机未点买',
-      coreOpenNow ? 'T～T+1 可确认' : '窗口外无新开',
+      isFlexSimBook() ? (coreHeld ? '模拟已同步' : '模拟未持有') : (coreHeld ? '真实已点买' : '真实未点买'),
+      coreOpenNow ? '窗口内有新开' : '窗口内无新开',
       core.etf_code,
     ].filter(Boolean).join(' · ');
   }
   if (satEl) {
     satEl.title = [
-      satHeld ? '本机已点买' : '本机未点买',
-      satOpenNow ? 'T～T+1 可确认' : '窗口外无新开',
+      isFlexSimBook() ? (satHeld ? '模拟已同步' : '模拟未持有') : (satHeld ? '真实已点买' : '真实未点买'),
+      satOpenNow ? '窗口内有新开' : '窗口外无新开',
       sat.stage_cn,
     ].filter(Boolean).join(' · ');
   }

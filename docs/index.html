@@ -80,77 +80,98 @@
           <div class="flex-top-left">
             <div class="flex-title-stack">
               <h2>Flex 执行台</h2>
-              <p class="flex-title-sub" id="flexTitleSub">策略信号 + 本机记账 · 非券商实盘委托</p>
+              <p class="flex-title-sub" id="flexTitleSub">真实仓 · 点买记账 · 非券商委托</p>
             </div>
-            <span class="flex-pill" id="flexStatus">—</span>
-            <span class="flex-pill muted" id="flexAsOf" hidden></span>
+            <span class="flex-pill" id="flexStatus" title="策略组合状态">—</span>
+            <span class="flex-pill muted" id="flexAsOf" hidden title="策略书数据日期"></span>
+            <span class="flex-pill book" id="flexBookPill" title="当前账本">真实仓</span>
           </div>
-          <div class="flex-mode-row" role="group" aria-label="模式与账本">
-            <button type="button" class="flex-mode-btn active" data-flex-mode="aggressive" id="flexModeAggressive">进取</button>
-            <button type="button" class="flex-mode-btn secondary" data-flex-mode="conservative" id="flexModeConservative">保守</button>
-            <span class="flex-mode-sep" aria-hidden="true"></span>
-            <button type="button" class="flex-mode-btn sim" id="flexBookSimBtn" data-flex-book="sim" title="模拟仓：严格跟随策略纸面，与真实本机账本分离">模拟</button>
+          <div class="flex-controls" aria-label="策略模式与账本">
+            <div class="flex-control-group">
+              <span class="flex-control-label">策略</span>
+              <div class="flex-mode-row" role="group" aria-label="策略模式">
+                <button type="button" class="flex-mode-btn active" data-flex-mode="aggressive" id="flexModeAggressive" title="单仓可满仓；收益更高、回撤更大">进取</button>
+                <button type="button" class="flex-mode-btn secondary" data-flex-mode="conservative" id="flexModeConservative" title="核心≤50% / 卫星≤30% / 总暴露≤80%">保守</button>
+              </div>
+            </div>
+            <div class="flex-control-group">
+              <span class="flex-control-label">账本</span>
+              <div class="flex-mode-row" role="group" aria-label="账本切换">
+                <button type="button" class="flex-mode-btn book-real active" id="flexBookRealBtn" data-flex-book="real" title="真实仓：只有你点买才入账">真实</button>
+                <button type="button" class="flex-mode-btn sim" id="flexBookSimBtn" data-flex-book="sim" title="模拟仓：严格跟随策略纸面，EOD 开盘入场/收盘盯市">模拟</button>
+              </div>
+            </div>
           </div>
         </header>
 
+        <div class="flex-guide" id="flexGuide" hidden>
+          <ol class="flex-guide-steps">
+            <li><strong>选策略</strong>：进取 / 保守（只改仓位，不改信号逻辑）</li>
+            <li><strong>选账本</strong>：真实=点买记账；模拟=自动跟策略</li>
+            <li><strong>填全仓</strong>：用于建议金额与仓位%</li>
+            <li><strong>看信号</strong>：T～T+1 可买；到期/事件会提示平仓</li>
+          </ol>
+          <button type="button" class="flex-text-btn light" id="flexGuideDismiss">知道了</button>
+        </div>
+
         <p class="flex-trust" id="flexTrustLine">
-          <strong>双状态</strong>：上方「核心/卫星」为策略纸面书；持仓与盈亏来自浏览器本机账本。成交价需自行录入；浮盈亏按录入价估值，非实时行情。
+          <strong>使用提示</strong>：策略信号日更（约 15:40 后）；真实仓仅本机点买；模拟仓自动跟纸面。收益展示为<strong>涨跌幅%</strong>。非投资建议，不会自动下单。
         </p>
 
         <div class="flex-strip" id="flexExecDesk">
           <div class="flex-strip-fund">
-            <label class="flex-fund-label" for="flexCapitalInput">全仓金额</label>
-            <input type="number" id="flexCapitalInput" min="0" step="1000" placeholder="如 60000" inputmode="decimal" aria-label="全仓金额" />
-            <button type="button" class="flex-exec-btn primary" id="flexCapitalSaveBtn">保存</button>
+            <label class="flex-fund-label" for="flexCapitalInput">全仓金额 <em>元</em></label>
+            <input type="number" id="flexCapitalInput" min="0" step="1000" placeholder="例如 100000" inputmode="decimal" aria-label="全仓金额（元）" autocomplete="off" />
+            <button type="button" class="flex-exec-btn primary" id="flexCapitalSaveBtn" title="保存到当前账本（真实/模拟各自独立）">保存</button>
           </div>
           <div class="flex-kpis" aria-label="账户概览">
-            <div><b id="flexExecEquity">—</b><i>总权益</i></div>
-            <div><b id="flexExecCash">—</b><i>现金</i></div>
-            <div><b id="flexExecMtm">—</b><i>市值</i></div>
-            <div><b id="flexExecDeployed">—</b><i>成本</i></div>
-            <div><b id="flexExecUPnl">—</b><i>浮动涨跌</i></div>
-            <div><b id="flexExecRPnl">—</b><i>已实现涨跌</i></div>
-            <div><b id="flexExecExposure">—</b><i>仓位</i></div>
-            <div><b id="flexExecCount">0</b><i>持仓</i></div>
+            <div title="现金+持仓市值"><b id="flexExecEquity">—</b><i>总权益</i></div>
+            <div title="可用现金"><b id="flexExecCash">—</b><i>现金</i></div>
+            <div title="按盯市价计算的持仓市值"><b id="flexExecMtm">—</b><i>市值</i></div>
+            <div title="持仓成本合计"><b id="flexExecDeployed">—</b><i>成本</i></div>
+            <div title="持仓涨跌幅 = 市值/成本 − 1"><b id="flexExecUPnl">—</b><i>浮动涨跌</i></div>
+            <div title="已实现涨跌相对全仓本金"><b id="flexExecRPnl">—</b><i>已实现涨跌</i></div>
+            <div title="市值 / 总权益"><b id="flexExecExposure">—</b><i>仓位</i></div>
+            <div title="当前持仓笔数"><b id="flexExecCount">0</b><i>持仓数</i></div>
           </div>
           <div class="flex-kpi-actions">
-            <button type="button" class="flex-text-btn" id="flexExportLedgerBtn" title="导出本机账本 JSON">导出</button>
-            <button type="button" class="flex-text-btn" id="flexImportLedgerBtn" title="从 JSON 恢复账本">导入</button>
+            <button type="button" class="flex-text-btn" id="flexExportLedgerBtn" title="导出当前账本 JSON">导出</button>
+            <button type="button" class="flex-text-btn" id="flexImportLedgerBtn" title="导入 JSON 覆盖当前账本">导入</button>
             <input type="file" id="flexImportLedgerFile" accept="application/json,.json" hidden />
-            <button type="button" class="flex-text-btn danger" id="flexResetLedgerBtn">清空</button>
+            <button type="button" class="flex-text-btn danger" id="flexResetLedgerBtn" title="清空当前账本（真实/模拟互不影响）">清空</button>
           </div>
         </div>
-        <p class="flex-mark-note" id="flexMarkNote">估值说明：持仓市值 / 浮动盈亏按最近一次录入成交价计算。</p>
+        <p class="flex-mark-note" id="flexMarkNote">估值说明：收益看涨跌幅%；金额仅作仓位参考。</p>
 
         <div class="flex-summary">
           <article class="flex-sleeve" id="flexCoreSleeve" data-tone="wait">
-            <span>核心 · 纸面</span>
+            <span>核心 · 策略</span>
             <strong id="flexCoreAction">—</strong>
             <em id="flexCoreWeight">—</em>
           </article>
           <article class="flex-sleeve" id="flexSatSleeve" data-tone="wait">
-            <span>卫星 · 纸面</span>
+            <span>卫星 · 策略</span>
             <strong id="flexSatStage">—</strong>
             <em id="flexSatWeight">—</em>
           </article>
           <div class="flex-mini-kpis">
-            <div><b id="flexAllocShort">—</b><i>核心/卫星</i></div>
-            <div><b id="flexExposure">—</b><i>目标暴露</i></div>
-            <div><b id="flexBeta">—</b><i>β</i></div>
-            <div><b id="flexHold">—</b><i>计划持有</i></div>
-            <div><b id="flexStatsShort">—</b><i>回测胜率</i></div>
-            <div class="flex-mode-hint"><b id="flexModeHint">—</b><i>当前模式</i></div>
+            <div title="目标权重 核心/卫星"><b id="flexAllocShort">—</b><i>核心/卫星</i></div>
+            <div title="目标总暴露"><b id="flexExposure">—</b><i>目标暴露</i></div>
+            <div title="研究启发式 β"><b id="flexBeta">—</b><i>β</i></div>
+            <div title="核心计划持有交易日"><b id="flexHold">—</b><i>持有期</i></div>
+            <div title="回测全样本：胜率 · 年化（基线 1bp）"><b id="flexStatsShort">—</b><i>回测胜·年化</i></div>
+            <div class="flex-mode-hint" title="当前策略模式 + 账本"><b id="flexModeHint">—</b><i>模式·账本</i></div>
           </div>
         </div>
 
         <div class="flex-tabs" role="tablist" aria-label="执行台视图">
-          <button type="button" class="flex-tab active" data-flex-tab="signal" role="tab" aria-selected="true">
+          <button type="button" class="flex-tab active" data-flex-tab="signal" role="tab" aria-selected="true" id="flexTabSignal">
             信号 <span class="flex-tab-badge" id="flexTabBadgeSignal" hidden>0</span>
           </button>
-          <button type="button" class="flex-tab" data-flex-tab="book" role="tab" aria-selected="false">
+          <button type="button" class="flex-tab" data-flex-tab="book" role="tab" aria-selected="false" id="flexTabBook">
             持仓 <span class="flex-tab-badge" id="flexTabBadgeBook" hidden>0</span>
           </button>
-          <button type="button" class="flex-tab" data-flex-tab="log" role="tab" aria-selected="false">
+          <button type="button" class="flex-tab" data-flex-tab="log" role="tab" aria-selected="false" id="flexTabLog">
             流水 <span class="flex-tab-badge" id="flexTabBadgeLog" hidden>0</span>
           </button>
         </div>
@@ -158,51 +179,42 @@
         <div class="flex-tab-panel active" data-flex-panel="signal" role="tabpanel">
           <div class="flex-signal-sections" id="flexSignalSections">
             <section class="flex-signal-block" data-signal-kind="open" hidden>
-              <h3 class="flex-signal-title buy">明天买入 <span class="flex-signal-count" id="flexOpenCount"></span></h3>
-              <p class="flex-block-hint">仅当<strong>今天</strong>策略书有新开信号才显示：T 日信号 → <strong>明天开盘</strong>买入。没有就空着。纸面多日「持有」不会出现在这里。</p>
+              <h3 class="flex-signal-title buy" id="flexOpenTitle">可买信号 <span class="flex-signal-count" id="flexOpenCount"></span></h3>
+              <p class="flex-block-hint" id="flexOpenHint">信号日 <strong>T</strong> 与 <strong>T+1</strong> 可确认买入；未点买则 T+2 消失。纸面多日持有不会出现在此。</p>
               <div class="flex-table">
                 <div class="flex-table-head">
-                  <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>清仓</span><span></span>
+                  <span>动作</span><span>代码</span><span>名称</span><span>权重</span><span>建议</span><span>说明</span><span>操作</span>
                 </div>
                 <div id="flexOpenList" class="flex-table-body"></div>
               </div>
             </section>
-            <section class="flex-signal-block" data-signal-kind="hold" hidden>
-              <h3 class="flex-signal-title hold">持有 <span class="flex-signal-count" id="flexHoldCount"></span></h3>
-              <div class="flex-table">
-                <div class="flex-table-head">
-                  <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>清仓</span><span></span>
-                </div>
-                <div id="flexHoldList" class="flex-table-body"></div>
-              </div>
-            </section>
             <section class="flex-signal-block" data-signal-kind="close" hidden>
-              <h3 class="flex-signal-title sell">平仓 <span class="flex-signal-count" id="flexCloseCount"></span></h3>
-              <p class="flex-block-hint">策略书触发的平仓<strong>一定会列出</strong>（到期 / 事件 / 默认路径，带 close_code）。本机点过买的可点「平」记账；未点买仍显示「策略平仓」提示，避免静默吞掉。</p>
+              <h3 class="flex-signal-title sell">平仓信号 <span class="flex-signal-count" id="flexCloseCount"></span></h3>
+              <p class="flex-block-hint" id="flexCloseHint">到期 / 事件 / 默认路径触发必展示。真实仓点过买可「平」；未点买显示策略提示。模拟仓由策略自动同步。</p>
               <div class="flex-table">
                 <div class="flex-table-head">
-                  <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>清仓</span><span></span>
+                  <span>动作</span><span>代码</span><span>名称</span><span>权重</span><span>建议</span><span>执行</span><span>操作</span>
                 </div>
                 <div id="flexCloseList" class="flex-table-body"></div>
               </div>
             </section>
             <section class="flex-signal-block" data-signal-kind="avoid" hidden>
-              <h3 class="flex-signal-title avoid">回避 <span class="flex-signal-count" id="flexAvoidCount"></span></h3>
-              <p class="flex-block-hint">只提示<strong>你本机持仓里</strong>命中的回避标的；没持有的不会列出来。</p>
+              <h3 class="flex-signal-title avoid">持仓回避 <span class="flex-signal-count" id="flexAvoidCount"></span></h3>
+              <p class="flex-block-hint">仅当你<strong>当前账本已持有</strong>该标的时提示，避免噪音。</p>
               <div class="flex-table">
                 <div class="flex-table-head">
-                  <span>信号</span><span>代码</span><span>名称</span><span>目标</span><span>建议</span><span>清仓</span><span></span>
+                  <span>动作</span><span>代码</span><span>名称</span><span>权重</span><span>建议</span><span>说明</span><span>操作</span>
                 </div>
                 <div id="flexAvoidList" class="flex-table-body"></div>
               </div>
             </section>
             <div id="flexSignalEmpty" class="flex-empty-state" hidden>
               <strong id="flexSignalEmptyTitle">今日无行动信号</strong>
-              <p id="flexSignalEmptyBody">策略书在今明窗口没有可执行的新开 / 持有 / 平仓。可切换「持仓」查看本机仓位，或等待下一交易日更新。</p>
+              <p id="flexSignalEmptyBody">当前没有可买 / 须平提示。可切换「持仓」查看账本，或等待日更（约 15:40 后）。</p>
             </div>
             <div id="flexCapitalHint" class="flex-empty-state soft" hidden>
-              <strong>先设置全仓金额</strong>
-              <p>保存全仓金额后，信号行会显示建议买入金额（目标权重 × 全仓）。这是本机记账参考，不会自动下单。</p>
+              <strong>建议先保存全仓金额</strong>
+              <p>保存后才会显示「建议买入金额」（目标权重 × 全仓）。仅本机参考，不会下单。</p>
             </div>
           </div>
         </div>
@@ -210,12 +222,12 @@
         <div class="flex-tab-panel" data-flex-panel="book" id="flexHoldingsPanel" role="tabpanel">
           <div class="flex-table">
             <div class="flex-table-head flex-table-head-book">
-              <span>代码</span><span>名称</span><span>成本</span><span>均价</span><span>仓位</span><span>涨跌幅</span><span>清仓</span><span></span>
+              <span>代码</span><span>名称</span><span>成本</span><span>均价</span><span>仓位</span><span>涨跌幅</span><span>清仓</span><span>操作</span>
             </div>
             <div id="flexHoldingsList" class="flex-table-body">
               <div class="flex-empty-state soft">
-                <strong>本机暂无持仓</strong>
-                <p>在「信号」里点「买」并录入成交价后，会记入本机账本。数据只存在当前浏览器。</p>
+                <strong id="flexHoldingsEmptyTitle">暂无持仓</strong>
+                <p id="flexHoldingsEmptyBody">真实仓：在「信号」点买并录入成交价。模拟仓：设全仓后自动跟策略纸面。</p>
               </div>
             </div>
           </div>
@@ -229,23 +241,25 @@
             <div id="flexJournalList" class="flex-table-body">
               <div class="flex-empty-state soft">
                 <strong>暂无流水</strong>
-                <p>买卖、调仓、调整全仓金额会记录在此。可导出 JSON 备份。</p>
+                <p>买卖、调仓、全仓调整会记在这里。可导出 JSON 备份当前账本。</p>
               </div>
             </div>
           </div>
         </div>
+
+        <div class="flex-toast" id="flexToast" hidden role="status" aria-live="polite"></div>
       </section>
 
       <div class="flex-modal-backdrop" id="flexTradeModal" hidden>
         <div class="flex-modal" role="dialog" aria-modal="true" aria-labelledby="flexModalTitle">
           <div class="flex-modal-head">
-            <h3 id="flexModalTitle">确认</h3>
+            <h3 id="flexModalTitle">确认记账</h3>
             <button type="button" class="flex-modal-close" id="flexModalCloseBtn" aria-label="关闭">×</button>
           </div>
           <p class="flex-modal-sub" id="flexModalSub"></p>
           <div class="flex-modal-body">
             <label class="flex-modal-field" id="flexModalAmountField">
-              <span id="flexModalAmountLabel">金额</span>
+              <span id="flexModalAmountLabel">金额（元）</span>
               <input type="number" id="flexModalAmount" min="0" step="100" inputmode="decimal" />
             </label>
             <div class="flex-modal-chips" id="flexModalAmountChips" hidden>
@@ -255,18 +269,19 @@
               <button type="button" class="flex-chip" data-flex-amt-chip="100">全部现金</button>
             </div>
             <label class="flex-modal-field" id="flexModalPriceField">
-              <span>成交价 <em class="flex-field-hint">自行录入</em></span>
-              <input type="number" id="flexModalPrice" min="0" step="0.001" inputmode="decimal" />
+              <span>成交价 <em class="flex-field-hint">必填 · 自行录入</em></span>
+              <input type="number" id="flexModalPrice" min="0" step="0.001" inputmode="decimal" placeholder="如 4.836" />
             </label>
             <label class="flex-modal-field" id="flexModalPctField" hidden>
-              <span>比例%</span>
+              <span>减仓比例 %</span>
               <input type="number" id="flexModalPct" min="1" max="100" step="1" value="50" inputmode="decimal" />
             </label>
             <p class="flex-modal-preview" id="flexModalPreview"></p>
+            <p class="flex-modal-disclaimer">仅本机记账，不会向券商下单。收益按涨跌幅展示。</p>
             <p class="flex-modal-error" id="flexModalError" hidden></p>
           </div>
           <div class="flex-modal-actions">
-            <button type="button" class="flex-exec-btn ghost" id="flexModalCancelBtn">取消</button>
+            <button type="button" class="flex-exec-btn ghost" id="flexModalCancelBtn">取消 · Esc</button>
             <button type="button" class="flex-exec-btn primary" id="flexModalConfirmBtn">确认记账</button>
           </div>
         </div>
