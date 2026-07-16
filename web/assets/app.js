@@ -918,12 +918,13 @@ function rebuildSimLedgerFromStrategy(flex) {
 
   const uPnlSum = uPnlParts.reduce((s, x) => s + x, 0);
   const journal = Array.isArray(prev.journal) ? prev.journal.slice(-80) : [];
+  const uRet = deployed > 0 ? uPnlSum / deployed : 0;
   const syncNote = [
     `as_of=${asOf || '—'}`,
     `持仓 ${Object.keys(positions).length}`,
     `EOD盯市 ${marked}`,
     missingPx ? `缺价 ${missingPx}` : null,
-    `浮盈 ${uPnlSum >= 0 ? '+' : ''}${Math.round(uPnlSum)}`,
+    `涨跌幅 ${flexFormatSignedPct(uRet)}`,
   ].filter(Boolean).join(' · ');
   if (
     prev.strategy_as_of !== asOf
@@ -940,6 +941,7 @@ function rebuildSimLedgerFromStrategy(flex) {
       price: 0,
       qty: 0,
       pnl: Math.round(uPnlSum * 100) / 100,
+      return_pct: Math.round(uRet * 1e6) / 1e6,
       at: new Date().toISOString(),
       note: syncNote,
     });
@@ -1001,6 +1003,32 @@ function flexFormatSignedMoney(value) {
   if (n > 0) return `+${abs}`;
   if (n < 0) return `-${abs}`;
   return abs;
+}
+
+/** ratio 0.025 → +2.50% (涨跌幅，非金额) */
+function flexFormatSignedPct(ratio, digits = 2) {
+  const n = Number(ratio);
+  if (!Number.isFinite(n)) return '—';
+  const pct = n * 100;
+  if (Math.abs(pct) < 1e-12) return `${(0).toFixed(digits)}%`;
+  const sign = pct > 0 ? '+' : '';
+  return `${sign}${pct.toFixed(digits)}%`;
+}
+
+/** Unrealized return: (mark - cost) / cost */
+function flexPositionReturnPct(pos) {
+  const cost = Number(pos?.cost_basis);
+  if (!(cost > 0)) {
+    const avg = Number(pos?.avg_price);
+    const mark = Number(pos?.last_price);
+    if (avg > 0 && mark > 0) return mark / avg - 1;
+    return null;
+  }
+  const markPx = Number(pos?.last_price);
+  const qty = Number(pos?.qty);
+  if (!(qty > 0) || !(markPx > 0)) return null;
+  const mtm = qty * markPx;
+  return mtm / cost - 1;
 }
 
 function flexSuggestedAmount(item, capital) {
@@ -1401,23 +1429,27 @@ function renderFlexAccountBar() {
   setText('flexExecExposure', exposure != null ? pctLabel(exposure) : '—');
   setText('flexExecCount', String(flexOpenPositions(ledger).length));
 
+  // 收益只展示涨跌幅（%），不展示金额
+  const uRet = deployed > 0 ? uPnl / deployed : null;
+  const rRet = capital > 0 ? rPnl / capital : null;
+
   const uEl = document.getElementById('flexExecUPnl');
   if (uEl) {
-    uEl.textContent = hasBook && deployed > 0 ? flexFormatSignedMoney(uPnl) : (hasBook ? '0' : '—');
+    uEl.textContent = hasBook && uRet != null ? flexFormatSignedPct(uRet) : (hasBook ? '0.00%' : '—');
     uEl.classList.remove('up', 'down');
     // Never classList.add('') — DOMTokenList rejects empty tokens.
-    if (hasBook && deployed > 0) {
-      if (uPnl > 0) uEl.classList.add('up');
-      else if (uPnl < 0) uEl.classList.add('down');
+    if (hasBook && uRet != null) {
+      if (uRet > 0) uEl.classList.add('up');
+      else if (uRet < 0) uEl.classList.add('down');
     }
   }
   const rEl = document.getElementById('flexExecRPnl');
   if (rEl) {
-    rEl.textContent = hasBook ? flexFormatSignedMoney(rPnl) : '—';
+    rEl.textContent = hasBook && rRet != null ? flexFormatSignedPct(rRet) : (hasBook ? '0.00%' : '—');
     rEl.classList.remove('up', 'down');
-    if (hasBook) {
-      if (rPnl > 0) rEl.classList.add('up');
-      else if (rPnl < 0) rEl.classList.add('down');
+    if (hasBook && rRet != null) {
+      if (rRet > 0) rEl.classList.add('up');
+      else if (rRet < 0) rEl.classList.add('down');
     }
   }
 
@@ -1464,19 +1496,23 @@ function renderFlexHoldings() {
   positions.sort((a, b) => (Number(b.cost_basis) || 0) - (Number(a.cost_basis) || 0));
   el.innerHTML = positions.map(pos => {
     const weight = capital > 0 ? (Number(pos.cost_basis) / capital) : null;
-    const mark = Number(pos.last_price);
-    const mtm = Number.isFinite(mark) ? Number(pos.qty) * mark : null;
-    const pnl = mtm != null ? mtm - Number(pos.cost_basis) : null;
-    const pnlCls = pnl == null ? '' : pnl >= 0 ? 'up' : 'down';
-    const pnlTxt = pnl == null ? '—' : flexFormatSignedMoney(pnl);
+    const ret = flexPositionReturnPct(pos);
+    const pnlCls = ret == null ? '' : ret > 0 ? 'up' : ret < 0 ? 'down' : '';
+    const pnlTxt = ret == null ? '—' : flexFormatSignedPct(ret);
     const exitInfo = flexPositionExitInfo(pos);
-    return `<div class="flex-row flex-row-book" data-pos-key="${escapeHtml(pos.key)}" title="${escapeHtml(exitInfo.label)}">
+    const titleBits = [
+      exitInfo.label,
+      ret != null ? `涨跌幅 ${flexFormatSignedPct(ret)}` : '',
+      Number(pos.avg_price) > 0 ? `入场 ${formatPrice(pos.avg_price)}` : '',
+      Number(pos.last_price) > 0 ? `盯市 ${formatPrice(pos.last_price)}` : '',
+    ].filter(Boolean).join(' · ');
+    return `<div class="flex-row flex-row-book" data-pos-key="${escapeHtml(pos.key)}" title="${escapeHtml(titleBits)}">
       <span class="flex-row-code" data-label="代码">${escapeHtml(pos.etf_code || '—')}</span>
       <span class="flex-row-name" data-label="名称">${escapeHtml(pos.name || '—')}</span>
       <span class="flex-row-num" data-label="成本">${formatMoney(pos.cost_basis)}</span>
       <span class="flex-row-num" data-label="均价">${formatPrice(pos.avg_price)}</span>
       <span class="flex-row-num" data-label="仓位">${weight != null ? pctLabel(weight) : '—'}</span>
-      <span class="flex-row-num ${pnlCls}" data-label="浮盈亏">${pnlTxt}</span>
+      <span class="flex-row-num ${pnlCls}" data-label="涨跌幅">${pnlTxt}</span>
       <span class="flex-row-num flex-row-exit" data-label="清仓">${escapeHtml(exitInfo.label)}</span>
       <span class="flex-row-acts" data-label="操作">
         <button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">加</button>
@@ -1505,16 +1541,34 @@ function renderFlexJournal() {
       : '—';
     const label = row.type_cn || row.type || '—';
     const code = row.etf_code || row.name || '—';
-    const pnl = row.pnl != null && Number.isFinite(Number(row.pnl))
-      ? flexFormatSignedMoney(row.pnl)
-      : '—';
-    const pnlCls = Number(row.pnl) > 0 ? 'up' : Number(row.pnl) < 0 ? 'down' : '';
+    // Journal: prefer return % (pnl / cost). CLOSE/REDUCE: cost ≈ amount - pnl when amount is proceeds.
+    let retTxt = '—';
+    let retCls = '';
+    const pnlN = Number(row.pnl);
+    const amtN = Number(row.amount);
+    if (Number.isFinite(pnlN)) {
+      const t = String(row.type || '').toUpperCase();
+      let cost = null;
+      if ((t === 'CLOSE' || t === 'REDUCE') && Number.isFinite(amtN)) {
+        cost = amtN - pnlN; // sell proceeds - pnl = cost removed
+      } else if (Number.isFinite(amtN) && amtN > 0 && t === 'SYNC') {
+        cost = amtN; // sim sync stores deployed notional in amount
+      }
+      if (cost != null && cost > 1e-9) {
+        const ret = pnlN / cost;
+        retTxt = flexFormatSignedPct(ret);
+        retCls = ret > 0 ? 'up' : ret < 0 ? 'down' : '';
+      } else if (row.return_pct != null && Number.isFinite(Number(row.return_pct))) {
+        retTxt = flexFormatSignedPct(Number(row.return_pct));
+        retCls = Number(row.return_pct) > 0 ? 'up' : Number(row.return_pct) < 0 ? 'down' : '';
+      }
+    }
     return `<div class="flex-row flex-row-log">
       <span class="flex-row-tag" data-label="类型">${escapeHtml(label)}</span>
       <span class="flex-row-code" data-label="代码">${escapeHtml(code)}</span>
       <span class="flex-row-num" data-label="金额">${formatMoney(row.amount)}</span>
       <span class="flex-row-num" data-label="价格">${Number(row.price) > 0 ? formatPrice(row.price) : '—'}</span>
-      <span class="flex-row-num ${pnlCls}" data-label="盈亏">${pnl}</span>
+      <span class="flex-row-num ${retCls}" data-label="涨跌幅">${retTxt}</span>
       <span class="flex-row-time" data-label="时间">${when}</span>
     </div>`;
   }).join('');
@@ -1585,7 +1639,8 @@ function updateFlexModalPreview() {
     if (sellQty > 0) {
       const costRemoved = (Number(pos.cost_basis) / Number(pos.qty)) * sellQty;
       const pnl = sellAmt - costRemoved;
-      preview.textContent = `卖出 ${formatShares(sellQty)} · 金额 ${formatMoney(sellAmt)} · 预计盈亏 ${flexFormatSignedMoney(pnl)} · 剩余 ${formatShares(Math.max(0, Number(pos.qty) - sellQty))}`;
+      const ret = costRemoved > 0 ? pnl / costRemoved : null;
+      preview.textContent = `卖出 ${formatShares(sellQty)} · 金额 ${formatMoney(sellAmt)} · 预计涨跌幅 ${ret != null ? flexFormatSignedPct(ret) : '—'} · 剩余 ${formatShares(Math.max(0, Number(pos.qty) - sellQty))}`;
     } else {
       preview.textContent = '填写金额或比例，以及成交价';
     }
@@ -1599,8 +1654,10 @@ function updateFlexModalPreview() {
     }
     if (price > 0) {
       const amt = Number(pos.qty) * price;
-      const pnl = amt - Number(pos.cost_basis);
-      preview.textContent = `全平约 ${formatMoney(amt)} · 预计盈亏 ${flexFormatSignedMoney(pnl)} · 回现金`;
+      const cost = Number(pos.cost_basis) || 0;
+      const pnl = amt - cost;
+      const ret = cost > 0 ? pnl / cost : null;
+      preview.textContent = `全平约 ${formatMoney(amt)} · 预计涨跌幅 ${ret != null ? flexFormatSignedPct(ret) : '—'} · 回现金`;
     } else {
       preview.textContent = '请填写成交价（按本机持仓全平）';
     }
