@@ -1,6 +1,9 @@
 const AUTO_REFRESH_MS = 60 * 1000;
 const STALE_THRESHOLD_MS = 15 * 60 * 1000;
 const FLEX_MODE_KEY = 'ashare_flex_mode_v1';
+const FLEX_BOOK_KEY = 'ashare_flex_book_v1'; // real | sim
+const FLEX_LEDGER_KEY_REAL = 'ashare_flex_exec_ledger_v1';
+const FLEX_LEDGER_KEY_SIM = 'ashare_flex_exec_ledger_sim_v1';
 
 function loadFlexModePreference() {
   try {
@@ -14,6 +17,28 @@ function saveFlexModePreference(mode) {
   try {
     localStorage.setItem(FLEX_MODE_KEY, mode === 'conservative' ? 'conservative' : 'aggressive');
   } catch (_) { /* ignore */ }
+}
+
+function loadFlexBookPreference() {
+  try {
+    const b = localStorage.getItem(FLEX_BOOK_KEY);
+    if (b === 'sim' || b === 'real') return b;
+  } catch (_) { /* ignore */ }
+  return 'real';
+}
+
+function saveFlexBookPreference(book) {
+  try {
+    localStorage.setItem(FLEX_BOOK_KEY, book === 'sim' ? 'sim' : 'real');
+  } catch (_) { /* ignore */ }
+}
+
+function isFlexSimBook() {
+  return dashboardState.flexBook === 'sim';
+}
+
+function flexLedgerStorageKey(book = dashboardState.flexBook) {
+  return book === 'sim' ? FLEX_LEDGER_KEY_SIM : FLEX_LEDGER_KEY_REAL;
 }
 
 const dashboardState = {
@@ -30,10 +55,12 @@ const dashboardState = {
   lastTradeDate: null,
   heavyLoaded: false,
   flexMode: loadFlexModePreference(),
+  flexBook: loadFlexBookPreference(), // real = 本机点买；sim = 策略严格跟随
   flexPlaybook: null,
   flexActive: null,
   flexLedgerBound: false,
   flexModal: null,
+  flexSimSyncedAsOf: null,
 };
 
 async function loadJSON(path, { bust = true } = {}) {
@@ -404,19 +431,51 @@ function bindRangeControls(onRange) {
 }
 
 function bindFlexModeControls() {
-  // Reflect persisted mode on first paint.
-  document.querySelectorAll('.flex-mode-btn').forEach(button => {
+  // Strategy sizing mode: 进取 / 保守 only (not 模拟).
+  document.querySelectorAll('.flex-mode-btn[data-flex-mode]').forEach(button => {
     button.classList.toggle('active', button.dataset.flexMode === dashboardState.flexMode);
-  });
-  document.querySelectorAll('.flex-mode-btn').forEach(button => {
     button.addEventListener('click', () => {
       const mode = button.dataset.flexMode || 'aggressive';
       dashboardState.flexMode = mode;
       saveFlexModePreference(mode);
+      document.querySelectorAll('.flex-mode-btn[data-flex-mode]').forEach(b => {
+        b.classList.toggle('active', b.dataset.flexMode === mode);
+      });
       if (dashboardState.flexPlaybook) {
         renderFlexTradePanel(dashboardState.flexPlaybook);
       }
     });
+  });
+  bindFlexBookToggle();
+}
+
+function bindFlexBookToggle() {
+  const btn = document.getElementById('flexBookSimBtn');
+  if (!btn || btn.dataset.bound === '1') return;
+  btn.dataset.bound = '1';
+  const paint = () => {
+    const sim = isFlexSimBook();
+    btn.classList.toggle('active', sim);
+    btn.setAttribute('aria-pressed', sim ? 'true' : 'false');
+    document.getElementById('flexTradePanel')?.classList.toggle('is-sim-book', sim);
+    const sub = document.getElementById('flexTitleSub');
+    if (sub) {
+      sub.textContent = sim
+        ? '模拟仓 · 严格跟随策略纸面 · 与真实账本分离 · 非券商委托'
+        : '真实仓 · 本机点买记账 · 非券商实盘委托';
+    }
+  };
+  paint();
+  btn.addEventListener('click', () => {
+    dashboardState.flexBook = isFlexSimBook() ? 'real' : 'sim';
+    saveFlexBookPreference(dashboardState.flexBook);
+    dashboardState.flexSimSyncedAsOf = null; // force resync when entering sim
+    paint();
+    if (dashboardState.flexPlaybook) {
+      renderFlexTradePanel(dashboardState.flexPlaybook);
+    } else {
+      renderFlexExecUi();
+    }
   });
 }
 
@@ -502,7 +561,8 @@ const FLEX_ACTION_BADGE = {
   UNDERWEIGHT_RELATIVE: { text: '低配', cls: 'avoid' },
 };
 
-const FLEX_LEDGER_KEY = 'ashare_flex_exec_ledger_v1';
+/** @deprecated use flexLedgerStorageKey() — kept only for migration notes */
+const FLEX_LEDGER_KEY = FLEX_LEDGER_KEY_REAL;
 /** Cache of strategy OPEN rows so T+1 can still confirm after daily rebuild clears buy_list. v2 invalidates bad seeds. */
 const FLEX_OPEN_SIGNAL_CACHE_KEY = 'ashare_flex_open_signal_cache_v2';
 const FLEX_BUY_ACTIONS = new Set(['OPEN', 'OVERWEIGHT', 'BUY', 'OVERWEIGHT_RELATIVE']);
@@ -544,14 +604,16 @@ function flexUid(prefix = 'fx') {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function defaultFlexLedger() {
+function defaultFlexLedger(book = dashboardState.flexBook) {
   return {
     version: 2,
+    book: book === 'sim' ? 'sim' : 'real',
     capital: 0,
     cash: 0,
     positions: {},
     journal: [],
     updated_at: null,
+    strategy_as_of: null,
   };
 }
 
@@ -572,14 +634,16 @@ function flexMarkValue(ledger) {
 }
 
 /** Migrate v1 ledgers that derived cash as capital−cost (dropped realized PnL). */
-function normalizeFlexLedger(raw) {
+function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
   const ledger = {
     version: 2,
+    book: raw?.book === 'sim' || book === 'sim' ? 'sim' : 'real',
     capital: Number(raw?.capital) || 0,
     cash: raw?.cash,
     positions: raw?.positions && typeof raw.positions === 'object' ? raw.positions : {},
     journal: Array.isArray(raw?.journal) ? raw.journal : [],
     updated_at: raw?.updated_at || null,
+    strategy_as_of: raw?.strategy_as_of || null,
   };
   if (ledger.cash == null || !Number.isFinite(Number(ledger.cash))) {
     // Best-effort migration for pre-v2 books.
@@ -590,23 +654,213 @@ function normalizeFlexLedger(raw) {
   return ledger;
 }
 
-function loadFlexLedger() {
+function loadFlexLedgerForBook(book) {
   try {
-    const raw = localStorage.getItem(FLEX_LEDGER_KEY);
-    if (!raw) return defaultFlexLedger();
+    const raw = localStorage.getItem(flexLedgerStorageKey(book));
+    if (!raw) return defaultFlexLedger(book);
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return defaultFlexLedger();
-    return normalizeFlexLedger(parsed);
+    if (!parsed || typeof parsed !== 'object') return defaultFlexLedger(book);
+    return normalizeFlexLedger(parsed, book);
   } catch (_) {
-    return defaultFlexLedger();
+    return defaultFlexLedger(book);
   }
 }
 
+function loadFlexLedger() {
+  return loadFlexLedgerForBook(dashboardState.flexBook || 'real');
+}
+
 function saveFlexLedger(ledger) {
-  const normalized = normalizeFlexLedger(ledger);
+  const book = ledger?.book === 'sim' || isFlexSimBook() ? 'sim' : 'real';
+  const normalized = normalizeFlexLedger(ledger, book);
+  normalized.book = book;
   normalized.updated_at = new Date().toISOString();
-  localStorage.setItem(FLEX_LEDGER_KEY, JSON.stringify(normalized));
+  localStorage.setItem(flexLedgerStorageKey(book), JSON.stringify(normalized));
   return normalized;
+}
+
+/** Map sector/name → etf fields from flex panel lists. */
+function flexLookupInstrument(flex, name) {
+  const n = String(name || '').trim();
+  const pools = [
+    ...(flex?.hold_list || []),
+    ...(flex?.buy_list || []),
+    ...(flex?.close_list || []),
+    ...(flex?.satellite?.buy || []),
+    ...(flex?.avoid_list || []),
+  ];
+  for (const row of pools) {
+    if (String(row?.name || row?.sector || '').trim() === n) return row;
+  }
+  if (n === '沪深300' || n.includes('沪深300')) {
+    return {
+      name: '沪深300',
+      etf_code: flex?.core?.etf_code || '510300',
+      etf_name: flex?.core?.etf_name || '沪深300ETF华泰柏瑞',
+      sleeve: 'core',
+    };
+  }
+  return { name: n, etf_code: '', etf_name: '', sleeve: 'satellite' };
+}
+
+/**
+ * Strategy paper targets while sleeves are open (strict sim book).
+ * Uses live allocation weights; if sleeve open but alloc weight 0 (e.g. close day),
+ * fall back to mode sizing so sim keeps the open sleeve until state goes flat.
+ */
+function collectStrategyPaperTargets(flex) {
+  const f = flex || {};
+  const pos = f.position_state || {};
+  const alloc = f.allocation || {};
+  const mode = f.mode || dashboardState.flexMode || 'aggressive';
+  const cfg = (f.modes || {})[mode] || {};
+  const targets = [];
+
+  const core = pos.core || {};
+  if (String(core.status || '') === 'open') {
+    let w = Number(alloc.w_core);
+    if (!(w > 0)) w = Number(cfg.core_when_signal != null ? cfg.core_when_signal : 0.5);
+    const meta = flexLookupInstrument(f, '沪深300');
+    targets.push({
+      sleeve: 'core',
+      name: '沪深300',
+      etf_code: core.etf_code || meta.etf_code || '510300',
+      etf_name: meta.etf_name || f.core?.etf_name || '',
+      weight: w,
+      buy_date: core.entry_date || '',
+      signal_as_of: core.entry_signal_date || '',
+      hold_days: Number(f.hold_days) || 5,
+      exit_date: core.exit_due_date || '',
+    });
+  }
+
+  const sat = pos.satellite || {};
+  if (String(sat.status || '') === 'open') {
+    let wSleeve = Number(alloc.w_sat);
+    if (!(wSleeve > 0)) wSleeve = Number(cfg.sat_when_signal != null ? cfg.sat_when_signal : 0.3);
+    const names = Array.isArray(sat.names) ? sat.names : [];
+    const weights = sat.weights || {};
+    const wSum = names.reduce((s, n) => s + (Number(weights[n]) || 0), 0) || names.length || 1;
+    for (const name of names) {
+      const win = (Number(weights[name]) || (1 / (names.length || 1))) / wSum;
+      const meta = flexLookupInstrument(f, name);
+      targets.push({
+        sleeve: 'satellite',
+        name,
+        etf_code: meta.etf_code || '',
+        etf_name: meta.etf_name || '',
+        weight: wSleeve * win,
+        buy_date: sat.entry_date || '',
+        signal_as_of: sat.entry_signal_date || '',
+        hold_days: 8,
+        exit_date: sat.exit_due_date || (f.exit_plan?.satellite?.paths?.max_signal_date) || '',
+      });
+    }
+  }
+
+  // Renorm if total weight > 1 (aggressive dual sleeve)
+  const tw = targets.reduce((s, t) => s + (Number(t.weight) || 0), 0);
+  if (tw > 1.0001) {
+    for (const t of targets) t.weight = (Number(t.weight) || 0) / tw;
+  }
+  return targets;
+}
+
+/**
+ * Rebuild simulation ledger to strictly mirror strategy paper open sleeves.
+ * Separate localStorage key from real book — never mutates real fills.
+ */
+function rebuildSimLedgerFromStrategy(flex) {
+  const f = flex || {};
+  const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
+  const prev = loadFlexLedgerForBook('sim');
+  let capital = Number(prev.capital) || 0;
+  if (!(capital > 0)) {
+    // Seed capital once from real book so sim can size.
+    capital = Number(loadFlexLedgerForBook('real').capital) || 0;
+  }
+  if (!(capital > 0)) {
+    // No capital yet — keep empty sim book; user sets 全仓金额 under 模拟.
+    const empty = defaultFlexLedger('sim');
+    empty.strategy_as_of = asOf;
+    empty.journal = prev.journal || [];
+    return saveFlexLedger(empty);
+  }
+
+  const targets = collectStrategyPaperTargets(f);
+  const positions = {};
+  let deployed = 0;
+  for (const t of targets) {
+    const w = Number(t.weight) || 0;
+    if (w <= 0) continue;
+    const amount = Math.round(capital * w * 100) / 100;
+    if (amount <= 0) continue;
+    // Unit price 1 → qty = notional; tracks strategy weight P&amp;L only after mark updates.
+    const price = 1;
+    const qty = amount / price;
+    const key = flexPositionKey(t);
+    const buyDate = String(t.buy_date || asOf || flexDateCn(0)).slice(0, 10);
+    const holdDays = t.hold_days != null ? Number(t.hold_days) : null;
+    const exitDate = t.exit_date
+      ? String(t.exit_date).slice(0, 10)
+      : holdDays != null
+        ? flexAddCalendarDays(buyDate, holdDays)
+        : null;
+    // Preserve last_price if same key existed (manual mark) so sim can show marks.
+    const old = prev.positions?.[key];
+    const lastPx = old && Number(old.last_price) > 0 ? Number(old.last_price) : price;
+    positions[key] = {
+      id: old?.id || flexUid('sim'),
+      key,
+      name: t.name,
+      etf_code: t.etf_code || '',
+      etf_name: t.etf_name || '',
+      sleeve: t.sleeve || '',
+      qty,
+      avg_price: price,
+      cost_basis: amount,
+      last_price: lastPx,
+      opened_at: old?.opened_at || new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      signal_as_of: t.signal_as_of || '',
+      buy_date: buyDate,
+      hold_days: holdDays,
+      exit_date: exitDate,
+      note: '模拟·严格跟随策略纸面',
+      sim: true,
+    };
+    deployed += amount;
+  }
+
+  const journal = Array.isArray(prev.journal) ? prev.journal.slice(-80) : [];
+  if (prev.strategy_as_of !== asOf || Object.keys(prev.positions || {}).length !== Object.keys(positions).length) {
+    journal.push({
+      id: flexUid('jn'),
+      type: 'SYNC',
+      type_cn: '模拟同步',
+      name: '策略纸面',
+      etf_code: '',
+      amount: deployed,
+      price: 0,
+      qty: 0,
+      pnl: null,
+      at: new Date().toISOString(),
+      note: `as_of=${asOf || '—'} · 持仓 ${Object.keys(positions).length} 笔 · 严格跟随`,
+    });
+  }
+
+  const ledger = {
+    version: 2,
+    book: 'sim',
+    capital,
+    cash: Math.max(0, Math.round((capital - deployed) * 100) / 100),
+    positions,
+    journal,
+    updated_at: new Date().toISOString(),
+    strategy_as_of: asOf,
+  };
+  dashboardState.flexSimSyncedAsOf = asOf;
+  return saveFlexLedger(ledger);
 }
 
 function flexPositionKey(item) {
@@ -916,9 +1170,15 @@ function renderFlexAccountBar() {
 
   const note = document.getElementById('flexMarkNote');
   if (note) {
-    note.textContent = mtm > 0
-      ? '估值说明：市值 / 浮动盈亏按最近一次录入成交价计算，非实时行情。'
-      : '估值说明：录入成交价后计算市值与浮动盈亏；本机记账不会自动下单。';
+    if (isFlexSimBook()) {
+      note.textContent = capital > 0
+        ? '模拟仓：持仓=策略纸面 open 袖标（严格跟随）；默认价=1 表示名义本金，可改价估值。与真实账本分离。'
+        : '模拟仓：先保存全仓金额，将按策略目标权重自动铺仓。';
+    } else {
+      note.textContent = mtm > 0
+        ? '真实仓：市值 / 浮动盈亏按最近一次录入成交价计算，非实时行情。'
+        : '真实仓：录入成交价后计算市值与浮动盈亏；点「买」才入账，不会自动下单。';
+    }
   }
 
   const capitalHint = document.getElementById('flexCapitalHint');
@@ -2101,8 +2361,22 @@ function renderFlexTradePanel(playbook) {
     ...flex,
     as_of: flex.as_of || playbook?.as_of || '',
     data_quality: playbook?.data_quality || flex.data_quality || null,
+    mode,
   };
   dashboardState.flexActive = flex;
+
+  // Sim book: rebuild to strictly mirror strategy paper sleeves (never touches real ledger).
+  if (isFlexSimBook()) {
+    rebuildSimLedgerFromStrategy(flex);
+  }
+  panel.classList.toggle('is-sim-book', isFlexSimBook());
+  document.getElementById('flexBookSimBtn')?.classList.toggle('active', isFlexSimBook());
+  const sub = document.getElementById('flexTitleSub');
+  if (sub) {
+    sub.textContent = isFlexSimBook()
+      ? '模拟仓 · 严格跟随策略纸面 · 与真实账本分离 · 非券商委托'
+      : '真实仓 · 本机点买记账 · 非券商实盘委托';
+  }
 
   const stats = flexModeStats(flex, mode);
   const { full } = stats;
@@ -2201,17 +2475,22 @@ function renderFlexTradePanel(playbook) {
     ].filter(Boolean).join(' · ');
   }
 
-  document.querySelectorAll('.flex-mode-btn').forEach(btn => {
+  document.querySelectorAll('.flex-mode-btn[data-flex-mode]').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.flexMode === mode);
   });
 
   const modeCfg = (flex.modes || {})[mode] || {};
   const modeLabel = mode === 'conservative' ? '保守' : '进取';
+  const bookLabel = isFlexSimBook() ? '模拟' : '真实';
   const modeDetail = modeCfg.label_cn
     || (mode === 'conservative' ? '50/30 · cap80%' : '60/40 · 单仓满');
-  setText('flexModeHint', modeLabel);
+  setText('flexModeHint', `${modeLabel}·${bookLabel}`);
   const modeHintEl = document.getElementById('flexModeHint');
-  if (modeHintEl) modeHintEl.title = modeDetail;
+  if (modeHintEl) {
+    modeHintEl.title = isFlexSimBook()
+      ? `${modeDetail} · 模拟仓严格跟随策略纸面（独立账本）`
+      : `${modeDetail} · 真实仓仅本机点买`;
+  }
 
   const trust = document.getElementById('flexTrustLine');
   if (trust && asOf) {
@@ -2232,7 +2511,11 @@ function renderFlexTradePanel(playbook) {
     const planHtml = planBits.length
       ? ` · <strong>退出日程</strong>：${planBits.join('；')}`
       : '';
-    trust.innerHTML = `<strong>执行台规则</strong>：信号 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>。<strong>T 与 T+1 可点「买」</strong>；T+2 消失。策略平仓触发必展示（含未点买的纸面提示）。${planHtml} 成交价自行录入。`;
+    if (isFlexSimBook()) {
+      trust.innerHTML = `<strong>模拟仓</strong>：as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code> · <strong>严格跟随策略纸面</strong>（持仓=状态机 open 袖标）· 独立账本，不影响真实点买。请先设全仓金额。${planHtml}`;
+    } else {
+      trust.innerHTML = `<strong>真实仓</strong>：信号 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>。<strong>T 与 T+1 可点「买」</strong>；T+2 消失。与「模拟」账本完全分离。${planHtml}`;
+    }
   }
 
   renderFlexSignalList(flex, { signalAsOf: asOf });

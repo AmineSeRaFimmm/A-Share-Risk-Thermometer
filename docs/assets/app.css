@@ -293,6 +293,28 @@ dd[data-freshness="unknown"] { color: var(--amber); }
   color: #94a3b8;
   font-weight: 600;
 }
+.flex-mode-sep {
+  width: 1px;
+  align-self: stretch;
+  margin: 4px 4px;
+  background: #cbd5e1;
+}
+.flex-mode-btn.sim {
+  color: #0e7490;
+  font-weight: 700;
+}
+.flex-mode-btn.sim.active {
+  background: #cffafe;
+  color: #0e7490;
+  box-shadow: 0 1px 2px rgba(14, 116, 144, 0.18);
+}
+.flex-trade-panel.is-sim-book {
+  outline: 1px solid rgba(14, 116, 144, 0.25);
+  outline-offset: 2px;
+}
+.flex-trade-panel.is-sim-book .flex-strip {
+  background: linear-gradient(180deg, #134e4a 0%, #0f766e 100%);
+}
 .flex-strip {
   display: grid;
   grid-template-columns: auto 1fr auto;

@@ -80,14 +80,16 @@
           <div class="flex-top-left">
             <div class="flex-title-stack">
               <h2>Flex 执行台</h2>
-              <p class="flex-title-sub">策略信号 + 本机记账 · 非券商实盘委托</p>
+              <p class="flex-title-sub" id="flexTitleSub">策略信号 + 本机记账 · 非券商实盘委托</p>
             </div>
             <span class="flex-pill" id="flexStatus">—</span>
             <span class="flex-pill muted" id="flexAsOf" hidden></span>
           </div>
-          <div class="flex-mode-row" role="group" aria-label="模式">
+          <div class="flex-mode-row" role="group" aria-label="模式与账本">
             <button type="button" class="flex-mode-btn active" data-flex-mode="aggressive" id="flexModeAggressive">进取</button>
             <button type="button" class="flex-mode-btn secondary" data-flex-mode="conservative" id="flexModeConservative">保守</button>
+            <span class="flex-mode-sep" aria-hidden="true"></span>
+            <button type="button" class="flex-mode-btn sim" id="flexBookSimBtn" data-flex-book="sim" title="模拟仓：严格跟随策略纸面，与真实本机账本分离">模拟</button>
           </div>
         </header>
 
