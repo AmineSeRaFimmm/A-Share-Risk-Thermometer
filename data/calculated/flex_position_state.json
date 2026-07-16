@@ -5,7 +5,7 @@
     "status": "open",
     "entry_signal_date": "2026-07-07",
     "entry_date": "2026-07-08",
-    "exit_due_date": null,
+    "exit_due_date": "2026-07-15",
     "days_held": 5,
     "days_remaining": 0,
     "stage_id": "CSI300_CORE_BUY",
@@ -21,21 +21,27 @@
     "status": "open",
     "entry_signal_date": "2026-07-13",
     "entry_date": "2026-07-14",
-    "exit_due_date": null,
+    "exit_due_date": "2026-07-24",
     "days_held": 1,
     "days_remaining": 7,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
+      "通信",
       "恒生科技",
+      "机械设备",
       "建筑材料",
       "传媒",
+      "国防军工",
       "商贸零售"
     ],
     "weights": {
-      "恒生科技": 0.3584,
-      "建筑材料": 0.2366,
-      "传媒": 0.2366,
-      "商贸零售": 0.1684
+      "通信": 0.2243,
+      "恒生科技": 0.2193,
+      "机械设备": 0.1234,
+      "建筑材料": 0.1206,
+      "传媒": 0.1206,
+      "国防军工": 0.1059,
+      "商贸零售": 0.0859
     },
     "etf_code": null
   },

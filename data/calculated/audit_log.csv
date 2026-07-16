@@ -1,2 +1,2 @@
 trade_date,event,quality,time
-2026-07-10,bootstrap_history,WARN_QVIX_MISSING,2026-07-15T20:10:44+08:00
+2026-07-16,bootstrap_history,BAD_NO_TERM,2026-07-16T16:21:13+08:00
