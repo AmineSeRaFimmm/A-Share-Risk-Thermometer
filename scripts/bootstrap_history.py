@@ -262,6 +262,34 @@ def _merge_avix_series(existing: pd.DataFrame, new: pd.DataFrame, key: str = "tr
     return out.drop_duplicates(key, keep="last").sort_values(key).reset_index(drop=True)
 
 
+def _official_avix_tip_unusable(row: pd.Series) -> bool:
+    """True only when the tip day has no usable AVIX close.
+
+    WARN_NOT_BRACKET_30D means single-tenor 30D estimate (common around expiry
+    weeks). That is degraded quality, not a missing close — stripping it freezes
+    official RT at the last dual-tenor day and undoes backfills on every CI run.
+    """
+    avix = pd.to_numeric(row.get("avix_clean", row.get("avix_raw")), errors="coerce")
+    if not (pd.notna(avix) and float(avix) > 0):
+        return True
+    quality = str(row.get("quality", "") or "")
+    for flag in quality.replace(",", "|").split("|"):
+        f = flag.strip()
+        if f.startswith("BAD") or f.startswith("LOW"):
+            return True
+    return False
+
+
+def _trim_unusable_official_avix_tip(clean: pd.DataFrame) -> pd.DataFrame:
+    """Drop trailing days with no usable AVIX; keep WARN_NOT_BRACKET_30D tips."""
+    if clean is None or clean.empty:
+        return clean
+    out = clean.sort_values("trade_date").reset_index(drop=True)
+    while not out.empty and _official_avix_tip_unusable(out.iloc[-1]):
+        out = out.iloc[:-1].reset_index(drop=True)
+    return out
+
+
 def calculate_all(
     master: pd.DataFrame,
     option_frames: list[pd.DataFrame],
@@ -326,8 +354,8 @@ def calculate_all(
     write_csv(raw, CALCULATED / "avix_raw_close.csv")
     if len(chain) > 100_000 and not raw_new.empty:
         clean_new = raw_new.rename(columns={"avix_raw": "avix_clean"}).copy()
-        while not clean_new.empty and "WARN_NOT_BRACKET_30D" in str(clean_new.sort_values("trade_date").iloc[-1]["quality"]):
-            clean_new = clean_new[clean_new["trade_date"] != clean_new["trade_date"].max()].copy()
+        # Keep single-tenor WARN_NOT_BRACKET_30D tips; only drop unusable AVIX.
+        clean_new = _trim_unusable_official_avix_tip(clean_new)
         clean_new["avix_raw"] = clean_new["avix_clean"]
         clean_new["raw_clean_diff"] = 0.0
         clean_new["cleaned_option_count"] = clean_new[["near_n_options", "next_n_options"]].min(axis=1)
@@ -361,9 +389,8 @@ def calculate_all(
             clean_new.loc[clean_new["raw_clean_diff"] > 2.0, "quality"] = clean_new["quality"].astype(str) + "|WARN_CLEAN_IMPACT_HIGH"
             clean_new.loc[clean_new["raw_clean_diff"] > 4.0, "quality"] = clean_new["quality"].astype(str) + "|LOW_CLEAN_IMPACT_TOO_HIGH"
         clean = _merge_avix_series(existing_clean, clean_new) if not full_recompute else clean_new
-    # Drop trailing unusable bracket warnings from official series tip
-    while not clean.empty and "WARN_NOT_BRACKET_30D" in str(clean.sort_values("trade_date").iloc[-1]["quality"]):
-        clean = clean[clean["trade_date"] != clean["trade_date"].max()].copy()
+    # Official tip: drop only unusable AVIX (BAD/LOW/NaN). Keep WARN_NOT_BRACKET_30D.
+    clean = _trim_unusable_official_avix_tip(clean)
     write_csv(clean, CALCULATED / "avix_clean_close.csv")
     try:
         qvix_fresh = fetch_qvix()

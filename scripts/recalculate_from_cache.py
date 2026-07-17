@@ -23,10 +23,12 @@ from src.utils.dates import now_cn
 
 def calculate_clean(chain: pd.DataFrame, rates: pd.DataFrame, raw: pd.DataFrame) -> pd.DataFrame:
     if len(chain) > 100_000:
+        # Same official-tip policy as bootstrap_history.calculate_all:
+        # WARN_NOT_BRACKET_30D is kept; only unusable AVIX tips are dropped.
+        from scripts.bootstrap_history import _trim_unusable_official_avix_tip
+
         clean = raw.rename(columns={"avix_raw": "avix_clean"}).copy()
-        while not clean.empty and clean.sort_values("trade_date").iloc[-1]["quality"].find("WARN_NOT_BRACKET_30D") >= 0:
-            latest = clean["trade_date"].max()
-            clean = clean[clean["trade_date"] != latest].copy()
+        clean = _trim_unusable_official_avix_tip(clean)
         clean["avix_raw"] = clean["avix_clean"]
         clean["raw_clean_diff"] = 0.0
         clean["cleaned_option_count"] = clean[["near_n_options", "next_n_options"]].min(axis=1)
