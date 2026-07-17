@@ -238,6 +238,29 @@ def fetch_options(index_history: pd.DataFrame, recent_days: int | None, full: bo
         print(f"Option fetch done: ok={refreshed_ok} failed_or_empty={len(fetch_queue) - refreshed_ok}")
     if not manifest.empty:
         write_option_manifest(manifest)
+
+    # Exchange EOD fallback: CFFEX 日统计·期权 XML → options_daily cache.
+    # Sina is contract-scraped and often fails bulk refresh; CFFEX publishes the
+    # full IO board for each session as one XML file (no private API).
+    try:
+        from src.data_sources.cffex_option_daily import sync_cffex_io_for_index_gap
+
+        existing_clean = read_csv(CALCULATED / "avix_clean_close.csv")
+        avix_max = None if existing_clean.empty else str(existing_clean["trade_date"].max())[:10]
+        cffex_stats = sync_cffex_io_for_index_gap(
+            index_history,
+            lookback_trading_days=15,
+            avix_clean_max=avix_max,
+        )
+        ok_n = len(cffex_stats.get("ok_dates") or [])
+        miss_n = len(cffex_stats.get("missing_dates") or [])
+        print(
+            f"CFFEX RTJ IO cache sync: ok_dates={ok_n} missing={miss_n} "
+            f"rows={cffex_stats.get('rows', 0)} files_touched={cffex_stats.get('files_written', 0)}"
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN CFFEX RTJ IO cache sync failed: {exc}")
+
     # Always rebuild from the full on-disk cache so daily refresh of a candidate
     # subset cannot shrink the historical option chain to recent months only.
     frames = load_cached_option_frames()
