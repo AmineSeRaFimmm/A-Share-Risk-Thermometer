@@ -1,33 +1,8 @@
 {
   "status": "no_estimates",
-  "official_latest_date": "2026-07-10",
+  "official_latest_date": "2026-07-16",
   "rows": [],
-  "gaps": [
-    {
-      "date": "2026-07-13",
-      "official_status": "缺失",
-      "estimate_status": "不可用",
-      "reason": "实时AVIX仅可盘中: WARN_NOT_BRACKET_30D"
-    },
-    {
-      "date": "2026-07-14",
-      "official_status": "缺失",
-      "estimate_status": "不可用",
-      "reason": "实时AVIX仅可盘中: WARN_NOT_BRACKET_30D"
-    },
-    {
-      "date": "2026-07-15",
-      "official_status": "缺失",
-      "estimate_status": "不可用",
-      "reason": "实时AVIX仅可盘中: WARN_NOT_BRACKET_30D"
-    },
-    {
-      "date": "2026-07-16",
-      "official_status": "缺失",
-      "estimate_status": "不可用",
-      "reason": "实时AVIX仅可盘中: WARN_NOT_BRACKET_30D"
-    }
-  ],
+  "gaps": [],
   "methodology": {
     "official_series": "risk_temperature.csv remains official close only and is not backfilled with weak daily option data.",
     "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected.",
