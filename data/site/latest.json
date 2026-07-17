@@ -1,7 +1,7 @@
 {
   "trade_date": "2026-07-17",
-  "update_time": "2026-07-17T11:34:37+08:00",
-  "risk_temperature": 78.5,
+  "update_time": "2026-07-17T13:07:16+08:00",
+  "risk_temperature": 82.2,
   "regime": "PANIC",
   "regime_cn": "恐慌区",
   "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
@@ -21,15 +21,15 @@
     "qvix_confirmation": 100.0,
     "realized_vol": 92.4603,
     "drawdown_pressure": 67.1134,
-    "breadth_pressure": 0.0,
+    "breadth_pressure": 37.5972,
     "turnover_stress": 1.7164
   },
   "market": {
     "hs300_close": 4698.434,
     "hs300_ret_1d": null,
     "hs300_drawdown_60d": -0.0714,
-    "advancing_ratio": 1.0,
-    "big_down_ratio": 0.0,
+    "advancing_ratio": 0.452,
+    "big_down_ratio": 0.0074,
     "as_of_trade_date": "2026-07-16",
     "breadth_mode": "STOCK_A",
     "breadth_mode_cn": "全A个股宽度",
@@ -50,9 +50,9 @@
   },
   "official_close": {
     "trade_date": "2026-07-16",
-    "risk_temperature": 71.6,
-    "regime": "HIGH_RISK",
-    "regime_cn": "高风险",
+    "risk_temperature": 75.3,
+    "regime": "PANIC",
+    "regime_cn": "恐慌区",
     "quality": "WARN_NOT_BRACKET_30D",
     "avix_clean": 22.4744,
     "model_confidence": {
@@ -63,12 +63,12 @@
   },
   "nowcast": {
     "trade_date": "2026-07-17",
-    "risk_temperature": 78.5,
+    "risk_temperature": 82.2,
     "regime": "PANIC",
     "regime_cn": "恐慌区",
     "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
     "baseline_trade_date": "2026-07-16",
-    "official_risk_temperature": 71.6,
+    "official_risk_temperature": 75.3,
     "realtime_avix": 25.2452,
     "realtime_avix_quality": "WARN_NOT_BRACKET_30D",
     "realtime_valuation_time": "2026-07-17T11:18:21+08:00",
@@ -76,8 +76,8 @@
     "active": true
   },
   "interpretation": {
-    "headline": "市场风险温度 78.5，处于恐慌区",
-    "summary": "QVIX确认、AVIX异常程度、AVIX短期变化是当前风险温度的主要驱动；多因子合成后给出 78.5/100。",
+    "headline": "市场风险温度 82.2，处于恐慌区",
+    "summary": "QVIX确认、AVIX异常程度、AVIX短期变化是当前风险温度的主要驱动；多因子合成后给出 82.2/100。",
     "posture": "防守 + 观察反身修复",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }

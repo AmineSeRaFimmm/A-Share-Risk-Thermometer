@@ -1,0 +1,3356 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>历史数据</title>
+  <!-- news sdk meta -->
+  <meta name="keywords" content="股票,财经,搜狐股票,搜狐财经,金罗盘,策略师,胜率榜,排行榜" />
+  <meta name="description" content="股票,财经,搜狐股票,搜狐财经,金罗盘,策略师,胜率榜,排行榜" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="renderer" content="webkit" />
+  <meta name="format-detection" content="telephone=no" />
+  <!-- QQ强制竖屏 -->
+  <meta name="x5-orientation" content="portrait" />
+  <meta name="x5-page-mode" content="app" />
+  <!-- UC 强制竖屏 -->
+  <meta name="screen-orientation" content="portrait" />
+  <link rel="stylesheet" href="//static.k.sohu.com/static/node-stock/v1-0-4/_common/css/loginbar.css">
+
+<script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/jquery.min.js"></script>
+<script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/ejs.min.js"></script>
+<script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/common.js"></script>
+<script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/gbk.js"></script>
+<!--[if lt IE 9]>
+    <script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/es5-shim.min.js"></script>
+    <script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/es5-sham.min.js"></script>
+    <script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/respond.min.js"></script>
+    <script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/json3.min.js"></script>
+    <script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/ie8hack.js"></script>
+    <script type="text/javascript" src="//static.k.sohu.com/static/node-stock/v1-0-4/_common/js/html5shiv.js"></script>
+    <link href="//47f72d130392f.cdn.sohucs.com/web/static/css/ie8hack-9dce3c3b96.css" rel="stylesheet" />
+    <style>  
+        .tips-ok-msg,.tips-error-msg{-ms-filter:"progid:DXImageTransform.Microsoft.gradient(startColorstr=#CC000000,endColorstr=#CC000000)";}  
+    </style>  
+<![endif]-->
+<script type="text/javascript" src="//js.sohu.com/mail/pv/pv_v203_ajax.js"></script>
+
+  <link rel="stylesheet" href="//static.k.sohu.com/static/node-stock/v1-0-4/_common/css/loginbar.css?20240117">
+
+  <link href="//static.k.sohu.com/static/node-stock/v1-0-4/concern/css/concern.css?20260610" rel="stylesheet" />
+  <link href="//static.k.sohu.com/static/finance/pc/qstock/data.css" rel="stylesheet" />
+</head>
+
+<body id="bodyContent">
+
+<div id="wrapper">
+    <!--sohu loginbar -->
+	<div class="CompTPLTopNavBar" id="TPLTopNavBarc80da3420125684076ff1691391588010mu3c38ey2g7" name=TPLTopNavBar>
+	  <div id="main-header" data-server-rendered="true" class="area clear sub-nav" data-v-f5d92f22>
+		<div class="z-navigation-main-wrapper navigation-main-wrap" data-v-f5d92f22>
+		  <div data-spm="block1_78_6yAGlY_1_nav" class="navigation-top-wrapper" data-v-f5d92f22>
+			<div class="navigation-image-wrap" data-v-f5d92f22><a href="//www.sohu.com" target="_blank"
+				data-v-f5d92f22><img
+				  src="https://29e5534ea20a8.cdn.sohucs.com/mptc-mpfe/img/components-pc/sohu-logo.png"
+				  class="top-logo" style="width: 72px; height: 48px;" data-v-f5d92f22></a></div>
+			<ul data-v-f5d92f22>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://news.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>新闻</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://sports.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>体育</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://auto.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>汽车</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://house.focus.cn/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>房产</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://travel.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>旅游</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://learning.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>教育</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://fashion.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>时尚</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://it.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>科技</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://business.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>财经</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://yule.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>娱乐</a></li>
+			  <li class="navigation-head-list-li" data-v-f5d92f22><a
+				  href="https://baobao.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+				  class="navigation-head-list-a" data-v-f5d92f22>母婴</a></li>
+			  <li class="navigation-head-list-li navigation-head-extra" data-v-f5d92f22><a
+				  href="javascript:void(0)" class="navigation-head-list-a"
+				  style="display: inline-block;height: 32px;" data-v-f5d92f22><span
+					style="display: inline-block;vertical-align: top;" data-v-f5d92f22>更多</span>
+				  <svg width="24px" height="15px" viewBox="0 0 48 48" version="1.1"
+					xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+					class="more-arrow" data-v-f5d92f22>
+					<title data-v-f5d92f22>icon_Unfold</title>
+					<g id="图标库" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"
+					  data-v-f5d92f22>
+					  <g id="icon_展开/收起" fill="#fff" data-v-f5d92f22>
+						<polygon id="矩形" points="12 18 36 18 24 34" data-v-f5d92f22></polygon>
+					  </g>
+					</g>
+				  </svg></a>
+				<div class="navigation-more-list" data-v-f5d92f22>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://www.sohu.com/xchannel/TURBd01EQXdOekUx?scm=1103.plate:260:0.0.2.0"
+					  target="_blank" class="navigation-more-show" data-v-f5d92f22>健康</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://history.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+					  class="navigation-more-show" data-v-f5d92f22>历史</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://mil.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+					  class="navigation-more-show" data-v-f5d92f22>军事</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://chihe.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+					  class="navigation-more-show" data-v-f5d92f22>美食</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://cul.sohu.com/?scm=1103.plate:260:0.0.2.0" target="_blank"
+					  class="navigation-more-show" data-v-f5d92f22>文化</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://www.sohu.com/xchannel/TURBd01EQXdOREU0?scm=1103.plate:260:0.0.2.0"
+					  target="_blank" class="navigation-more-show" data-v-f5d92f22>星座</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://www.sohu.com/xchannel/TURBd01EQXhPVGt5?scm=1103.plate:260:0.0.2.0"
+					  target="_blank" class="navigation-more-show" data-v-f5d92f22>专题</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://www.sohu.com/xchannel/TURBd01EQXdOelEw?scm=1103.plate:260:0.0.2.0"
+					  target="_blank" class="navigation-more-show" data-v-f5d92f22>游戏</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://www.sohu.com/xchannel/392?scm=1103.plate:260:0.0.2.0"
+					  target="_blank" class="navigation-more-show" data-v-f5d92f22>搞笑</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://www.sohu.com/xchannel/TURBd01EQXdNek01?scm=1103.plate:260:0.0.2.0"
+					  target="_blank" class="navigation-more-show" data-v-f5d92f22>动漫</a></div>
+				  <div class="navigation-more-box" data-v-f5d92f22><a
+					  href="https://www.sohu.com/xchannel/TURBd01EQXdNekl3?scm=1103.plate:260:0.0.2.0"
+					  target="_blank" class="navigation-more-show" data-v-f5d92f22>宠物</a></div>
+				  <div class="more-list-arrow-icon" data-v-f5d92f22></div>
+				  <div style="width: 100%;height: 8px;position: absolute;top: -8px;left: 0;"
+					data-v-f5d92f22></div>
+				</div>
+			  </li>
+			</ul>
+			<div class="navigation-login-wrap" data-v-f5d92f22>
+			  <div id="head-login" class="right login" data-v-f5d92f22></div>
+			</div> 
+			<!-- <a href="javascript:;" class="wza-btn" data-v-f5d92f22>
+			  无障碍
+			</a> -->
+		  </div>
+		</div>
+	  </div>
+	</div>
+	<!--sohu loginbar end -->
+    <div class="main-nav">
+		<div id="gpMainTop" class="main-top">
+            <div style="padding-top: 1px;">
+	<div class="title-top clearfix">
+		<div class="left">
+			<a href="https://q.stock.sohu.com" class="logo"></a>
+			<a target="_blank" href="//s.m.sohu.com/t/index.html" class="mobile"></a>
+		</div>
+		<div class="searchbox">
+			<div id="search-content" class="navsea" >
+				<form class="searchForm autoTmp" method=get action=javascript:void(0); target="_blank"><input class="searchInput kw" value=代码/名称/简写 disableautocomplete="" autocomplete="off"> <input class="btn" value=行情查询 type=submit> 
+				</form>
+				<div style="display: none" id="suggestDiv" class="suggestDiv suggestLists"></div>
+			</div>
+		</div>
+		<div class="suggestionbox">
+			<a target="_blank" href="//q.stock.sohu.com/feedback.html" class="suggestion">
+			</a>
+		</div>
+	</div>
+	<div class="stock-nav">
+		<ul class="navlist">
+			
+			<li><a target="_blank" href="//q.stock.sohu.com/cn/mystock.shtml">我的自选</a></li>
+			<li class="nav-etf"><a target="_blank" href="//q.stock.sohu.com/fund/etfindex.html"></a></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/cn/bk.shtml">热门板块</a></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/cn/ph.shtml">涨跌排行</a></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/cn/zs.shtml">大盘指数</a></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/fundflow/">资金流向</a></li>
+			<li><a target="_blank" href="//stock.sohu.com/ipo/">IPO新股</a></li>
+			<li class="nav-hotmoney"><a href="//q.stock.sohu.com/cn/hotmoney.html">热门游资</a></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/app2/bigdeal2.jsp">大宗交易</a></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/app2/rpsholder.up">内部交易</a></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/app2/mpssTrade.up">融资融券</a></li>
+			<li><a target="_blank" href="//stock.sohu.com/s2011/jlp/">金罗盘</a></li>
+			<li class="nav-kzz"><a href="//q.stock.sohu.com/cn/kzz_ph.html">可转债</a></li>
+			<li><a target="_blank" href="//q.fund.sohu.com/fund.html">基金净值</a></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/hk/hk_ph.html">港股</a><span class="new">新</span><span class="line"></span></li>
+			<li><a target="_blank" href="//q.stock.sohu.com/us/zgg.html">美股</a></li>
+		</ul>
+		<div class="userInfo" id="userInfoIcon">
+			<div class="menuList" id="userMenu">
+				<ul>
+					<li class="menu-li consultantOnly"><a href="javascript:void(0);" data-href='/sdk/performance'>我的主页</a></li>
+					<li class="menu-li consultantOnly"><a href="/sdk/transfer?page=callin">管理组合</a>
+						<ul class="l2-menu">
+							<li class="menu-li"><a href="/sdk/transfer?page=callin">调入</a></li>
+							<li class="menu-li"><a href="/sdk/transfer?page=callout">调出</a></li>
+							<li class="menu-li"><a href="/sdk/transfer?page=cancel">撤单</a></li>
+							<li class="menu-li"><a href="/sdk/transfer?page=record">调仓记录</a></li>
+						</ul>
+					</li>
+					 <!-- data-href="http://mp.sohu.com" -->
+					<li class="menu-li consultantOnly"><a href="//mp.sohu.com" target="_blank">发布观点</a></li>
+					<li class="menu-li"><a href="javascript:void(0);" data-href="/sdk/concern#myconcern">我的关注</a></li>
+					<li class="menu-li"><a href="javascript:void(0);" data-href="/sdk/concern#mycollection">我的收藏</a></li>
+					<li class="menu-li commonOnly"><a href="javascript:void(0);" data-href="/sdk/concern#application">申请策略师入住</a></li>
+				</ul>
+			</div>
+		</div>
+	</div>
+</div>
+<script id="userMenuTpl" type="text/template">
+	<ul>
+		{{ if(userLogined && isConsultant){ }}
+		<li class="menu-li"><a href="/person">我的主页</a></li>
+		<li class="menu-li"><a href="javascript:void(0);">管理组合</a>
+<!-- 			<ul class="l2-menu">
+				<li><a href="javascript:void(0);">调入</a></li>
+				<li><a href="javascript:void(0);">调出</a></li>
+				<li><a href="javascript:void(0);">撤单</a></li>
+				<li><a href="javascript:void(0);">调仓记录</a></li>
+			</ul> -->
+		</li>
+		<li class="menu-li"><a href="javascript:void(0);">发布观点</a></li>
+		{{ } }}
+		<li class="menu-li"><a href="javascript:void(0);">我的关注</a></li>
+		<li class="menu-li"><a href="javascript:void(0);">我的收藏</a></li>
+		{{ if(!userLogined || !isConsultant){ }}
+		<li class="menu-li"><a href="javascript:void(0);">申请策略师入住</a></li>
+		{{ } }}
+	</ul>
+</script>
+        </div>
+    </div>
+
+
+<div class="data-main">
+    <div class="data-img">
+        <div class="data-img-hd">
+            <h4 class="name">涨跌停历史数据</h4>
+            <ul class="tuli">
+                <li class="item-1"><span></span>成交额(亿)</li>
+                <li class="item-2"><span></span>涨停只数</li>
+                <li class="item-3"><span></span>跌停只数</li>
+            </ul>
+        </div>
+
+        <div class="data-img-box">
+            <img src="//d1.biz.itc.cn/zdt/zd.png" alt="">
+        </div>
+    </div>
+
+    <div class="data-table">
+        
+
+        <table cellspacing="0" cellpadding="0">  
+            <tr>  
+                <td  rowspan="2">日期</td>  
+                <td  rowspan="2">涨停只数</td> 
+                <td  rowspan="2">跌停只数</td>
+                <td  rowspan="2">停牌</td> 
+                <td  rowspan="2">成交额(亿)</td> 
+                <td colspan="3">沪市</td> 
+                <td colspan="3">深市</td>
+				<td colspan="3">京市</td>
+            </tr>
+            <tr>   
+                <td>上涨只数</td>
+                <td>平盘只数</td>
+                <td>下跌只数</td>
+                <td>上涨只数</td>
+                <td>平盘只数</td>
+                <td>下跌只数</td>
+				<td>上涨只数</td>
+                <td>平盘只数</td>
+                <td>下跌只数</td>
+            </tr> 
+            ﻿涨跌停历史数据
+		   <tr>
+			<td>07/16</td>
+			<td>48</td>
+			<td>41</td>
+			<td>5</td>
+			<td>24191.23</td>
+			<td>
+				<div class="num-box">
+										<span class="num">931</span>
+					<div class="num-tu"><span class="bgred" style="width:40.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">61</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1316</span>
+					<div class="num-tu"><span class="bggreen" style="width:56.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1413</span>
+					<div class="num-tu"><span class="bgred" style="width:49.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">101</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1379</span>
+					<div class="num-tu"><span class="bggreen" style="width:48.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">155</span>
+					<div class="num-tu"><span class="bgred" style="width:47.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">7</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">166</span>
+					<div class="num-tu"><span class="bggreen" style="width:51.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/15</td>
+			<td>74</td>
+			<td>39</td>
+			<td>4</td>
+			<td>25876.34</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1435</span>
+					<div class="num-tu"><span class="bgred" style="width:62.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">31</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">842</span>
+					<div class="num-tu"><span class="bggreen" style="width:36.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1763</span>
+					<div class="num-tu"><span class="bgred" style="width:61.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">42</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1088</span>
+					<div class="num-tu"><span class="bggreen" style="width:38.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">153</span>
+					<div class="num-tu"><span class="bgred" style="width:47.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">6</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">168</span>
+					<div class="num-tu"><span class="bggreen" style="width:51.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/14</td>
+			<td>89</td>
+			<td>29</td>
+			<td>5</td>
+			<td>27196.82</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1708</span>
+					<div class="num-tu"><span class="bgred" style="width:74.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">38</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">562</span>
+					<div class="num-tu"><span class="bggreen" style="width:24.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">2211</span>
+					<div class="num-tu"><span class="bgred" style="width:76.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">29</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">653</span>
+					<div class="num-tu"><span class="bggreen" style="width:23.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">292</span>
+					<div class="num-tu"><span class="bgred" style="width:89.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">3</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">32</span>
+					<div class="num-tu"><span class="bggreen" style="width:10.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/13</td>
+			<td>33</td>
+			<td>187</td>
+			<td>7</td>
+			<td>28348.96</td>
+			<td>
+				<div class="num-box">
+										<span class="num">436</span>
+					<div class="num-tu"><span class="bgred" style="width:19.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">23</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1849</span>
+					<div class="num-tu"><span class="bggreen" style="width:80.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">344</span>
+					<div class="num-tu"><span class="bgred" style="width:12.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">23</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2528</span>
+					<div class="num-tu"><span class="bggreen" style="width:87.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">21</span>
+					<div class="num-tu"><span class="bgred" style="width:6.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										--
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">306</span>
+					<div class="num-tu"><span class="bggreen" style="width:94.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/10</td>
+			<td>95</td>
+			<td>7</td>
+			<td>10</td>
+			<td>34108.82</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1519</span>
+					<div class="num-tu"><span class="bgred" style="width:66.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">37</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">752</span>
+					<div class="num-tu"><span class="bggreen" style="width:33.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1993</span>
+					<div class="num-tu"><span class="bgred" style="width:69.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">42</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">860</span>
+					<div class="num-tu"><span class="bggreen" style="width:30.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">260</span>
+					<div class="num-tu"><span class="bgred" style="width:80.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1</span>
+					<div class="num-tu"><span class="bggray" style="width:0.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">66</span>
+					<div class="num-tu"><span class="bggreen" style="width:20.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/09</td>
+			<td>75</td>
+			<td>15</td>
+			<td>10</td>
+			<td>29324.46</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1071</span>
+					<div class="num-tu"><span class="bgred" style="width:46.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">63</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1174</span>
+					<div class="num-tu"><span class="bggreen" style="width:51.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1311</span>
+					<div class="num-tu"><span class="bgred" style="width:45.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">84</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1500</span>
+					<div class="num-tu"><span class="bggreen" style="width:52.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">104</span>
+					<div class="num-tu"><span class="bgred" style="width:32.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">8</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">214</span>
+					<div class="num-tu"><span class="bggreen" style="width:66.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/08</td>
+			<td>58</td>
+			<td>47</td>
+			<td>10</td>
+			<td>25827.57</td>
+			<td>
+				<div class="num-box">
+										<span class="num">746</span>
+					<div class="num-tu"><span class="bgred" style="width:32.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">68</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1494</span>
+					<div class="num-tu"><span class="bggreen" style="width:65.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">787</span>
+					<div class="num-tu"><span class="bgred" style="width:27.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">70</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2038</span>
+					<div class="num-tu"><span class="bggreen" style="width:70.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">60</span>
+					<div class="num-tu"><span class="bgred" style="width:18.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">7</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">258</span>
+					<div class="num-tu"><span class="bggreen" style="width:79.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/07</td>
+			<td>34</td>
+			<td>50</td>
+			<td>10</td>
+			<td>25986.23</td>
+			<td>
+				<div class="num-box">
+										<span class="num">302</span>
+					<div class="num-tu"><span class="bgred" style="width:13.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">16</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1990</span>
+					<div class="num-tu"><span class="bggreen" style="width:86.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">337</span>
+					<div class="num-tu"><span class="bgred" style="width:12.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">13</span>
+					<div class="num-tu"><span class="bggray" style="width:0.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2545</span>
+					<div class="num-tu"><span class="bggreen" style="width:88.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">54</span>
+					<div class="num-tu"><span class="bgred" style="width:17.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">8</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">262</span>
+					<div class="num-tu"><span class="bggreen" style="width:81.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/06</td>
+			<td>73</td>
+			<td>54</td>
+			<td>9</td>
+			<td>31126.56</td>
+			<td>
+				<div class="num-box">
+										<span class="num">920</span>
+					<div class="num-tu"><span class="bgred" style="width:40.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">46</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1342</span>
+					<div class="num-tu"><span class="bggreen" style="width:57.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">897</span>
+					<div class="num-tu"><span class="bgred" style="width:31.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">62</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1936</span>
+					<div class="num-tu"><span class="bggreen" style="width:67.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">59</span>
+					<div class="num-tu"><span class="bgred" style="width:18.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">263</span>
+					<div class="num-tu"><span class="bggreen" style="width:81.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/03</td>
+			<td>162</td>
+			<td>28</td>
+			<td>12</td>
+			<td>32054.76</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1540</span>
+					<div class="num-tu"><span class="bgred" style="width:67.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">45</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">724</span>
+					<div class="num-tu"><span class="bggreen" style="width:31.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1987</span>
+					<div class="num-tu"><span class="bgred" style="width:69.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">48</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">860</span>
+					<div class="num-tu"><span class="bggreen" style="width:30.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">277</span>
+					<div class="num-tu"><span class="bgred" style="width:85.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">3</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">44</span>
+					<div class="num-tu"><span class="bggreen" style="width:14.000000000000002%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/02</td>
+			<td>159</td>
+			<td>44</td>
+			<td>13</td>
+			<td>34741.68</td>
+			<td>
+				<div class="num-box">
+										<span class="num">981</span>
+					<div class="num-tu"><span class="bgred" style="width:42.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">64</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1266</span>
+					<div class="num-tu"><span class="bggreen" style="width:55.00000000000001%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1132</span>
+					<div class="num-tu"><span class="bgred" style="width:39.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">74</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1689</span>
+					<div class="num-tu"><span class="bggreen" style="width:57.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">106</span>
+					<div class="num-tu"><span class="bgred" style="width:33.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">11</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">207</span>
+					<div class="num-tu"><span class="bggreen" style="width:64.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>07/01</td>
+			<td>226</td>
+			<td>13</td>
+			<td>17</td>
+			<td>36830.86</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1762</span>
+					<div class="num-tu"><span class="bgred" style="width:76.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">27</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">522</span>
+					<div class="num-tu"><span class="bggreen" style="width:23.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">2281</span>
+					<div class="num-tu"><span class="bgred" style="width:79.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">25</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">588</span>
+					<div class="num-tu"><span class="bggreen" style="width:20.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">286</span>
+					<div class="num-tu"><span class="bgred" style="width:89.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">35</span>
+					<div class="num-tu"><span class="bggreen" style="width:11.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/30</td>
+			<td>172</td>
+			<td>22</td>
+			<td>20</td>
+			<td>32941.19</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1156</span>
+					<div class="num-tu"><span class="bgred" style="width:50.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">43</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1112</span>
+					<div class="num-tu"><span class="bggreen" style="width:48.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1746</span>
+					<div class="num-tu"><span class="bgred" style="width:60.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">60</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1088</span>
+					<div class="num-tu"><span class="bggreen" style="width:38.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">152</span>
+					<div class="num-tu"><span class="bgred" style="width:47.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">7</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">164</span>
+					<div class="num-tu"><span class="bggreen" style="width:51.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/29</td>
+			<td>127</td>
+			<td>75</td>
+			<td>17</td>
+			<td>35395.78</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1224</span>
+					<div class="num-tu"><span class="bgred" style="width:53.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">61</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1026</span>
+					<div class="num-tu"><span class="bggreen" style="width:44.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1169</span>
+					<div class="num-tu"><span class="bgred" style="width:40.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">63</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1663</span>
+					<div class="num-tu"><span class="bggreen" style="width:56.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">76</span>
+					<div class="num-tu"><span class="bgred" style="width:24.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">244</span>
+					<div class="num-tu"><span class="bggreen" style="width:76.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/26</td>
+			<td>73</td>
+			<td>46</td>
+			<td>15</td>
+			<td>35757.21</td>
+			<td>
+				<div class="num-box">
+										<span class="num">366</span>
+					<div class="num-tu"><span class="bgred" style="width:16.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">31</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1916</span>
+					<div class="num-tu"><span class="bggreen" style="width:83.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">390</span>
+					<div class="num-tu"><span class="bgred" style="width:13.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">26</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2478</span>
+					<div class="num-tu"><span class="bggreen" style="width:86.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">34</span>
+					<div class="num-tu"><span class="bgred" style="width:11.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">5</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">282</span>
+					<div class="num-tu"><span class="bggreen" style="width:88.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/25</td>
+			<td>95</td>
+			<td>91</td>
+			<td>18</td>
+			<td>36192.29</td>
+			<td>
+				<div class="num-box">
+										<span class="num">586</span>
+					<div class="num-tu"><span class="bgred" style="width:25.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">36</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1693</span>
+					<div class="num-tu"><span class="bggreen" style="width:73.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">613</span>
+					<div class="num-tu"><span class="bgred" style="width:21.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">33</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2247</span>
+					<div class="num-tu"><span class="bggreen" style="width:78.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">32</span>
+					<div class="num-tu"><span class="bgred" style="width:10.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1</span>
+					<div class="num-tu"><span class="bggray" style="width:0.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">288</span>
+					<div class="num-tu"><span class="bggreen" style="width:90.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/24</td>
+			<td>106</td>
+			<td>66</td>
+			<td>17</td>
+			<td>33071.80</td>
+			<td>
+				<div class="num-box">
+										<span class="num">613</span>
+					<div class="num-tu"><span class="bgred" style="width:26.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">36</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1666</span>
+					<div class="num-tu"><span class="bggreen" style="width:72.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">769</span>
+					<div class="num-tu"><span class="bgred" style="width:27.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">22</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2102</span>
+					<div class="num-tu"><span class="bggreen" style="width:73.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">52</span>
+					<div class="num-tu"><span class="bgred" style="width:16.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">3</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">266</span>
+					<div class="num-tu"><span class="bggreen" style="width:83.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/23</td>
+			<td>125</td>
+			<td>53</td>
+			<td>15</td>
+			<td>34662.99</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1150</span>
+					<div class="num-tu"><span class="bgred" style="width:50.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">54</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1110</span>
+					<div class="num-tu"><span class="bggreen" style="width:48.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1399</span>
+					<div class="num-tu"><span class="bgred" style="width:48.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">56</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1438</span>
+					<div class="num-tu"><span class="bggreen" style="width:50.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">215</span>
+					<div class="num-tu"><span class="bgred" style="width:67.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">10</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">96</span>
+					<div class="num-tu"><span class="bggreen" style="width:30.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/22</td>
+			<td>155</td>
+			<td>33</td>
+			<td>17</td>
+			<td>37624.22</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1184</span>
+					<div class="num-tu"><span class="bgred" style="width:51.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">65</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1065</span>
+					<div class="num-tu"><span class="bggreen" style="width:46.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1507</span>
+					<div class="num-tu"><span class="bgred" style="width:52.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">76</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1311</span>
+					<div class="num-tu"><span class="bggreen" style="width:45.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">225</span>
+					<div class="num-tu"><span class="bgred" style="width:70.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">4</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">92</span>
+					<div class="num-tu"><span class="bggreen" style="width:28.999999999999996%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/18</td>
+			<td>103</td>
+			<td>42</td>
+			<td>20</td>
+			<td>33321.52</td>
+			<td>
+				<div class="num-box">
+										<span class="num">894</span>
+					<div class="num-tu"><span class="bgred" style="width:39.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">41</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1379</span>
+					<div class="num-tu"><span class="bggreen" style="width:60.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1067</span>
+					<div class="num-tu"><span class="bgred" style="width:37.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">63</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1763</span>
+					<div class="num-tu"><span class="bggreen" style="width:61.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">62</span>
+					<div class="num-tu"><span class="bgred" style="width:19.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">6</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">253</span>
+					<div class="num-tu"><span class="bggreen" style="width:79.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/17</td>
+			<td>98</td>
+			<td>21</td>
+			<td>18</td>
+			<td>31142.84</td>
+			<td>
+				<div class="num-box">
+										<span class="num">770</span>
+					<div class="num-tu"><span class="bgred" style="width:33.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">32</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1512</span>
+					<div class="num-tu"><span class="bggreen" style="width:65.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">826</span>
+					<div class="num-tu"><span class="bgred" style="width:28.999999999999996%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">29</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2038</span>
+					<div class="num-tu"><span class="bggreen" style="width:70.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">127</span>
+					<div class="num-tu"><span class="bgred" style="width:40.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">10</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">184</span>
+					<div class="num-tu"><span class="bggreen" style="width:56.99999999999999%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/16</td>
+			<td>141</td>
+			<td>11</td>
+			<td>14</td>
+			<td>30865.09</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1073</span>
+					<div class="num-tu"><span class="bgred" style="width:46.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">39</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1202</span>
+					<div class="num-tu"><span class="bggreen" style="width:52.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1553</span>
+					<div class="num-tu"><span class="bgred" style="width:54.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">74</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1266</span>
+					<div class="num-tu"><span class="bggreen" style="width:44.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">104</span>
+					<div class="num-tu"><span class="bgred" style="width:32.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">8</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">209</span>
+					<div class="num-tu"><span class="bggreen" style="width:65.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/15</td>
+			<td>164</td>
+			<td>12</td>
+			<td>14</td>
+			<td>30509.25</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1572</span>
+					<div class="num-tu"><span class="bgred" style="width:68.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">60</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">682</span>
+					<div class="num-tu"><span class="bggreen" style="width:28.999999999999996%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">2096</span>
+					<div class="num-tu"><span class="bgred" style="width:72.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">78</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">719</span>
+					<div class="num-tu"><span class="bggreen" style="width:25.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">238</span>
+					<div class="num-tu"><span class="bgred" style="width:74.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">9</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">74</span>
+					<div class="num-tu"><span class="bggreen" style="width:23.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/12</td>
+			<td>105</td>
+			<td>23</td>
+			<td>15</td>
+			<td>32362.99</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1669</span>
+					<div class="num-tu"><span class="bgred" style="width:72.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">29</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">616</span>
+					<div class="num-tu"><span class="bggreen" style="width:27.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">2039</span>
+					<div class="num-tu"><span class="bgred" style="width:70.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">58</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">797</span>
+					<div class="num-tu"><span class="bggreen" style="width:28.000000000000004%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">215</span>
+					<div class="num-tu"><span class="bgred" style="width:67.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">3</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">102</span>
+					<div class="num-tu"><span class="bggreen" style="width:32.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/11</td>
+			<td>79</td>
+			<td>55</td>
+			<td>15</td>
+			<td>25751.42</td>
+			<td>
+				<div class="num-box">
+										<span class="num">676</span>
+					<div class="num-tu"><span class="bgred" style="width:28.999999999999996%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">36</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1602</span>
+					<div class="num-tu"><span class="bggreen" style="width:69.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">672</span>
+					<div class="num-tu"><span class="bgred" style="width:23.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">50</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2171</span>
+					<div class="num-tu"><span class="bggreen" style="width:75.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">22</span>
+					<div class="num-tu"><span class="bgred" style="width:7.000000000000001%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">296</span>
+					<div class="num-tu"><span class="bggreen" style="width:93.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/10</td>
+			<td>76</td>
+			<td>74</td>
+			<td>13</td>
+			<td>26443.76</td>
+			<td>
+				<div class="num-box">
+										<span class="num">809</span>
+					<div class="num-tu"><span class="bgred" style="width:35.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">37</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1468</span>
+					<div class="num-tu"><span class="bggreen" style="width:63.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">710</span>
+					<div class="num-tu"><span class="bgred" style="width:25.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">49</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2134</span>
+					<div class="num-tu"><span class="bggreen" style="width:74.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">37</span>
+					<div class="num-tu"><span class="bgred" style="width:12.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">280</span>
+					<div class="num-tu"><span class="bggreen" style="width:88.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/09</td>
+			<td>144</td>
+			<td>19</td>
+			<td>8</td>
+			<td>26669.21</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1322</span>
+					<div class="num-tu"><span class="bgred" style="width:56.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">63</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">930</span>
+					<div class="num-tu"><span class="bggreen" style="width:40.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1894</span>
+					<div class="num-tu"><span class="bgred" style="width:65.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">87</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">912</span>
+					<div class="num-tu"><span class="bggreen" style="width:32.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">106</span>
+					<div class="num-tu"><span class="bgred" style="width:33.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">6</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">207</span>
+					<div class="num-tu"><span class="bggreen" style="width:65.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/08</td>
+			<td>64</td>
+			<td>56</td>
+			<td>8</td>
+			<td>28236.44</td>
+			<td>
+				<div class="num-box">
+										<span class="num">307</span>
+					<div class="num-tu"><span class="bgred" style="width:13.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">10</span>
+					<div class="num-tu"><span class="bggray" style="width:0.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1998</span>
+					<div class="num-tu"><span class="bggreen" style="width:86.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">358</span>
+					<div class="num-tu"><span class="bgred" style="width:12.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">19</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2515</span>
+					<div class="num-tu"><span class="bggreen" style="width:87.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">234</span>
+					<div class="num-tu"><span class="bgred" style="width:73.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">7</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">78</span>
+					<div class="num-tu"><span class="bggreen" style="width:24.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/05</td>
+			<td>88</td>
+			<td>18</td>
+			<td>8</td>
+			<td>31010.72</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1259</span>
+					<div class="num-tu"><span class="bgred" style="width:54.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">60</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">996</span>
+					<div class="num-tu"><span class="bggreen" style="width:43.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1723</span>
+					<div class="num-tu"><span class="bgred" style="width:60.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">74</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1095</span>
+					<div class="num-tu"><span class="bggreen" style="width:38.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">295</span>
+					<div class="num-tu"><span class="bgred" style="width:93.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1</span>
+					<div class="num-tu"><span class="bggray" style="width:0.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">22</span>
+					<div class="num-tu"><span class="bggreen" style="width:7.000000000000001%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/04</td>
+			<td>92</td>
+			<td>34</td>
+			<td>10</td>
+			<td>27794.17</td>
+			<td>
+				<div class="num-box">
+										<span class="num">571</span>
+					<div class="num-tu"><span class="bgred" style="width:25.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">26</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1718</span>
+					<div class="num-tu"><span class="bggreen" style="width:74.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">723</span>
+					<div class="num-tu"><span class="bgred" style="width:25.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">32</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2137</span>
+					<div class="num-tu"><span class="bggreen" style="width:74.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">50</span>
+					<div class="num-tu"><span class="bgred" style="width:16.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1</span>
+					<div class="num-tu"><span class="bggray" style="width:0.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">266</span>
+					<div class="num-tu"><span class="bggreen" style="width:84.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/03</td>
+			<td>82</td>
+			<td>30</td>
+			<td>10</td>
+			<td>31534.20</td>
+			<td>
+				<div class="num-box">
+										<span class="num">793</span>
+					<div class="num-tu"><span class="bgred" style="width:34.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">28</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1494</span>
+					<div class="num-tu"><span class="bggreen" style="width:65.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">851</span>
+					<div class="num-tu"><span class="bgred" style="width:28.999999999999996%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">51</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1990</span>
+					<div class="num-tu"><span class="bggreen" style="width:69.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">69</span>
+					<div class="num-tu"><span class="bgred" style="width:22.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">5</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">243</span>
+					<div class="num-tu"><span class="bggreen" style="width:77.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/02</td>
+			<td>98</td>
+			<td>18</td>
+			<td>14</td>
+			<td>28132.27</td>
+			<td>
+				<div class="num-box">
+										<span class="num">639</span>
+					<div class="num-tu"><span class="bgred" style="width:28.000000000000004%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">36</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1640</span>
+					<div class="num-tu"><span class="bggreen" style="width:71.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">734</span>
+					<div class="num-tu"><span class="bgred" style="width:25.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">57</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2102</span>
+					<div class="num-tu"><span class="bggreen" style="width:73.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">170</span>
+					<div class="num-tu"><span class="bgred" style="width:54.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">13</span>
+					<div class="num-tu"><span class="bggray" style="width:4.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">134</span>
+					<div class="num-tu"><span class="bggreen" style="width:42.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>06/01</td>
+			<td>170</td>
+			<td>25</td>
+			<td>14</td>
+			<td>28969.74</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1525</span>
+					<div class="num-tu"><span class="bgred" style="width:66.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">28</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">762</span>
+					<div class="num-tu"><span class="bggreen" style="width:33.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1988</span>
+					<div class="num-tu"><span class="bgred" style="width:69.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">38</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">867</span>
+					<div class="num-tu"><span class="bggreen" style="width:30.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">263</span>
+					<div class="num-tu"><span class="bgred" style="width:83.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1</span>
+					<div class="num-tu"><span class="bggray" style="width:0.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">53</span>
+					<div class="num-tu"><span class="bggreen" style="width:17.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/29</td>
+			<td>71</td>
+			<td>64</td>
+			<td>14</td>
+			<td>33412.52</td>
+			<td>
+				<div class="num-box">
+										<span class="num">746</span>
+					<div class="num-tu"><span class="bgred" style="width:32.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">41</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1528</span>
+					<div class="num-tu"><span class="bggreen" style="width:66.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">700</span>
+					<div class="num-tu"><span class="bgred" style="width:24.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">50</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2144</span>
+					<div class="num-tu"><span class="bggreen" style="width:74.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">96</span>
+					<div class="num-tu"><span class="bgred" style="width:30.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">9</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">212</span>
+					<div class="num-tu"><span class="bggreen" style="width:67.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/28</td>
+			<td>127</td>
+			<td>13</td>
+			<td>14</td>
+			<td>29875.98</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1106</span>
+					<div class="num-tu"><span class="bgred" style="width:48.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">63</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1146</span>
+					<div class="num-tu"><span class="bggreen" style="width:50.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1642</span>
+					<div class="num-tu"><span class="bgred" style="width:56.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">76</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1175</span>
+					<div class="num-tu"><span class="bggreen" style="width:41.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">270</span>
+					<div class="num-tu"><span class="bgred" style="width:85.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">44</span>
+					<div class="num-tu"><span class="bggreen" style="width:14.000000000000002%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/27</td>
+			<td>62</td>
+			<td>35</td>
+			<td>14</td>
+			<td>32602.50</td>
+			<td>
+				<div class="num-box">
+										<span class="num">441</span>
+					<div class="num-tu"><span class="bgred" style="width:19.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">34</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1840</span>
+					<div class="num-tu"><span class="bggreen" style="width:79.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">494</span>
+					<div class="num-tu"><span class="bgred" style="width:17.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">26</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2373</span>
+					<div class="num-tu"><span class="bggreen" style="width:82.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">39</span>
+					<div class="num-tu"><span class="bgred" style="width:12.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1</span>
+					<div class="num-tu"><span class="bggray" style="width:0.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">276</span>
+					<div class="num-tu"><span class="bggreen" style="width:87.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/26</td>
+			<td>68</td>
+			<td>37</td>
+			<td>13</td>
+			<td>32646.41</td>
+			<td>
+				<div class="num-box">
+										<span class="num">628</span>
+					<div class="num-tu"><span class="bgred" style="width:27.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">44</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1642</span>
+					<div class="num-tu"><span class="bggreen" style="width:71.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">686</span>
+					<div class="num-tu"><span class="bgred" style="width:24.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">38</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2169</span>
+					<div class="num-tu"><span class="bggreen" style="width:75.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">40</span>
+					<div class="num-tu"><span class="bgred" style="width:13.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">4</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">271</span>
+					<div class="num-tu"><span class="bggreen" style="width:86.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/25</td>
+			<td>129</td>
+			<td>27</td>
+			<td>13</td>
+			<td>32272.34</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1014</span>
+					<div class="num-tu"><span class="bgred" style="width:44.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">46</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1254</span>
+					<div class="num-tu"><span class="bggreen" style="width:54.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1107</span>
+					<div class="num-tu"><span class="bgred" style="width:38.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">64</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1722</span>
+					<div class="num-tu"><span class="bggreen" style="width:60.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">60</span>
+					<div class="num-tu"><span class="bgred" style="width:19.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">6</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">249</span>
+					<div class="num-tu"><span class="bggreen" style="width:79.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/22</td>
+			<td>138</td>
+			<td>20</td>
+			<td>17</td>
+			<td>29249.32</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1572</span>
+					<div class="num-tu"><span class="bgred" style="width:68.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">63</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">679</span>
+					<div class="num-tu"><span class="bggreen" style="width:28.999999999999996%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">2165</span>
+					<div class="num-tu"><span class="bgred" style="width:75.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">67</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">661</span>
+					<div class="num-tu"><span class="bggreen" style="width:23.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">132</span>
+					<div class="num-tu"><span class="bgred" style="width:42.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">14</span>
+					<div class="num-tu"><span class="bggray" style="width:4.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">169</span>
+					<div class="num-tu"><span class="bggreen" style="width:54.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/21</td>
+			<td>37</td>
+			<td>69</td>
+			<td>17</td>
+			<td>34733.50</td>
+			<td>
+				<div class="num-box">
+										<span class="num">333</span>
+					<div class="num-tu"><span class="bgred" style="width:14.000000000000002%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">21</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1959</span>
+					<div class="num-tu"><span class="bggreen" style="width:85.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">340</span>
+					<div class="num-tu"><span class="bgred" style="width:12.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">22</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2530</span>
+					<div class="num-tu"><span class="bggreen" style="width:87.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">29</span>
+					<div class="num-tu"><span class="bgred" style="width:9.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">4</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">281</span>
+					<div class="num-tu"><span class="bggreen" style="width:89.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/20</td>
+			<td>71</td>
+			<td>41</td>
+			<td>20</td>
+			<td>29767.56</td>
+			<td>
+				<div class="num-box">
+										<span class="num">773</span>
+					<div class="num-tu"><span class="bgred" style="width:33.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">36</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1504</span>
+					<div class="num-tu"><span class="bggreen" style="width:65.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">826</span>
+					<div class="num-tu"><span class="bgred" style="width:28.999999999999996%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">38</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2028</span>
+					<div class="num-tu"><span class="bggreen" style="width:70.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">39</span>
+					<div class="num-tu"><span class="bgred" style="width:12.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">3</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">272</span>
+					<div class="num-tu"><span class="bggreen" style="width:87.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/19</td>
+			<td>123</td>
+			<td>26</td>
+			<td>24</td>
+			<td>29092.25</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1537</span>
+					<div class="num-tu"><span class="bgred" style="width:66.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">52</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">724</span>
+					<div class="num-tu"><span class="bggreen" style="width:31.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1819</span>
+					<div class="num-tu"><span class="bgred" style="width:63.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">83</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">990</span>
+					<div class="num-tu"><span class="bggreen" style="width:34.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">252</span>
+					<div class="num-tu"><span class="bgred" style="width:80.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">60</span>
+					<div class="num-tu"><span class="bggreen" style="width:19.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/18</td>
+			<td>102</td>
+			<td>55</td>
+			<td>18</td>
+			<td>29174.50</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1000</span>
+					<div class="num-tu"><span class="bgred" style="width:43.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">69</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1244</span>
+					<div class="num-tu"><span class="bggreen" style="width:54.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1311</span>
+					<div class="num-tu"><span class="bgred" style="width:45.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">66</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1515</span>
+					<div class="num-tu"><span class="bggreen" style="width:52.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">64</span>
+					<div class="num-tu"><span class="bgred" style="width:20.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">6</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">244</span>
+					<div class="num-tu"><span class="bggreen" style="width:78.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/15</td>
+			<td>71</td>
+			<td>46</td>
+			<td>20</td>
+			<td>31343.84</td>
+			<td>
+				<div class="num-box">
+										<span class="num">588</span>
+					<div class="num-tu"><span class="bgred" style="width:25.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">40</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1685</span>
+					<div class="num-tu"><span class="bggreen" style="width:73.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">794</span>
+					<div class="num-tu"><span class="bgred" style="width:27.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">51</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2046</span>
+					<div class="num-tu"><span class="bggreen" style="width:71.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">104</span>
+					<div class="num-tu"><span class="bgred" style="width:33.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">8</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">201</span>
+					<div class="num-tu"><span class="bggreen" style="width:64.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/14</td>
+			<td>82</td>
+			<td>48</td>
+			<td>20</td>
+			<td>33884.18</td>
+			<td>
+				<div class="num-box">
+										<span class="num">463</span>
+					<div class="num-tu"><span class="bgred" style="width:20.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">38</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1812</span>
+					<div class="num-tu"><span class="bggreen" style="width:78.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">547</span>
+					<div class="num-tu"><span class="bgred" style="width:19.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">40</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2303</span>
+					<div class="num-tu"><span class="bggreen" style="width:80.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">37</span>
+					<div class="num-tu"><span class="bgred" style="width:12.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">3</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">272</span>
+					<div class="num-tu"><span class="bggreen" style="width:87.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/13</td>
+			<td>147</td>
+			<td>17</td>
+			<td>20</td>
+			<td>32645.23</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1283</span>
+					<div class="num-tu"><span class="bgred" style="width:55.00000000000001%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">76</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">954</span>
+					<div class="num-tu"><span class="bggreen" style="width:41.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1753</span>
+					<div class="num-tu"><span class="bgred" style="width:61.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">84</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1054</span>
+					<div class="num-tu"><span class="bggreen" style="width:36.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">179</span>
+					<div class="num-tu"><span class="bgred" style="width:56.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">7</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">126</span>
+					<div class="num-tu"><span class="bggreen" style="width:40.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/12</td>
+			<td>94</td>
+			<td>34</td>
+			<td>24</td>
+			<td>32700.03</td>
+			<td>
+				<div class="num-box">
+										<span class="num">613</span>
+					<div class="num-tu"><span class="bgred" style="width:27.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">40</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1660</span>
+					<div class="num-tu"><span class="bggreen" style="width:72.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">663</span>
+					<div class="num-tu"><span class="bgred" style="width:23.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">41</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">2186</span>
+					<div class="num-tu"><span class="bggreen" style="width:76.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">103</span>
+					<div class="num-tu"><span class="bgred" style="width:33.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">7</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">202</span>
+					<div class="num-tu"><span class="bggreen" style="width:65.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/11</td>
+			<td>136</td>
+			<td>30</td>
+			<td>24</td>
+			<td>35657.05</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1348</span>
+					<div class="num-tu"><span class="bgred" style="width:57.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">70</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">895</span>
+					<div class="num-tu"><span class="bggreen" style="width:39.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1682</span>
+					<div class="num-tu"><span class="bgred" style="width:57.99999999999999%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">79</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">1129</span>
+					<div class="num-tu"><span class="bggreen" style="width:39.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">91</span>
+					<div class="num-tu"><span class="bgred" style="width:28.999999999999996%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">6</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">215</span>
+					<div class="num-tu"><span class="bggreen" style="width:69.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/08</td>
+			<td>126</td>
+			<td>33</td>
+			<td>22</td>
+			<td>30759.30</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1425</span>
+					<div class="num-tu"><span class="bgred" style="width:62.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">67</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">820</span>
+					<div class="num-tu"><span class="bggreen" style="width:35.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1950</span>
+					<div class="num-tu"><span class="bgred" style="width:67.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">77</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">862</span>
+					<div class="num-tu"><span class="bggreen" style="width:30.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">262</span>
+					<div class="num-tu"><span class="bgred" style="width:84.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">4</span>
+					<div class="num-tu"><span class="bggray" style="width:1.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">46</span>
+					<div class="num-tu"><span class="bggreen" style="width:15.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+			   <tr>
+			<td>05/07</td>
+			<td>128</td>
+			<td>55</td>
+			<td>20</td>
+			<td>31686.11</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1420</span>
+					<div class="num-tu"><span class="bgred" style="width:61.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">70</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">822</span>
+					<div class="num-tu"><span class="bggreen" style="width:36.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">
+										<span class="num">1826</span>
+					<div class="num-tu"><span class="bgred" style="width:63.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">85</span>
+					<div class="num-tu"><span class="bggray" style="width:3.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">979</span>
+					<div class="num-tu"><span class="bggreen" style="width:34.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">274</span>
+					<div class="num-tu"><span class="bgred" style="width:88.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">7</span>
+					<div class="num-tu"><span class="bggray" style="width:2.0%;"></span></div>
+									</div>
+			</td>
+			<td>
+				<div class="num-box">					
+										<span class="num">31</span>
+					<div class="num-tu"><span class="bggreen" style="width:10.0%;"></span></div>
+									</div>
+			</td>
+		</tr>
+	
+ 
+        </table>  
+    </div>
+
+
+</div>
+
+
+
+
+<div style="display: none;" id="staticPath" data-path="//static.k.sohu.com/static/node-stock/v1-0-4"></div>
+<div class="tipsMask" id="tipsMaskBox">
+</div>
+<script src="//statics.itc.cn/web/static/js/lib-111eab4f1d.js"></script>
+<!-- sohu loginbar -->
+<script src="//statics.itc.cn/mptcfeCBDCompRender/prod/47e35708eb3a7fa3de1a42f5e23398e7c351a3efa5f6310f8489464c4724bc73c1f9d29cc0dbc02c76516c5a855acd38741c0308ddef34cacd6c0344372f93e9.js"></script>
+<script>
+	window.RUNNINGENV = "cloudProd";
+</script>
+<!-- sohu loginbar end -->
+<script type="text/javascript" src="//static.k.sohu.com/static/finance/pc/tongji/tongji.js?20260523"></script>
+</body>
+</html>

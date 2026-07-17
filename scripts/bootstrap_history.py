@@ -17,7 +17,12 @@ from src.storage.csv_store import write_csv, read_csv
 from src.data_sources.akshare_indices import fetch_index_daily
 from src.data_sources.akshare_options import fetch_option_daily, fetch_option_realtime
 from src.data_sources.akshare_qvix import fetch_qvix
-from src.data_sources.akshare_breadth import fetch_a_breadth_snapshot, summarize_breadth
+from src.data_sources.akshare_breadth import (
+    fetch_a_breadth_snapshot,
+    fetch_breadth_summary_multi,
+    backfill_breadth_history_from_sohu,
+    summarize_breadth,
+)
 from src.data_sources.shibor import fetch_shibor
 from src.core.calendar import current_realtime_trade_date, merged_trading_days, trading_days_from_index
 from src.core.contracts import build_contract_master
@@ -443,13 +448,18 @@ def calculate_all(
             need_breadth = False
     if need_breadth and latest_index_date:
         try:
-            breadth_raw = fetch_a_breadth_snapshot()
+            summary = fetch_breadth_summary_multi(latest_index_date)
+            src = str(summary.iloc[0].get("source", "")) if not summary.empty else ""
+            if "SPOT" in src:
+                try:
+                    breadth_raw = fetch_a_breadth_snapshot()
+                    if not breadth_raw.empty:
+                        write_csv(breadth_raw, RAW / "breadth" / f"{latest_index_date}.csv")
+                except Exception:  # noqa: BLE001
+                    pass
         except Exception as exc:  # noqa: BLE001
-            print(f"WARN breadth fetch failed: {exc}")
-            breadth_raw = pd.DataFrame()
-        if not breadth_raw.empty:
-            write_csv(breadth_raw, RAW / "breadth" / f"{latest_index_date}.csv")
-        summary = summarize_breadth(breadth_raw, latest_index_date)
+            print(f"WARN breadth multi-source failed: {exc}")
+            summary = summarize_breadth(pd.DataFrame(), latest_index_date)
         if breadth_hist.empty:
             breadth_hist = summary
         else:
@@ -458,6 +468,10 @@ def calculate_all(
                 .drop_duplicates("trade_date", keep="last")
                 .sort_values("trade_date")
             )
+    try:
+        breadth_hist = backfill_breadth_history_from_sohu(breadth_hist)
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN Sohu breadth backfill failed: {exc}")
     write_csv(breadth_hist, NORMALIZED / "breadth_history.csv")
     breadth = compute_breadth_pressure(breadth_hist)
     components = compute_risk_temperature(clean, qv, realized, drawdown, breadth, index_history)

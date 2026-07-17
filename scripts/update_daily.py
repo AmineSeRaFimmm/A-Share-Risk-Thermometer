@@ -7,7 +7,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.storage.paths import CALCULATED, NORMALIZED, RAW, ensure_dirs
 from src.storage.csv_store import read_csv, write_csv
 from src.data_sources.akshare_indices import fetch_index_daily
-from src.data_sources.akshare_breadth import fetch_a_breadth_snapshot, summarize_breadth
+from src.data_sources.akshare_breadth import (
+    fetch_a_breadth_snapshot,
+    fetch_breadth_summary_multi,
+    backfill_breadth_history_from_sohu,
+    summarize_breadth,
+)
 from src.core.breadth import drop_legacy_synthetic_breadth
 from scripts.bootstrap_history import (
     load_yaml,
@@ -22,24 +27,47 @@ import pandas as pd
 
 
 def _ensure_breadth_for_date(trade_date: str) -> pd.DataFrame:
-    """Fetch and persist stock-level breadth for trade_date when missing or incomplete."""
+    """Resolve breadth via multi-source parse (EM spot / fenbu / Sohu ZDT)."""
     breadth_path = RAW / "breadth" / f"{trade_date}.csv"
     summary = pd.DataFrame()
+    # Reuse cached full-board snapshot only when it still summarizes to OK.
     if breadth_path.exists():
         snap = read_csv(breadth_path)
         summary = summarize_breadth(snap, trade_date)
         if not summary.empty and str(summary.iloc[0].get("quality", "")).startswith("OK"):
             return summary
     try:
-        snap = fetch_a_breadth_snapshot()
-        if not snap.empty:
-            write_csv(snap, breadth_path)
-        summary = summarize_breadth(snap, trade_date)
+        summary = fetch_breadth_summary_multi(trade_date)
+        # Persist stock-level snapshot when the winning path was EM spot.
+        src = str(summary.iloc[0].get("source", "")) if not summary.empty else ""
+        if "SPOT" in src or src.endswith("A_SPOT"):
+            try:
+                snap = fetch_a_breadth_snapshot()
+                if not snap.empty and len(snap) >= 1000:
+                    write_csv(snap, breadth_path)
+            except Exception:  # noqa: BLE001
+                pass
     except Exception as exc:  # noqa: BLE001
-        print(f"WARN breadth fetch failed for {trade_date}: {exc}")
+        print(f"WARN breadth multi-source failed for {trade_date}: {exc}")
         if summary.empty:
             summary = summarize_breadth(pd.DataFrame(), trade_date)
     return summary
+
+
+def _merge_breadth_history(summary: pd.DataFrame) -> pd.DataFrame:
+    breadth_old = drop_legacy_synthetic_breadth(read_csv(NORMALIZED / "breadth_history.csv"))
+    breadth = (
+        pd.concat([breadth_old, summary], ignore_index=True).drop_duplicates("trade_date", keep="last")
+        if not breadth_old.empty
+        else summary
+    )
+    # Fill historical PROXY/MISSING holes from Sohu ZDT table when available.
+    try:
+        breadth = backfill_breadth_history_from_sohu(breadth)
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN Sohu breadth backfill failed: {exc}")
+    write_csv(breadth, NORMALIZED / "breadth_history.csv")
+    return breadth
 
 
 def main() -> None:
@@ -79,13 +107,7 @@ def main() -> None:
     if official_current and options_current:
         # Still refresh breadth for the day when possible, then rebuild site.
         summary = _ensure_breadth_for_date(trade_date)
-        breadth_old = drop_legacy_synthetic_breadth(read_csv(NORMALIZED / "breadth_history.csv"))
-        breadth = (
-            pd.concat([breadth_old, summary], ignore_index=True).drop_duplicates("trade_date", keep="last")
-            if not breadth_old.empty
-            else summary
-        )
-        write_csv(breadth, NORMALIZED / "breadth_history.csv")
+        _merge_breadth_history(summary)
         build_site_data()
         return
 
@@ -94,13 +116,7 @@ def main() -> None:
         f"avix_clean_max={latest_done} option_cache_max={option_max} chain_max={chain_max}"
     )
     summary = _ensure_breadth_for_date(trade_date)
-    breadth_old = drop_legacy_synthetic_breadth(read_csv(NORMALIZED / "breadth_history.csv"))
-    breadth = (
-        pd.concat([breadth_old, summary], ignore_index=True).drop_duplicates("trade_date", keep="last")
-        if not breadth_old.empty
-        else summary
-    )
-    write_csv(breadth, NORMALIZED / "breadth_history.csv")
+    _merge_breadth_history(summary)
     master, option_frames = fetch_options(index_history, recent_days=120)
     if not option_frames:
         option_frames = load_cached_option_frames()
