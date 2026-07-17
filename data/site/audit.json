@@ -4,7 +4,7 @@
   "data_health": {
     "options_history": "OK",
     "options_realtime": "WARN",
-    "qvix": "WARN",
+    "qvix": "OK",
     "indices": "OK",
     "breadth": "OK",
     "shibor": "OK"
@@ -19,20 +19,19 @@
   },
   "nowcast": {
     "active": true,
-    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
-    "risk_temperature": 72.5,
+    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
+    "risk_temperature": 78.5,
     "baseline_trade_date": "2026-07-16",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
   "model_confidence": {
-    "score": 88.0,
-    "grade": "MEDIUM",
-    "missing_components": "QVIX"
+    "score": 100.0,
+    "grade": "HIGH",
+    "missing_components": ""
   },
   "warnings": [
     "OK_NOWCAST",
-    "WARN_NOT_BRACKET_30D",
-    "WARN_QVIX_MISSING"
+    "WARN_NOT_BRACKET_30D"
   ],
-  "last_successful_update": "2026-07-17T11:18:46+08:00"
+  "last_successful_update": "2026-07-17T11:34:37+08:00"
 }

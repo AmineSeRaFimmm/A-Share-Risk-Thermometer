@@ -100,7 +100,7 @@
       "dividend_yield": 2.03,
       "valuation_low_score": 0.6989,
       "low_position_score": 90.1709,
-      "relationship_type": "高温回落修复观察"
+      "relationship_type": "高温受损观察"
     },
     {
       "symbol": 801210.0,
@@ -424,9 +424,9 @@
       "sample_size": 242,
       "start_date": "2025-07-02",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": -0.2509,
-      "corr_temp_fwd_excess": -0.2513,
-      "corr_delta_temp_fwd_excess": 0.0606,
+      "corr_temp_fwd_return": -0.2542,
+      "corr_temp_fwd_excess": -0.2927,
+      "corr_delta_temp_fwd_excess": 0.0636,
       "avg_fwd_return": -0.0089,
       "avg_fwd_excess": -0.0169,
       "win_rate_excess": 0.2934
@@ -439,9 +439,9 @@
       "sample_size": 242,
       "start_date": "2025-07-02",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": -0.13,
-      "corr_temp_fwd_excess": -0.1174,
-      "corr_delta_temp_fwd_excess": -0.0133,
+      "corr_temp_fwd_return": -0.127,
+      "corr_temp_fwd_excess": -0.1526,
+      "corr_delta_temp_fwd_excess": -0.0203,
       "avg_fwd_return": -0.0035,
       "avg_fwd_excess": -0.0115,
       "win_rate_excess": 0.4008
@@ -454,9 +454,9 @@
       "sample_size": 242,
       "start_date": "2025-07-02",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": -0.2755,
-      "corr_temp_fwd_excess": -0.2726,
-      "corr_delta_temp_fwd_excess": 0.0944,
+      "corr_temp_fwd_return": -0.2749,
+      "corr_temp_fwd_excess": -0.3144,
+      "corr_delta_temp_fwd_excess": 0.097,
       "avg_fwd_return": -0.006,
       "avg_fwd_excess": -0.0139,
       "win_rate_excess": 0.3223
@@ -469,9 +469,9 @@
       "sample_size": 242,
       "start_date": "2025-07-02",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": -0.1904,
-      "corr_temp_fwd_excess": -0.1605,
-      "corr_delta_temp_fwd_excess": 0.0776,
+      "corr_temp_fwd_return": -0.2069,
+      "corr_temp_fwd_excess": -0.2157,
+      "corr_delta_temp_fwd_excess": 0.0751,
       "avg_fwd_return": -0.0128,
       "avg_fwd_excess": -0.0208,
       "win_rate_excess": 0.2934
@@ -484,9 +484,9 @@
       "sample_size": 242,
       "start_date": "2025-07-02",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": -0.1709,
-      "corr_temp_fwd_excess": -0.1028,
-      "corr_delta_temp_fwd_excess": 0.0555,
+      "corr_temp_fwd_return": -0.2266,
+      "corr_temp_fwd_excess": -0.1845,
+      "corr_delta_temp_fwd_excess": 0.0556,
       "avg_fwd_return": -0.0091,
       "avg_fwd_excess": -0.0171,
       "win_rate_excess": 0.2851
@@ -499,9 +499,9 @@
       "sample_size": 232,
       "start_date": "2025-07-02",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.2154,
-      "corr_temp_fwd_excess": -0.3046,
-      "corr_delta_temp_fwd_excess": -0.0174,
+      "corr_temp_fwd_return": -0.2424,
+      "corr_temp_fwd_excess": -0.368,
+      "corr_delta_temp_fwd_excess": -0.0106,
       "avg_fwd_return": -0.0182,
       "avg_fwd_excess": -0.0351,
       "win_rate_excess": 0.2845
@@ -514,9 +514,9 @@
       "sample_size": 232,
       "start_date": "2025-07-02",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.0902,
-      "corr_temp_fwd_excess": -0.1585,
-      "corr_delta_temp_fwd_excess": -0.0377,
+      "corr_temp_fwd_return": -0.0965,
+      "corr_temp_fwd_excess": -0.1989,
+      "corr_delta_temp_fwd_excess": -0.0326,
       "avg_fwd_return": -0.0078,
       "avg_fwd_excess": -0.0247,
       "win_rate_excess": 0.3233
@@ -529,9 +529,9 @@
       "sample_size": 232,
       "start_date": "2025-07-02",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.2939,
-      "corr_temp_fwd_excess": -0.3613,
-      "corr_delta_temp_fwd_excess": 0.0504,
+      "corr_temp_fwd_return": -0.3292,
+      "corr_temp_fwd_excess": -0.4311,
+      "corr_delta_temp_fwd_excess": 0.0574,
       "avg_fwd_return": -0.0117,
       "avg_fwd_excess": -0.0286,
       "win_rate_excess": 0.2974
@@ -544,9 +544,9 @@
       "sample_size": 232,
       "start_date": "2025-07-02",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.2718,
-      "corr_temp_fwd_excess": -0.3831,
-      "corr_delta_temp_fwd_excess": 0.0167,
+      "corr_temp_fwd_return": -0.2916,
+      "corr_temp_fwd_excess": -0.4426,
+      "corr_delta_temp_fwd_excess": 0.0227,
       "avg_fwd_return": -0.0277,
       "avg_fwd_excess": -0.0446,
       "win_rate_excess": 0.1466
@@ -559,9 +559,9 @@
       "sample_size": 232,
       "start_date": "2025-07-02",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.227,
-      "corr_temp_fwd_excess": -0.2336,
-      "corr_delta_temp_fwd_excess": 0.0118,
+      "corr_temp_fwd_return": -0.3107,
+      "corr_temp_fwd_excess": -0.3409,
+      "corr_delta_temp_fwd_excess": 0.0164,
       "avg_fwd_return": -0.0196,
       "avg_fwd_excess": -0.0365,
       "win_rate_excess": 0.1983
@@ -574,9 +574,9 @@
       "sample_size": 247,
       "start_date": "2025-07-02",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": -0.142,
-      "corr_temp_fwd_excess": -0.1208,
-      "corr_delta_temp_fwd_excess": 0.0048,
+      "corr_temp_fwd_return": -0.1479,
+      "corr_temp_fwd_excess": -0.1579,
+      "corr_delta_temp_fwd_excess": 0.0266,
       "avg_fwd_return": -0.0044,
       "avg_fwd_excess": -0.0084,
       "win_rate_excess": 0.336
@@ -589,9 +589,9 @@
       "sample_size": 247,
       "start_date": "2025-07-02",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": -0.1354,
-      "corr_temp_fwd_excess": -0.127,
-      "corr_delta_temp_fwd_excess": -0.0436,
+      "corr_temp_fwd_return": -0.1322,
+      "corr_temp_fwd_excess": -0.1544,
+      "corr_delta_temp_fwd_excess": -0.027,
       "avg_fwd_return": -0.0013,
       "avg_fwd_excess": -0.0053,
       "win_rate_excess": 0.3806
@@ -604,9 +604,9 @@
       "sample_size": 247,
       "start_date": "2025-07-02",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": -0.142,
-      "corr_temp_fwd_excess": -0.1145,
-      "corr_delta_temp_fwd_excess": 0.0727,
+      "corr_temp_fwd_return": -0.1417,
+      "corr_temp_fwd_excess": -0.1472,
+      "corr_delta_temp_fwd_excess": 0.098,
       "avg_fwd_return": -0.0033,
       "avg_fwd_excess": -0.0073,
       "win_rate_excess": 0.3846
@@ -619,9 +619,9 @@
       "sample_size": 247,
       "start_date": "2025-07-02",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": -0.0781,
-      "corr_temp_fwd_excess": -0.0449,
-      "corr_delta_temp_fwd_excess": 0.0264,
+      "corr_temp_fwd_return": -0.0931,
+      "corr_temp_fwd_excess": -0.0896,
+      "corr_delta_temp_fwd_excess": 0.0406,
       "avg_fwd_return": -0.0063,
       "avg_fwd_excess": -0.0103,
       "win_rate_excess": 0.3441
@@ -634,9 +634,9 @@
       "sample_size": 247,
       "start_date": "2025-07-02",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": -0.0061,
-      "corr_temp_fwd_excess": 0.0346,
-      "corr_delta_temp_fwd_excess": 0.0343,
+      "corr_temp_fwd_return": -0.0437,
+      "corr_temp_fwd_excess": -0.0258,
+      "corr_delta_temp_fwd_excess": 0.0445,
       "avg_fwd_return": -0.0043,
       "avg_fwd_excess": -0.0083,
       "win_rate_excess": 0.3279
@@ -649,9 +649,9 @@
       "sample_size": 494,
       "start_date": "2024-06-18",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": 0.089,
-      "corr_temp_fwd_excess": 0.0679,
-      "corr_delta_temp_fwd_excess": 0.0569,
+      "corr_temp_fwd_return": 0.0462,
+      "corr_temp_fwd_excess": 0.0546,
+      "corr_delta_temp_fwd_excess": 0.0561,
       "avg_fwd_return": 0.0038,
       "avg_fwd_excess": -0.0034,
       "win_rate_excess": 0.415
@@ -664,9 +664,9 @@
       "sample_size": 494,
       "start_date": "2024-06-18",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": 0.0225,
-      "corr_temp_fwd_excess": -0.0233,
-      "corr_delta_temp_fwd_excess": 0.0389,
+      "corr_temp_fwd_return": -0.0129,
+      "corr_temp_fwd_excess": -0.0302,
+      "corr_delta_temp_fwd_excess": 0.0323,
       "avg_fwd_return": 0.002,
       "avg_fwd_excess": -0.0053,
       "win_rate_excess": 0.4332
@@ -679,9 +679,9 @@
       "sample_size": 494,
       "start_date": "2024-06-18",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": 0.0455,
-      "corr_temp_fwd_excess": 0.0071,
-      "corr_delta_temp_fwd_excess": 0.0934,
+      "corr_temp_fwd_return": 0.0031,
+      "corr_temp_fwd_excess": -0.0054,
+      "corr_delta_temp_fwd_excess": 0.09,
       "avg_fwd_return": 0.0031,
       "avg_fwd_excess": -0.0042,
       "win_rate_excess": 0.4474
@@ -694,9 +694,9 @@
       "sample_size": 494,
       "start_date": "2024-06-18",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": 0.0508,
-      "corr_temp_fwd_excess": 0.0247,
-      "corr_delta_temp_fwd_excess": 0.0649,
+      "corr_temp_fwd_return": -0.0051,
+      "corr_temp_fwd_excess": -0.0171,
+      "corr_delta_temp_fwd_excess": 0.0633,
       "avg_fwd_return": -0.0029,
       "avg_fwd_excess": -0.0102,
       "win_rate_excess": 0.3927
@@ -709,9 +709,9 @@
       "sample_size": 494,
       "start_date": "2024-06-18",
       "end_date": "2026-07-01",
-      "corr_temp_fwd_return": 0.03,
-      "corr_temp_fwd_excess": -0.0231,
-      "corr_delta_temp_fwd_excess": 0.0157,
+      "corr_temp_fwd_return": -0.0383,
+      "corr_temp_fwd_excess": -0.0689,
+      "corr_delta_temp_fwd_excess": 0.0155,
       "avg_fwd_return": -0.0038,
       "avg_fwd_excess": -0.0111,
       "win_rate_excess": 0.3441
@@ -724,9 +724,9 @@
       "sample_size": 484,
       "start_date": "2024-06-18",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": 0.0778,
-      "corr_temp_fwd_excess": 0.1267,
-      "corr_delta_temp_fwd_excess": 0.0143,
+      "corr_temp_fwd_return": 0.0528,
+      "corr_temp_fwd_excess": 0.1009,
+      "corr_delta_temp_fwd_excess": 0.0222,
       "avg_fwd_return": 0.0088,
       "avg_fwd_excess": -0.0067,
       "win_rate_excess": 0.4215
@@ -739,9 +739,9 @@
       "sample_size": 484,
       "start_date": "2024-06-18",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.0826,
-      "corr_temp_fwd_excess": -0.1155,
-      "corr_delta_temp_fwd_excess": 0.0379,
+      "corr_temp_fwd_return": -0.0876,
+      "corr_temp_fwd_excess": -0.1145,
+      "corr_delta_temp_fwd_excess": 0.0358,
       "avg_fwd_return": 0.0053,
       "avg_fwd_excess": -0.0103,
       "win_rate_excess": 0.3926
@@ -754,9 +754,9 @@
       "sample_size": 484,
       "start_date": "2024-06-18",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.0428,
-      "corr_temp_fwd_excess": -0.0392,
-      "corr_delta_temp_fwd_excess": 0.0523,
+      "corr_temp_fwd_return": -0.0684,
+      "corr_temp_fwd_excess": -0.0681,
+      "corr_delta_temp_fwd_excess": 0.0577,
       "avg_fwd_return": 0.0077,
       "avg_fwd_excess": -0.0078,
       "win_rate_excess": 0.4607
@@ -769,9 +769,9 @@
       "sample_size": 484,
       "start_date": "2024-06-18",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.0241,
-      "corr_temp_fwd_excess": -0.0145,
-      "corr_delta_temp_fwd_excess": 0.0283,
+      "corr_temp_fwd_return": -0.0427,
+      "corr_temp_fwd_excess": -0.035,
+      "corr_delta_temp_fwd_excess": 0.0371,
       "avg_fwd_return": -0.0054,
       "avg_fwd_excess": -0.021,
       "win_rate_excess": 0.3326
@@ -784,9 +784,9 @@
       "sample_size": 484,
       "start_date": "2024-06-18",
       "end_date": "2026-06-16",
-      "corr_temp_fwd_return": -0.0236,
-      "corr_temp_fwd_excess": -0.0031,
-      "corr_delta_temp_fwd_excess": -0.0077,
+      "corr_temp_fwd_return": -0.0526,
+      "corr_temp_fwd_excess": -0.0328,
+      "corr_delta_temp_fwd_excess": 0.0044,
       "avg_fwd_return": -0.0076,
       "avg_fwd_excess": -0.0232,
       "win_rate_excess": 0.2893
@@ -799,9 +799,9 @@
       "sample_size": 499,
       "start_date": "2024-06-18",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": 0.1147,
-      "corr_temp_fwd_excess": 0.0827,
-      "corr_delta_temp_fwd_excess": 0.0637,
+      "corr_temp_fwd_return": 0.0811,
+      "corr_temp_fwd_excess": 0.0653,
+      "corr_delta_temp_fwd_excess": 0.0697,
       "avg_fwd_return": 0.0017,
       "avg_fwd_excess": -0.0018,
       "win_rate_excess": 0.4269
@@ -814,9 +814,9 @@
       "sample_size": 499,
       "start_date": "2024-06-18",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": 0.0635,
-      "corr_temp_fwd_excess": 0.0114,
-      "corr_delta_temp_fwd_excess": 0.0352,
+      "corr_temp_fwd_return": 0.031,
+      "corr_temp_fwd_excess": -0.0059,
+      "corr_delta_temp_fwd_excess": 0.046,
       "avg_fwd_return": 0.0008,
       "avg_fwd_excess": -0.0027,
       "win_rate_excess": 0.4449
@@ -829,9 +829,9 @@
       "sample_size": 499,
       "start_date": "2024-06-18",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": 0.0907,
-      "corr_temp_fwd_excess": 0.0495,
-      "corr_delta_temp_fwd_excess": 0.0943,
+      "corr_temp_fwd_return": 0.0583,
+      "corr_temp_fwd_excess": 0.0336,
+      "corr_delta_temp_fwd_excess": 0.1032,
       "avg_fwd_return": 0.0012,
       "avg_fwd_excess": -0.0024,
       "win_rate_excess": 0.4629
@@ -844,9 +844,9 @@
       "sample_size": 499,
       "start_date": "2024-06-18",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": 0.0857,
-      "corr_temp_fwd_excess": 0.0603,
-      "corr_delta_temp_fwd_excess": 0.1061,
+      "corr_temp_fwd_return": 0.0459,
+      "corr_temp_fwd_excess": 0.0262,
+      "corr_delta_temp_fwd_excess": 0.1168,
       "avg_fwd_return": -0.0014,
       "avg_fwd_excess": -0.0049,
       "win_rate_excess": 0.4028
@@ -859,9 +859,9 @@
       "sample_size": 499,
       "start_date": "2024-06-18",
       "end_date": "2026-07-08",
-      "corr_temp_fwd_return": 0.0641,
-      "corr_temp_fwd_excess": 0.0028,
-      "corr_delta_temp_fwd_excess": 0.0172,
+      "corr_temp_fwd_return": 0.0181,
+      "corr_temp_fwd_excess": -0.0309,
+      "corr_delta_temp_fwd_excess": 0.0343,
       "avg_fwd_return": -0.0019,
       "avg_fwd_excess": -0.0054,
       "win_rate_excess": 0.3647
@@ -877,29 +877,29 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 81,
-          "avg_excess": -0.0283,
-          "win_rate": 0.1728
+          "sample_size": 79,
+          "avg_excess": -0.0236,
+          "win_rate": 0.2025
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 139,
-          "avg_excess": -0.0388,
-          "win_rate": 0.2302
+          "sample_size": 134,
+          "avg_excess": -0.0392,
+          "win_rate": 0.2164
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 11,
-          "avg_excess": -0.0656,
-          "win_rate": 0.0
+          "sample_size": 17,
+          "avg_excess": -0.0714,
+          "win_rate": 0.0588
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 1,
-          "avg_excess": -0.062,
+          "sample_size": 2,
+          "avg_excess": -0.0681,
           "win_rate": 0.0
         },
         {
@@ -920,29 +920,29 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 81,
-          "avg_excess": -0.0188,
-          "win_rate": 0.358
+          "sample_size": 79,
+          "avg_excess": -0.017,
+          "win_rate": 0.3671
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 139,
-          "avg_excess": -0.0275,
-          "win_rate": 0.3165
+          "sample_size": 134,
+          "avg_excess": -0.0273,
+          "win_rate": 0.3209
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 11,
-          "avg_excess": -0.0332,
-          "win_rate": 0.1818
+          "sample_size": 17,
+          "avg_excess": -0.0374,
+          "win_rate": 0.1765
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 1,
-          "avg_excess": -0.0189,
+          "sample_size": 2,
+          "avg_excess": -0.0476,
           "win_rate": 0.0
         },
         {
@@ -963,29 +963,29 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 81,
-          "avg_excess": -0.0192,
-          "win_rate": 0.358
+          "sample_size": 79,
+          "avg_excess": -0.0167,
+          "win_rate": 0.3671
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 139,
-          "avg_excess": -0.0433,
-          "win_rate": 0.2518
+          "sample_size": 134,
+          "avg_excess": -0.0421,
+          "win_rate": 0.2612
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 11,
-          "avg_excess": -0.0492,
-          "win_rate": 0.1818
+          "sample_size": 17,
+          "avg_excess": -0.0611,
+          "win_rate": 0.1176
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 1,
-          "avg_excess": -0.0346,
+          "sample_size": 2,
+          "avg_excess": -0.0715,
           "win_rate": 0.0
         },
         {
@@ -1006,30 +1006,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 81,
-          "avg_excess": -0.0113,
-          "win_rate": 0.3951
+          "sample_size": 79,
+          "avg_excess": -0.0076,
+          "win_rate": 0.4051
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 139,
+          "sample_size": 134,
           "avg_excess": -0.0374,
-          "win_rate": 0.2446
+          "win_rate": 0.2537
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 11,
-          "avg_excess": -0.0464,
-          "win_rate": 0.1818
+          "sample_size": 17,
+          "avg_excess": -0.0562,
+          "win_rate": 0.1176
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 1,
-          "avg_excess": 0.0029,
-          "win_rate": 1.0
+          "sample_size": 2,
+          "avg_excess": -0.0318,
+          "win_rate": 0.5
         },
         {
           "bucket": "恐慌",
@@ -1049,29 +1049,29 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 81,
-          "avg_excess": -0.0253,
-          "win_rate": 0.2963
+          "sample_size": 79,
+          "avg_excess": -0.0214,
+          "win_rate": 0.3038
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 139,
-          "avg_excess": -0.0552,
-          "win_rate": 0.0719
+          "sample_size": 134,
+          "avg_excess": -0.0567,
+          "win_rate": 0.0746
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 11,
-          "avg_excess": -0.0523,
+          "sample_size": 17,
+          "avg_excess": -0.0561,
           "win_rate": 0.0
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 1,
-          "avg_excess": -0.039,
+          "sample_size": 2,
+          "avg_excess": -0.0496,
           "win_rate": 0.0
         },
         {
@@ -1092,30 +1092,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 196,
-          "avg_excess": -0.0215,
-          "win_rate": 0.2551
+          "sample_size": 189,
+          "avg_excess": -0.0203,
+          "win_rate": 0.2646
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 211,
-          "avg_excess": -0.0268,
-          "win_rate": 0.2891
+          "sample_size": 209,
+          "avg_excess": -0.0266,
+          "win_rate": 0.2775
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 71,
-          "avg_excess": -0.018,
-          "win_rate": 0.3662
+          "sample_size": 79,
+          "avg_excess": -0.0213,
+          "win_rate": 0.3671
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 6,
-          "avg_excess": -0.0111,
-          "win_rate": 0.5
+          "sample_size": 7,
+          "avg_excess": -0.0201,
+          "win_rate": 0.4286
         },
         {
           "bucket": "恐慌",
@@ -1135,30 +1135,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 196,
-          "avg_excess": 0.0019,
-          "win_rate": 0.4694
+          "sample_size": 189,
+          "avg_excess": 0.0045,
+          "win_rate": 0.4868
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 211,
-          "avg_excess": -0.0227,
-          "win_rate": 0.3081
+          "sample_size": 209,
+          "avg_excess": -0.0228,
+          "win_rate": 0.3062
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 71,
-          "avg_excess": -0.0149,
-          "win_rate": 0.4085
+          "sample_size": 79,
+          "avg_excess": -0.0187,
+          "win_rate": 0.3797
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 6,
-          "avg_excess": 0.0821,
-          "win_rate": 0.6667
+          "sample_size": 7,
+          "avg_excess": 0.0594,
+          "win_rate": 0.5714
         },
         {
           "bucket": "恐慌",
@@ -1178,30 +1178,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 196,
-          "avg_excess": -0.001,
-          "win_rate": 0.4949
+          "sample_size": 189,
+          "avg_excess": -0.0002,
+          "win_rate": 0.4868
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 211,
-          "avg_excess": -0.0303,
-          "win_rate": 0.2796
+          "sample_size": 209,
+          "avg_excess": -0.0276,
+          "win_rate": 0.311
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 71,
-          "avg_excess": 0.0383,
-          "win_rate": 0.6056
+          "sample_size": 79,
+          "avg_excess": 0.0262,
+          "win_rate": 0.5316
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 6,
-          "avg_excess": 0.1012,
-          "win_rate": 0.8333
+          "sample_size": 7,
+          "avg_excess": 0.0712,
+          "win_rate": 0.7143
         },
         {
           "bucket": "恐慌",
@@ -1221,30 +1221,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 196,
-          "avg_excess": 0.0027,
-          "win_rate": 0.5102
+          "sample_size": 189,
+          "avg_excess": 0.0041,
+          "win_rate": 0.5132
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 211,
-          "avg_excess": -0.0234,
-          "win_rate": 0.3649
+          "sample_size": 209,
+          "avg_excess": -0.0218,
+          "win_rate": 0.378
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 71,
-          "avg_excess": 0.0038,
-          "win_rate": 0.5634
+          "sample_size": 79,
+          "avg_excess": -0.0036,
+          "win_rate": 0.519
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 6,
-          "avg_excess": 0.0601,
-          "win_rate": 1.0
+          "sample_size": 7,
+          "avg_excess": 0.042,
+          "win_rate": 0.8571
         },
         {
           "bucket": "恐慌",
@@ -1264,30 +1264,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 196,
-          "avg_excess": -0.0145,
-          "win_rate": 0.398
+          "sample_size": 189,
+          "avg_excess": -0.0115,
+          "win_rate": 0.4127
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 211,
-          "avg_excess": -0.0307,
-          "win_rate": 0.2701
+          "sample_size": 209,
+          "avg_excess": -0.0318,
+          "win_rate": 0.2679
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 71,
-          "avg_excess": -0.0129,
-          "win_rate": 0.3239
+          "sample_size": 79,
+          "avg_excess": -0.017,
+          "win_rate": 0.3038
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 6,
-          "avg_excess": 0.0137,
-          "win_rate": 0.5
+          "sample_size": 7,
+          "avg_excess": 0.0031,
+          "win_rate": 0.4286
         },
         {
           "bucket": "恐慌",
@@ -1306,8 +1306,38 @@
       "name": "食品饮料",
       "signal": "high_temp",
       "horizon": "5D",
+      "sample_size": 3,
+      "avg_fwd_excess": -0.0171,
+      "win_rate": 0.3333
+    },
+    {
+      "window": "1Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 39,
+      "avg_fwd_excess": -0.0135,
+      "win_rate": 0.3846
+    },
+    {
+      "window": "1Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "high_temp",
+      "horizon": "10D",
       "sample_size": 2,
-      "avg_fwd_excess": -0.0096,
+      "avg_fwd_excess": -0.0288,
       "win_rate": 0.5
     },
     {
@@ -1315,36 +1345,6 @@
       "symbol": "801120",
       "name": "食品饮料",
       "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 23,
-      "avg_fwd_excess": -0.0092,
-      "win_rate": 0.4348
-    },
-    {
-      "window": "1Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "high_temp",
-      "horizon": "10D",
-      "sample_size": 1,
-      "avg_fwd_excess": 0.0213,
-      "win_rate": 1.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "high_temp_falling_5d",
       "horizon": "10D",
       "sample_size": 0,
       "avg_fwd_excess": null,
@@ -1356,279 +1356,279 @@
       "name": "食品饮料",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 19,
-      "avg_fwd_excess": -0.0413,
-      "win_rate": 0.1053
-    },
-    {
-      "window": "1Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "high_temp",
-      "horizon": "20D",
-      "sample_size": 1,
-      "avg_fwd_excess": -0.062,
-      "win_rate": 0.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "high_temp_falling_5d",
-      "horizon": "20D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "risk_pullback_after_high",
-      "horizon": "20D",
-      "sample_size": 19,
-      "avg_fwd_excess": -0.0876,
-      "win_rate": 0.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp",
-      "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.003,
-      "win_rate": 0.5
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 23,
-      "avg_fwd_excess": -0.0058,
-      "win_rate": 0.3478
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp",
-      "horizon": "10D",
-      "sample_size": 1,
-      "avg_fwd_excess": -0.0163,
-      "win_rate": 0.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp_falling_5d",
-      "horizon": "10D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "risk_pullback_after_high",
-      "horizon": "10D",
-      "sample_size": 19,
-      "avg_fwd_excess": -0.009,
-      "win_rate": 0.3684
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp",
-      "horizon": "20D",
-      "sample_size": 1,
-      "avg_fwd_excess": -0.0189,
-      "win_rate": 0.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp_falling_5d",
-      "horizon": "20D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "risk_pullback_after_high",
-      "horizon": "20D",
-      "sample_size": 19,
-      "avg_fwd_excess": 0.003,
-      "win_rate": 0.5789
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "high_temp",
-      "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0134,
-      "win_rate": 0.5
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 23,
-      "avg_fwd_excess": -0.0118,
-      "win_rate": 0.1304
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "high_temp",
-      "horizon": "10D",
-      "sample_size": 1,
-      "avg_fwd_excess": 0.0122,
-      "win_rate": 1.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "high_temp_falling_5d",
-      "horizon": "10D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "risk_pullback_after_high",
-      "horizon": "10D",
-      "sample_size": 19,
-      "avg_fwd_excess": -0.0284,
-      "win_rate": 0.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "high_temp",
-      "horizon": "20D",
-      "sample_size": 1,
-      "avg_fwd_excess": -0.0346,
-      "win_rate": 0.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "high_temp_falling_5d",
-      "horizon": "20D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "risk_pullback_after_high",
-      "horizon": "20D",
-      "sample_size": 19,
-      "avg_fwd_excess": -0.0557,
-      "win_rate": 0.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "high_temp",
-      "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0165,
-      "win_rate": 0.5
-    },
-    {
-      "window": "1Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 23,
-      "avg_fwd_excess": -0.0163,
-      "win_rate": 0.2609
-    },
-    {
-      "window": "1Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "high_temp",
-      "horizon": "10D",
-      "sample_size": 1,
-      "avg_fwd_excess": 0.0254,
-      "win_rate": 1.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "high_temp_falling_5d",
-      "horizon": "10D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "risk_pullback_after_high",
-      "horizon": "10D",
-      "sample_size": 19,
+      "sample_size": 35,
       "avg_fwd_excess": -0.0295,
-      "win_rate": 0.0526
+      "win_rate": 0.3143
+    },
+    {
+      "window": "1Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "high_temp",
+      "horizon": "20D",
+      "sample_size": 2,
+      "avg_fwd_excess": -0.0681,
+      "win_rate": 0.0
+    },
+    {
+      "window": "1Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "high_temp_falling_5d",
+      "horizon": "20D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "risk_pullback_after_high",
+      "horizon": "20D",
+      "sample_size": 25,
+      "avg_fwd_excess": -0.0774,
+      "win_rate": 0.04
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp",
+      "horizon": "5D",
+      "sample_size": 3,
+      "avg_fwd_excess": -0.0074,
+      "win_rate": 0.3333
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 39,
+      "avg_fwd_excess": -0.0107,
+      "win_rate": 0.3333
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp",
+      "horizon": "10D",
+      "sample_size": 2,
+      "avg_fwd_excess": -0.0391,
+      "win_rate": 0.0
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp_falling_5d",
+      "horizon": "10D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "risk_pullback_after_high",
+      "horizon": "10D",
+      "sample_size": 35,
+      "avg_fwd_excess": -0.0131,
+      "win_rate": 0.4
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp",
+      "horizon": "20D",
+      "sample_size": 2,
+      "avg_fwd_excess": -0.0476,
+      "win_rate": 0.0
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp_falling_5d",
+      "horizon": "20D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "risk_pullback_after_high",
+      "horizon": "20D",
+      "sample_size": 25,
+      "avg_fwd_excess": -0.008,
+      "win_rate": 0.44
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "high_temp",
+      "horizon": "5D",
+      "sample_size": 3,
+      "avg_fwd_excess": -0.0228,
+      "win_rate": 0.3333
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 39,
+      "avg_fwd_excess": -0.0155,
+      "win_rate": 0.2051
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "high_temp",
+      "horizon": "10D",
+      "sample_size": 2,
+      "avg_fwd_excess": -0.0353,
+      "win_rate": 0.5
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "high_temp_falling_5d",
+      "horizon": "10D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "risk_pullback_after_high",
+      "horizon": "10D",
+      "sample_size": 35,
+      "avg_fwd_excess": -0.0295,
+      "win_rate": 0.2
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "high_temp",
+      "horizon": "20D",
+      "sample_size": 2,
+      "avg_fwd_excess": -0.0715,
+      "win_rate": 0.0
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "high_temp_falling_5d",
+      "horizon": "20D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "risk_pullback_after_high",
+      "horizon": "20D",
+      "sample_size": 25,
+      "avg_fwd_excess": -0.0602,
+      "win_rate": 0.0
+    },
+    {
+      "window": "1Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "high_temp",
+      "horizon": "5D",
+      "sample_size": 3,
+      "avg_fwd_excess": -0.0163,
+      "win_rate": 0.3333
+    },
+    {
+      "window": "1Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 39,
+      "avg_fwd_excess": -0.0149,
+      "win_rate": 0.2821
+    },
+    {
+      "window": "1Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "high_temp",
+      "horizon": "10D",
+      "sample_size": 2,
+      "avg_fwd_excess": -0.0085,
+      "win_rate": 0.5
+    },
+    {
+      "window": "1Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "high_temp_falling_5d",
+      "horizon": "10D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "risk_pullback_after_high",
+      "horizon": "10D",
+      "sample_size": 35,
+      "avg_fwd_excess": -0.0305,
+      "win_rate": 0.0571
     },
     {
       "window": "1Y",
@@ -1636,9 +1636,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 1,
-      "avg_fwd_excess": 0.0029,
-      "win_rate": 1.0
+      "sample_size": 2,
+      "avg_fwd_excess": -0.0318,
+      "win_rate": 0.5
     },
     {
       "window": "1Y",
@@ -1656,8 +1656,8 @@
       "name": "社会服务",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 19,
-      "avg_fwd_excess": -0.0702,
+      "sample_size": 25,
+      "avg_fwd_excess": -0.0724,
       "win_rate": 0.0
     },
     {
@@ -1666,8 +1666,38 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "5D",
+      "sample_size": 3,
+      "avg_fwd_excess": -0.013,
+      "win_rate": 0.3333
+    },
+    {
+      "window": "1Y",
+      "symbol": "801980",
+      "name": "美容护理",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801980",
+      "name": "美容护理",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 39,
+      "avg_fwd_excess": -0.0115,
+      "win_rate": 0.359
+    },
+    {
+      "window": "1Y",
+      "symbol": "801980",
+      "name": "美容护理",
+      "signal": "high_temp",
+      "horizon": "10D",
       "sample_size": 2,
-      "avg_fwd_excess": -0.0104,
+      "avg_fwd_excess": -0.0235,
       "win_rate": 0.5
     },
     {
@@ -1675,36 +1705,6 @@
       "symbol": "801980",
       "name": "美容护理",
       "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801980",
-      "name": "美容护理",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 23,
-      "avg_fwd_excess": -0.0119,
-      "win_rate": 0.3043
-    },
-    {
-      "window": "1Y",
-      "symbol": "801980",
-      "name": "美容护理",
-      "signal": "high_temp",
-      "horizon": "10D",
-      "sample_size": 1,
-      "avg_fwd_excess": 0.0199,
-      "win_rate": 1.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801980",
-      "name": "美容护理",
-      "signal": "high_temp_falling_5d",
       "horizon": "10D",
       "sample_size": 0,
       "avg_fwd_excess": null,
@@ -1716,9 +1716,9 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 19,
-      "avg_fwd_excess": -0.0295,
-      "win_rate": 0.1579
+      "sample_size": 35,
+      "avg_fwd_excess": -0.0217,
+      "win_rate": 0.3714
     },
     {
       "window": "1Y",
@@ -1726,8 +1726,8 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 1,
-      "avg_fwd_excess": -0.039,
+      "sample_size": 2,
+      "avg_fwd_excess": -0.0496,
       "win_rate": 0.0
     },
     {
@@ -1746,8 +1746,8 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 19,
-      "avg_fwd_excess": -0.063,
+      "sample_size": 25,
+      "avg_fwd_excess": -0.0588,
       "win_rate": 0.0
     },
     {
@@ -1756,8 +1756,38 @@
       "name": "食品饮料",
       "signal": "high_temp",
       "horizon": "5D",
+      "sample_size": 8,
+      "avg_fwd_excess": -0.0149,
+      "win_rate": 0.25
+    },
+    {
+      "window": "2Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "2Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 92,
+      "avg_fwd_excess": -0.0065,
+      "win_rate": 0.4022
+    },
+    {
+      "window": "2Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "high_temp",
+      "horizon": "10D",
       "sample_size": 7,
-      "avg_fwd_excess": -0.0124,
+      "avg_fwd_excess": -0.017,
       "win_rate": 0.2857
     },
     {
@@ -1765,36 +1795,6 @@
       "symbol": "801120",
       "name": "食品饮料",
       "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "2Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 76,
-      "avg_fwd_excess": -0.0038,
-      "win_rate": 0.4211
-    },
-    {
-      "window": "2Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "high_temp",
-      "horizon": "10D",
-      "sample_size": 6,
-      "avg_fwd_excess": -0.0066,
-      "win_rate": 0.3333
-    },
-    {
-      "window": "2Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "high_temp_falling_5d",
       "horizon": "10D",
       "sample_size": 0,
       "avg_fwd_excess": null,
@@ -1806,9 +1806,9 @@
       "name": "食品饮料",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 72,
-      "avg_fwd_excess": -0.012,
-      "win_rate": 0.4028
+      "sample_size": 88,
+      "avg_fwd_excess": -0.0126,
+      "win_rate": 0.4318
     },
     {
       "window": "2Y",
@@ -1816,39 +1816,39 @@
       "name": "食品饮料",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 6,
-      "avg_fwd_excess": -0.0111,
-      "win_rate": 0.5
-    },
-    {
-      "window": "2Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "high_temp_falling_5d",
-      "horizon": "20D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "2Y",
-      "symbol": "801120",
-      "name": "食品饮料",
-      "signal": "risk_pullback_after_high",
-      "horizon": "20D",
-      "sample_size": 72,
-      "avg_fwd_excess": -0.026,
-      "win_rate": 0.3611
-    },
-    {
-      "window": "2Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp",
-      "horizon": "5D",
       "sample_size": 7,
-      "avg_fwd_excess": 0.033,
-      "win_rate": 0.8571
+      "avg_fwd_excess": -0.0201,
+      "win_rate": 0.4286
+    },
+    {
+      "window": "2Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "high_temp_falling_5d",
+      "horizon": "20D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "2Y",
+      "symbol": "801120",
+      "name": "食品饮料",
+      "signal": "risk_pullback_after_high",
+      "horizon": "20D",
+      "sample_size": 78,
+      "avg_fwd_excess": -0.0275,
+      "win_rate": 0.3462
+    },
+    {
+      "window": "2Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp",
+      "horizon": "5D",
+      "sample_size": 8,
+      "avg_fwd_excess": 0.0254,
+      "win_rate": 0.75
     },
     {
       "window": "2Y",
@@ -1866,9 +1866,9 @@
       "name": "房地产",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 76,
-      "avg_fwd_excess": 0.0017,
-      "win_rate": 0.5
+      "sample_size": 92,
+      "avg_fwd_excess": -0.0017,
+      "win_rate": 0.4674
     },
     {
       "window": "2Y",
@@ -1876,72 +1876,72 @@
       "name": "房地产",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 6,
-      "avg_fwd_excess": 0.0197,
-      "win_rate": 0.6667
-    },
-    {
-      "window": "2Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp_falling_5d",
-      "horizon": "10D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "2Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "risk_pullback_after_high",
-      "horizon": "10D",
-      "sample_size": 72,
-      "avg_fwd_excess": 0.0044,
-      "win_rate": 0.4722
-    },
-    {
-      "window": "2Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp",
-      "horizon": "20D",
-      "sample_size": 6,
-      "avg_fwd_excess": 0.0821,
-      "win_rate": 0.6667
-    },
-    {
-      "window": "2Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp_falling_5d",
-      "horizon": "20D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "2Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "risk_pullback_after_high",
-      "horizon": "20D",
-      "sample_size": 72,
-      "avg_fwd_excess": -0.0065,
-      "win_rate": 0.4167
-    },
-    {
-      "window": "2Y",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "signal": "high_temp",
-      "horizon": "5D",
       "sample_size": 7,
-      "avg_fwd_excess": 0.017,
+      "avg_fwd_excess": 0.0081,
       "win_rate": 0.5714
     },
     {
       "window": "2Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp_falling_5d",
+      "horizon": "10D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "2Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "risk_pullback_after_high",
+      "horizon": "10D",
+      "sample_size": 88,
+      "avg_fwd_excess": 0.0003,
+      "win_rate": 0.4659
+    },
+    {
+      "window": "2Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp",
+      "horizon": "20D",
+      "sample_size": 7,
+      "avg_fwd_excess": 0.0594,
+      "win_rate": 0.5714
+    },
+    {
+      "window": "2Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp_falling_5d",
+      "horizon": "20D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "2Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "risk_pullback_after_high",
+      "horizon": "20D",
+      "sample_size": 78,
+      "avg_fwd_excess": -0.0093,
+      "win_rate": 0.3846
+    },
+    {
+      "window": "2Y",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "signal": "high_temp",
+      "horizon": "5D",
+      "sample_size": 8,
+      "avg_fwd_excess": 0.0097,
+      "win_rate": 0.5
+    },
+    {
+      "window": "2Y",
       "symbol": "801200",
       "name": "商贸零售",
       "signal": "high_temp_falling_5d",
@@ -1956,9 +1956,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 76,
-      "avg_fwd_excess": 0.0118,
-      "win_rate": 0.4868
+      "sample_size": 92,
+      "avg_fwd_excess": 0.0061,
+      "win_rate": 0.4565
     },
     {
       "window": "2Y",
@@ -1966,9 +1966,9 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 6,
-      "avg_fwd_excess": 0.0328,
-      "win_rate": 1.0
+      "sample_size": 7,
+      "avg_fwd_excess": 0.0163,
+      "win_rate": 0.8571
     },
     {
       "window": "2Y",
@@ -1986,9 +1986,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 72,
-      "avg_fwd_excess": 0.025,
-      "win_rate": 0.5278
+      "sample_size": 88,
+      "avg_fwd_excess": 0.0149,
+      "win_rate": 0.5114
     },
     {
       "window": "2Y",
@@ -1996,9 +1996,9 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 6,
-      "avg_fwd_excess": 0.1012,
-      "win_rate": 0.8333
+      "sample_size": 7,
+      "avg_fwd_excess": 0.0712,
+      "win_rate": 0.7143
     },
     {
       "window": "2Y",
@@ -2016,9 +2016,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 72,
-      "avg_fwd_excess": 0.0397,
-      "win_rate": 0.5417
+      "sample_size": 78,
+      "avg_fwd_excess": 0.0309,
+      "win_rate": 0.5
     },
     {
       "window": "2Y",
@@ -2026,8 +2026,38 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "5D",
+      "sample_size": 8,
+      "avg_fwd_excess": 0.0103,
+      "win_rate": 0.75
+    },
+    {
+      "window": "2Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "2Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 92,
+      "avg_fwd_excess": -0.0023,
+      "win_rate": 0.4565
+    },
+    {
+      "window": "2Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "high_temp",
+      "horizon": "10D",
       "sample_size": 7,
-      "avg_fwd_excess": 0.0141,
+      "avg_fwd_excess": 0.0292,
       "win_rate": 0.8571
     },
     {
@@ -2035,36 +2065,6 @@
       "symbol": "801210",
       "name": "社会服务",
       "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "2Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 76,
-      "avg_fwd_excess": -0.0,
-      "win_rate": 0.4868
-    },
-    {
-      "window": "2Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "high_temp",
-      "horizon": "10D",
-      "sample_size": 6,
-      "avg_fwd_excess": 0.0412,
-      "win_rate": 1.0
-    },
-    {
-      "window": "2Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "high_temp_falling_5d",
       "horizon": "10D",
       "sample_size": 0,
       "avg_fwd_excess": null,
@@ -2076,9 +2076,9 @@
       "name": "社会服务",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 72,
-      "avg_fwd_excess": 0.0009,
-      "win_rate": 0.4028
+      "sample_size": 88,
+      "avg_fwd_excess": -0.0051,
+      "win_rate": 0.3409
     },
     {
       "window": "2Y",
@@ -2086,39 +2086,39 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 6,
-      "avg_fwd_excess": 0.0601,
-      "win_rate": 1.0
-    },
-    {
-      "window": "2Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "high_temp_falling_5d",
-      "horizon": "20D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "2Y",
-      "symbol": "801210",
-      "name": "社会服务",
-      "signal": "risk_pullback_after_high",
-      "horizon": "20D",
-      "sample_size": 72,
-      "avg_fwd_excess": -0.0082,
-      "win_rate": 0.4167
-    },
-    {
-      "window": "2Y",
-      "symbol": "801980",
-      "name": "美容护理",
-      "signal": "high_temp",
-      "horizon": "5D",
       "sample_size": 7,
-      "avg_fwd_excess": -0.009,
-      "win_rate": 0.2857
+      "avg_fwd_excess": 0.042,
+      "win_rate": 0.8571
+    },
+    {
+      "window": "2Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "high_temp_falling_5d",
+      "horizon": "20D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "2Y",
+      "symbol": "801210",
+      "name": "社会服务",
+      "signal": "risk_pullback_after_high",
+      "horizon": "20D",
+      "sample_size": 78,
+      "avg_fwd_excess": -0.0137,
+      "win_rate": 0.3846
+    },
+    {
+      "window": "2Y",
+      "symbol": "801980",
+      "name": "美容护理",
+      "signal": "high_temp",
+      "horizon": "5D",
+      "sample_size": 8,
+      "avg_fwd_excess": -0.0101,
+      "win_rate": 0.25
     },
     {
       "window": "2Y",
@@ -2136,9 +2136,9 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 76,
-      "avg_fwd_excess": 0.0025,
-      "win_rate": 0.5395
+      "sample_size": 92,
+      "avg_fwd_excess": 0.0002,
+      "win_rate": 0.5217
     },
     {
       "window": "2Y",
@@ -2146,9 +2146,9 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 6,
-      "avg_fwd_excess": -0.0032,
-      "win_rate": 0.5
+      "sample_size": 7,
+      "avg_fwd_excess": -0.0123,
+      "win_rate": 0.4286
     },
     {
       "window": "2Y",
@@ -2166,9 +2166,9 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 72,
-      "avg_fwd_excess": 0.0062,
-      "win_rate": 0.6111
+      "sample_size": 88,
+      "avg_fwd_excess": 0.0029,
+      "win_rate": 0.6136
     },
     {
       "window": "2Y",
@@ -2176,9 +2176,9 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 6,
-      "avg_fwd_excess": 0.0137,
-      "win_rate": 0.5
+      "sample_size": 7,
+      "avg_fwd_excess": 0.0031,
+      "win_rate": 0.4286
     },
     {
       "window": "2Y",
@@ -2196,9 +2196,9 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 72,
-      "avg_fwd_excess": 0.0017,
-      "win_rate": 0.4861
+      "sample_size": 78,
+      "avg_fwd_excess": -0.0019,
+      "win_rate": 0.4487
     }
   ]
 }

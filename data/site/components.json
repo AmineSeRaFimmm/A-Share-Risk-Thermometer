@@ -22,9 +22,9 @@
     },
     {
       "name": "QVIX确认",
-      "score": 50.0,
+      "score": 100.0,
       "weight": 0.12,
-      "contribution": 6.0
+      "contribution": 12.0
     },
     {
       "name": "实现波动率",

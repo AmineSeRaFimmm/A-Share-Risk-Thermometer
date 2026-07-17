@@ -1,16 +1,16 @@
 {
   "trade_date": "2026-07-17",
-  "update_time": "2026-07-17T11:18:46+08:00",
-  "risk_temperature": 72.5,
-  "regime": "HIGH_RISK",
-  "regime_cn": "高风险",
-  "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
+  "update_time": "2026-07-17T11:34:37+08:00",
+  "risk_temperature": 78.5,
+  "regime": "PANIC",
+  "regime_cn": "恐慌区",
+  "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
   "model_confidence": {
-    "score": 88.0,
-    "grade": "MEDIUM",
-    "missing_components": "QVIX"
+    "score": 100.0,
+    "grade": "HIGH",
+    "missing_components": ""
   },
-  "model_confidence_label": "88.0 / 中",
+  "model_confidence_label": "100.0 / 高",
   "temperature_mode": "NOWCAST",
   "temperature_mode_cn": "盘中估算",
   "is_final": false,
@@ -18,7 +18,7 @@
     "avix_percentile_2y": 91.8651,
     "avix_zscore_1y": 100.0,
     "avix_5d_change": 94.1532,
-    "qvix_confirmation": 50.0,
+    "qvix_confirmation": 100.0,
     "realized_vol": 92.4603,
     "drawdown_pressure": 67.1134,
     "breadth_pressure": 0.0,
@@ -50,25 +50,25 @@
   },
   "official_close": {
     "trade_date": "2026-07-16",
-    "risk_temperature": 65.6,
+    "risk_temperature": 71.6,
     "regime": "HIGH_RISK",
     "regime_cn": "高风险",
-    "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
+    "quality": "WARN_NOT_BRACKET_30D",
     "avix_clean": 22.4744,
     "model_confidence": {
-      "score": 88.0,
-      "grade": "MEDIUM",
-      "missing_components": "QVIX"
+      "score": 100.0,
+      "grade": "HIGH",
+      "missing_components": ""
     }
   },
   "nowcast": {
     "trade_date": "2026-07-17",
-    "risk_temperature": 72.5,
-    "regime": "HIGH_RISK",
-    "regime_cn": "高风险",
-    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING",
+    "risk_temperature": 78.5,
+    "regime": "PANIC",
+    "regime_cn": "恐慌区",
+    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
     "baseline_trade_date": "2026-07-16",
-    "official_risk_temperature": 65.6,
+    "official_risk_temperature": 71.6,
     "realtime_avix": 25.2452,
     "realtime_avix_quality": "WARN_NOT_BRACKET_30D",
     "realtime_valuation_time": "2026-07-17T11:18:21+08:00",
@@ -76,9 +76,9 @@
     "active": true
   },
   "interpretation": {
-    "headline": "市场风险温度 72.5，处于高风险",
-    "summary": "AVIX异常程度、AVIX短期变化、实现波动率是当前风险温度的主要驱动；多因子合成后给出 72.5/100。",
-    "posture": "防守 + 等待风险释放",
+    "headline": "市场风险温度 78.5，处于恐慌区",
+    "summary": "QVIX确认、AVIX异常程度、AVIX短期变化是当前风险温度的主要驱动；多因子合成后给出 78.5/100。",
+    "posture": "防守 + 观察反身修复",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
 }
