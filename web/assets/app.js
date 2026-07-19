@@ -126,6 +126,118 @@ function hasGithubActionsPat() {
   return Boolean(getGithubActionsPat());
 }
 
+/**
+ * A-share action windows (Asia/Shanghai).
+ * 实时: 交易日 开盘前30分钟 → 收盘（含午休），默认 08:45–15:15
+ * 日更: 上述窗口之外（盘后 / 周末 / 非交易日）
+ * 节假日无完整日历时按周一至周五近似；若 history 已加载则优先用交易日集合。
+ */
+const ASHARE_ACTION_WINDOW = {
+  openHour: 9,
+  openMin: 15,
+  closeHour: 15,
+  closeMin: 15,
+  preOpenMinutes: 30,
+  timeZone: 'Asia/Shanghai',
+};
+
+function getShanghaiDateParts(date = new Date()) {
+  const parts = new Intl.DateTimeFormat('en-US', {
+    timeZone: ASHARE_ACTION_WINDOW.timeZone,
+    weekday: 'short',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(date);
+  const map = {};
+  for (const p of parts) {
+    if (p.type !== 'literal') map[p.type] = p.value;
+  }
+  const hour = Number(map.hour);
+  const minute = Number(map.minute);
+  return {
+    weekday: map.weekday, // Mon, Tue, ...
+    year: map.year,
+    month: map.month,
+    day: map.day,
+    hour: Number.isFinite(hour) ? hour : 0,
+    minute: Number.isFinite(minute) ? minute : 0,
+    ymd: `${map.year}-${map.month}-${map.day}`,
+    minutes: (Number.isFinite(hour) ? hour : 0) * 60 + (Number.isFinite(minute) ? minute : 0),
+  };
+}
+
+function isAshareTradingDayCandidate(parts) {
+  // Prefer known sessions from loaded history / latest.
+  const known = new Set();
+  try {
+    const hist = dashboardState.history;
+    const rows = Array.isArray(hist)
+      ? hist
+      : (hist?.rows || hist?.data || []);
+    if (Array.isArray(rows)) {
+      rows.forEach(r => {
+        const d = r?.trade_date || r?.date;
+        if (d) known.add(String(d).slice(0, 10));
+      });
+    }
+  } catch (_) { /* ignore */ }
+  try {
+    const td = dashboardState.latest?.trade_date || dashboardState.lastTradeDate;
+    if (td) known.add(String(td).slice(0, 10));
+  } catch (_) { /* ignore */ }
+
+  if (known.size > 0 && known.has(parts.ymd)) return true;
+
+  // Weekday proxy (Mon–Fri). Holidays without calendar ≈ open (rare false positive).
+  const wd = parts.weekday;
+  return wd !== 'Sat' && wd !== 'Sun';
+}
+
+function getAshareActionWindow(date = new Date()) {
+  const p = getShanghaiDateParts(date);
+  const tradingDay = isAshareTradingDayCandidate(p);
+  const openMins =
+    ASHARE_ACTION_WINDOW.openHour * 60 + ASHARE_ACTION_WINDOW.openMin;
+  const closeMins =
+    ASHARE_ACTION_WINDOW.closeHour * 60 + ASHARE_ACTION_WINDOW.closeMin;
+  const startMins = openMins - ASHARE_ACTION_WINDOW.preOpenMinutes;
+  const inSession =
+    tradingDay && p.minutes >= startMins && p.minutes <= closeMins;
+
+  const hh = String(Math.floor(startMins / 60)).padStart(2, '0');
+  const mm = String(startMins % 60).padStart(2, '0');
+  const ch = String(ASHARE_ACTION_WINDOW.closeHour).padStart(2, '0');
+  const cm = String(ASHARE_ACTION_WINDOW.closeMin).padStart(2, '0');
+  const windowLabel = `${hh}:${mm}–${ch}:${cm} 北京时间`;
+
+  if (inSession) {
+    return {
+      realtime: true,
+      daily: false,
+      tradingDay: true,
+      inSession: true,
+      parts: p,
+      reason: `盘中窗口 ${windowLabel}`,
+      windowLabel,
+    };
+  }
+  return {
+    realtime: false,
+    daily: true,
+    tradingDay,
+    inSession: false,
+    parts: p,
+    reason: tradingDay
+      ? `非盘中（实时仅 ${windowLabel}）`
+      : '非交易日（周末/休市）',
+    windowLabel,
+  };
+}
+
 async function loadJSON(path, { bust = true } = {}) {
   let url = path;
   if (bust) {
@@ -649,6 +761,7 @@ async function loadHeavyDashboardData() {
 function renderCriticalDashboard({ latest, history, nowcastHistory, components, audit }) {
   document.body.classList.remove('error');
   hideLoadError();
+  dashboardState.latest = latest || null;
   renderLatest(latest);
   renderAudit(audit);
   renderNowcastGapSummary(nowcastHistory);
@@ -669,6 +782,10 @@ function renderCriticalDashboard({ latest, history, nowcastHistory, components, 
     dashboardState.strategy || {},
     dashboardState.chartRanges
   );
+  // History may refine weekday/holiday estimate for action buttons.
+  applyDataPlaneButtonSchedule({
+    baseEnabled: !dashboardState.dataPlane.refreshInFlight,
+  });
 }
 
 function renderHeavyDashboard({ strategy, rtTactical, stagePlaybook }) {
@@ -3413,6 +3530,7 @@ function paintStaticPagesPlaneMeta(latest, { busy = false, note = null } = {}) {
   const metaEl = document.getElementById('dataPlaneMeta');
   const bar = document.getElementById('dataPlaneBar');
   const patOk = hasGithubActionsPat();
+  const win = getAshareActionWindow();
   if (sourceEl) sourceEl.textContent = patOk ? 'Actions' : 'Pages';
   if (bar) {
     bar.dataset.state = busy ? 'stale' : (patOk ? 'fresh' : 'offline');
@@ -3428,7 +3546,9 @@ function paintStaticPagesPlaneMeta(latest, { busy = false, note = null } = {}) {
   }
   if (!latest) {
     metaEl.textContent = patOk
-      ? '点「实时/日更」触发流水线 · 完成后自动重载'
+      ? (win.realtime
+        ? `盘中可点「实时」· ${win.windowLabel}`
+        : `休市可点「日更」· ${win.reason}`)
       : '点「令牌」配置后可在 App 内触发更新';
     return;
   }
@@ -3437,6 +3557,7 @@ function paintStaticPagesPlaneMeta(latest, { busy = false, note = null } = {}) {
     latest.temperature_mode_cn || latest.temperature_mode || null,
     latest.trade_date || null,
     patOk ? null : '未配令牌',
+    win.realtime ? '可实时' : '可日更',
   ].filter(Boolean).join(' · ');
 }
 
@@ -3476,10 +3597,32 @@ function renderDataPlaneBar(status) {
 }
 
 function setDataPlaneButtonsEnabled(on) {
-  ['dataPlaneRefreshRealtime', 'dataPlaneRefreshFull'].forEach(id => {
-    const btn = document.getElementById(id);
-    if (btn) btn.disabled = !on;
-  });
+  // `on` = not busy / not in-flight. Per-button A-share schedule still applies.
+  applyDataPlaneButtonSchedule({ baseEnabled: on });
+}
+
+function applyDataPlaneButtonSchedule({ baseEnabled = true } = {}) {
+  const win = getAshareActionWindow();
+  const rt = document.getElementById('dataPlaneRefreshRealtime');
+  const full = document.getElementById('dataPlaneRefreshFull');
+  const free = Boolean(baseEnabled);
+
+  if (rt) {
+    const allow = free && win.realtime;
+    rt.disabled = !allow;
+    rt.title = allow
+      ? `触发盘中实时 AVIX（${win.windowLabel}）`
+      : `实时不可用：${win.reason}。仅交易日 ${win.windowLabel} 可点`;
+    rt.dataset.window = win.realtime ? 'open' : 'closed';
+  }
+  if (full) {
+    const allow = free && win.daily;
+    full.disabled = !allow;
+    full.title = allow
+      ? '触发日终正式更新（休市/盘后）'
+      : `日更不可用：${win.reason}。请在盘后或非交易日使用`;
+    full.dataset.window = win.daily ? 'open' : 'closed';
+  }
 }
 
 function openGithubTokenDialog() {
@@ -3622,6 +3765,21 @@ async function requestDataPlaneRefresh(mode) {
   // Static Pages: dispatch GitHub Actions, then poll until published data moves.
   if (!dashboardState.dataPlane.available) {
     if (dashboardState.dataPlane.refreshInFlight) return;
+    const win = getAshareActionWindow();
+    if (mode === 'realtime' && !win.realtime) {
+      paintStaticPagesPlaneMeta(null, {
+        note: `实时仅交易日 ${win.windowLabel} 可点 · 当前：${win.reason}`,
+      });
+      applyDataPlaneButtonSchedule({ baseEnabled: true });
+      return;
+    }
+    if (mode === 'full' && !win.daily) {
+      paintStaticPagesPlaneMeta(null, {
+        note: `日更仅盘后/休市可点 · 当前：${win.reason}`,
+      });
+      applyDataPlaneButtonSchedule({ baseEnabled: true });
+      return;
+    }
     if (!hasGithubActionsPat()) {
       openGithubTokenDialog();
       paintStaticPagesPlaneMeta(null, { note: '需先配置令牌才能触发 Actions' });
@@ -3735,6 +3893,17 @@ function bindDataPlaneControls() {
   if (full) full.addEventListener('click', () => requestDataPlaneRefresh('full'));
   if (setup) setup.addEventListener('click', () => openGithubTokenDialog());
   bindGithubTokenDialog();
+  applyDataPlaneButtonSchedule({ baseEnabled: true });
+  // Re-evaluate window at minute boundary so buttons unlock without reload.
+  if (!dashboardState.dataPlane._scheduleTimer) {
+    dashboardState.dataPlane._scheduleTimer = setInterval(() => {
+      if (dashboardState.dataPlane.refreshInFlight) return;
+      const base = dashboardState.dataPlane.available
+        ? !(dashboardState.dataPlane.status && dashboardState.dataPlane.status.refresh_running)
+        : true;
+      applyDataPlaneButtonSchedule({ baseEnabled: base });
+    }, 30 * 1000);
+  }
 }
 
 async function main() {
