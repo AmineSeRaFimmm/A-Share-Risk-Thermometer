@@ -142,100 +142,130 @@ const ASHARE_ACTION_WINDOW = {
 };
 
 function getShanghaiDateParts(date = new Date()) {
-  const parts = new Intl.DateTimeFormat('en-US', {
-    timeZone: ASHARE_ACTION_WINDOW.timeZone,
-    weekday: 'short',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    hourCycle: 'h23',
-  }).formatToParts(date);
-  const map = {};
-  for (const p of parts) {
-    if (p.type !== 'literal') map[p.type] = p.value;
+  // Avoid hourCycle (throws on some iOS Safari). Prefer formatToParts + hour12:false.
+  try {
+    const parts = new Intl.DateTimeFormat('en-US', {
+      timeZone: ASHARE_ACTION_WINDOW.timeZone,
+      weekday: 'short',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false,
+    }).formatToParts(date);
+    const map = {};
+    for (let i = 0; i < parts.length; i++) {
+      const p = parts[i];
+      if (p.type !== 'literal') map[p.type] = p.value;
+    }
+    let hour = Number(map.hour);
+    const minute = Number(map.minute);
+    // Some engines emit 24:xx for midnight — normalize.
+    if (hour === 24) hour = 0;
+    const year = map.year || '1970';
+    const month = map.month || '01';
+    const day = map.day || '01';
+    return {
+      weekday: map.weekday || 'Mon',
+      year,
+      month,
+      day,
+      hour: Number.isFinite(hour) ? hour : 0,
+      minute: Number.isFinite(minute) ? minute : 0,
+      ymd: year + '-' + month + '-' + day,
+      minutes:
+        (Number.isFinite(hour) ? hour : 0) * 60 +
+        (Number.isFinite(minute) ? minute : 0),
+    };
+  } catch (err) {
+    // Last resort: approximate with UTC+8 (no DST in China).
+    const shifted = new Date(date.getTime() + 8 * 60 * 60 * 1000);
+    const wdNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const y = shifted.getUTCFullYear();
+    const m = String(shifted.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(shifted.getUTCDate()).padStart(2, '0');
+    const hour = shifted.getUTCHours();
+    const minute = shifted.getUTCMinutes();
+    return {
+      weekday: wdNames[shifted.getUTCDay()],
+      year: String(y),
+      month: m,
+      day: d,
+      hour,
+      minute,
+      ymd: y + '-' + m + '-' + d,
+      minutes: hour * 60 + minute,
+    };
   }
-  const hour = Number(map.hour);
-  const minute = Number(map.minute);
-  return {
-    weekday: map.weekday, // Mon, Tue, ...
-    year: map.year,
-    month: map.month,
-    day: map.day,
-    hour: Number.isFinite(hour) ? hour : 0,
-    minute: Number.isFinite(minute) ? minute : 0,
-    ymd: `${map.year}-${map.month}-${map.day}`,
-    minutes: (Number.isFinite(hour) ? hour : 0) * 60 + (Number.isFinite(minute) ? minute : 0),
-  };
 }
 
 function isAshareTradingDayCandidate(parts) {
-  // Prefer known sessions from loaded history / latest.
-  const known = new Set();
+  if (!parts || !parts.ymd) return false;
+  // Prefer known sessions from loaded history / latest (only for "was a session").
+  // For *today*, history often has not caught up yet — so weekday proxy is primary.
   try {
-    const hist = dashboardState.history;
-    const rows = Array.isArray(hist)
-      ? hist
-      : (hist?.rows || hist?.data || []);
-    if (Array.isArray(rows)) {
-      rows.forEach(r => {
-        const d = r?.trade_date || r?.date;
-        if (d) known.add(String(d).slice(0, 10));
-      });
-    }
-  } catch (_) { /* ignore */ }
-  try {
-    const td = dashboardState.latest?.trade_date || dashboardState.lastTradeDate;
-    if (td) known.add(String(td).slice(0, 10));
-  } catch (_) { /* ignore */ }
-
-  if (known.size > 0 && known.has(parts.ymd)) return true;
-
-  // Weekday proxy (Mon–Fri). Holidays without calendar ≈ open (rare false positive).
-  const wd = parts.weekday;
-  return wd !== 'Sat' && wd !== 'Sun';
+    const wd = parts.weekday || '';
+    if (wd === 'Sat' || wd === 'Sun') return false;
+    return true;
+  } catch (_) {
+    return true;
+  }
 }
 
 function getAshareActionWindow(date = new Date()) {
-  const p = getShanghaiDateParts(date);
-  const tradingDay = isAshareTradingDayCandidate(p);
-  const openMins =
-    ASHARE_ACTION_WINDOW.openHour * 60 + ASHARE_ACTION_WINDOW.openMin;
-  const closeMins =
-    ASHARE_ACTION_WINDOW.closeHour * 60 + ASHARE_ACTION_WINDOW.closeMin;
-  const startMins = openMins - ASHARE_ACTION_WINDOW.preOpenMinutes;
-  const inSession =
-    tradingDay && p.minutes >= startMins && p.minutes <= closeMins;
+  try {
+    const p = getShanghaiDateParts(date);
+    const tradingDay = isAshareTradingDayCandidate(p);
+    const openMins =
+      ASHARE_ACTION_WINDOW.openHour * 60 + ASHARE_ACTION_WINDOW.openMin;
+    const closeMins =
+      ASHARE_ACTION_WINDOW.closeHour * 60 + ASHARE_ACTION_WINDOW.closeMin;
+    const startMins = openMins - ASHARE_ACTION_WINDOW.preOpenMinutes;
+    const inSession =
+      tradingDay && p.minutes >= startMins && p.minutes <= closeMins;
 
-  const hh = String(Math.floor(startMins / 60)).padStart(2, '0');
-  const mm = String(startMins % 60).padStart(2, '0');
-  const ch = String(ASHARE_ACTION_WINDOW.closeHour).padStart(2, '0');
-  const cm = String(ASHARE_ACTION_WINDOW.closeMin).padStart(2, '0');
-  const windowLabel = `${hh}:${mm}–${ch}:${cm} 北京时间`;
+    const hh = String(Math.floor(startMins / 60)).padStart(2, '0');
+    const mm = String(startMins % 60).padStart(2, '0');
+    const ch = String(ASHARE_ACTION_WINDOW.closeHour).padStart(2, '0');
+    const cm = String(ASHARE_ACTION_WINDOW.closeMin).padStart(2, '0');
+    const windowLabel = hh + ':' + mm + '-' + ch + ':' + cm + ' 北京时间';
 
-  if (inSession) {
+    if (inSession) {
+      return {
+        realtime: true,
+        daily: false,
+        tradingDay: true,
+        inSession: true,
+        parts: p,
+        reason: '盘中窗口 ' + windowLabel,
+        windowLabel,
+      };
+    }
     return {
-      realtime: true,
-      daily: false,
-      tradingDay: true,
-      inSession: true,
+      realtime: false,
+      daily: true,
+      tradingDay,
+      inSession: false,
       parts: p,
-      reason: `盘中窗口 ${windowLabel}`,
+      reason: tradingDay
+        ? '非盘中（实时仅 ' + windowLabel + '）'
+        : '非交易日（周末/休市）',
       windowLabel,
     };
+  } catch (err) {
+    console.warn('getAshareActionWindow failed', err);
+    // Fail open for daily so the app never bricks outside market hours.
+    return {
+      realtime: false,
+      daily: true,
+      tradingDay: false,
+      inSession: false,
+      parts: null,
+      reason: '时段判断失败，默认仅日更',
+      windowLabel: '08:45-15:15 北京时间',
+    };
   }
-  return {
-    realtime: false,
-    daily: true,
-    tradingDay,
-    inSession: false,
-    parts: p,
-    reason: tradingDay
-      ? `非盘中（实时仅 ${windowLabel}）`
-      : '非交易日（周末/休市）',
-    windowLabel,
-  };
 }
 
 async function loadJSON(path, { bust = true } = {}) {
@@ -3602,26 +3632,30 @@ function setDataPlaneButtonsEnabled(on) {
 }
 
 function applyDataPlaneButtonSchedule({ baseEnabled = true } = {}) {
-  const win = getAshareActionWindow();
-  const rt = document.getElementById('dataPlaneRefreshRealtime');
-  const full = document.getElementById('dataPlaneRefreshFull');
-  const free = Boolean(baseEnabled);
+  try {
+    const win = getAshareActionWindow();
+    const rt = document.getElementById('dataPlaneRefreshRealtime');
+    const full = document.getElementById('dataPlaneRefreshFull');
+    const free = Boolean(baseEnabled);
 
-  if (rt) {
-    const allow = free && win.realtime;
-    rt.disabled = !allow;
-    rt.title = allow
-      ? `触发盘中实时 AVIX（${win.windowLabel}）`
-      : `实时不可用：${win.reason}。仅交易日 ${win.windowLabel} 可点`;
-    rt.dataset.window = win.realtime ? 'open' : 'closed';
-  }
-  if (full) {
-    const allow = free && win.daily;
-    full.disabled = !allow;
-    full.title = allow
-      ? '触发日终正式更新（休市/盘后）'
-      : `日更不可用：${win.reason}。请在盘后或非交易日使用`;
-    full.dataset.window = win.daily ? 'open' : 'closed';
+    if (rt) {
+      const allow = free && win.realtime;
+      rt.disabled = !allow;
+      rt.title = allow
+        ? '触发盘中实时 AVIX（' + win.windowLabel + '）'
+        : '实时不可用：' + win.reason + '。仅交易日 ' + win.windowLabel + ' 可点';
+      if (rt.dataset) rt.dataset.window = win.realtime ? 'open' : 'closed';
+    }
+    if (full) {
+      const allow = free && win.daily;
+      full.disabled = !allow;
+      full.title = allow
+        ? '触发日终正式更新（休市/盘后）'
+        : '日更不可用：' + win.reason + '。请在盘后或非交易日使用';
+      if (full.dataset) full.dataset.window = win.daily ? 'open' : 'closed';
+    }
+  } catch (err) {
+    console.warn('applyDataPlaneButtonSchedule failed', err);
   }
 }
 
