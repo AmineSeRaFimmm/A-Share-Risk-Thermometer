@@ -1,0 +1,26 @@
+{
+  "name": "A股风险温度计",
+  "short_name": "风险温度计",
+  "description": "A股风险温度计 · 盘中 nowcast + 收盘正式 RT",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f3eee4",
+  "theme_color": "#f3eee4",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "./assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/apple-touch-icon.png",
+      "sizes": "1024x1024",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
