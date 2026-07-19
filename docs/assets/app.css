@@ -2098,9 +2098,90 @@ body.in-app-webview.app-tabs-mode .topbar-minimal {
   border-color: var(--ink);
 }
 
+.data-plane-btn.ghost {
+  background: transparent;
+  color: var(--mute);
+  border-color: transparent;
+  padding: 0 8px;
+  font-weight: 500;
+}
+
 .data-plane-btn:disabled {
   opacity: 0.5;
   cursor: wait;
+}
+
+/* GitHub Actions token setup (Pages plane) */
+.gh-token-dialog {
+  border: 1px solid var(--rule-strong);
+  border-radius: 0;
+  padding: 0;
+  max-width: min(420px, calc(100vw - 32px));
+  background: var(--sheet);
+  color: var(--ink);
+  box-shadow: 0 18px 48px rgba(30, 24, 16, 0.18);
+}
+.gh-token-dialog::backdrop {
+  background: rgba(30, 24, 16, 0.35);
+}
+.gh-token-form {
+  padding: 20px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.gh-token-form h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 20px;
+  font-weight: 500;
+}
+.gh-token-form p,
+.gh-token-form li {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+.gh-token-form ol {
+  margin: 0;
+  padding-left: 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gh-token-form a { color: var(--ink); }
+.gh-token-form code {
+  font-size: 11px;
+  background: var(--paper, #f3eee4);
+  padding: 1px 4px;
+}
+.gh-token-form label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--mute);
+  text-transform: uppercase;
+}
+.gh-token-form input[type="password"],
+.gh-token-form input[type="text"] {
+  height: 40px;
+  border: 1px solid var(--rule-strong);
+  background: var(--paper, #f3eee4);
+  color: var(--ink);
+  padding: 0 12px;
+  font-size: 14px;
+}
+.gh-token-hint {
+  min-height: 1.2em;
+  font-size: 12px !important;
+  color: var(--mute) !important;
+}
+.gh-token-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
 }
 
 .data-plane[data-state="stale"] .data-plane-main strong { color: var(--amber); }

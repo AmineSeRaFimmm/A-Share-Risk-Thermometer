@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon-180.png?v=20260719-icon">
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png?v=20260719-icon">
     <link rel="icon" type="image/png" sizes="512x512" href="./assets/icon-512.png?v=20260719-icon">
-    <link rel="stylesheet" href="./assets/app.css?v=20260719-fund-btn-size">
+    <link rel="stylesheet" href="./assets/app.css?v=20260719-actions-btns">
   </head>
   <body class="app-shell app-tabs-mode">
     <header class="topbar topbar-minimal">
@@ -34,11 +34,33 @@
           <span id="dataPlaneMeta">—</span>
         </div>
         <div class="data-plane-actions">
-          <button type="button" class="data-plane-btn" id="dataPlaneRefreshRealtime" title="实时">实时</button>
-          <button type="button" class="data-plane-btn primary" id="dataPlaneRefreshFull" title="日更">日更</button>
+          <button type="button" class="data-plane-btn" id="dataPlaneRefreshRealtime" title="触发 GitHub Actions 实时更新">实时</button>
+          <button type="button" class="data-plane-btn primary" id="dataPlaneRefreshFull" title="触发 GitHub Actions 日更">日更</button>
+          <button type="button" class="data-plane-btn ghost" id="dataPlaneTokenSetup" title="配置 GitHub 令牌（触发 Actions）">令牌</button>
         </div>
       </aside>
     </header>
+
+    <dialog id="ghTokenDialog" class="gh-token-dialog">
+      <form method="dialog" id="ghTokenForm" class="gh-token-form">
+        <h2>连接 GitHub Actions</h2>
+        <p>「实时 / 日更」会调用仓库 workflow。令牌<strong>只保存在本机浏览器</strong>，不会上传到 Pages。</p>
+        <ol>
+          <li>打开 <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">Fine-grained PAT</a></li>
+          <li>仅授权本仓库 <code>AmineSeRaFimmm/A-Share-Risk-Thermometer</code></li>
+          <li>权限：<strong>Actions: Read and write</strong>（Contents 读即可）</li>
+          <li>粘贴下方并保存</li>
+        </ol>
+        <label for="ghTokenInput">Personal Access Token</label>
+        <input id="ghTokenInput" type="password" autocomplete="off" spellcheck="false" placeholder="github_pat_… 或 ghp_…">
+        <p class="gh-token-hint" id="ghTokenHint"></p>
+        <div class="gh-token-actions">
+          <button type="submit" value="save" class="data-plane-btn primary" id="ghTokenSave">保存</button>
+          <button type="submit" value="clear" class="data-plane-btn" id="ghTokenClear">清除</button>
+          <button type="submit" value="cancel" class="data-plane-btn ghost">取消</button>
+        </div>
+      </form>
+    </dialog>
 
     <main class="page-shell page-shell-tabs">
       <!-- ① 温度 -->
@@ -367,6 +389,6 @@
 
     <script src="./vendor/echarts.min.js"></script>
     <script src="./assets/charts.js?v=20260719-hist-clean"></script>
-    <script src="./assets/app.js?v=20260719-pages-tf"></script>
+    <script src="./assets/app.js?v=20260719-actions-btns"></script>
   </body>
 </html>

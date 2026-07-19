@@ -89,8 +89,42 @@ const dashboardState = {
     available: false,
     status: null,
     refreshInFlight: false,
+    /** Pages → GitHub Actions dispatch plane */
+    actions: {
+      owner: 'AmineSeRaFimmm',
+      repo: 'A-Share-Risk-Thermometer',
+      ref: 'main',
+      workflows: {
+        realtime: 'update-realtime-avix.yml',
+        full: 'update-data.yml',
+      },
+      storageKey: 'rt.github.actions.pat',
+      lastDispatchAt: 0,
+    },
   },
 };
+
+function getGithubActionsPat() {
+  try {
+    return (localStorage.getItem(dashboardState.dataPlane.actions.storageKey) || '').trim();
+  } catch (_) {
+    return '';
+  }
+}
+
+function setGithubActionsPat(token) {
+  const key = dashboardState.dataPlane.actions.storageKey;
+  try {
+    if (token) localStorage.setItem(key, token);
+    else localStorage.removeItem(key);
+  } catch (err) {
+    console.warn('localStorage PAT write failed', err);
+  }
+}
+
+function hasGithubActionsPat() {
+  return Boolean(getGithubActionsPat());
+}
 
 async function loadJSON(path, { bust = true } = {}) {
   let url = path;
@@ -3373,27 +3407,36 @@ function setDataPlaneActionsVisible(on) {
   if (actions) actions.hidden = !on;
 }
 
-function paintStaticPagesPlaneMeta(latest) {
+function paintStaticPagesPlaneMeta(latest, { busy = false, note = null } = {}) {
   if (dashboardState.dataPlane.available) return;
   const sourceEl = document.getElementById('dataPlaneSource');
   const metaEl = document.getElementById('dataPlaneMeta');
   const bar = document.getElementById('dataPlaneBar');
-  if (sourceEl) sourceEl.textContent = 'Pages';
+  const patOk = hasGithubActionsPat();
+  if (sourceEl) sourceEl.textContent = patOk ? 'Actions' : 'Pages';
   if (bar) {
-    bar.dataset.state = 'fresh';
-    bar.dataset.plane = 'pages';
+    bar.dataset.state = busy ? 'stale' : (patOk ? 'fresh' : 'offline');
+    bar.dataset.plane = 'actions';
   }
-  setDataPlaneActionsVisible(false);
-  setDataPlaneButtonsEnabled(false);
+  // Keep 实时/日更 visible on pure Pages — they dispatch GitHub Actions when PAT is set.
+  setDataPlaneActionsVisible(true);
+  setDataPlaneButtonsEnabled(!busy && !dashboardState.dataPlane.refreshInFlight);
   if (!metaEl) return;
+  if (note) {
+    metaEl.textContent = note;
+    return;
+  }
   if (!latest) {
-    metaEl.textContent = 'GitHub Actions 自动更新';
+    metaEl.textContent = patOk
+      ? '点「实时/日更」触发流水线 · 完成后自动重载'
+      : '点「令牌」配置后可在 App 内触发更新';
     return;
   }
   metaEl.textContent = [
     latest.risk_temperature != null ? `RT ${latest.risk_temperature}` : null,
     latest.temperature_mode_cn || latest.temperature_mode || null,
     latest.trade_date || null,
+    patOk ? null : '未配令牌',
   ].filter(Boolean).join(' · ');
 }
 
@@ -3403,7 +3446,7 @@ function renderDataPlaneBar(status) {
   const metaEl = document.getElementById('dataPlaneMeta');
   if (!bar || !sourceEl || !metaEl) return;
 
-  // Pure GitHub Pages / static host: no /api — hide 实时/日更 (they only work on app_server).
+  // Pure GitHub Pages / static host: no /api — use Actions dispatch buttons.
   if (!status) {
     paintStaticPagesPlaneMeta(null);
     return;
@@ -3439,22 +3482,212 @@ function setDataPlaneButtonsEnabled(on) {
   });
 }
 
-async function requestDataPlaneRefresh(mode) {
-  // Static Pages: no pipeline API — just re-fetch JSON (Actions already wrote files).
-  if (!dashboardState.dataPlane.available) {
-    const metaEl = document.getElementById('dataPlaneMeta');
-    if (metaEl) metaEl.textContent = '重载…';
+function openGithubTokenDialog() {
+  const dialog = document.getElementById('ghTokenDialog');
+  const input = document.getElementById('ghTokenInput');
+  const hint = document.getElementById('ghTokenHint');
+  if (!dialog) {
+    const token = window.prompt(
+      '粘贴 GitHub PAT（仅存本机；需 Actions: Read and write）\n留空并确定可清除：',
+      getGithubActionsPat() ? '•••• 已保存，重贴可覆盖' : '',
+    );
+    if (token == null) return;
+    const cleaned = token.trim();
+    if (!cleaned || cleaned.startsWith('••')) {
+      if (!cleaned) setGithubActionsPat('');
+    } else {
+      setGithubActionsPat(cleaned);
+    }
+    paintStaticPagesPlaneMeta(null);
+    return;
+  }
+  if (hint) {
+    hint.textContent = hasGithubActionsPat()
+      ? '已保存令牌（本机）。可粘贴新令牌覆盖，或点清除。'
+      : '尚未配置。配置后「实时/日更」将触发仓库 Actions。';
+  }
+  if (input) input.value = '';
+  if (typeof dialog.showModal === 'function') dialog.showModal();
+  else dialog.setAttribute('open', '');
+}
+
+function bindGithubTokenDialog() {
+  const form = document.getElementById('ghTokenForm');
+  const dialog = document.getElementById('ghTokenDialog');
+  if (!form) return;
+  form.addEventListener('submit', (ev) => {
+    ev.preventDefault();
+    const submitter = ev.submitter;
+    const value = submitter && submitter.value ? submitter.value : 'cancel';
+    const input = document.getElementById('ghTokenInput');
+    if (value === 'save') {
+      const token = (input?.value || '').trim();
+      if (!token) {
+        const hint = document.getElementById('ghTokenHint');
+        if (hint) hint.textContent = '请粘贴 token 后再保存。';
+        return;
+      }
+      setGithubActionsPat(token);
+    } else if (value === 'clear') {
+      setGithubActionsPat('');
+    }
+    if (dialog) {
+      if (typeof dialog.close === 'function') dialog.close();
+      else dialog.removeAttribute('open');
+    }
+    paintStaticPagesPlaneMeta(null, {
+      note: hasGithubActionsPat() ? '令牌已保存 · 可点实时/日更' : '已清除令牌',
+    });
+  });
+}
+
+async function dispatchGithubActionsWorkflow(mode) {
+  const pat = getGithubActionsPat();
+  if (!pat) {
+    openGithubTokenDialog();
+    throw new Error('请先配置 GitHub 令牌');
+  }
+  const cfg = dashboardState.dataPlane.actions;
+  const workflow = mode === 'full' ? cfg.workflows.full : cfg.workflows.realtime;
+  const inputs = mode === 'full'
+    ? { mode: 'daily' }
+    : { mode: 'single' };
+  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/actions/workflows/${workflow}/dispatches`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Accept: 'application/vnd.github+json',
+      Authorization: `Bearer ${pat}`,
+      'X-GitHub-Api-Version': '2022-11-28',
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ ref: cfg.ref, inputs }),
+  });
+  if (res.status === 204 || res.ok) {
+    cfg.lastDispatchAt = Date.now();
+    return { ok: true, workflow };
+  }
+  let detail = '';
+  try {
+    const body = await res.json();
+    detail = body.message || JSON.stringify(body);
+  } catch (_) {
+    detail = await res.text().catch(() => '');
+  }
+  if (res.status === 401 || res.status === 403) {
+    throw new Error('令牌无效或权限不足（需要 Actions: write）');
+  }
+  if (res.status === 404) {
+    throw new Error('找不到 workflow 或仓库不可见：' + workflow);
+  }
+  throw new Error(detail || `GitHub API ${res.status}`);
+}
+
+async function waitForPagesDataRefresh({
+  beforeBuildTime = null,
+  beforeUpdateTime = null,
+  maxWaitMs = 8 * 60 * 1000,
+  intervalMs = 12000,
+  onTick = null,
+} = {}) {
+  const started = Date.now();
+  let attempt = 0;
+  while (Date.now() - started < maxWaitMs) {
+    attempt += 1;
+    if (onTick) onTick(attempt, Math.round((Date.now() - started) / 1000));
+    await new Promise(r => setTimeout(r, intervalMs));
     dashboardState.cacheBust = String(Date.now());
     try {
-      await refreshDashboard(true);
-      paintStaticPagesPlaneMeta({
-        risk_temperature: document.getElementById('riskTemperature')?.textContent,
-        trade_date: document.getElementById('tradeDate')?.textContent,
-        temperature_mode_cn: document.getElementById('quality')?.textContent,
+      const [info, latest] = await Promise.all([
+        loadJSON('./data/build_info.json', { bust: true }).catch(() => null),
+        loadJSON('./data/latest.json', { bust: true }).catch(() => null),
+      ]);
+      const buildTime = info?.build_time || null;
+      const updateTime = latest?.update_time || latest?.as_of || null;
+      const buildChanged = beforeBuildTime && buildTime && buildTime !== beforeBuildTime;
+      const updateChanged = beforeUpdateTime && updateTime && updateTime !== beforeUpdateTime;
+      // If we had no baseline, accept first successful load after grace period
+      const graceOk = !beforeBuildTime && !beforeUpdateTime && attempt >= 2 && (buildTime || updateTime);
+      if (buildChanged || updateChanged || graceOk) {
+        return { buildTime, updateTime, latest, info };
+      }
+    } catch (_) {
+      /* keep polling */
+    }
+  }
+  return null;
+}
+
+async function requestDataPlaneRefresh(mode) {
+  // Static Pages: dispatch GitHub Actions, then poll until published data moves.
+  if (!dashboardState.dataPlane.available) {
+    if (dashboardState.dataPlane.refreshInFlight) return;
+    if (!hasGithubActionsPat()) {
+      openGithubTokenDialog();
+      paintStaticPagesPlaneMeta(null, { note: '需先配置令牌才能触发 Actions' });
+      return;
+    }
+    dashboardState.dataPlane.refreshInFlight = true;
+    setDataPlaneButtonsEnabled(false);
+    const metaEl = document.getElementById('dataPlaneMeta');
+    const label = mode === 'full' ? '日更' : '实时';
+    try {
+      let beforeBuildTime = null;
+      let beforeUpdateTime = null;
+      try {
+        const info = await loadJSON('./data/build_info.json', { bust: true });
+        beforeBuildTime = info?.build_time || null;
+      } catch (_) { /* ignore */ }
+      try {
+        const latest = await loadJSON('./data/latest.json', { bust: true });
+        beforeUpdateTime = latest?.update_time || null;
+      } catch (_) { /* ignore */ }
+
+      paintStaticPagesPlaneMeta(null, { busy: true, note: `触发 ${label} Actions…` });
+      await dispatchGithubActionsWorkflow(mode);
+      paintStaticPagesPlaneMeta(null, {
+        busy: true,
+        note: `${label} 已排队 · 等待发布（约 2–8 分钟）…`,
       });
+
+      const result = await waitForPagesDataRefresh({
+        beforeBuildTime,
+        beforeUpdateTime,
+        onTick: (n, sec) => {
+          paintStaticPagesPlaneMeta(null, {
+            busy: true,
+            note: `${label} 运行中 · ${sec}s · 轮询 #${n}`,
+          });
+        },
+      });
+
+      dashboardState.cacheBust = String(Date.now());
+      await refreshDashboard(true);
+      if (result) {
+        paintStaticPagesPlaneMeta({
+          risk_temperature: result.latest?.risk_temperature
+            ?? document.getElementById('riskTemperature')?.textContent,
+          trade_date: result.latest?.trade_date
+            ?? document.getElementById('tradeDate')?.textContent,
+          temperature_mode_cn: result.latest?.temperature_mode_cn
+            || result.latest?.temperature_mode
+            || document.getElementById('quality')?.textContent,
+        }, { note: `${label} 完成 · 已重载` });
+      } else {
+        paintStaticPagesPlaneMeta(null, {
+          note: `${label} 已触发，数据可能仍在发布 · 可稍后再点页面刷新`,
+        });
+      }
     } catch (err) {
-      if (metaEl) metaEl.textContent = '重载失败';
       console.error(err);
+      const bar = document.getElementById('dataPlaneBar');
+      if (bar) bar.dataset.state = 'error';
+      paintStaticPagesPlaneMeta(null, {
+        note: `${label}失败：` + (err.message || String(err)),
+      });
+    } finally {
+      dashboardState.dataPlane.refreshInFlight = false;
+      setDataPlaneButtonsEnabled(true);
     }
     return;
   }
@@ -3497,8 +3730,11 @@ async function requestDataPlaneRefresh(mode) {
 function bindDataPlaneControls() {
   const rt = document.getElementById('dataPlaneRefreshRealtime');
   const full = document.getElementById('dataPlaneRefreshFull');
+  const setup = document.getElementById('dataPlaneTokenSetup');
   if (rt) rt.addEventListener('click', () => requestDataPlaneRefresh('realtime'));
   if (full) full.addEventListener('click', () => requestDataPlaneRefresh('full'));
+  if (setup) setup.addEventListener('click', () => openGithubTokenDialog());
+  bindGithubTokenDialog();
 }
 
 async function main() {
