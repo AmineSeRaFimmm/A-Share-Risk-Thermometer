@@ -35,10 +35,14 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "owner": "serafimmm",
     "extra": {
       "webUrl": "https://amineserafimmm.github.io/A-Share-Risk-Thermometer/",
       "allowGithub": false,
-      "dataPlane": "github_pages"
+      "dataPlane": "github_pages",
+      "eas": {
+        "projectId": "16d315ec-bba5-4e23-b8a3-028ae63a9255"
+      }
     },
     "plugins": [
       "expo-splash-screen"
