@@ -1,0 +1,378 @@
+{
+  "old_file": "/tmp/flex_backtest_stats_before.json",
+  "note": "Re-ran backtest_flex_v2 on updated risk_components (multi-source quality fixes). Strategy logic unchanged; base cost 1bp.",
+  "rows": [
+    {
+      "mode": "conservative",
+      "period": "full_sample",
+      "metric": "total_return",
+      "old": "128.81%",
+      "new": "119.63%",
+      "delta": "-9.18pp"
+    },
+    {
+      "mode": "conservative",
+      "period": "full_sample",
+      "metric": "ann_return",
+      "old": "14.07%",
+      "new": "13.29%",
+      "delta": "-0.78pp"
+    },
+    {
+      "mode": "conservative",
+      "period": "full_sample",
+      "metric": "max_dd",
+      "old": "-8.27%",
+      "new": "-8.27%",
+      "delta": "+0.00pp"
+    },
+    {
+      "mode": "conservative",
+      "period": "full_sample",
+      "metric": "win_rate",
+      "old": "62.85%",
+      "new": "62.45%",
+      "delta": "-0.40pp"
+    },
+    {
+      "mode": "conservative",
+      "period": "full_sample",
+      "metric": "trade_count",
+      "old": "253",
+      "new": "253",
+      "delta": "+0"
+    },
+    {
+      "mode": "conservative",
+      "period": "full_sample",
+      "metric": "sharpe",
+      "old": "3.420",
+      "new": "3.695",
+      "delta": "+0.275"
+    },
+    {
+      "mode": "conservative",
+      "period": "oos",
+      "metric": "total_return",
+      "old": "60.43%",
+      "new": "54.03%",
+      "delta": "-6.39pp"
+    },
+    {
+      "mode": "conservative",
+      "period": "oos",
+      "metric": "ann_return",
+      "old": "21.60%",
+      "new": "19.43%",
+      "delta": "-2.17pp"
+    },
+    {
+      "mode": "conservative",
+      "period": "oos",
+      "metric": "max_dd",
+      "old": "-5.77%",
+      "new": "-3.87%",
+      "delta": "+1.90pp"
+    },
+    {
+      "mode": "conservative",
+      "period": "oos",
+      "metric": "win_rate",
+      "old": "63.73%",
+      "new": "63.37%",
+      "delta": "-0.36pp"
+    },
+    {
+      "mode": "conservative",
+      "period": "oos",
+      "metric": "trade_count",
+      "old": "102",
+      "new": "101",
+      "delta": "-1"
+    },
+    {
+      "mode": "aggressive",
+      "period": "full_sample",
+      "metric": "total_return",
+      "old": "611.01%",
+      "new": "657.86%",
+      "delta": "+46.85pp"
+    },
+    {
+      "mode": "aggressive",
+      "period": "full_sample",
+      "metric": "ann_return",
+      "old": "36.60%",
+      "new": "37.88%",
+      "delta": "+1.28pp"
+    },
+    {
+      "mode": "aggressive",
+      "period": "full_sample",
+      "metric": "max_dd",
+      "old": "-13.91%",
+      "new": "-12.95%",
+      "delta": "+0.96pp"
+    },
+    {
+      "mode": "aggressive",
+      "period": "full_sample",
+      "metric": "win_rate",
+      "old": "62.85%",
+      "new": "62.45%",
+      "delta": "-0.40pp"
+    },
+    {
+      "mode": "aggressive",
+      "period": "full_sample",
+      "metric": "trade_count",
+      "old": "253",
+      "new": "253",
+      "delta": "+0"
+    },
+    {
+      "mode": "aggressive",
+      "period": "full_sample",
+      "metric": "sharpe",
+      "old": "3.596",
+      "new": "3.751",
+      "delta": "+0.156"
+    },
+    {
+      "mode": "aggressive",
+      "period": "oos",
+      "metric": "total_return",
+      "old": "200.78%",
+      "new": "217.21%",
+      "delta": "+16.44pp"
+    },
+    {
+      "mode": "aggressive",
+      "period": "oos",
+      "metric": "ann_return",
+      "old": "57.72%",
+      "new": "60.73%",
+      "delta": "+3.01pp"
+    },
+    {
+      "mode": "aggressive",
+      "period": "oos",
+      "metric": "max_dd",
+      "old": "-12.75%",
+      "new": "-10.77%",
+      "delta": "+1.98pp"
+    },
+    {
+      "mode": "aggressive",
+      "period": "oos",
+      "metric": "win_rate",
+      "old": "63.73%",
+      "new": "63.37%",
+      "delta": "-0.36pp"
+    },
+    {
+      "mode": "aggressive",
+      "period": "oos",
+      "metric": "trade_count",
+      "old": "102",
+      "new": "101",
+      "delta": "-1"
+    },
+    {
+      "mode": "conservative@15bps",
+      "period": "full",
+      "metric": "total_return",
+      "old": "80.44%",
+      "new": "73.29%",
+      "delta": "-7.15pp"
+    },
+    {
+      "mode": "conservative@15bps",
+      "period": "full",
+      "metric": "ann_return",
+      "old": "9.84%",
+      "new": "9.11%",
+      "delta": "-0.73pp"
+    },
+    {
+      "mode": "conservative@15bps",
+      "period": "full",
+      "metric": "max_dd",
+      "old": "-9.53%",
+      "new": "-9.53%",
+      "delta": "+0.00pp"
+    },
+    {
+      "mode": "conservative@15bps",
+      "period": "full",
+      "metric": "win_rate",
+      "old": "60.08%",
+      "new": "59.68%",
+      "delta": "-0.40pp"
+    },
+    {
+      "mode": "conservative@15bps",
+      "period": "full",
+      "metric": "trade_count",
+      "old": "253",
+      "new": "253",
+      "delta": "+0"
+    },
+    {
+      "mode": "aggressive@15bps",
+      "period": "full",
+      "metric": "total_return",
+      "old": "285.76%",
+      "new": "310.40%",
+      "delta": "+24.64pp"
+    },
+    {
+      "mode": "aggressive@15bps",
+      "period": "full",
+      "metric": "ann_return",
+      "old": "23.94%",
+      "new": "25.10%",
+      "delta": "+1.16pp"
+    },
+    {
+      "mode": "aggressive@15bps",
+      "period": "full",
+      "metric": "max_dd",
+      "old": "-17.08%",
+      "new": "-15.37%",
+      "delta": "+1.70pp"
+    },
+    {
+      "mode": "aggressive@15bps",
+      "period": "full",
+      "metric": "win_rate",
+      "old": "60.08%",
+      "new": "59.68%",
+      "delta": "-0.40pp"
+    },
+    {
+      "mode": "aggressive@15bps",
+      "period": "full",
+      "metric": "trade_count",
+      "old": "253",
+      "new": "253",
+      "delta": "+0"
+    },
+    {
+      "mode": "conservative@30bps",
+      "period": "full",
+      "metric": "total_return",
+      "old": "39.91%",
+      "new": "34.45%",
+      "delta": "-5.46pp"
+    },
+    {
+      "mode": "conservative@30bps",
+      "period": "full",
+      "metric": "ann_return",
+      "old": "5.48%",
+      "new": "4.81%",
+      "delta": "-0.68pp"
+    },
+    {
+      "mode": "conservative@30bps",
+      "period": "full",
+      "metric": "max_dd",
+      "old": "-11.03%",
+      "new": "-11.03%",
+      "delta": "+0.00pp"
+    },
+    {
+      "mode": "conservative@30bps",
+      "period": "full",
+      "metric": "win_rate",
+      "old": "56.13%",
+      "new": "55.73%",
+      "delta": "-0.40pp"
+    },
+    {
+      "mode": "conservative@30bps",
+      "period": "full",
+      "metric": "trade_count",
+      "old": "253",
+      "new": "253",
+      "delta": "+0"
+    },
+    {
+      "mode": "aggressive@30bps",
+      "period": "full",
+      "metric": "total_return",
+      "old": "100.35%",
+      "new": "112.72%",
+      "delta": "+12.37pp"
+    },
+    {
+      "mode": "aggressive@30bps",
+      "period": "full",
+      "metric": "ann_return",
+      "old": "11.68%",
+      "new": "12.72%",
+      "delta": "+1.03pp"
+    },
+    {
+      "mode": "aggressive@30bps",
+      "period": "full",
+      "metric": "max_dd",
+      "old": "-20.34%",
+      "new": "-18.09%",
+      "delta": "+2.25pp"
+    },
+    {
+      "mode": "aggressive@30bps",
+      "period": "full",
+      "metric": "win_rate",
+      "old": "56.13%",
+      "new": "55.73%",
+      "delta": "-0.40pp"
+    },
+    {
+      "mode": "aggressive@30bps",
+      "period": "full",
+      "metric": "trade_count",
+      "old": "253",
+      "new": "253",
+      "delta": "+0"
+    }
+  ],
+  "aggressive_new": {
+    "note": "单仓满仓 Flex；收益偏高、换手大",
+    "full_sample": {
+      "total_return": 6.5786025715232705,
+      "ann_return": 0.37877789429150277,
+      "max_dd": -0.1294807569121872,
+      "win_rate": 0.6245059288537549,
+      "trade_count": 253,
+      "sharpe": 3.7513669028631877
+    },
+    "oos": {
+      "total_return": 2.1721418233369443,
+      "ann_return": 0.6073206908691238,
+      "max_dd": -0.1076835377460511,
+      "win_rate": 0.6336633663366337,
+      "trade_count": 101
+    }
+  },
+  "aggressive_old": {
+    "note": "单仓满仓 Flex；收益偏高、换手大",
+    "full_sample": {
+      "total_return": 6.110131140348363,
+      "ann_return": 0.3659678515384652,
+      "max_dd": -0.13911575406640908,
+      "win_rate": 0.6284584980237155,
+      "trade_count": 253,
+      "sharpe": 3.595570114994643
+    },
+    "oos": {
+      "total_return": 2.007764161540674,
+      "ann_return": 0.577226183022479,
+      "max_dd": -0.12747581009076858,
+      "win_rate": 0.6372549019607843,
+      "trade_count": 102
+    }
+  }
+}

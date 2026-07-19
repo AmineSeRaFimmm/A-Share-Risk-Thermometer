@@ -1,5 +1,5 @@
 function axisText() {
-  return { color: '#667085', fontSize: 11 };
+  return { color: '#6e655a', fontSize: 11, fontFamily: 'Source Sans 3, Noto Sans SC, sans-serif' };
 }
 
 const SERIES_LABELS = {
@@ -108,7 +108,7 @@ function strategyMarks(strategy, history, valueKey, eventType) {
   if (!strategy || !history?.length) return [];
   const valueByDate = new Map(history.map(row => [row.date, numericOrNull(row[valueKey])]));
   const rows = eventType === 'buy' ? strategy.recent_buy || [] : strategy.recent_sell || [];
-  const color = eventType === 'buy' ? '#15956b' : '#c2413b';
+  const color = eventType === 'buy' ? '#1e5c42' : '#8f2a2a';
   return rows
     .filter(row => row.s3_s4_buy || row.s3_s4_sell)
     .map(row => {
@@ -132,7 +132,7 @@ function latestPoint(history, valueKey, label) {
     name: label,
     coord: [last.date, Number(last[valueKey])],
     value: label,
-    itemStyle: { color: '#111827' },
+    itemStyle: { color: '#1a1714' },
     label: { formatter: label },
   }];
 }
@@ -144,7 +144,7 @@ function latestEstimatedPoint(history) {
     name: '估算',
     coord: [last.date, Number(last.risk_temperature_estimated)],
     value: '估算',
-    itemStyle: { color: '#c05621' },
+    itemStyle: { color: '#9a4f24' },
     label: { formatter: '估' },
   }];
 }
@@ -158,7 +158,7 @@ function recentHighPoint(history) {
     name: '最近高点',
     coord: [high.date, Number(high.risk_temperature)],
     value: fmt(high.risk_temperature, 1),
-    itemStyle: { color: '#8f1d22' },
+    itemStyle: { color: '#5c1414' },
     label: { formatter: '高点' },
   }];
 }
@@ -185,16 +185,16 @@ function renderComponentsChart(payload) {
       },
     },
     grid: { left: isNarrow() ? 86 : 118, right: isNarrow() ? 8 : 24, top: 8, bottom: 34 },
-    xAxis: { type: 'value', max: 30, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
+    xAxis: { type: 'value', max: 30, axisLabel: axisText(), splitLine: { lineStyle: { color: '#ebe4d7' } } },
     yAxis: { type: 'category', data: items.map(d => d.name).reverse(), axisLabel: axisText(), axisTick: { show: false } },
     series: [{
       type: 'bar',
       data: items.map(d => Number(d.contribution || 0).toFixed(2)).reverse(),
       itemStyle: {
-        color: params => topNames.has(items.slice().reverse()[params.dataIndex]?.name) ? '#c2413b' : '#d98b87',
+        color: params => topNames.has(items.slice().reverse()[params.dataIndex]?.name) ? '#8f2a2a' : '#c98986',
         borderRadius: [0, 4, 4, 0],
       },
-      label: { show: !isNarrow(), position: 'right', color: '#344054', formatter: '{c}' }
+      label: { show: !isNarrow(), position: 'right', color: '#3a342e', formatter: '{c}' }
     }]
   });
   setChartA11y(chart, '组件贡献', `最大贡献因子是${sorted[0]?.name || '未知'}，贡献${fmt(sorted[0]?.contribution || 0)}。`);
@@ -203,78 +203,83 @@ function renderComponentsChart(payload) {
 
 function renderHistoryChart(history, strategy) {
   const chart = echarts.init(document.getElementById('historyChart'));
-  const estimatedCount = history.filter(d => numericOrNull(d.risk_temperature_estimated) !== null).length;
+  const estimatedData = history.map(d => numericOrNull(d.risk_temperature_estimated));
+  const hasEstimated = estimatedData.some(v => v !== null);
+  const series = [{
+    name: '温度',
+    type: 'line',
+    smooth: false,
+    symbol: 'none',
+    lineStyle: { width: 2.4 },
+    itemStyle: { color: '#2a4058' },
+    areaStyle: { opacity: 0.06 },
+    markArea: {
+      silent: true,
+      itemStyle: { opacity: 0.06 },
+      data: [[{ yAxis: 60 }, { yAxis: 75 }], [{ yAxis: 75 }, { yAxis: 90 }], [{ yAxis: 90 }, { yAxis: 100 }]],
+    },
+    markLine: {
+      silent: true,
+      symbol: 'none',
+      lineStyle: { color: '#9a9084', type: 'dashed', width: 1 },
+      data: [{ yAxis: 60 }, { yAxis: 75 }, { yAxis: 90 }],
+    },
+    // No text markPoints (当前/高点/估) — keep magazine-clean
+    data: history.map(d => numericOrNull(d.risk_temperature)),
+  }];
+  // Only mount estimate series when there is real data (avoid empty legend ghost)
+  if (hasEstimated) {
+    series.push({
+      name: '估算',
+      type: 'line',
+      smooth: false,
+      symbol: 'none',
+      connectNulls: false,
+      lineStyle: { color: '#9a4f24', width: 1.8, type: 'dashed' },
+      itemStyle: { color: '#9a4f24' },
+      data: estimatedData,
+    });
+  }
   chart.setOption({
     aria: {
       enabled: true,
-      label: { description: '风险温度历史图。正式收盘温度为实线，正式期权日线缺失时的估算温度为橙色虚线。' },
+      label: { description: '风险温度历史曲线。' },
     },
     tooltip: {
       confine: true,
       trigger: 'axis',
-      axisPointer: { type: 'cross' },
+      axisPointer: { type: 'line' },
       formatter: params => {
         const items = Array.isArray(params) ? params : [params];
         const title = items[0]?.axisValueLabel || items[0]?.name || '';
-        const row = history.find(item => item.date === items[0]?.axisValue);
         const lines = items
           .filter(item => item.value !== null && item.value !== undefined && item.value !== '-')
           .map(item => tooltipLine(item.marker, item.seriesName, item.value));
-        if (row?.estimate_reason) lines.push(`估算原因: ${row.estimate_reason}`);
         return [title, ...lines].join('<br>');
       },
     },
-    legend: legendOption(),
-    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: isNarrow() ? 54 : 46, bottom: 34 },
+    legend: hasEstimated ? legendOption() : { show: false },
+    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: isNarrow() ? 28 : 24, bottom: 34 },
     xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false },
-    yAxis: { type: 'value', min: 0, max: 100, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
-    visualMap: { show: false, pieces: [
-      { gt: 0, lte: 60, color: '#2563eb' },
-      { gt: 60, lte: 75, color: '#c05621' },
-      { gt: 75, lte: 90, color: '#c2413b' },
-      { gt: 90, lte: 100, color: '#8f1d22' }
-    ]},
-    series: [{
-      name: '正式收盘温度',
-      type: 'line',
-      smooth: false,
-      symbol: 'none',
-      lineStyle: { width: 3 },
-      itemStyle: { color: '#2563eb' },
-      areaStyle: { opacity: 0.08 },
-      markArea: { silent: true, itemStyle: { opacity: 0.08 }, data: [[{ yAxis: 60 }, { yAxis: 75 }], [{ yAxis: 75 }, { yAxis: 90 }], [{ yAxis: 90 }, { yAxis: 100 }]] },
-      markLine: { silent: true, symbol: 'none', lineStyle: { color: '#98a2b3', type: 'dashed' }, data: [{ yAxis: 60 }, { yAxis: 75 }, { yAxis: 90 }] },
-      markPoint: { symbolSize: 42, data: [...latestPoint(history, 'risk_temperature', '当前'), ...recentHighPoint(history)] },
-      data: history.map(d => d.risk_temperature)
-    }, {
-      name: '估算收盘温度',
-      type: 'line',
-      smooth: false,
-      symbol: 'circle',
-      symbolSize: 5,
-      connectNulls: false,
-      lineStyle: { color: '#c05621', width: 2.2, type: 'dashed' },
-      itemStyle: { color: '#c05621' },
-      markPoint: { symbolSize: 42, data: latestEstimatedPoint(history) },
-      data: history.map(d => numericOrNull(d.risk_temperature_estimated))
-    }, {
-      name: 'S3/S4买入',
-      type: 'scatter',
-      symbol: 'triangle',
-      symbolSize: 12,
-      itemStyle: { color: '#15956b' },
-      data: strategyMarks(strategy, history, 'risk_temperature', 'buy').map(mark => mark.coord),
-    }, {
-      name: 'S3/S4卖出',
-      type: 'scatter',
-      symbol: 'diamond',
-      symbolSize: 11,
-      itemStyle: { color: '#c2413b' },
-      data: strategyMarks(strategy, history, 'risk_temperature', 'sell').map(mark => mark.coord),
-    }]
+    yAxis: { type: 'value', min: 0, max: 100, axisLabel: axisText(), splitLine: { lineStyle: { color: '#ebe4d7' } } },
+    visualMap: {
+      show: false,
+      seriesIndex: 0,
+      pieces: [
+        { gt: 0, lte: 60, color: '#2a4058' },
+        { gt: 60, lte: 75, color: '#9a4f24' },
+        { gt: 75, lte: 90, color: '#8f2a2a' },
+        { gt: 90, lte: 100, color: '#5c1414' },
+      ],
+    },
+    series,
   });
   const latest = latestFinite(history, 'risk_temperature');
-  setChartA11y(chart, '温度历史曲线', latest ? `最新正式风险温度为${fmt(latest.value, 1)}，日期${latest.date}。估算点数量${estimatedCount}。虚线阈值为60、75、90。` : `显示风险温度随时间变化，估算点数量${estimatedCount}。`);
+  setChartA11y(
+    chart,
+    '温度历史',
+    latest ? `最新温度 ${fmt(latest.value, 1)}（${latest.date}）` : '风险温度历史曲线'
+  );
   return chart;
 }
 
@@ -282,16 +287,17 @@ function renderAvixQvixChart(history, strategy) {
   const chart = echarts.init(document.getElementById('avixQvixChart'));
   const missingAreas = qvixMissingAreas(history);
   const realCount = history.filter(d => positiveOrNull(d.qvix) !== null).length;
+  // No S3/S4 buy/sell marks here — keep pure vol comparison
   chart.setOption({
     aria: {
       enabled: true,
-      label: { description: 'AVIX 与 QVIX 对比图。真实 QVIX 缺失时保留断点，灰色区间表示真实 QVIX 缺失，绿色虚线是模型复刻值。' },
+      label: { description: 'AVIX 与 QVIX 对比。真实 QVIX 缺失保留断点，灰区为缺失，虚线为模型复刻。' },
     },
-    tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'cross' }, formatter: sharedTooltip },
+    tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'line' }, formatter: sharedTooltip },
     legend: legendOption(),
-    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: isNarrow() ? 52 : 36, bottom: 34 },
+    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: isNarrow() ? 44 : 36, bottom: 34 },
     xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false },
-    yAxis: { type: 'value', axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
+    yAxis: { type: 'value', axisLabel: axisText(), splitLine: { lineStyle: { color: '#ebe4d7' } } },
     series: [
       {
         name: SERIES_LABELS.avixClean,
@@ -300,9 +306,8 @@ function renderAvixQvixChart(history, strategy) {
         smooth: false,
         connectNulls: false,
         data: history.map(d => positiveOrNull(d.avix_clean)),
-        lineStyle: { color: '#c2413b', width: 2 },
-        itemStyle: { color: '#c2413b' },
-        markPoint: { symbolSize: 42, data: [...strategyMarks(strategy, history, 'avix_clean', 'buy'), ...strategyMarks(strategy, history, 'avix_clean', 'sell')] },
+        lineStyle: { color: '#8f2a2a', width: 2 },
+        itemStyle: { color: '#8f2a2a' },
       },
       {
         name: SERIES_LABELS.qvixReal,
@@ -311,8 +316,8 @@ function renderAvixQvixChart(history, strategy) {
         smooth: false,
         connectNulls: false,
         data: history.map(d => positiveOrNull(d.qvix)),
-        lineStyle: { color: '#2563eb', width: 2.4 },
-        itemStyle: { color: '#2563eb' },
+        lineStyle: { color: '#2a4058', width: 2.2 },
+        itemStyle: { color: '#2a4058' },
         markArea: {
           silent: true,
           itemStyle: { color: 'rgba(102, 112, 133, 0.08)' },
@@ -327,12 +332,16 @@ function renderAvixQvixChart(history, strategy) {
         smooth: false,
         connectNulls: false,
         data: history.map(d => positiveOrNull(d.qvix_replica)),
-        lineStyle: { color: '#15956b', width: 2, type: 'dashed' },
-        itemStyle: { color: '#15956b' }
-      }
-    ]
+        lineStyle: { color: '#1e5c42', width: 1.8, type: 'dashed' },
+        itemStyle: { color: '#1e5c42' },
+      },
+    ],
   });
-  setChartA11y(chart, 'AVIX与QVIX', `当前范围共有${history.length}个交易日，真实QVIX有${realCount}个有效点，缺失${history.length - realCount}个点；缺失处保留断线，模型复刻值单独用虚线显示。`);
+  setChartA11y(
+    chart,
+    'AVIX与QVIX',
+    `共${history.length}日，真实QVIX ${realCount} 点，缺失 ${history.length - realCount} 点`
+  );
   return chart;
 }
 
@@ -347,22 +356,22 @@ function renderHs300Chart(history) {
       enabled: true,
       label: { description: '沪深300与风险温度上下同步时间图，上方是沪深300收盘价，下方是风险温度，避免双轴数值误读。' },
     },
-    tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'cross' }, formatter: sharedTooltip },
+    tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'line' }, formatter: sharedTooltip },
     legend: legendOption(),
     grid: [
-      { left: narrow ? 42 : 54, right: narrow ? 12 : 24, top: narrow ? 50 : 42, height: narrow ? 82 : 96 },
-      { left: narrow ? 42 : 54, right: narrow ? 12 : 24, top: narrow ? 166 : 174, bottom: 34 },
+      { left: narrow ? 42 : 54, right: narrow ? 12 : 24, top: narrow ? 44 : 36, height: narrow ? 82 : 96 },
+      { left: narrow ? 42 : 54, right: narrow ? 12 : 24, top: narrow ? 160 : 168, bottom: 34 },
     ],
     xAxis: [
       { type: 'category', gridIndex: 0, data: dates, axisLabel: { show: false }, axisTick: { show: false }, boundaryGap: false },
       { type: 'category', gridIndex: 1, data: dates, axisLabel: axisText(), boundaryGap: false },
     ],
     yAxis: [
-      { type: 'value', gridIndex: 0, name: '沪深300', min: hs300Axis.min, max: hs300Axis.max, scale: true, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
-      { type: 'value', gridIndex: 1, name: '温度', min: 0, max: 100, axisLabel: axisText(), splitLine: { lineStyle: { color: '#edf0f5' } } },
+      { type: 'value', gridIndex: 0, name: '沪深300', min: hs300Axis.min, max: hs300Axis.max, scale: true, axisLabel: axisText(), splitLine: { lineStyle: { color: '#ebe4d7' } } },
+      { type: 'value', gridIndex: 1, name: '温度', min: 0, max: 100, axisLabel: axisText(), splitLine: { lineStyle: { color: '#ebe4d7' } } },
     ],
     series: [
-      { name: SERIES_LABELS.hs300, type: 'line', xAxisIndex: 0, yAxisIndex: 0, symbol: 'none', smooth: false, connectNulls: false, data: hs300Values, lineStyle: { color: '#111827', width: 2.2 }, itemStyle: { color: '#111827' } },
+      { name: SERIES_LABELS.hs300, type: 'line', xAxisIndex: 0, yAxisIndex: 0, symbol: 'none', smooth: false, connectNulls: false, data: hs300Values, lineStyle: { color: '#1a1714', width: 2.2 }, itemStyle: { color: '#1a1714' } },
       {
         name: SERIES_LABELS.riskTemperature,
         type: 'line',
@@ -372,10 +381,10 @@ function renderHs300Chart(history) {
         smooth: false,
         connectNulls: false,
         data: history.map(d => numericOrNull(d.risk_temperature)),
-        lineStyle: { color: '#c2413b', width: 2 },
-        itemStyle: { color: '#c2413b' },
+        lineStyle: { color: '#8f2a2a', width: 2 },
+        itemStyle: { color: '#8f2a2a' },
         markArea: { silent: true, itemStyle: { opacity: 0.08 }, data: [[{ yAxis: 60 }, { yAxis: 75 }], [{ yAxis: 75 }, { yAxis: 90 }], [{ yAxis: 90 }, { yAxis: 100 }]] },
-        markLine: { silent: true, symbol: 'none', lineStyle: { color: '#98a2b3', type: 'dashed' }, data: [{ yAxis: 60 }, { yAxis: 75 }, { yAxis: 90 }] },
+        markLine: { silent: true, symbol: 'none', lineStyle: { color: '#9a9084', type: 'dashed' }, data: [{ yAxis: 60 }, { yAxis: 75 }, { yAxis: 90 }] },
       }
     ]
   });
@@ -425,7 +434,7 @@ function renderSectorCorrelationChart(payload) {
       min: -axisMax,
       max: axisMax,
       axisLabel: axisText(),
-      splitLine: { lineStyle: { color: '#edf0f5' } },
+      splitLine: { lineStyle: { color: '#ebe4d7' } },
     },
     yAxis: {
       type: 'category',
@@ -438,19 +447,19 @@ function renderSectorCorrelationChart(payload) {
       type: 'bar',
       data: rows.map(row => row.corr_temp_fwd_excess),
       itemStyle: {
-        color: params => Number(params.value) >= 0 ? '#15956b' : '#c2413b',
+        color: params => Number(params.value) >= 0 ? '#1e5c42' : '#8f2a2a',
         borderRadius: params => Number(params.value) >= 0 ? [0, 4, 4, 0] : [4, 0, 0, 4],
       },
       label: {
         show: !isNarrow(),
         position: params => Number(params.value) >= 0 ? 'right' : 'left',
-        color: '#344054',
+        color: '#3a342e',
         formatter: params => fmt(params.value, 2),
       },
       markLine: {
         silent: true,
         symbol: 'none',
-        lineStyle: { color: '#98a2b3' },
+        lineStyle: { color: '#9a9084' },
         data: [{ xAxis: 0 }],
       },
     }]
@@ -503,7 +512,7 @@ function renderLowPositionSectorChart(payload) {
       min: -axisMax,
       max: axisMax,
       axisLabel: axisText(),
-      splitLine: { lineStyle: { color: '#edf0f5' } },
+      splitLine: { lineStyle: { color: '#ebe4d7' } },
     },
     yAxis: {
       type: 'category',
@@ -516,14 +525,14 @@ function renderLowPositionSectorChart(payload) {
         name: '1Y 20日超额相关',
         type: 'bar',
         data: oneYear,
-        itemStyle: { color: params => Number(params.value) >= 0 ? '#15956b' : '#c2413b', borderRadius: 4 },
-        label: { show: !isNarrow(), position: 'right', color: '#344054', formatter: params => fmt(params.value, 2) },
+        itemStyle: { color: params => Number(params.value) >= 0 ? '#1e5c42' : '#8f2a2a', borderRadius: 0 },
+        label: { show: !isNarrow(), position: 'right', color: '#3a342e', formatter: params => fmt(params.value, 2) },
       },
       {
         name: '2Y 20日超额相关',
         type: 'bar',
         data: twoYear,
-        itemStyle: { color: params => Number(params.value) >= 0 ? '#7fbda7' : '#d98b87', borderRadius: 4 },
+        itemStyle: { color: params => Number(params.value) >= 0 ? '#6fa88a' : '#c98986', borderRadius: 0 },
         label: { show: false },
       },
     ],

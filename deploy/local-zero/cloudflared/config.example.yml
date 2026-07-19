@@ -1,0 +1,20 @@
+# Copy to config.yml and fill in your tunnel UUID + credentials file.
+# Free Cloudflare Zero Trust tunnel — public HTTPS → local app_server :8787
+#
+# Setup:
+#   brew install cloudflared
+#   cloudflared tunnel login
+#   cloudflared tunnel create ashare-rt
+#   cloudflared tunnel route dns ashare-rt rt.yourdomain.com   # or use trycloudflare quick tunnel for temp URL
+#   cp config.example.yml config.yml  # edit credentials-file + hostname
+#
+# Quick test without own domain (URL changes each run — not for TestFlight):
+#   cloudflared tunnel --url http://127.0.0.1:8787
+
+tunnel: YOUR_TUNNEL_UUID
+credentials-file: /Users/YOUR_USER/.cloudflared/YOUR_TUNNEL_UUID.json
+
+ingress:
+  - hostname: rt.yourdomain.com
+    service: http://127.0.0.1:8787
+  - service: http_status:404

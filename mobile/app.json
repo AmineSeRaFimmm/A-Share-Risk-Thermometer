@@ -1,0 +1,47 @@
+{
+  "expo": {
+    "name": "A-Share Risk Thermometer",
+    "slug": "a-share-risk-thermometer",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "ashare-rt",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#f3eee4"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ashare.riskthermometer",
+      "infoPlist": {
+        "NSAppTransportSecurity": {
+          "NSAllowsLocalNetworking": true,
+          "NSAllowsArbitraryLoads": true
+        }
+      }
+    },
+    "android": {
+      "package": "com.ashare.riskthermometer",
+      "adaptiveIcon": {
+        "backgroundColor": "#f3eee4",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "usesCleartextTraffic": true
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "extra": {
+      "webUrl": "https://amineserafimmm.github.io/A-Share-Risk-Thermometer/",
+      "allowGithub": false,
+      "dataPlane": "github_pages"
+    },
+    "plugins": [
+      "expo-splash-screen"
+    ]
+  }
+}

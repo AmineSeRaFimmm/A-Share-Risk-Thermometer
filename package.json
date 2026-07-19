@@ -1,0 +1,20 @@
+{
+  "name": "a-share-risk-thermometer",
+  "private": true,
+  "scripts": {
+    "mobile:sync": "python3 -c \"from pathlib import Path; import sys; sys.path.insert(0,'.'); from scripts.app_server import _sync_web_to_docs,_sync_site_data_to_docs; _sync_web_to_docs(); _sync_site_data_to_docs(); print('synced')\"",
+    "mobile:server": "python3 scripts/app_server.py --auto-refresh realtime",
+    "mobile:server:full": "python3 scripts/app_server.py --auto-refresh full",
+    "mobile:serve": "python3 scripts/app_server.py --auto-refresh rebuild",
+    "mobile:dev": "bash scripts/start_mobile_dev.sh",
+    "mobile:start": "cd mobile && npx expo start --lan",
+    "mobile:ios": "bash scripts/start_mobile_dev.sh --ios",
+    "data:refresh": "python3 scripts/app_server.py --auto-refresh full --port 8799 & sleep 1; curl -s -X POST 'http://127.0.0.1:8799/api/refresh?mode=full' || python3 scripts/update_daily.py && python3 scripts/build_site_data.py",
+    "zero:install": "bash deploy/local-zero/install_launchd.sh",
+    "zero:uninstall": "bash deploy/local-zero/uninstall_launchd.sh",
+    "zero:intraday": "bash deploy/local-zero/run_intraday.sh",
+    "zero:eod": "bash deploy/local-zero/run_eod.sh",
+    "zero:server": "bash deploy/local-zero/run_app_server.sh",
+    "zero:status": "curl -s http://127.0.0.1:8787/api/status | python3 -m json.tool | head -50"
+  }
+}

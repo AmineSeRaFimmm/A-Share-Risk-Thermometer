@@ -1,0 +1,113 @@
+{
+  "base_3bps": {
+    "params": {
+      "initial_cash": 50000.0,
+      "order_size": 1000.0,
+      "buy_cost": 0.0003,
+      "sell_cost": 0.0003,
+      "hold_days": 5,
+      "execution": "T close signal → T+1 open",
+      "satellite_budget": "1000 CNY per signal split equally across basket names",
+      "core_budget": "1000 CNY per core signal",
+      "proxy_note": "行业指数代理 ETF，非真实 ETF 成交"
+    },
+    "summary": {
+      "start_date": "2019-12-23",
+      "end_date": "2026-07-10",
+      "n_days": 1585,
+      "final_equity": 52283.692292398875,
+      "total_pnl": 2283.692292398875,
+      "total_return": 0.04567384584797751,
+      "ann_return": 0.00712602696710074,
+      "max_dd": -0.007165932369063488,
+      "trade_count": 948,
+      "core_trades": 52,
+      "sat_trades": 896,
+      "win_rate": 0.5632911392405063,
+      "avg_trade_return": 0.007424492524200772,
+      "sum_trade_pnl": 2283.6922923967722,
+      "profit_factor": 1.5834523059761703,
+      "max_exposure": 2231.4689590366543,
+      "avg_exposure": 1083.7777327555445,
+      "avg_exposure_pct_of_capital": 0.021675554655110892,
+      "max_exposure_pct_of_capital": 0.044629379180733085,
+      "sharpe": 1.2644329167744257,
+      "buy_hold_csi300_return": 0.19010828177486427,
+      "buy_hold_final": 59505.414088743215,
+      "excess_vs_bh": -0.14443443592688676
+    },
+    "oos": {
+      "split": "2024-01-01",
+      "equity_at_split": 50771.94689105756,
+      "final_equity": 52283.692292398875,
+      "total_return_from_split": 0.029775210404775265,
+      "trade_count": 392,
+      "trade_pnl": 1516.4684646314122,
+      "win_rate": 0.5867346938775511
+    },
+    "by_sleeve": {
+      "core": {
+        "n": 52,
+        "pnl": 636.5624819922444,
+        "win_rate": 0.6346153846153846,
+        "avg_ret": 0.01223791481771324
+      },
+      "satellite": {
+        "n": 896,
+        "pnl": 1647.129810404528,
+        "win_rate": 0.5591517857142857,
+        "avg_ret": 0.007145142123237992
+      }
+    }
+  },
+  "stress_15bps": {
+    "summary": {
+      "start_date": "2019-12-23",
+      "end_date": "2026-07-10",
+      "n_days": 1585,
+      "final_equity": 51594.345057475046,
+      "total_pnl": 1594.345057475046,
+      "total_return": 0.03188690114950088,
+      "ann_return": 0.005003038547195082,
+      "max_dd": -0.008040086926815015,
+      "trade_count": 948,
+      "core_trades": 52,
+      "sat_trades": 896,
+      "win_rate": 0.5411392405063291,
+      "avg_trade_return": 0.005009570561782677,
+      "sum_trade_pnl": 1594.345057475411,
+      "profit_factor": 1.3637980744653506,
+      "max_exposure": 2231.4689590366543,
+      "avg_exposure": 1083.7777327555445,
+      "avg_exposure_pct_of_capital": 0.021675554655110892,
+      "max_exposure_pct_of_capital": 0.044629379180733085,
+      "sharpe": 0.8801881911318684,
+      "buy_hold_csi300_return": 0.18725544402013328,
+      "buy_hold_final": 59362.772201006665,
+      "excess_vs_bh": -0.1553685428706324
+    },
+    "oos": {
+      "split": "2024-01-01",
+      "equity_at_split": 50361.70350944836,
+      "final_equity": 51594.345057475046,
+      "total_return_from_split": 0.024475771511490496,
+      "trade_count": 392,
+      "trade_pnl": 1236.1646113178576,
+      "win_rate": 0.5688775510204082
+    },
+    "by_sleeve": {
+      "core": {
+        "n": 52,
+        "pnl": 510.9609265472192,
+        "win_rate": 0.5961538461538461,
+        "avg_ret": 0.009811454482645626
+      },
+      "satellite": {
+        "n": 896,
+        "pnl": 1083.3841309281918,
+        "win_rate": 0.5379464285714286,
+        "avg_ret": 0.00473088979851831
+      }
+    }
+  }
+}

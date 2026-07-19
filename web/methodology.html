@@ -2,54 +2,80 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Methodology - A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f3eee4">
+    <title>方法 · A股风险温度计</title>
+    <link rel="stylesheet" href="./assets/app.css?v=20260719-editorial">
   </head>
-  <body>
+  <body class="app-shell">
     <header class="topbar">
-      <a class="brand" href="./index.html"><span class="brand-mark">RT</span><span><strong>A股风险温度计</strong><small>Methodology</small></span></a>
-      <nav><a href="./index.html">Dashboard</a><a href="./data.html">Data</a></nav>
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">RT</span>
+        <span><strong>A股风险温度计</strong><small>方法</small></span>
+      </a>
+      <nav>
+        <a href="./index.html">本期</a>
+        <a href="./methodology.html" class="active">方法</a>
+        <a href="./data.html">档案</a>
+      </nav>
     </header>
+
+    <div class="masthead" aria-label="刊头">
+      <div class="masthead-kicker">方法论</div>
+      <h1 class="masthead-title">它如何度量风险</h1>
+      <p class="masthead-sub">不是官方指数的复刻，而是免费源约束下的工程化温度计。</p>
+    </div>
+
     <main class="content-page">
-      <h1>Methodology</h1>
+      <p class="section-kicker">编者按</p>
       <p>本系统不是官方 AVIX / QVIX。历史 AVIX 使用沪深300股指期权历史收盘价做 VIX-style 方差复制；实时 AVIX 使用 bid/ask midpoint；QVIX 只做方向一致性、极端区间一致性与滚动相关性验证。<strong>QVIX confirmation 衡量的是一致性/协议质量，不是「恐慌水平」本身</strong>——高一致且低波动时该分项也可能偏高。</p>
+
       <section>
-        <h2>Composite Risk Temperature</h2>
-        <p>最终温度由 AVIX 两年分位、AVIX 一年 z-score、AVIX 5 日变化、QVIX confirmation、沪深300实现波动率、回撤压力、市场宽度压力和成交压力合成。权重在运行时从 <code>config/scoring.yml</code> 加载（与代码默认值保持一致）。</p>
-        <p><code>Risk Temperature = 0.28 * AVIX percentile + 0.14 * AVIX z-score + 0.08 * AVIX 5d change + 0.12 * QVIX confirmation + 0.12 * realized volatility + 0.12 * drawdown pressure + 0.10 * market breadth + 0.04 * turnover stress</code></p>
-        <p>缺失因子当前以中性值 <strong>50</strong> 填补（不重归一），温度看起来仍完整，但会通过 <code>model_confidence</code> 与 quality 标记降级。两年分位 / 实现波动率分位的 rolling 最小样本为 <code>config/thresholds.yml</code> 中的 <code>min_history_days_for_percentile</code>（默认 120）。</p>
-        <p>宽度因子优先使用当日全 A 现货快照；缺失时才回退宽基指数代理（<code>WARN_BREADTH_PROXY</code>）。仪表盘会显示「宽度口径」：全A个股宽度 / 宽基指数代理。</p>
+        <h2>合成风险温度</h2>
+        <p>最终温度由 AVIX 两年分位、AVIX 一年 z-score、AVIX 5 日变化、QVIX confirmation、沪深300实现波动率、回撤压力、市场宽度压力和成交压力合成。权重在运行时从 <code>config/scoring.yml</code> 加载。</p>
+        <p><code>Risk Temperature = 0.28 × AVIX percentile + 0.14 × AVIX z-score + 0.08 × AVIX 5d change + 0.12 × QVIX confirmation + 0.12 × realized vol + 0.12 × drawdown + 0.10 × breadth + 0.04 × turnover</code></p>
+        <p>缺失因子以中性值 <strong>50</strong> 填补（不重归一），并通过 <code>model_confidence</code> 与 quality 标记降级。宽度因子优先全 A 现货快照，缺失时回退宽基指数代理。</p>
       </section>
+
       <section>
-        <h2>策略与研究信号（两套独立规则）</h2>
+        <h2>两套独立规则</h2>
         <ul>
-          <li><strong>S3 / S4</strong>：基于 AVIX 水平与上证价格行为（阈值见 <code>config/thresholds.yml</code> 中 22 / 25）。</li>
-          <li><strong>风险温度研究观察</strong>：回测建议的有界区间 <code>60 ≤ RT &lt; 75</code> 且沪深300 60 日回撤 ≤ −5%，仅作研究展示，不是生产交易指令。</li>
+          <li><strong>S3 / S4</strong>：基于 AVIX 水平与上证价格行为（阈值见配置 22 / 25）。</li>
+          <li><strong>风险温度研究观察</strong>：有界区间 <code>60 ≤ RT &lt; 75</code> 且沪深300 60 日回撤 ≤ −5%，仅研究展示。</li>
         </ul>
       </section>
+
       <section>
-        <h2>Quality Rules</h2>
-        <p>期权链不足、无法夹住 30 天、Shibor 过期、QVIX 缺失、宽度缺失、实时链缺失都会写入 quality。缺失源不会被静默当成正常数据；温度可在降级质量下继续生成，但页面和 audit 会显示对应 WARN/LOW，并用模型置信度单独标记当前温度的输入完整度。</p>
+        <h2>质量规则</h2>
+        <p>期权链不足、无法夹住 30 天、Shibor 过期、QVIX 缺失、宽度缺失、实时链缺失都会写入 quality。缺失源不会被静默当成正常数据。</p>
       </section>
+
       <section>
-        <h2>Data Limits</h2>
-        <p>免费源缺少历史 bid/ask、结算价和历史持仓量，因此历史序列称为 <code>AVIX_CLOSE_REPLICA</code>，不声称复刻官方指数。真实全 A 宽度源失败时，系统只会使用宽基指数参与度作为代理，并标记 <code>WARN_BREADTH_PROXY</code>、降低模型置信度；不会把代理宽度当成真实股票宽度。</p>
+        <h2>数据边界</h2>
+        <p>免费源缺少历史 bid/ask、结算价和历史持仓量，故历史序列称为 <code>AVIX_CLOSE_REPLICA</code>。代理宽度不会被标成真实个股宽度。</p>
       </section>
+
       <section>
-        <h2>Temperature Zones</h2>
+        <h2>温度区间</h2>
         <table>
           <thead><tr><th>温度</th><th>状态</th><th>解释</th></tr></thead>
           <tbody>
-            <tr><td>0-20</td><td>平静</td><td>波动低，恐慌不足，反身机会弱。</td></tr>
-            <tr><td>20-40</td><td>正常</td><td>普通震荡，风险信号不强。</td></tr>
-            <tr><td>40-60</td><td>警戒</td><td>波动和回撤开始上升。</td></tr>
-            <tr><td>60-75</td><td>高风险</td><td>市场进入防守区。</td></tr>
-            <tr><td>75-90</td><td>恐慌区</td><td>可能出现错杀和反身修复窗口。</td></tr>
-            <tr><td>90-100</td><td>极端恐慌</td><td>系统性风险或极端波动，需要强确认信号。</td></tr>
+            <tr><td>0–20</td><td>平静</td><td>波动低，恐慌不足，反身机会弱。</td></tr>
+            <tr><td>20–40</td><td>正常</td><td>普通震荡，风险信号不强。</td></tr>
+            <tr><td>40–60</td><td>警戒</td><td>波动和回撤开始上升。</td></tr>
+            <tr><td>60–75</td><td>高风险</td><td>市场进入防守区。</td></tr>
+            <tr><td>75–90</td><td>恐慌区</td><td>可能出现错杀与反身修复窗口。</td></tr>
+            <tr><td>90–100</td><td>极端恐慌</td><td>系统性风险或极端波动，需强确认。</td></tr>
           </tbody>
         </table>
       </section>
     </main>
+
+    <nav class="app-dock" aria-label="主导航">
+      <a href="./index.html" data-dock="dash"><span class="dock-icon">一</span><span>本期</span></a>
+      <a href="./index.html#flexTradePanel" data-dock="flex"><span class="dock-icon">二</span><span>实务</span></a>
+      <a href="./methodology.html" class="active" data-dock="method"><span class="dock-icon">三</span><span>方法</span></a>
+      <a href="./data.html" data-dock="data"><span class="dock-icon">四</span><span>档案</span></a>
+    </nav>
   </body>
 </html>

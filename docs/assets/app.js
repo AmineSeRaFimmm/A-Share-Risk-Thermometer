@@ -6,16 +6,13 @@ const FLEX_LEDGER_KEY_REAL = 'ashare_flex_exec_ledger_v1';
 const FLEX_LEDGER_KEY_SIM = 'ashare_flex_exec_ledger_sim_v1';
 
 function loadFlexModePreference() {
-  try {
-    const m = localStorage.getItem(FLEX_MODE_KEY);
-    if (m === 'conservative' || m === 'aggressive') return m;
-  } catch (_) { /* ignore */ }
+  // Product lock: Flex desk only uses aggressive sizing.
   return 'aggressive';
 }
 
-function saveFlexModePreference(mode) {
+function saveFlexModePreference(_mode) {
   try {
-    localStorage.setItem(FLEX_MODE_KEY, mode === 'conservative' ? 'conservative' : 'aggressive');
+    localStorage.setItem(FLEX_MODE_KEY, 'aggressive');
   } catch (_) { /* ignore */ }
 }
 
@@ -41,11 +38,37 @@ function flexLedgerStorageKey(book = dashboardState.flexBook) {
   return book === 'sim' ? FLEX_LEDGER_KEY_SIM : FLEX_LEDGER_KEY_REAL;
 }
 
+const CHART_RANGE_KEYS = {
+  history: 'history',
+  avix: 'avix',
+  hs300: 'hs300',
+};
+
+const CHART_DOM_IDS = {
+  history: 'historyChart',
+  avix: 'avixQvixChart',
+  hs300: 'hs300Chart',
+};
+
+const CHART_RANGE_CONTROL_IDS = {
+  history: 'rangeControlsHistory',
+  avix: 'rangeControlsAvix',
+  hs300: 'rangeControlsHs300',
+};
+
+function defaultChartRanges() {
+  return { history: '1Y', avix: '1Y', hs300: '1Y' };
+}
+
 const dashboardState = {
+  /** Per-chart time ranges (independent). */
+  chartRanges: defaultChartRanges(),
+  /** @deprecated use chartRanges.history — kept for any leftover reads */
   activeRange: '1Y',
   componentChart: null,
 
   timeCharts: [],
+  chartInstances: { history: null, avix: null, hs300: null },
   history: [],
   nowcastHistory: {},
   strategy: {},
@@ -54,13 +77,19 @@ const dashboardState = {
   lastUpdateTime: null,
   lastTradeDate: null,
   heavyLoaded: false,
-  flexMode: loadFlexModePreference(),
+  flexMode: 'aggressive',
   flexBook: loadFlexBookPreference(), // real = 本机点买；sim = 策略严格跟随
   flexPlaybook: null,
   flexActive: null,
   flexLedgerBound: false,
   flexModal: null,
   flexSimSyncedAsOf: null,
+  /** Independent app data plane (local pipeline). Never GitHub Pages. */
+  dataPlane: {
+    available: false,
+    status: null,
+    refreshInFlight: false,
+  },
 };
 
 async function loadJSON(path, { bust = true } = {}) {
@@ -186,17 +215,19 @@ function renderNowcastNote(latest) {
   const official = latest?.official_close || {};
   const nowcast = latest?.nowcast || {};
   const mode = latest?.temperature_mode || '';
-  const officialTxt = `正式收盘 ${official.trade_date || '--'} RT ${official.risk_temperature ?? '--'}（官方 AVIX）`;
+  // Magazine: one short line only when not official close.
   if (mode === 'NOWCAST' || (nowcast.active && latest?.is_final === false && mode !== 'ESTIMATED_CLOSE')) {
-    note.textContent = `盘中估算 RT ${nowcast.risk_temperature ?? latest?.risk_temperature ?? '--'}（实时 AVIX ${formatRealtimeAvix(nowcast.realtime_avix ?? latest?.avix?.avix_realtime_mid)}）· ${officialTxt}。仅替换 AVIX 三因子；宽度/回撤等沿用最近正式收盘。官方日线就绪后自动切回正式收盘。`;
+    note.hidden = false;
+    note.textContent = `盘中 · 收盘 RT ${official.risk_temperature ?? '—'}`;
     return;
   }
   if (mode === 'ESTIMATED_CLOSE') {
-    note.textContent = `估算收盘：正式期权日线缺口，用严格 OK 的实时 AVIX 估算 · ${officialTxt}。不写入正式历史序列。`;
+    note.hidden = false;
+    note.textContent = '估算收盘';
     return;
   }
-  const reason = nowcast.reason_cn || '盘中可用时将显示实时估算';
-  note.textContent = `当前为收盘正式口径 · ${officialTxt}。${reason}`;
+  note.hidden = true;
+  note.textContent = '';
 }
 
 function renderBreadthMode(latest) {
@@ -257,18 +288,33 @@ function renderLatest(latest) {
   setText('tradeDate', latest.trade_date);
   const update = latest.update_time ? new Date(latest.update_time).toLocaleString('zh-CN', { hour12: false }) : '--';
   setText('updateTime', update);
+  const mastheadDate = document.getElementById('mastheadDate');
+  if (mastheadDate) {
+    const mode = latest.temperature_mode_cn || latest.temperature_mode || '';
+    mastheadDate.textContent = latest.trade_date
+      ? `${latest.trade_date}${mode ? ' · ' + mode : ''}`
+      : '—';
+  }
   renderRealtimeAvix(latest.avix || {});
   updateFreshness(latest);
   renderNowcastNote(latest);
-  setText('headline', latest.interpretation?.headline);
-  setText('summary', latest.interpretation?.summary);
+  // Cover: headline + posture only — no long essay on the page.
+  setText('headline', latest.interpretation?.headline || '—');
+  const summaryEl = document.getElementById('summary');
+  if (summaryEl) {
+    summaryEl.textContent = '';
+    summaryEl.hidden = true;
+  }
   setText('posture', latest.interpretation?.posture);
   document.getElementById('temperaturePanel').dataset.zone = getTempClass(Number(latest.risk_temperature));
+  paintStaticPagesPlaneMeta(latest);
 }
 
 function renderAudit(audit) {
-  setText('lastSuccessfulUpdate', audit.last_successful_update);
+  // Temperature UI no longer shows health panel; keep function for API compatibility.
   const grid = document.getElementById('healthGrid');
+  if (!grid) return;
+  setText('lastSuccessfulUpdate', audit.last_successful_update);
   const labels = {
     options_history: '期权数据',
     options_realtime: '实时期权',
@@ -295,6 +341,9 @@ function formatPct(value) {
 }
 
 function renderStrategy(strategy) {
+  // Temperature UI no longer shows S3/S4 panel; strategy data still used for charts.
+  const signalBox = document.getElementById('strategySignals');
+  if (!signalBox) return;
   const payload = strategy || {};
   const latest = payload.latest || {};
   const position = payload.position || {};
@@ -306,9 +355,6 @@ function renderStrategy(strategy) {
     ? `${latest.execution_trade_date} / ${latest.execution_sse_open ?? '--'}`
     : '--';
   setText('strategyExecution', execution);
-
-  const signalBox = document.getElementById('strategySignals');
-  if (!signalBox) return;
   const items = [
     ['S3', latest.s3_signal, latest.s3_buy, latest.s3_sell, latest.s3_sell_reason],
     ['S4', latest.s4_signal, latest.s4_buy, latest.s4_sell, latest.s4_sell_reason],
@@ -370,17 +416,9 @@ function mergeNowcastHistory(history, nowcastHistory, latest) {
 function renderNowcastGapSummary(nowcastHistory) {
   const note = document.getElementById('nowcastGapNote');
   if (!note) return;
-  if (!nowcastHistory || nowcastHistory.status === 'missing') {
-    note.textContent = '估算历史暂不可用。';
-    return;
-  }
-  const rows = nowcastHistory.rows || [];
-  const unavailable = (nowcastHistory.gaps || []).filter(row => row.estimate_status !== '可用').map(row => row.date);
-  const estimatePart = rows.length
-    ? `估算可用 ${rows[0].date || rows[0].trade_date} 至 ${rows[rows.length - 1].date || rows[rows.length - 1].trade_date}`
-    : '暂无估算点';
-  const missingPart = unavailable.length ? `仍缺 ${unavailable.join('、')}` : '无未解释缺口';
-  note.textContent = `正式收盘最新 ${nowcastHistory.official_latest_date || '--'}；${estimatePart}；${missingPart}。`;
+  // Magazine: hide gap essay; keep element for API compatibility.
+  note.hidden = true;
+  note.textContent = '';
 }
 
 function filterHistoryByRange(history, range) {
@@ -392,41 +430,67 @@ function filterHistoryByRange(history, range) {
   return history.filter(row => new Date(row.date + 'T00:00:00') >= cutoff);
 }
 
-function setActiveRange(range) {
-  document.querySelectorAll('#rangeControls button').forEach(button => {
+function setChartRangeActive(chartKey, range) {
+  const controlId = CHART_RANGE_CONTROL_IDS[chartKey];
+  const root = controlId ? document.getElementById(controlId) : null;
+  if (!root) return;
+  root.querySelectorAll('button[data-range]').forEach(button => {
     button.classList.toggle('active', button.dataset.range === range);
   });
 }
 
-function connectTimeCharts(charts) {
-  charts.forEach(chart => {
-    chart.group = 'risk-time-series';
-  });
-  echarts.connect('risk-time-series');
+function disposeChartDom(domId) {
+  const el = document.getElementById(domId);
+  if (!el) return;
+  const instance = echarts.getInstanceByDom(el);
+  if (instance) instance.dispose();
 }
 
-function renderTimeCharts(history, strategy, range) {
-  const filtered = filterHistoryByRange(history, range);
-  ['historyChart', 'avixQvixChart', 'hs300Chart'].forEach(id => {
-    const instance = echarts.getInstanceByDom(document.getElementById(id));
-    if (instance) instance.dispose();
-  });
+/** Render one history-page chart with its own time range. */
+function renderOneTimeChart(chartKey, history, strategy, range) {
+  const key = CHART_RANGE_KEYS[chartKey] || chartKey;
+  const domId = CHART_DOM_IDS[key];
+  if (!domId) return null;
+  const filtered = filterHistoryByRange(history, range || dashboardState.chartRanges[key] || '1Y');
+  disposeChartDom(domId);
+  let chart = null;
+  if (key === 'history') chart = renderHistoryChart(filtered, strategy);
+  else if (key === 'avix') chart = renderAvixQvixChart(filtered, strategy);
+  else if (key === 'hs300') chart = renderHs300Chart(filtered);
+  dashboardState.chartInstances[key] = chart;
+  return chart;
+}
+
+/** Render all three charts, each with its independent range. No echarts.connect. */
+function renderTimeCharts(history, strategy, ranges) {
+  const r = ranges || dashboardState.chartRanges || defaultChartRanges();
   const charts = [
-    renderHistoryChart(filtered, strategy),
-    renderAvixQvixChart(filtered, strategy),
-    renderHs300Chart(filtered)
-  ];
-  connectTimeCharts(charts);
+    renderOneTimeChart('history', history, strategy, r.history),
+    renderOneTimeChart('avix', history, strategy, r.avix),
+    renderOneTimeChart('hs300', history, strategy, r.hs300),
+  ].filter(Boolean);
+  dashboardState.timeCharts = charts;
   return charts;
 }
 
-function bindRangeControls(onRange) {
-  document.querySelectorAll('#rangeControls button').forEach(button => {
-    button.addEventListener('click', () => {
-      const range = button.dataset.range || '1Y';
-      setActiveRange(range);
-      onRange(range);
+function bindRangeControls() {
+  Object.entries(CHART_RANGE_CONTROL_IDS).forEach(([chartKey, controlId]) => {
+    const root = document.getElementById(controlId);
+    if (!root || root.dataset.boundRange === '1') return;
+    root.dataset.boundRange = '1';
+    root.querySelectorAll('button[data-range]').forEach(button => {
+      button.addEventListener('click', () => {
+        const range = button.dataset.range || '1Y';
+        dashboardState.chartRanges[chartKey] = range;
+        if (chartKey === 'history') dashboardState.activeRange = range;
+        setChartRangeActive(chartKey, range);
+        renderOneTimeChart(chartKey, dashboardState.history, dashboardState.strategy, range);
+        dashboardState.timeCharts = Object.values(dashboardState.chartInstances).filter(Boolean);
+        requestAnimationFrame(() => resizeVisibleCharts());
+      });
     });
+    // Sync button UI to current state
+    setChartRangeActive(chartKey, dashboardState.chartRanges[chartKey] || '1Y');
   });
 }
 
@@ -448,6 +512,7 @@ function paintFlexBookChrome() {
   const sim = isFlexSimBook();
   const panel = document.getElementById('flexTradePanel');
   panel?.classList.toggle('is-sim-book', sim);
+  panel?.classList.toggle('is-real-book', !sim);
   const realBtn = document.getElementById('flexBookRealBtn');
   const simBtn = document.getElementById('flexBookSimBtn');
   realBtn?.classList.toggle('active', !sim);
@@ -456,53 +521,26 @@ function paintFlexBookChrome() {
   simBtn?.setAttribute('aria-pressed', sim ? 'true' : 'false');
   const sub = document.getElementById('flexTitleSub');
   if (sub) {
-    sub.textContent = sim
-      ? '模拟仓 · 严格跟随策略纸面 · EOD开盘入/收盘估 · 与真实分离'
-      : '真实仓 · 点买记账 · 收益看涨跌幅% · 非券商委托';
+    sub.textContent = sim ? '模拟' : '真实';
   }
   const pill = document.getElementById('flexBookPill');
   if (pill) {
     pill.textContent = sim ? '模拟仓' : '真实仓';
-    pill.title = sim ? '当前：模拟账本（自动跟策略）' : '当前：真实账本（仅点买入账）';
+    pill.title = sim ? '当前：模拟账本' : '当前：真实账本';
+    pill.classList.toggle('book-sim', sim);
+    pill.classList.toggle('book-real', !sim);
   }
 }
 
 function bindFlexGuide() {
   const guide = document.getElementById('flexGuide');
-  const dismiss = document.getElementById('flexGuideDismiss');
-  if (!guide) return;
-  let dismissed = false;
-  try { dismissed = localStorage.getItem(FLEX_GUIDE_KEY) === '1'; } catch (_) { /* ignore */ }
-  guide.hidden = dismissed;
-  if (dismiss && dismiss.dataset.bound !== '1') {
-    dismiss.dataset.bound = '1';
-    dismiss.addEventListener('click', () => {
-      guide.hidden = true;
-      try { localStorage.setItem(FLEX_GUIDE_KEY, '1'); } catch (_) { /* ignore */ }
-      flexToast('已收起引导，可随时从说明区回顾规则', 'ok');
-    });
-  }
+  if (guide) guide.hidden = true; // magazine: no onboarding essay
 }
 
 function bindFlexModeControls() {
-  // Strategy sizing mode: 进取 / 保守 only.
-  document.querySelectorAll('.flex-mode-btn[data-flex-mode]').forEach(button => {
-    button.classList.toggle('active', button.dataset.flexMode === dashboardState.flexMode);
-    if (button.dataset.bound === '1') return;
-    button.dataset.bound = '1';
-    button.addEventListener('click', () => {
-      const mode = button.dataset.flexMode || 'aggressive';
-      dashboardState.flexMode = mode;
-      saveFlexModePreference(mode);
-      document.querySelectorAll('.flex-mode-btn[data-flex-mode]').forEach(b => {
-        b.classList.toggle('active', b.dataset.flexMode === mode);
-      });
-      flexToast(mode === 'aggressive' ? '已切换：进取（单仓可满）' : '已切换：保守（暴露封顶）', 'ok', 1600);
-      if (dashboardState.flexPlaybook) {
-        renderFlexTradePanel(dashboardState.flexPlaybook);
-      }
-    });
-  });
+  // Flex sizing locked to aggressive only — no 进取/保守 UI.
+  dashboardState.flexMode = 'aggressive';
+  saveFlexModePreference('aggressive');
   bindFlexBookToggle();
   bindFlexGuide();
   paintFlexBookChrome();
@@ -514,9 +552,9 @@ function bindFlexBookToggle() {
     if (dashboardState.flexBook === next) return;
     dashboardState.flexBook = next;
     saveFlexBookPreference(next);
-    dashboardState.flexSimSyncedAsOf = null;
+    // Do NOT clear flexSimSyncedAsOf — switching books must not rewrite sim journal.
     paintFlexBookChrome();
-    flexToast(next === 'sim' ? '已切换到模拟仓（自动跟策略）' : '已切换到真实仓（点买记账）', 'ok', 1800);
+    flexToast(next === 'sim' ? '已切换到模拟仓' : '已切换到真实仓', 'ok', 1400);
     if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
     else renderFlexExecUi();
   };
@@ -595,7 +633,7 @@ function renderCriticalDashboard({ latest, history, nowcastHistory, components, 
   dashboardState.timeCharts = renderTimeCharts(
     activeHistory,
     dashboardState.strategy || {},
-    dashboardState.activeRange
+    dashboardState.chartRanges
   );
 }
 
@@ -608,7 +646,7 @@ function renderHeavyDashboard({ strategy, rtTactical, stagePlaybook }) {
     dashboardState.timeCharts = renderTimeCharts(
       dashboardState.history,
       dashboardState.strategy,
-      dashboardState.activeRange
+      dashboardState.chartRanges
     );
   }
 }
@@ -638,7 +676,7 @@ const FLEX_LEDGER_KEY = FLEX_LEDGER_KEY_REAL;
 const FLEX_OPEN_SIGNAL_CACHE_KEY = 'ashare_flex_open_signal_cache_v2';
 const FLEX_BUY_ACTIONS = new Set(['OPEN', 'OVERWEIGHT', 'BUY', 'OVERWEIGHT_RELATIVE']);
 const FLEX_CLOSE_ACTIONS = new Set(['CLOSE', 'SELL']);
-/** Open signal lives on real signal day T and next calendar day T+1; gone from T+2. */
+/** Open signal lives on real signal day T and next trading day T+1; gone from T+2 trade sessions. */
 const FLEX_OPEN_SIGNAL_MAX_LAG_DAYS = 1;
 
 function escapeHtml(value) {
@@ -791,24 +829,55 @@ function flexLookupInstrument(flex, name) {
 }
 
 /**
+ * AVOID cut-to-zero matcher.
+ * IMPORTANT: match by sector/name first. Never cut a different sector that merely
+ * shares a weak-proxy ETF code (e.g. 美容护理→159928 vs 商贸零售→159928).
+ */
+function flexIsAvoidCutItem(item) {
+  const action = String(item?.action || item?.side || '').toUpperCase();
+  if (action !== 'AVOID' && action !== 'UNDERWEIGHT_RELATIVE' && action !== 'FLAT') return false;
+  const wt = item?.weight_target;
+  if (wt != null && Number(wt) > 1e-9) return false;
+  return true;
+}
+
+function flexTargetIsAvoided(t, flex) {
+  const name = String(t?.name || t?.sector || '').trim();
+  if (!name) return false;
+  for (const item of flex?.avoid_list || []) {
+    if (!flexIsAvoidCutItem(item)) continue;
+    const aName = String(item.name || item.sector || '').trim();
+    if (aName && aName === name) return true;
+  }
+  return false;
+}
+
+/** @deprecated kept for call sites that still pass a set — redirects to name-based check */
+function flexAvoidZeroSet(flex) {
+  return flex;
+}
+
+/**
  * Strategy paper targets while sleeves are open (strict sim book).
  * Uses live allocation weights; if sleeve open but alloc weight 0 (e.g. close day),
  * fall back to mode sizing so sim keeps the open sleeve until state goes flat.
+ * AVOID names with target 0 are excluded (sim auto-cuts; real book tips only).
  */
 function collectStrategyPaperTargets(flex) {
   const f = flex || {};
   const pos = f.position_state || {};
   const alloc = f.allocation || {};
-  const mode = f.mode || dashboardState.flexMode || 'aggressive';
-  const cfg = (f.modes || {})[mode] || {};
+  // App product lock: aggressive sizing only
+  const mode = 'aggressive';
+  const cfg = (f.modes || {})[mode] || (f.modes || {}).aggressive || {};
   const targets = [];
 
   const core = pos.core || {};
   if (String(core.status || '') === 'open') {
     let w = Number(alloc.w_core);
-    if (!(w > 0)) w = Number(cfg.core_when_signal != null ? cfg.core_when_signal : 0.5);
+    if (!(w > 0)) w = Number(cfg.core_when_signal != null ? cfg.core_when_signal : 0.6);
     const meta = flexLookupInstrument(f, '沪深300');
-    targets.push({
+    const row = {
       sleeve: 'core',
       name: '沪深300',
       etf_code: core.etf_code || meta.etf_code || '510300',
@@ -818,18 +887,21 @@ function collectStrategyPaperTargets(flex) {
       signal_as_of: core.entry_signal_date || '',
       hold_days: Number(f.hold_days) || 5,
       exit_date: core.exit_due_date || '',
-    });
+    };
+    if (!flexTargetIsAvoided(row, f)) targets.push(row);
   }
 
   const sat = pos.satellite || {};
   if (String(sat.status || '') === 'open') {
     let wSleeve = Number(alloc.w_sat);
-    if (!(wSleeve > 0)) wSleeve = Number(cfg.sat_when_signal != null ? cfg.sat_when_signal : 0.3);
+    if (!(wSleeve > 0)) wSleeve = Number(cfg.sat_when_signal != null ? cfg.sat_when_signal : 0.4);
     const names = Array.isArray(sat.names) ? sat.names : [];
     const weights = sat.weights || {};
-    const wSum = names.reduce((s, n) => s + (Number(weights[n]) || 0), 0) || names.length || 1;
-    for (const name of names) {
-      const win = (Number(weights[name]) || (1 / (names.length || 1))) / wSum;
+    // Drop avoided names before weight renorm so remaining names keep sleeve budget
+    const kept = names.filter(name => !flexTargetIsAvoided({ name }, f));
+    const wSum = kept.reduce((s, n) => s + (Number(weights[n]) || 0), 0) || kept.length || 1;
+    for (const name of kept) {
+      const win = (Number(weights[name]) || (1 / (kept.length || 1))) / wSum;
       const meta = flexLookupInstrument(f, name);
       targets.push({
         sleeve: 'satellite',
@@ -839,7 +911,7 @@ function collectStrategyPaperTargets(flex) {
         weight: wSleeve * win,
         buy_date: sat.entry_date || '',
         signal_as_of: sat.entry_signal_date || '',
-        hold_days: 8,
+        hold_days: Number(f.hold_days_sat) || Number(f.satellite?.hold_days) || 8,
         exit_date: sat.exit_due_date || (f.exit_plan?.satellite?.paths?.max_signal_date) || '',
       });
     }
@@ -899,9 +971,36 @@ function flexSimEodPrices(etfCode, entryDate, markDate) {
   };
 }
 
+/** Stable sim key: prefer sleeve+name so code lookup jitter never rewrites journal. */
+function flexSimPositionKey(item) {
+  const sleeve = String(item?.sleeve || 'na').trim() || 'na';
+  const name = String(item?.name || item?.sector || '').trim();
+  const code = String(item?.etf_code || item?.code || '').replace(/\D/g, '');
+  if (name) return `sim:${sleeve}:${name}`;
+  if (code) return `sim:etf:${code.padStart(6, '0')}`;
+  return flexPositionKey(item);
+}
+
+/** Structural fingerprint for sim holdings (ignore mark prices / timestamps). */
+function flexSimStructureSignature(positions, capital, asOf) {
+  const keys = Object.keys(positions || {}).sort();
+  const parts = keys.map(k => {
+    const p = positions[k] || {};
+    return [
+      k,
+      Math.round((Number(p.cost_basis) || 0) * 100),
+      String(p.buy_date || ''),
+      String(p.etf_code || ''),
+      Math.round((Number(p.weight) || 0) * 1e6),
+    ].join('|');
+  });
+  return `${asOf || ''}#${Math.round((Number(capital) || 0) * 100)}#${parts.join(';')}`;
+}
+
 /**
  * Rebuild simulation ledger to strictly mirror strategy paper open sleeves.
  * EOD marks only: cost @ entry open, last_price @ as_of close. Never touches real book.
+ * Journal is append-only on *material* structure changes — book switch / re-render must not spam 流水.
  */
 function rebuildSimLedgerFromStrategy(flex) {
   const f = flex || {};
@@ -914,8 +1013,9 @@ function rebuildSimLedgerFromStrategy(flex) {
   if (!(capital > 0)) {
     const empty = defaultFlexLedger('sim');
     empty.strategy_as_of = asOf;
-    empty.journal = prev.journal || [];
+    empty.journal = Array.isArray(prev.journal) ? prev.journal.slice(-100) : [];
     empty.mark_policy = 'SIM_ENTRY_OPEN_MARK_CLOSE';
+    empty.structure_sig = prev.structure_sig || '';
     return saveFlexLedger(empty);
   }
 
@@ -945,11 +1045,10 @@ function rebuildSimLedgerFromStrategy(flex) {
     let markPx = px.mark_close;
     let note = '模拟·策略纸面·入场开盘/盯市收盘';
     let quality = px.quality;
-    // Missing EOD: keep notional weight visible, but NEVER invent unit price → fake 0% return.
     if (!(entryPx > 0) || !(markPx > 0)) {
       missingPx += 1;
       quality = 'MISSING';
-      note = '模拟·缺行情·涨跌幅不可用（请更新 etf_daily_marks）';
+      note = '模拟·缺行情·涨跌幅不可用';
     } else {
       marked += 1;
       if (quality === 'SNAP') note += '·日期已吸附';
@@ -959,12 +1058,14 @@ function rebuildSimLedgerFromStrategy(flex) {
     const hasEntry = entryPx > 0;
     const hasMark = markPx > 0;
     const qty = hasEntry ? notional / entryPx : 0;
-    const key = flexPositionKey(t);
-    const old = prev.positions?.[key];
-    // Only real marks contribute to portfolio return; missing stays flat at cost.
+    const key = flexSimPositionKey(t);
+    // Also resolve legacy keys so re-key does not look like CLOSE+OPEN
+    const old = prev.positions?.[key]
+      || prev.positions?.[flexPositionKey(t)]
+      || null;
+
     if (quality !== 'MISSING' && hasEntry && hasMark) {
-      const mtm = qty * markPx;
-      uPnlParts.push(mtm - costBasis);
+      uPnlParts.push(qty * markPx - costBasis);
     }
 
     positions[key] = {
@@ -974,6 +1075,7 @@ function rebuildSimLedgerFromStrategy(flex) {
       etf_code: t.etf_code || '',
       etf_name: t.etf_name || '',
       sleeve: t.sleeve || '',
+      weight: w,
       qty,
       avg_price: hasEntry ? entryPx : 0,
       cost_basis: costBasis,
@@ -995,21 +1097,115 @@ function rebuildSimLedgerFromStrategy(flex) {
     deployed += costBasis;
   }
 
+  const nextSig = flexSimStructureSignature(positions, capital, asOf);
+  const prevSig = prev.structure_sig || flexSimStructureSignature(prev.positions, prev.capital, prev.strategy_as_of);
+  const structureChanged = nextSig !== prevSig;
+  const asOfChanged = String(prev.strategy_as_of || '') !== String(asOf || '');
+
+  // Quiet path: same paper structure → only refresh marks, keep journal untouched.
+  if (!structureChanged && !asOfChanged && Object.keys(prev.positions || {}).length === Object.keys(positions).length) {
+    const quiet = {
+      ...prev,
+      version: 2,
+      book: 'sim',
+      capital,
+      cash: Math.max(0, Math.round((capital - deployed) * 100) / 100),
+      positions,
+      journal: Array.isArray(prev.journal) ? prev.journal : [],
+      updated_at: new Date().toISOString(),
+      strategy_as_of: asOf,
+      mark_as_of: asOf,
+      structure_sig: nextSig,
+      mark_policy: 'SIM_ENTRY_OPEN_MARK_CLOSE',
+      mark_policy_cn: '入场=开盘价 · 盯市=收盘价 · 日频EOD',
+    };
+    dashboardState.flexSimSyncedAsOf = asOf;
+    return saveFlexLedger(quiet);
+  }
+
+  const journal = Array.isArray(prev.journal) ? prev.journal.slice() : [];
+  // Map prev positions by sim key + legacy key for stable diff
+  const prevByKey = { ...(prev.positions || {}) };
+  for (const [k, p] of Object.entries(prev.positions || {})) {
+    const alt = flexSimPositionKey(p);
+    if (alt && !prevByKey[alt]) prevByKey[alt] = p;
+  }
+
+  if (structureChanged) {
+    for (const [key, pos] of Object.entries(positions)) {
+      const old = prevByKey[key] || prev.positions?.[key];
+      const costBasis = Number(pos.cost_basis) || 0;
+      if (!old) {
+        journal.push({
+          id: flexUid('jn'),
+          type: 'OPEN',
+          type_cn: '模拟开仓',
+          name: pos.name,
+          etf_code: pos.etf_code || '',
+          amount: costBasis,
+          price: Number(pos.avg_price) || 0,
+          qty: Number(pos.qty) || 0,
+          pnl: 0,
+          at: new Date().toISOString(),
+          note: `策略纸面开仓 · 权重 ${((Number(pos.weight) || 0) * 100).toFixed(1)}% · as_of=${asOf || '—'}`,
+        });
+        continue;
+      }
+      const prevCost = Math.round((Number(old.cost_basis) || 0) * 100) / 100;
+      const nextCost = Math.round(costBasis * 100) / 100;
+      const delta = nextCost - prevCost;
+      // Ignore sub-yuan float noise when re-entering the same paper book
+      if (Math.abs(delta) >= Math.max(1, capital * 0.001)) {
+        journal.push({
+          id: flexUid('jn'),
+          type: delta > 0 ? 'ADD' : 'REDUCE',
+          type_cn: delta > 0 ? '模拟加仓' : '模拟减仓',
+          name: pos.name,
+          etf_code: pos.etf_code || '',
+          amount: Math.abs(delta),
+          price: Number(pos.last_price) || Number(pos.avg_price) || 0,
+          qty: Number(pos.avg_price) > 0 ? Math.abs(delta) / Number(pos.avg_price) : 0,
+          pnl: 0,
+          at: new Date().toISOString(),
+          note: `目标权重 ${((Number(pos.weight) || 0) * 100).toFixed(1)}% · as_of=${asOf || '—'}`,
+        });
+      }
+    }
+
+    for (const [key, old] of Object.entries(prev.positions || {})) {
+      const still = positions[key] || positions[flexSimPositionKey(old)];
+      if (still) continue;
+      if (!(Number(old.qty) > 0 || Number(old.cost_basis) > 0)) continue;
+      const cost = Number(old.cost_basis) || 0;
+      const mark = Number(old.last_price) > 0 && Number(old.qty) > 0
+        ? Number(old.qty) * Number(old.last_price)
+        : cost;
+      const pnl = Math.round((mark - cost) * 100) / 100;
+      const ret = cost > 0 ? pnl / cost : 0;
+      const avoided = flexTargetIsAvoided(old, f);
+      journal.push({
+        id: flexUid('jn'),
+        type: 'CLOSE',
+        type_cn: avoided ? '模拟回避清仓' : '模拟平仓',
+        name: old.name || '—',
+        etf_code: old.etf_code || '',
+        amount: Math.round(mark * 100) / 100,
+        price: Number(old.last_price) || 0,
+        qty: Number(old.qty) || 0,
+        pnl,
+        return_pct: Math.round(ret * 1e6) / 1e6,
+        at: new Date().toISOString(),
+        note: avoided
+          ? `AVOID 归零 · as_of=${asOf || '—'}`
+          : `策略纸面退出 · as_of=${asOf || '—'}`,
+      });
+    }
+  }
+
   const uPnlSum = uPnlParts.reduce((s, x) => s + x, 0);
-  const journal = Array.isArray(prev.journal) ? prev.journal.slice(-80) : [];
   const uRet = deployed > 0 ? uPnlSum / deployed : 0;
-  const syncNote = [
-    `as_of=${asOf || '—'}`,
-    `持仓 ${Object.keys(positions).length}`,
-    `EOD盯市 ${marked}`,
-    missingPx ? `缺价 ${missingPx}` : null,
-    `涨跌幅 ${flexFormatSignedPct(uRet)}`,
-  ].filter(Boolean).join(' · ');
-  if (
-    prev.strategy_as_of !== asOf
-    || Object.keys(prev.positions || {}).length !== Object.keys(positions).length
-    || prev.mark_as_of !== asOf
-  ) {
+  // One SYNC per new strategy as_of only (not every tab switch)
+  if (asOfChanged) {
     journal.push({
       id: flexUid('jn'),
       type: 'SYNC',
@@ -1022,7 +1218,13 @@ function rebuildSimLedgerFromStrategy(flex) {
       pnl: Math.round(uPnlSum * 100) / 100,
       return_pct: Math.round(uRet * 1e6) / 1e6,
       at: new Date().toISOString(),
-      note: syncNote,
+      note: [
+        `as_of=${asOf || '—'}`,
+        `持仓 ${Object.keys(positions).length}`,
+        `EOD盯市 ${marked}`,
+        missingPx ? `缺价 ${missingPx}` : null,
+        `涨跌幅 ${flexFormatSignedPct(uRet)}`,
+      ].filter(Boolean).join(' · '),
     });
   }
 
@@ -1032,10 +1234,11 @@ function rebuildSimLedgerFromStrategy(flex) {
     capital,
     cash: Math.max(0, Math.round((capital - deployed) * 100) / 100),
     positions,
-    journal,
+    journal: journal.slice(-100),
     updated_at: new Date().toISOString(),
     strategy_as_of: asOf,
     mark_as_of: asOf,
+    structure_sig: nextSig,
     mark_policy: 'SIM_ENTRY_OPEN_MARK_CLOSE',
     mark_policy_cn: '入场=开盘价 · 盯市=收盘价 · 日频EOD',
   };
@@ -1535,23 +1738,8 @@ function renderFlexAccountBar() {
 
   const note = document.getElementById('flexMarkNote');
   if (note) {
-    if (isFlexSimBook()) {
-      const marksOk = dashboardState.etfMarks?.by_code
-        && Object.keys(dashboardState.etfMarks.by_code).length > 0;
-      const missN = flexOpenPositions(ledger)
-        .filter(p => String(p.mark_quality || '') === 'MISSING').length;
-      note.textContent = capital > 0
-        ? (missN > 0
-          ? `模拟仓：${missN} 只缺 EOD 行情，对应涨跌幅显示「缺价」（不会假显示 0%）。请更新 etf_daily_marks。`
-          : (marksOk
-            ? '模拟仓专业EOD：入场=入场日开盘价，盯市=as_of收盘价；严格跟随策略纸面；与真实账本分离。'
-            : '模拟仓：缺 etf_daily_marks 日线。涨跌幅显示「缺价」，不会假显示 0%。请跑日更。'))
-        : '模拟仓：先保存全仓金额，将按策略目标权重自动铺仓（EOD 开盘入场/收盘盯市）。';
-    } else {
-      note.textContent = mtm > 0
-        ? '真实仓：市值 / 浮动盈亏按最近一次录入成交价计算，非实时行情。'
-        : '真实仓：录入成交价后计算市值与浮动盈亏；点「买」才入账，不会自动下单。';
-    }
+    note.hidden = true;
+    note.textContent = '';
   }
 
   const capitalHint = document.getElementById('flexCapitalHint');
@@ -1960,11 +2148,25 @@ function flexDateCn(offsetDays = 0) {
 }
 
 /**
- * Actionable window for the desk: 今天 + 明天（上海日历）.
- * Also used as a soft "book is current" check (see flexBookLagDays).
+ * Current A-share session date for the desk:
+ * last trade_date on or before Shanghai calendar today
+ * (weekend/holiday → previous session — never count non-trading natural days).
+ */
+function flexSessionTradeDate() {
+  const calToday = flexDateCn(0);
+  const dates = flexEnsureTradeCalendar();
+  if (!dates.length) return calToday;
+  return dates[flexTradeDateIndexOnOrBefore(calToday, dates)] || calToday;
+}
+
+/**
+ * Actionable window: current session + next trade session (T, T+1).
+ * Trading calendar only.
  */
 function flexActionableDateSet() {
-  return new Set([flexDateCn(0), flexDateCn(1)]);
+  const t = flexSessionTradeDate();
+  const t1 = flexAddTradingDays(t, 1);
+  return new Set([t, t1].filter(Boolean));
 }
 
 function flexDateInActionWindow(dateStr, windowSet = flexActionableDateSet()) {
@@ -1973,32 +2175,34 @@ function flexDateInActionWindow(dateStr, windowSet = flexActionableDateSet()) {
   return windowSet.has(day);
 }
 
-/** Calendar day lag from as_of → Shanghai today (0 = same day). */
+/**
+ * Trading-day lag from as_of → current session trade date.
+ * 0 = as_of is the latest session (aligned), even on weekend/holiday.
+ * Must NOT use natural-day difference (e.g. Fri→Sun is still lag 0).
+ */
 function flexBookLagDays(asOf) {
   const a = String(asOf || '').slice(0, 10);
-  const b = flexDateCn(0);
   if (!a || !/^\d{4}-\d{2}-\d{2}$/.test(a)) return null;
-  const [y1, m1, d1] = a.split('-').map(Number);
-  const [y2, m2, d2] = b.split('-').map(Number);
-  const t1 = Date.UTC(y1, m1 - 1, d1);
-  const t2 = Date.UTC(y2, m2 - 1, d2);
-  return Math.round((t2 - t1) / 86400000);
+  const session = flexSessionTradeDate();
+  const lag = flexTradingDaysBetween(a, session);
+  if (!Number.isFinite(lag)) return null;
+  return Math.max(0, lag);
 }
 
 /**
  * Desk rule (personal execution — strict):
  * 1) T = real strategy signal day (entry_signal_date / day engine emits OPEN), NOT playbook as_of alone.
- * 2) Buy/confirm allowed only on T and T+1 (Shanghai calendar lag 0..1).
- * 3) From T+2 the open signal is gone — never invent signal day from days_held.
+ * 2) Buy/confirm allowed only on T and T+1 trading sessions (lag 0..1 on trade calendar).
+ * 3) From T+2 trading sessions the open signal is gone.
  * 4) Holding only after user clicks 买. Paper HOLD ≠ user hold.
- * 5) Hold clock starts on the day the user confirmed the buy.
+ * 5) Hold clock uses trading days from confirm buy date.
  */
 function flexBookIsToday(asOf) {
   const a = String(asOf || '').slice(0, 10);
-  return !!a && a === flexDateCn(0);
+  return !!a && a === flexSessionTradeDate();
 }
 
-/** True when signalDay is T or T+1 relative to Shanghai today. lag≥2 → false. */
+/** True when signalDay is T or next trade day T+1 vs current session. lag≥2 trade days → false. */
 function deskSignalWindowOpen(signalDay) {
   const lag = flexBookLagDays(signalDay);
   return lag != null && lag >= 0 && lag <= FLEX_OPEN_SIGNAL_MAX_LAG_DAYS;
@@ -2293,12 +2497,18 @@ function splitFlexSignalBuckets(flex) {
   // Personal hold-days expired (from the day user clicked 买) — always.
   for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
 
-  // AVOID: only tip names the user actually holds.
+  // AVOID: only tip names the user actually holds (real: manual cut; sim: auto-zero on rebuild).
   for (const item of f.avoid_list || []) {
     const action = String(item.action || item.side || '').toUpperCase();
     if (!avoidKeys.has(action) && action !== 'FLAT') continue;
     if (!flexIsLocallyHeld(item, ledger)) continue;
-    pushUnique('avoid', item);
+    pushUnique('avoid', {
+      ...item,
+      _simAuto: isFlexSimBook(),
+      action_cn: isFlexSimBook()
+        ? '回避·模拟自动归零'
+        : (item.action_cn || '回避/条件减配'),
+    });
   }
 
   buckets.hold = []; // never list paper HOLD; real holds live under 持仓 tab
@@ -2350,47 +2560,48 @@ function renderFlexSignalRows(items, flex, options = {}) {
 
     let acts = '';
     if (interactive) {
-      if (isAvoid) {
-        // Only listed when user holds it — tip + act
+      if (isFlexSimBook()) {
+        // Sim book is fully automatic: open / size / avoid-cut / close via rebuildSimLedgerFromStrategy.
+        if (isAvoid) {
+          acts = held
+            ? '<span class="flex-chip ghost" title="模拟仓：回避名单自动归零">自动回避</span>'
+            : '<span class="flex-row-muted">—</span>';
+        } else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
+          acts = held
+            ? '<span class="flex-chip ghost" title="模拟仓由策略纸面自动平仓">自动平</span>'
+            : '<span class="flex-row-muted" title="策略提示">提示</span>';
+        } else if (held) {
+          acts = '<span class="flex-chip ghost" title="模拟仓自动跟随策略权重">已同步</span>';
+        } else if (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action)) {
+          acts = '<span class="flex-chip ghost" title="模拟仓在策略 open 时自动铺仓">自动开</span>';
+        }
+      } else if (isAvoid) {
+        // Real book: only listed when user holds it — tip + act
         acts = held
           ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
              <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
           : '<span class="flex-row-muted">—</span>';
       } else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
-        if (isFlexSimBook()) {
-          acts = held
-            ? '<span class="flex-chip ghost" title="模拟仓由策略自动同步平仓">模拟跟单</span>'
-            : '<span class="flex-row-muted" title="策略提示，模拟仓未持有">提示</span>';
-        } else {
-          acts = held
-            ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
-               <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
-            : '<span class="flex-row-muted" title="未点买，仅策略提示">仅提示</span>';
-        }
+        acts = held
+          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
+             <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
+          : '<span class="flex-row-muted" title="未点买，仅策略提示">仅提示</span>';
       } else if (held) {
-        if (isFlexSimBook()) {
-          acts = '<span class="flex-chip ghost" title="模拟仓自动跟随策略">已同步</span>';
-        } else {
-          acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加</button>
-            <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
-            <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`;
-        }
+        acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加</button>
+          <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
+          <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`;
       } else if (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action)) {
-        if (isFlexSimBook()) {
-          acts = '<span class="flex-chip ghost" title="模拟仓将在策略 open 时自动铺仓">自动跟</span>';
-        } else {
-          acts = `<button type="button" class="flex-chip primary"
-            data-flex-act="buy"
-            data-pos-key="${escapeHtml(key)}"
-            data-name="${escapeHtml(item.name || '')}"
-            data-etf-code="${escapeHtml(etfCode)}"
-            data-etf-name="${escapeHtml(item.etf_name || '')}"
-            data-sleeve="${escapeHtml(item.sleeve || '')}"
-            data-suggested="${suggested != null ? suggested : ''}"
-            data-signal-as-of="${escapeHtml(signalAsOf)}"
-            data-hold-days="${planDays != null ? planDays : ''}"
-          >记买入</button>`;
-        }
+        acts = `<button type="button" class="flex-chip primary"
+          data-flex-act="buy"
+          data-pos-key="${escapeHtml(key)}"
+          data-name="${escapeHtml(item.name || '')}"
+          data-etf-code="${escapeHtml(etfCode)}"
+          data-etf-name="${escapeHtml(item.etf_name || '')}"
+          data-sleeve="${escapeHtml(item.sleeve || '')}"
+          data-suggested="${suggested != null ? suggested : ''}"
+          data-signal-as-of="${escapeHtml(signalAsOf)}"
+          data-hold-days="${planDays != null ? planDays : ''}"
+        >记买入</button>`;
       }
     }
 
@@ -2475,7 +2686,7 @@ function renderFlexSignalList(flex, options = {}) {
             : '设置全仓后，模拟仓将按策略纸面自动铺仓。';
         } else if (lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS) {
           title.textContent = '买入窗口已过';
-          body.textContent = `策略 as_of=${asOf || '—'}，今天=${today}（差 ${lag} 天）。仅 T～T+1 可买；已过期信号不会补显示。持仓见「持仓」页。`;
+          body.textContent = `策略 as_of=${asOf || '—'}，当前交易日=${flexSessionTradeDate()}（差 ${lag} 个交易日）。仅 T～T+1 可买。`;
         } else {
           title.textContent = '今日无行动信号';
           body.textContent = asOf
@@ -2734,10 +2945,10 @@ function applyFlexModeOverlay(flex, mode) {
   // Client-side re-label of weights for aggressive vs conservative without rebuild
   if (!flex || !flex.allocation) return flex;
   const modes = flex.modes || {};
-  const cfg = modes[mode];
+  const cfg = modes[mode] || modes.aggressive;
   if (!cfg) return flex;
   const copy = { ...flex, mode };
-  // Allocation strip: open signals in T..T+1 window, or personal holdings.
+  // Allocation strip: open signals in T..T+1 window, paper open sleeves, or personal holdings.
   const freshOpen = deskCollectOpenSignals(flex);
   const hasCoreOpen = freshOpen.some(x => String(x.sleeve || '') === 'core'
     || String(x.name || '').includes('沪深300')
@@ -2751,9 +2962,13 @@ function applyFlexModeOverlay(flex, mode) {
     etf_code: (flex.core && flex.core.etf_code) || '510300',
   }, ledgerForAlloc);
   const satHeld = flexOpenPositions(ledgerForAlloc).some(p => String(p.sleeve || '') === 'satellite');
-  const coreOn = hasCoreOpen || coreHeld
+  // Critical for sim: paper position_state "open" must drive sleeve weights even when
+  // action lists show HOLD (not OPEN) and local ledger is empty before rebuild.
+  const corePaperOpen = String(flex.position_state?.core?.status || '') === 'open';
+  const satPaperOpen = String(flex.position_state?.satellite?.status || '') === 'open';
+  const coreOn = hasCoreOpen || coreHeld || corePaperOpen
     || !!(flex.core && flex.core.active && String(flex.core.action || '').toUpperCase() === 'OPEN');
-  const satOn = hasSatOpen || satHeld
+  const satOn = hasSatOpen || satHeld || satPaperOpen
     || !!(flex.satellite && flex.satellite.active && String(flex.satellite.action || flex.satellite.status_cn || '').includes('新开'));
   let wCore = coreOn ? Number(cfg.core_when_signal || 0.5) : 0;
   let wSat = satOn ? Number(cfg.sat_when_signal || 0.3) : 0;
@@ -2815,7 +3030,9 @@ function renderFlexTradePanel(playbook) {
   }
 
   dashboardState.flexPlaybook = playbook;
-  const mode = dashboardState.flexMode || flex.mode || 'aggressive';
+  // Product lock: only aggressive Flex sizing is exposed in the app.
+  const mode = 'aggressive';
+  dashboardState.flexMode = 'aggressive';
   flex = applyFlexModeOverlay(flex, mode);
   // Promote root playbook metadata onto flex for signal filters / empty-state copy.
   flex = {
@@ -2845,13 +3062,15 @@ function renderFlexTradePanel(playbook) {
     if (dq.bridged) label = `${label}·桥`;
     else if (lag != null && lag > 0) label = `${label}·滞${lag}d`;
     asOfEl.textContent = label;
+    const session = flexSessionTradeDate();
     asOfEl.title = [
       `策略书 as_of=${asOf}`,
+      `当前交易日=${session}`,
       dq.official_as_of ? `正式 RT=${dq.official_as_of}` : '',
       dq.bridged ? `桥接日 ${(dq.bridged_dates || []).join(',')}` : '',
-      lag != null && lag > 0 ? `落后今日 ${lag} 个日历日` : '与今日对齐',
+      lag != null && lag > 0 ? `落后 ${lag} 个交易日` : '与当前交易日对齐',
     ].filter(Boolean).join(' · ');
-    // lag 1 is still inside T+1 buy window; only warn when past T+1
+    // lag 1 = still T+1 trade window; only warn when past next trading session
     asOfEl.classList.toggle('warn', !!(lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS));
   }
   setText('flexHold', `${flex.hold_days || 5}交易日`);
@@ -2953,49 +3172,22 @@ function renderFlexTradePanel(playbook) {
     ].filter(Boolean).join(' · ');
   }
 
-  document.querySelectorAll('.flex-mode-btn[data-flex-mode]').forEach(btn => {
-    btn.classList.toggle('active', btn.dataset.flexMode === mode);
-  });
-
-  const modeCfg = (flex.modes || {})[mode] || {};
-  const modeLabel = mode === 'conservative' ? '保守' : '进取';
+  // Always aggressive; UI only toggles real/sim book.
+  dashboardState.flexMode = 'aggressive';
+  const modeCfg = (flex.modes || {}).aggressive || (flex.modes || {})[mode] || {};
   const bookLabel = isFlexSimBook() ? '模拟' : '真实';
-  const modeDetail = modeCfg.label_cn
-    || (mode === 'conservative' ? '50/30 · cap80%' : '60/40 · 单仓满');
-  setText('flexModeHint', `${modeLabel}·${bookLabel}`);
+  setText('flexModeHint', bookLabel);
   const modeHintEl = document.getElementById('flexModeHint');
   if (modeHintEl) {
     modeHintEl.title = isFlexSimBook()
-      ? `${modeDetail} · 模拟仓严格跟随策略纸面（独立账本）`
-      : `${modeDetail} · 真实仓仅本机点买`;
+      ? `${modeCfg.label_cn || '进取'} · 模拟仓`
+      : `${modeCfg.label_cn || '进取'} · 真实仓`;
   }
 
   const trust = document.getElementById('flexTrustLine');
-  if (trust && asOf) {
-    const ep = flex.exit_plan || {};
-    const satEp = ep.satellite || {};
-    const paths = satEp.paths || {};
-    const trig = satEp.triggered_close || (ep.core || {}).triggered_close;
-    const planBits = [];
-    if (satEp.status === 'open') {
-      if (paths.max_signal_date) {
-        planBits.push(`卫星最长到期信号 <code>${escapeHtml(paths.max_signal_date)}</code>→执行 <code>${escapeHtml(paths.max_exec_next_open || '次日开')}</code>`);
-      }
-      if (satEp.days_to_max != null) planBits.push(`距最长还 ${escapeHtml(String(satEp.days_to_max))} 日`);
-    }
-    if (trig?.close_code) {
-      planBits.push(`已触发 <code>${escapeHtml(trig.close_code)}</code>`);
-    }
-    const planHtml = planBits.length
-      ? ` · <strong>退出日程</strong>：${planBits.join('；')}`
-      : '';
-    if (isFlexSimBook()) {
-      const marksAsOf = dashboardState.etfMarks?.as_of || '—';
-      const nCodes = Object.keys(dashboardState.etfMarks?.by_code || {}).length;
-      trust.innerHTML = `<strong>模拟仓·专业EOD</strong>：策略 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code> · 行情 as_of <code>${escapeHtml(String(marksAsOf))}</code>（${nCodes} 只ETF）· <strong>入场=开盘 / 盯市=收盘</strong> · 无盘中轮询 · 与真实账本分离。${planHtml}`;
-    } else {
-      trust.innerHTML = `<strong>真实仓</strong>：信号 as_of <code>${escapeHtml(String(asOf).slice(0, 10))}</code>。<strong>T 与 T+1 可点「买」</strong>；T+2 消失。与「模拟」账本完全分离。${planHtml}`;
-    }
+  if (trust) {
+    trust.hidden = true;
+    trust.textContent = '';
   }
 
   renderFlexSignalList(flex, { signalAsOf: asOf });
@@ -3078,8 +3270,242 @@ async function refreshDashboard({ forceFull = false } = {}) {
   }
 }
 
+const APP_VIEW_KEY = 'ashare_app_view_v1';
+
+function resizeVisibleCharts() {
+  try {
+    dashboardState.componentChart?.resize();
+    (dashboardState.timeCharts || []).forEach(chart => chart?.resize?.());
+    Object.values(dashboardState.chartInstances || {}).forEach(chart => chart?.resize?.());
+  } catch (_) { /* ignore */ }
+}
+
+function setAppView(viewId, { persist = true } = {}) {
+  const allowed = new Set(['temp', 'history', 'flex']);
+  const view = allowed.has(viewId) ? viewId : 'temp';
+
+  document.querySelectorAll('.app-view').forEach(el => {
+    const on = el.dataset.view === view;
+    el.classList.toggle('is-active', on);
+    if (on) el.removeAttribute('hidden');
+    else el.setAttribute('hidden', '');
+  });
+
+  document.querySelectorAll('#appDock [data-view], .app-dock-item[data-view]').forEach(btn => {
+    const on = btn.getAttribute('data-view') === view;
+    btn.classList.toggle('active', on);
+    btn.setAttribute('aria-selected', on ? 'true' : 'false');
+  });
+
+  document.body.dataset.appView = view;
+  if (persist) {
+    try { localStorage.setItem(APP_VIEW_KEY, view); } catch (_) { /* ignore */ }
+  }
+  // Charts in hidden views need a resize when shown.
+  requestAnimationFrame(() => {
+    resizeVisibleCharts();
+    setTimeout(resizeVisibleCharts, 60);
+  });
+  try {
+    if (location.hash !== `#${view}`) {
+      history.replaceState(null, '', `#${view}`);
+    }
+  } catch (_) { /* ignore */ }
+}
+
+function bindAppTabs() {
+  document.querySelectorAll('#appDock [data-view], .app-dock-item[data-view]').forEach(btn => {
+    if (btn.dataset.boundTabs === '1') return;
+    btn.dataset.boundTabs = '1';
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      setAppView(btn.getAttribute('data-view'));
+    });
+  });
+  window.addEventListener('hashchange', () => {
+    const h = (location.hash || '').replace(/^#/, '');
+    if (h === 'temp' || h === 'history' || h === 'flex') setAppView(h, { persist: true });
+  });
+}
+
+function initialAppView() {
+  const hash = (location.hash || '').replace(/^#/, '');
+  if (hash === 'temp' || hash === 'history' || hash === 'flex') return hash;
+  try {
+    const saved = localStorage.getItem(APP_VIEW_KEY);
+    if (saved === 'temp' || saved === 'history' || saved === 'flex') return saved;
+  } catch (_) { /* ignore */ }
+  return 'temp';
+}
+
+function bindMagazineChrome() {
+  bindAppTabs();
+  setAppView(initialAppView(), { persist: false });
+  // Detect Expo / standalone WebView for slight chrome tweaks
+  try {
+    const ua = navigator.userAgent || '';
+    if (/Expo|ReactNative|wv\)/i.test(ua) || window.ReactNativeWebView) {
+      document.body.classList.add('in-app-webview');
+    }
+  } catch (_) { /* ignore */ }
+  bindDataPlaneControls();
+}
+
+async function fetchDataPlaneStatus() {
+  try {
+    const res = await fetch('./api/status', { cache: 'no-store' });
+    if (!res.ok) throw new Error('status ' + res.status);
+    const status = await res.json();
+    dashboardState.dataPlane.available = true;
+    dashboardState.dataPlane.status = status;
+    renderDataPlaneBar(status);
+    return status;
+  } catch (_) {
+    dashboardState.dataPlane.available = false;
+    dashboardState.dataPlane.status = null;
+    renderDataPlaneBar(null);
+    return null;
+  }
+}
+
+function setDataPlaneActionsVisible(on) {
+  const actions = document.querySelector('#dataPlaneBar .data-plane-actions');
+  if (actions) actions.hidden = !on;
+}
+
+function paintStaticPagesPlaneMeta(latest) {
+  if (dashboardState.dataPlane.available) return;
+  const sourceEl = document.getElementById('dataPlaneSource');
+  const metaEl = document.getElementById('dataPlaneMeta');
+  const bar = document.getElementById('dataPlaneBar');
+  if (sourceEl) sourceEl.textContent = 'Pages';
+  if (bar) {
+    bar.dataset.state = 'fresh';
+    bar.dataset.plane = 'pages';
+  }
+  setDataPlaneActionsVisible(false);
+  setDataPlaneButtonsEnabled(false);
+  if (!metaEl) return;
+  if (!latest) {
+    metaEl.textContent = 'GitHub Actions 自动更新';
+    return;
+  }
+  metaEl.textContent = [
+    latest.risk_temperature != null ? `RT ${latest.risk_temperature}` : null,
+    latest.temperature_mode_cn || latest.temperature_mode || null,
+    latest.trade_date || null,
+  ].filter(Boolean).join(' · ');
+}
+
+function renderDataPlaneBar(status) {
+  const bar = document.getElementById('dataPlaneBar');
+  const sourceEl = document.getElementById('dataPlaneSource');
+  const metaEl = document.getElementById('dataPlaneMeta');
+  if (!bar || !sourceEl || !metaEl) return;
+
+  // Pure GitHub Pages / static host: no /api — hide 实时/日更 (they only work on app_server).
+  if (!status) {
+    paintStaticPagesPlaneMeta(null);
+    return;
+  }
+
+  setDataPlaneActionsVisible(true);
+  bar.dataset.plane = 'api';
+
+  const latest = status.latest || {};
+  const fresh = status.freshness || {};
+  const age = fresh.age_minutes;
+  const ageLabel = age == null ? '' : (age < 60 ? `${age}m` : `${Math.round(age / 60)}h`);
+  const mode = latest.temperature_mode_cn || latest.temperature_mode || '';
+  const rt = latest.risk_temperature ?? '—';
+
+  sourceEl.textContent = status.independent_of_github === false ? 'API' : '本机';
+  metaEl.textContent = [rt !== '—' ? `RT ${rt}` : null, mode, ageLabel, status.refresh_running ? '…' : null]
+    .filter(Boolean)
+    .join(' · ');
+
+  if (status.refresh_running) bar.dataset.state = 'stale';
+  else if (fresh.stale) bar.dataset.state = 'stale';
+  else if (status.last_error) bar.dataset.state = 'error';
+  else bar.dataset.state = 'fresh';
+
+  setDataPlaneButtonsEnabled(!status.refresh_running && !dashboardState.dataPlane.refreshInFlight);
+}
+
+function setDataPlaneButtonsEnabled(on) {
+  ['dataPlaneRefreshRealtime', 'dataPlaneRefreshFull'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) btn.disabled = !on;
+  });
+}
+
+async function requestDataPlaneRefresh(mode) {
+  // Static Pages: no pipeline API — just re-fetch JSON (Actions already wrote files).
+  if (!dashboardState.dataPlane.available) {
+    const metaEl = document.getElementById('dataPlaneMeta');
+    if (metaEl) metaEl.textContent = '重载…';
+    dashboardState.cacheBust = String(Date.now());
+    try {
+      await refreshDashboard(true);
+      paintStaticPagesPlaneMeta({
+        risk_temperature: document.getElementById('riskTemperature')?.textContent,
+        trade_date: document.getElementById('tradeDate')?.textContent,
+        temperature_mode_cn: document.getElementById('quality')?.textContent,
+      });
+    } catch (err) {
+      if (metaEl) metaEl.textContent = '重载失败';
+      console.error(err);
+    }
+    return;
+  }
+
+  if (dashboardState.dataPlane.refreshInFlight) return;
+  dashboardState.dataPlane.refreshInFlight = true;
+  setDataPlaneButtonsEnabled(false);
+  const metaEl = document.getElementById('dataPlaneMeta');
+  if (metaEl) metaEl.textContent = mode === 'full' ? '日更…' : '实时…';
+  try {
+    const res = await fetch('./api/refresh?mode=' + encodeURIComponent(mode), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode }),
+    });
+    const payload = await res.json().catch(() => ({}));
+    if (mode === 'full' && res.status === 202) {
+      for (let i = 0; i < 90; i++) {
+        await new Promise(r => setTimeout(r, 2000));
+        const st = await fetchDataPlaneStatus();
+        if (st && !st.refresh_running) break;
+      }
+    } else if (!res.ok && !payload.ok) {
+      throw new Error(payload.error || payload.detail || ('refresh failed ' + res.status));
+    }
+    dashboardState.cacheBust = String(Date.now());
+    await refreshDashboard(true);
+    await fetchDataPlaneStatus();
+  } catch (err) {
+    console.error(err);
+    const bar = document.getElementById('dataPlaneBar');
+    if (bar) bar.dataset.state = 'error';
+    if (metaEl) metaEl.textContent = '刷新失败：' + (err.message || String(err));
+  } finally {
+    dashboardState.dataPlane.refreshInFlight = false;
+    setDataPlaneButtonsEnabled(true);
+  }
+}
+
+function bindDataPlaneControls() {
+  const rt = document.getElementById('dataPlaneRefreshRealtime');
+  const full = document.getElementById('dataPlaneRefreshFull');
+  if (rt) rt.addEventListener('click', () => requestDataPlaneRefresh('realtime'));
+  if (full) full.addEventListener('click', () => requestDataPlaneRefresh('full'));
+}
+
 async function main() {
   document.body.classList.add('is-loading');
+  bindMagazineChrome();
+  // Probe independent local data plane first (never GitHub).
+  await fetchDataPlaneStatus();
   try {
     const critical = await loadCriticalDashboardData();
     renderCriticalDashboard(critical);
@@ -3088,20 +3514,17 @@ async function main() {
     const heavy = await loadHeavyDashboardData();
     renderHeavyDashboard(heavy);
     updateRefreshStatus('ok', '初始数据加载完成；页面每 60 秒检查 latest 是否更新');
+    await fetchDataPlaneStatus();
   } catch (err) {
     document.body.classList.remove('is-loading');
     throw err;
   }
-  bindRangeControls(range => {
-    dashboardState.activeRange = range;
-    dashboardState.timeCharts = renderTimeCharts(dashboardState.history, dashboardState.strategy, range);
-  });
+  bindRangeControls();
   bindFlexModeControls();
   bindFlexExecControls();
   renderFlexExecUi();
   window.addEventListener('resize', () => {
-    dashboardState.componentChart?.resize();
-    dashboardState.timeCharts.forEach(chart => chart.resize());
+    resizeVisibleCharts();
   });
 }
 
@@ -3114,11 +3537,13 @@ main().catch(err => {
 setInterval(() => {
   if (!document.hidden) {
     refreshDashboard();
+    fetchDataPlaneStatus();
   }
 }, AUTO_REFRESH_MS);
 
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) {
     refreshDashboard();
+    fetchDataPlaneStatus();
   }
 });

@@ -6,84 +6,84 @@
   "hold_days_sat": "3-8",
   "execution": "T 收盘信号 → T+1 开盘",
   "core_only": {
-    "total_return": 0.9311755302620011,
-    "ann_return": 0.11030668153713585,
+    "total_return": 0.5119664669604627,
+    "ann_return": 0.06775999741759242,
     "max_dd": -0.10539504803016231,
-    "win_rate": 0.673469387755102,
-    "trade_count": 49
+    "win_rate": 0.6458333333333334,
+    "trade_count": 48
   },
   "conservative": {
     "note": "默认推荐；总暴露 capped；质量 haircut；事件退出",
     "full_sample": {
-      "total_return": 1.2880963956727345,
-      "ann_return": 0.1406516011342247,
+      "total_return": 1.1962887035360454,
+      "ann_return": 0.13289231751366537,
       "max_dd": -0.08274816867301671,
-      "win_rate": 0.6284584980237155,
+      "win_rate": 0.6245059288537549,
       "trade_count": 253,
-      "sharpe": 3.420168316431982
+      "sharpe": 3.694741218089424
     },
     "oos": {
-      "total_return": 0.6042942671047487,
-      "ann_return": 0.216032316181906,
-      "max_dd": -0.05768008782564926,
-      "win_rate": 0.6372549019607843,
-      "trade_count": 102
+      "total_return": 0.540349829185824,
+      "ann_return": 0.19434282466953,
+      "max_dd": -0.0386755214679102,
+      "win_rate": 0.6336633663366337,
+      "trade_count": 101
     }
   },
   "aggressive": {
     "note": "单仓满仓 Flex；收益偏高、换手大",
     "full_sample": {
-      "total_return": 6.110131140348363,
-      "ann_return": 0.3659678515384652,
-      "max_dd": -0.13911575406640908,
-      "win_rate": 0.6284584980237155,
+      "total_return": 6.5786025715232705,
+      "ann_return": 0.37877789429150277,
+      "max_dd": -0.1294807569121872,
+      "win_rate": 0.6245059288537549,
       "trade_count": 253,
-      "sharpe": 3.595570114994643
+      "sharpe": 3.7513669028631877
     },
     "oos": {
-      "total_return": 2.007764161540674,
-      "ann_return": 0.577226183022479,
-      "max_dd": -0.12747581009076858,
-      "win_rate": 0.6372549019607843,
-      "trade_count": 102
+      "total_return": 2.1721418233369443,
+      "ann_return": 0.6073206908691238,
+      "max_dd": -0.1076835377460511,
+      "win_rate": 0.6336633663366337,
+      "trade_count": 101
     }
   },
   "cost_stress": {
     "base_bps_one_way": 1,
     "stress_15bps": {
       "conservative": {
-        "total_return": 0.8043879803897811,
-        "ann_return": 0.09838358103226374,
+        "total_return": 0.7329300755729669,
+        "ann_return": 0.09110955413682764,
         "max_dd": -0.0953379115412808,
-        "win_rate": 0.6007905138339921,
+        "win_rate": 0.5968379446640316,
         "trade_count": 253,
-        "sharpe": 2.469342140365624
+        "sharpe": 2.615778162504761
       },
       "aggressive": {
-        "total_return": 2.85757794255057,
-        "ann_return": 0.23941997213233046,
-        "max_dd": -0.1707596299487838,
-        "win_rate": 0.6007905138339921,
+        "total_return": 3.1039796738561822,
+        "ann_return": 0.2509743411855079,
+        "max_dd": -0.15372701270564226,
+        "win_rate": 0.5968379446640316,
         "trade_count": 253,
-        "sharpe": 2.505046525809773
+        "sharpe": 2.6493209335522168
       }
     },
     "stress_30bps": {
       "conservative": {
-        "total_return": 0.3991304245532592,
-        "ann_return": 0.054848460857823245,
+        "total_return": 0.34450599170969975,
+        "ann_return": 0.048066416289660685,
         "max_dd": -0.11025760506693971,
-        "win_rate": 0.5612648221343873,
+        "win_rate": 0.5573122529644269,
         "trade_count": 253,
-        "sharpe": 1.424246940619139
+        "sharpe": 1.4270392752202097
       },
       "aggressive": {
-        "total_return": 1.0035185137900537,
-        "ann_return": 0.11681769961024102,
-        "max_dd": -0.20343115348061913,
-        "win_rate": 0.5612648221343873,
+        "total_return": 1.1271791958984165,
+        "ann_return": 0.12716254673162264,
+        "max_dd": -0.1809026517153809,
+        "win_rate": 0.5573122529644269,
         "trade_count": 253,
-        "sharpe": 1.3159926954767902
+        "sharpe": 1.4438514861141627
       }
     },
     "etf_haircut_note": "proxy×0.85 收益折扣 / weak 剔除；行业指数≠ETF"
@@ -93,49 +93,49 @@
     {
       "mode": "conservative",
       "cost_label": "base_1bps",
-      "ann_return": 0.1406516011342247,
+      "ann_return": 0.13289231751366537,
       "max_dd": -0.08274816867301671,
-      "win_rate": 0.6284584980237155,
+      "win_rate": 0.6245059288537549,
       "trade_count": 253
     },
     {
       "mode": "conservative",
       "cost_label": "stress_15bps",
-      "ann_return": 0.09838358103226374,
+      "ann_return": 0.09110955413682764,
       "max_dd": -0.0953379115412808,
-      "win_rate": 0.6007905138339921,
+      "win_rate": 0.5968379446640316,
       "trade_count": 253
     },
     {
       "mode": "conservative",
       "cost_label": "stress_30bps",
-      "ann_return": 0.054848460857823245,
+      "ann_return": 0.048066416289660685,
       "max_dd": -0.11025760506693971,
-      "win_rate": 0.5612648221343873,
+      "win_rate": 0.5573122529644269,
       "trade_count": 253
     },
     {
       "mode": "aggressive",
       "cost_label": "base_1bps",
-      "ann_return": 0.3659678515384652,
-      "max_dd": -0.13911575406640908,
-      "win_rate": 0.6284584980237155,
+      "ann_return": 0.37877789429150277,
+      "max_dd": -0.1294807569121872,
+      "win_rate": 0.6245059288537549,
       "trade_count": 253
     },
     {
       "mode": "aggressive",
       "cost_label": "stress_15bps",
-      "ann_return": 0.23941997213233046,
-      "max_dd": -0.1707596299487838,
-      "win_rate": 0.6007905138339921,
+      "ann_return": 0.2509743411855079,
+      "max_dd": -0.15372701270564226,
+      "win_rate": 0.5968379446640316,
       "trade_count": 253
     },
     {
       "mode": "aggressive",
       "cost_label": "stress_30bps",
-      "ann_return": 0.11681769961024102,
-      "max_dd": -0.20343115348061913,
-      "win_rate": 0.5612648221343873,
+      "ann_return": 0.12716254673162264,
+      "max_dd": -0.1809026517153809,
+      "win_rate": 0.5573122529644269,
       "trade_count": 253
     }
   ]

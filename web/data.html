@@ -2,17 +2,32 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Data - A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#f3eee4">
+    <title>档案 · A股风险温度计</title>
+    <link rel="stylesheet" href="./assets/app.css?v=20260719-editorial">
   </head>
-  <body>
+  <body class="app-shell">
     <header class="topbar">
-      <a class="brand" href="./index.html"><span class="brand-mark">RT</span><span><strong>A股风险温度计</strong><small>Data</small></span></a>
-      <nav><a href="./index.html">Dashboard</a><a href="./methodology.html">Methodology</a></nav>
+      <a class="brand" href="./index.html">
+        <span class="brand-mark">RT</span>
+        <span><strong>A股风险温度计</strong><small>档案</small></span>
+      </a>
+      <nav>
+        <a href="./index.html">本期</a>
+        <a href="./methodology.html">方法</a>
+        <a href="./data.html" class="active">档案</a>
+      </nav>
     </header>
+
+    <div class="masthead" aria-label="刊头">
+      <div class="masthead-kicker">数据档案</div>
+      <h1 class="masthead-title">可下载序列</h1>
+      <p class="masthead-sub">JSON 快照与 CSV 研究导出，供复核与二次分析。</p>
+    </div>
+
     <main class="content-page">
-      <h1>Data Downloads</h1>
+      <p class="section-kicker">下载列表</p>
       <div class="download-list">
         <a href="./data/latest.json">latest.json</a>
         <a href="./data/history.json">history.json</a>
@@ -34,5 +49,12 @@
         <a href="./data/downloads/low_position_sector_metrics.csv">low_position_sector_metrics.csv</a>
       </div>
     </main>
+
+    <nav class="app-dock" aria-label="主导航">
+      <a href="./index.html" data-dock="dash"><span class="dock-icon">一</span><span>本期</span></a>
+      <a href="./index.html#flexTradePanel" data-dock="flex"><span class="dock-icon">二</span><span>实务</span></a>
+      <a href="./methodology.html" data-dock="method"><span class="dock-icon">三</span><span>方法</span></a>
+      <a href="./data.html" class="active" data-dock="data"><span class="dock-icon">四</span><span>档案</span></a>
+    </nav>
   </body>
 </html>

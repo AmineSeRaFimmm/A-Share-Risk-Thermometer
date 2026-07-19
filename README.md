@@ -64,6 +64,23 @@ python -c "from tests.test_scoring_config import *; test_weights_sum_to_one(); t
 
 Open `docs/index.html` after `build_site_data.py`.
 
+## Mobile app (Expo Go)
+
+Magazine-style mobile shell lives in `mobile/`. All dashboard features are preserved; the app loads the static site in a WebView.
+
+```bash
+# Terminal 1 — serve magazine UI + data
+npm run mobile:serve
+
+# Terminal 2 — Expo (iOS Simulator / same-machine)
+npm run mobile:ios
+
+# Physical phone via Expo Go (same Wi-Fi): replace with your LAN IP
+cd mobile && EXPO_PUBLIC_WEB_URL=http://YOUR_LAN_IP:8787 npx expo start
+```
+
+See `mobile/README.md` for details.
+
 ### Full rebuild vs incremental
 
 - `python scripts/bootstrap_history.py --full` — full option probe + full AVIX recompute

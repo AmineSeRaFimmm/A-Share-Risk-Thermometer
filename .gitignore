@@ -5,6 +5,20 @@ __pycache__/
 .pytest_cache/
 data/raw/**/*.tmp
 tmp/
+*.bak
+
+# Expo mobile
+mobile/node_modules/
+mobile/.expo/
+mobile/dist/
+mobile/.env
+mobile/.env.*
+
+# Local zero-cost production
+deploy/local-zero/logs/
+deploy/local-zero/locks/
+deploy/local-zero/cloudflared/config.yml
+deploy/local-zero/cloudflared/*.json
 
 # Large optional research raw dumps (keep normalized sector history tracked)
 data/raw/sectors/etf_holdings/
