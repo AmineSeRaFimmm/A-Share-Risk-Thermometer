@@ -911,19 +911,17 @@ dd[data-freshness="stale"] { color: var(--red); }
   border-bottom: 1px solid #2a352f;
 }
 
-/* 全仓 | 输入 | 保存/清空竖排  ——  与右侧 KPI 顶对齐 */
+/* 全仓 | 短数字框 | 保存 | 清空 —— 同一行 */
 .flex-strip-fund {
-  display: grid;
-  grid-template-columns: auto auto auto;
-  grid-template-rows: auto auto;
-  gap: 6px 8px;
+  display: flex;
+  flex-wrap: nowrap;
   align-items: center;
+  gap: 6px 8px;
   min-width: 0;
 }
 
 .flex-fund-label {
-  grid-column: 1;
-  grid-row: 1;
+  flex: 0 0 auto;
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.08em;
@@ -939,15 +937,16 @@ dd[data-freshness="stale"] { color: var(--red); }
 }
 
 .flex-strip-fund input {
-  grid-column: 2;
-  grid-row: 1;
-  width: 132px;
+  flex: 0 0 88px;
+  width: 88px;
+  max-width: 88px;
+  min-width: 0;
   height: 34px;
   border: 1px solid rgba(240, 235, 227, 0.22);
   border-radius: 0;
   background: rgba(0, 0, 0, 0.22);
   color: #faf7f0;
-  padding: 0 10px;
+  padding: 0 8px;
   font-size: 13px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -956,20 +955,20 @@ dd[data-freshness="stale"] { color: var(--red); }
 .flex-strip-fund input::placeholder { color: rgba(240, 235, 227, 0.35); }
 
 .flex-fund-actions {
-  grid-column: 3;
-  grid-row: 1 / span 2;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: nowrap;
   gap: 6px;
-  align-self: start;
+  flex: 0 0 auto;
+  align-items: center;
 }
 
-/* 保存 / 清空：同尺寸（原 primary 按钮规格） */
+/* 保存 / 清空：同尺寸，横排 */
 .flex-fund-actions .flex-exec-btn {
-  width: 64px;
-  min-width: 64px;
+  width: 52px;
+  min-width: 52px;
   height: 34px;
-  padding: 0 12px;
+  padding: 0 8px;
   margin: 0;
   box-sizing: border-box;
   display: inline-flex;
