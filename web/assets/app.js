@@ -3663,7 +3663,6 @@ function paintStaticPagesPlaneMeta(latest, { busy = false, note = null } = {}) {
   const metaEl = document.getElementById('dataPlaneMeta');
   const bar = document.getElementById('dataPlaneBar');
   const patOk = hasGithubActionsPat();
-  const win = getAshareActionWindow();
   if (sourceEl) sourceEl.textContent = patOk ? 'Actions' : 'Pages';
   if (bar) {
     bar.dataset.state = busy ? 'stale' : (patOk ? 'fresh' : 'offline');
@@ -3679,9 +3678,7 @@ function paintStaticPagesPlaneMeta(latest, { busy = false, note = null } = {}) {
   }
   if (!latest) {
     metaEl.textContent = patOk
-      ? (win.realtime
-        ? `盘中可点「实时」· ${win.windowLabel}`
-        : `休市可点「日更」· ${win.reason}`)
+      ? 'GitHub Actions 自动更新'
       : '点「令牌」配置后可在 App 内触发更新';
     return;
   }
@@ -3690,7 +3687,6 @@ function paintStaticPagesPlaneMeta(latest, { busy = false, note = null } = {}) {
     latest.temperature_mode_cn || latest.temperature_mode || null,
     latest.trade_date || null,
     patOk ? null : '未配令牌',
-    win.realtime ? '可实时' : '可日更',
   ].filter(Boolean).join(' · ');
 }
 
