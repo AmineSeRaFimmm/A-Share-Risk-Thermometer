@@ -1,7 +1,7 @@
 {
-  "name": "A股风险温度计",
-  "short_name": "风险温度计",
-  "description": "A股风险温度计 · 盘中 nowcast + 收盘正式 RT",
+  "name": "A-Share Risk Thermometer",
+  "short_name": "Risk Thermometer",
+  "description": "A-Share Risk Thermometer · intradate nowcast + official EOD RT",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
