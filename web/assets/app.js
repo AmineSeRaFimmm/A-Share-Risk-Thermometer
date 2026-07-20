@@ -1131,9 +1131,50 @@ function flexEtfBarLookup(code, dateStr, { prefer = 'exact' } = {}) {
 }
 
 /**
+ * Latest ETF EOD session we can actually mark to (max bar date in etf_daily_marks).
+ * This is "上一交易日收盘" when market is closed / before today' s EOD lands.
+ */
+function flexEtfMarksCoverage() {
+  const marks = dashboardState.etfMarks || {};
+  let lastBar = null;
+  const by = marks.by_code || {};
+  Object.keys(by).forEach(code => {
+    const last = by[code] && by[code].last ? String(by[code].last).slice(0, 10) : null;
+    if (last && (!lastBar || last > lastBar)) lastBar = last;
+  });
+  const fileAsOf = marks.as_of ? String(marks.as_of).slice(0, 10) : null;
+  // Truth is bars, not the file as_of claim (as_of can run ahead of incomplete bars).
+  const session = lastBar || fileAsOf || null;
+  return {
+    file_as_of: fileAsOf,
+    last_bar: lastBar,
+    session,
+    policy: marks.policy || null,
+  };
+}
+
+/**
+ * Effective mark date for holdings P&L.
+ * Always prefer last available EOD close — never invent "today" nowcast without bars.
+ * Optional preferredAsOf (strategy as_of) is only an upper bound when it is *older*.
+ */
+function flexEffectiveMarkDate(preferredAsOf) {
+  const cov = flexEtfMarksCoverage();
+  const pref = preferredAsOf ? String(preferredAsOf).slice(0, 10) : '';
+  if (cov.session && pref && pref < cov.session) return pref;
+  if (cov.session) return cov.session;
+  if (pref) return pref;
+  try {
+    const td = dashboardState.latest?.trade_date || dashboardState.lastTradeDate;
+    if (td) return String(td).slice(0, 10);
+  } catch (_) { /* ignore */ }
+  return flexDateCn(0);
+}
+
+/**
  * Professional sim prices:
  *   entry = open on entry_date (T+1 open)
- *   mark  = close on as_of
+ *   mark  = close on markDate (last available EOD when closed)
  */
 function flexSimEodPrices(etfCode, entryDate, markDate) {
   const entryBar = flexEtfBarLookup(etfCode, entryDate, { prefer: 'on_or_after' });
@@ -1150,6 +1191,51 @@ function flexSimEodPrices(etfCode, entryDate, markDate) {
     mark_bar_date: markBar?.trade_date || null,
     quality,
   };
+}
+
+/**
+ * Remount open positions to last EOD close for display / totals.
+ * Does not rewrite cost/avg (real fills stay). Safe for both real + sim books.
+ */
+function flexApplyEodMarksToLedger(ledger, preferredAsOf) {
+  const L = normalizeFlexLedger(JSON.parse(JSON.stringify(ledger || {})));
+  const markDate = flexEffectiveMarkDate(
+    preferredAsOf
+      || L.mark_as_of
+      || L.strategy_as_of
+      || dashboardState.flexPlaybook?.flex?.as_of
+      || dashboardState.latest?.trade_date,
+  );
+  let marked = 0;
+  let missing = 0;
+  Object.keys(L.positions || {}).forEach(key => {
+    const pos = L.positions[key];
+    if (!pos || !(Number(pos.qty) > 0)) return;
+    const code = pos.etf_code || '';
+    if (!code) {
+      if (!(Number(pos.last_price) > 0)) {
+        pos.mark_quality = 'MISSING';
+        missing += 1;
+      }
+      return;
+    }
+    const bar = flexEtfBarLookup(code, markDate, { prefer: 'on_or_before' });
+    if (bar && Number(bar.close) > 0) {
+      pos.last_price = Number(bar.close);
+      pos.mark_bar_date = bar.trade_date;
+      pos.mark_price_type = 'close';
+      pos.mark_quality = bar.match === 'exact' ? 'OK' : 'SNAP';
+      marked += 1;
+    } else {
+      pos.mark_quality = 'MISSING';
+      missing += 1;
+    }
+  });
+  L.mark_as_of = markDate;
+  L.mark_policy = 'EOD_LAST_SESSION_CLOSE';
+  L.mark_policy_cn = '盯市=最近可得交易日收盘（休市=上一交易日截止）';
+  L._eod_mark_stats = { marked, missing, mark_date: markDate };
+  return L;
 }
 
 /** Stable sim key: prefer sleeve+name so code lookup jitter never rewrites journal. */
@@ -1186,6 +1272,8 @@ function flexSimStructureSignature(positions, capital, asOf) {
 function rebuildSimLedgerFromStrategy(flex) {
   const f = flex || {};
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
+  // Mark to last available EOD close (休市 → 上一交易日截止), not nowcast calendar date.
+  const markAsOf = flexEffectiveMarkDate(asOf);
   const prev = loadFlexLedgerForBook('sim');
   let capital = Number(prev.capital) || 0;
   if (!(capital > 0)) {
@@ -1194,6 +1282,7 @@ function rebuildSimLedgerFromStrategy(flex) {
   if (!(capital > 0)) {
     const empty = defaultFlexLedger('sim');
     empty.strategy_as_of = asOf;
+    empty.mark_as_of = markAsOf;
     empty.journal = Array.isArray(prev.journal) ? prev.journal.slice(-100) : [];
     empty.mark_policy = 'SIM_ENTRY_OPEN_MARK_CLOSE';
     empty.structure_sig = prev.structure_sig || '';
@@ -1221,7 +1310,7 @@ function rebuildSimLedgerFromStrategy(flex) {
         ? flexAddTradingDays(buyDate, holdDays)
         : null;
 
-    const px = flexSimEodPrices(t.etf_code, buyDate, asOf);
+    const px = flexSimEodPrices(t.etf_code, buyDate, markAsOf);
     let entryPx = px.entry_open;
     let markPx = px.mark_close;
     let note = '模拟·策略纸面·入场开盘/盯市收盘';
@@ -1295,10 +1384,10 @@ function rebuildSimLedgerFromStrategy(flex) {
       journal: Array.isArray(prev.journal) ? prev.journal : [],
       updated_at: new Date().toISOString(),
       strategy_as_of: asOf,
-      mark_as_of: asOf,
+      mark_as_of: markAsOf,
       structure_sig: nextSig,
       mark_policy: 'SIM_ENTRY_OPEN_MARK_CLOSE',
-      mark_policy_cn: '入场=开盘价 · 盯市=收盘价 · 日频EOD',
+      mark_policy_cn: '入场=开盘价 · 盯市=最近可得收盘（休市=上一交易日）',
     };
     dashboardState.flexSimSyncedAsOf = asOf;
     return saveFlexLedger(quiet);
@@ -1418,10 +1507,10 @@ function rebuildSimLedgerFromStrategy(flex) {
     journal: journal.slice(-100),
     updated_at: new Date().toISOString(),
     strategy_as_of: asOf,
-    mark_as_of: asOf,
+    mark_as_of: markAsOf,
     structure_sig: nextSig,
     mark_policy: 'SIM_ENTRY_OPEN_MARK_CLOSE',
-    mark_policy_cn: '入场=开盘价 · 盯市=收盘价 · 日频EOD',
+    mark_policy_cn: '入场=开盘价 · 盯市=最近可得收盘（休市=上一交易日）',
   };
   dashboardState.flexSimSyncedAsOf = asOf;
   return saveFlexLedger(ledger);
@@ -1870,7 +1959,9 @@ function flexApplyClose(ledger, key, price) {
 }
 
 function renderFlexAccountBar() {
-  const ledger = loadFlexLedger();
+  const raw = loadFlexLedger();
+  // Always remount to last available EOD close for totals (休市=上一交易日截止).
+  const ledger = flexApplyEodMarksToLedger(raw);
   const capitalInput = document.getElementById('flexCapitalInput');
   if (capitalInput && document.activeElement !== capitalInput) {
     capitalInput.value = ledger.capital > 0 ? String(ledger.capital) : '';
@@ -1919,8 +2010,17 @@ function renderFlexAccountBar() {
 
   const note = document.getElementById('flexMarkNote');
   if (note) {
-    note.hidden = true;
-    note.textContent = '';
+    const md = ledger.mark_as_of || flexEffectiveMarkDate();
+    const win = typeof getAshareActionWindow === 'function' ? getAshareActionWindow() : { inSession: false };
+    if (hasBook && md) {
+      note.hidden = false;
+      note.textContent = win.inSession
+        ? `盯市：最近收盘 ${md}（盘中无实时 ETF 报价，仍用日终）`
+        : `盯市：上一交易日收盘 ${md}（休市总涨跌幅）`;
+    } else {
+      note.hidden = true;
+      note.textContent = '';
+    }
   }
 
   const capitalHint = document.getElementById('flexCapitalHint');
@@ -1936,7 +2036,7 @@ function renderFlexAccountBar() {
 function renderFlexHoldings() {
   const el = document.getElementById('flexHoldingsList');
   if (!el) return;
-  const ledger = loadFlexLedger();
+  const ledger = flexApplyEodMarksToLedger(loadFlexLedger());
   const positions = flexOpenPositions(ledger);
   const capital = Number(ledger.capital) || 0;
   if (!positions.length) {
@@ -1956,9 +2056,12 @@ function renderFlexHoldings() {
     const pnlCls = ret == null ? '' : ret > 0 ? 'up' : ret < 0 ? 'down' : '';
     const pnlTxt = missingPx ? '缺价' : (ret == null ? '—' : flexFormatSignedPct(ret));
     const exitInfo = flexPositionExitInfo(pos);
+    const markDay = pos.mark_bar_date || ledger.mark_as_of || '';
     const titleBits = [
       exitInfo.label,
-      missingPx ? '缺 EOD 行情，涨跌幅不可用' : (ret != null ? `涨跌幅 ${flexFormatSignedPct(ret)}` : ''),
+      missingPx
+        ? '缺 EOD 行情，涨跌幅不可用'
+        : (ret != null ? `涨跌幅 ${flexFormatSignedPct(ret)} · 收盘 ${markDay || '—'}` : ''),
       Number(pos.avg_price) > 0 ? `入场 ${formatPrice(pos.avg_price)}` : (missingPx ? '入场价缺失' : ''),
       Number(pos.last_price) > 0 ? `盯市 ${formatPrice(pos.last_price)}` : (missingPx ? '盯市价缺失' : ''),
       pos.note || '',
