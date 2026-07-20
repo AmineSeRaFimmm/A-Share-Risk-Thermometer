@@ -1,7 +1,7 @@
 {
   "trade_date": "2026-07-20",
-  "update_time": "2026-07-20T10:36:36+08:00",
-  "risk_temperature": 81.5,
+  "update_time": "2026-07-20T10:53:16+08:00",
+  "risk_temperature": 80.1,
   "regime": "PANIC",
   "regime_cn": "恐慌区",
   "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
@@ -15,9 +15,9 @@
   "temperature_mode_cn": "盘中估算",
   "is_final": false,
   "components": {
-    "avix_percentile_2y": 91.8651,
-    "avix_zscore_1y": 100.0,
-    "avix_5d_change": 69.6372,
+    "avix_percentile_2y": 89.2857,
+    "avix_zscore_1y": 99.3056,
+    "avix_5d_change": 61.8947,
     "qvix_confirmation": 30.0,
     "realized_vol": 95.6349,
     "drawdown_pressure": 91.1692,
@@ -38,14 +38,14 @@
   "avix": {
     "avix_clean_close": 24.613,
     "avix_raw_close": 24.613,
-    "avix_realtime_mid": 25.2142,
+    "avix_realtime_mid": 24.3253,
     "avix_realtime_quality": "WARN_NOT_BRACKET_30D",
     "avix_realtime_note": "nearest two terms do not bracket 30D",
     "avix_realtime_usable": true,
     "avix_realtime_usable_nowcast": true,
     "avix_realtime_usable_gap_fill": false,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-    "avix_percentile_2y": 0.9187,
+    "avix_percentile_2y": 0.8929,
     "quality": "WARN_NOT_BRACKET_30D"
   },
   "official_close": {
@@ -63,21 +63,21 @@
   },
   "nowcast": {
     "trade_date": "2026-07-20",
-    "risk_temperature": 81.5,
+    "risk_temperature": 80.1,
     "regime": "PANIC",
     "regime_cn": "恐慌区",
     "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
     "baseline_trade_date": "2026-07-17",
     "official_risk_temperature": 82.4,
-    "realtime_avix": 25.2142,
+    "realtime_avix": 24.3253,
     "realtime_avix_quality": "WARN_NOT_BRACKET_30D",
-    "realtime_valuation_time": "2026-07-20T10:36:34+08:00",
+    "realtime_valuation_time": "2026-07-20T10:53:15+08:00",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors",
     "active": true
   },
   "interpretation": {
-    "headline": "市场风险温度 81.5，处于恐慌区",
-    "summary": "AVIX异常程度、市场宽度、实现波动率是当前风险温度的主要驱动；多因子合成后给出 81.5/100。",
+    "headline": "市场风险温度 80.1，处于恐慌区",
+    "summary": "AVIX异常程度、市场宽度、实现波动率是当前风险温度的主要驱动；多因子合成后给出 80.1/100。",
     "posture": "防守 + 观察反身修复",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
