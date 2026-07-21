@@ -10,15 +10,16 @@ def main() -> None:
     assert "risk_temperature" in latest
     assert 0 <= latest["risk_temperature"] <= 100
     html = (ROOT / "web/index.html").read_text(encoding="utf-8")
-    # Keep markers aligned with the live dashboard (sector research panels were removed).
+    # Keep markers aligned with the redesigned three-view dashboard UI.
     for text in [
-        "A股风险温度",
-        "组件贡献",
-        "AVIX",
-        "QVIX",
-        "正式收盘为实线",
-        "Flex 执行台",
-        "数据健康",
+        "A-Share Risk Thermometer",
+        'id="viewTemp"',
+        "<h2>因子</h2>",
+        'id="viewHistory"',
+        "<h2>AVIX · QVIX</h2>",
+        "<h2>沪深300 · 温度</h2>",
+        'id="viewFlex"',
+        'id="appDock"',
     ]:
         assert text in html, f"missing expected dashboard marker: {text!r}"
 
