@@ -15,12 +15,12 @@
     "usable_nowcast": true,
     "usable_gap_fill": false,
     "note": "nearest two terms do not bracket 30D",
-    "avix_mid": 22.6508
+    "avix_mid": 22.4605
   },
   "nowcast": {
     "active": true,
     "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
-    "risk_temperature": 73.7,
+    "risk_temperature": 73.1,
     "baseline_trade_date": "2026-07-20",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors"
   },
@@ -33,5 +33,5 @@
     "OK_NOWCAST",
     "WARN_NOT_BRACKET_30D"
   ],
-  "last_successful_update": "2026-07-21T14:39:07+08:00"
+  "last_successful_update": "2026-07-21T15:00:24+08:00"
 }
