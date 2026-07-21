@@ -48,20 +48,19 @@
   },
   "market_state": {
     "trade_date": "2026-07-21",
-    "rt": 79.4,
+    "rt": 73.2,
     "prev_rt": 78.2,
-    "rt_d1": 1.2000000000000028,
-    "rt_d5": 19.300000000000004,
+    "rt_d1": -5.0,
+    "rt_d5": 13.100000000000001,
     "rt_rollmax_10": 82.4,
-    "hs300_dd60": -0.08475039222018566,
+    "hs300_dd60": -0.06332997210483415,
     "regime": "PANIC",
     "regime_cn": "恐慌区",
     "quality": "WARN_NOT_BRACKET_30D|NOWCAST_BRIDGE"
   },
   "active_stage_ids": [
     "RISING_HARD",
-    "CSI300_CORE_BUY",
-    "PANIC_SMALL_N"
+    "CSI300_CORE_BUY"
   ],
   "primary_stage": {
     "stage_id": "CSI300_CORE_BUY",
@@ -144,49 +143,6 @@
         "这是全体系最高优先级的指数级指令。",
         "同一时间最多1笔主策略；持仓中忽略新信号。",
         "建议仓位研究区间 1/3~1/2，非回测满仓假设。"
-      ],
-      "same_day_note": null
-    },
-    {
-      "stage_id": "PANIC_SMALL_N",
-      "name_cn": "恐慌区（RT≥75，小样本）",
-      "priority": 70,
-      "csi300": {
-        "action": "RESEARCH_ONLY_OR_CORE_IF_MET",
-        "action_cn": "仅当仍满足主策略上沿前条件才考虑；禁止裸买极端恐慌",
-        "detail": "区间前瞻收益高但样本薄；严格回测明确拒绝无确认的极端恐慌买入。",
-        "confidence": "LOW"
-      },
-      "sectors_long": [
-        {
-          "name": "恒生科技",
-          "why": "恐慌区间5日超额高、胜率72%，但n=25——研究仓",
-          "win_rate": 0.72,
-          "n": 25,
-          "horizon": "5D",
-          "size_note": "小样本，最多观察仓"
-        },
-        {
-          "name": "有色金属",
-          "why": "恐慌区间5日超额显著，n=25",
-          "win_rate": 0.72,
-          "n": 25,
-          "horizon": "5D",
-          "size_note": "小样本"
-        }
-      ],
-      "sectors_short": [
-        {
-          "name": "公用事业",
-          "why": "恐慌区间显著跑输，胜率仅20%",
-          "win_rate": 0.2,
-          "n": 25,
-          "horizon": "5D"
-        }
-      ],
-      "hold_days": 5,
-      "notes": [
-        "小样本阶段：允许研究指令，不允许重仓。"
       ],
       "same_day_note": null
     },
@@ -458,83 +414,6 @@
       "rank": 10,
       "market": "SECTOR",
       "side": "OVERWEIGHT_RELATIVE",
-      "name": "恒生科技",
-      "instrument": "恒生科技",
-      "stage": "恐慌区（RT≥75，小样本）",
-      "trigger": "rt >= 75",
-      "entry": "事件确认后 T+1",
-      "exit": "持有约5个交易日",
-      "priority": "P2",
-      "win_rate": 0.72,
-      "n": 25,
-      "why": "恐慌区间5日超额高、胜率72%，但n=25——研究仓",
-      "size_note": "小样本，最多观察仓",
-      "disclaimer": "超额收益代理资金偏好，非官方资金流",
-      "sector": "恒生科技",
-      "etf_code": "513180",
-      "etf_name": "恒生科技ETF华夏",
-      "etf_label": "513180 恒生科技ETF华夏",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "备选 513130/513010",
-      "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
-      "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
-    },
-    {
-      "rank": 11,
-      "market": "SECTOR",
-      "side": "OVERWEIGHT_RELATIVE",
-      "name": "有色金属",
-      "instrument": "有色金属",
-      "stage": "恐慌区（RT≥75，小样本）",
-      "trigger": "rt >= 75",
-      "entry": "事件确认后 T+1",
-      "exit": "持有约5个交易日",
-      "priority": "P2",
-      "win_rate": 0.72,
-      "n": 25,
-      "why": "恐慌区间5日超额显著，n=25",
-      "size_note": "小样本",
-      "disclaimer": "超额收益代理资金偏好，非官方资金流",
-      "sector": "有色金属",
-      "etf_code": "512400",
-      "etf_name": "有色金属ETF南方",
-      "etf_label": "512400 有色金属ETF南方",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "有色金属 → 512400 有色金属ETF南方",
-      "instrument_display": "有色金属（512400 有色金属ETF南方）"
-    },
-    {
-      "rank": 50,
-      "market": "SECTOR",
-      "side": "UNDERWEIGHT_RELATIVE",
-      "name": "公用事业",
-      "instrument": "公用事业",
-      "stage": "恐慌区（RT≥75，小样本）",
-      "trigger": "rt >= 75",
-      "entry": "事件确认后减配/回避",
-      "exit": "约5个交易日窗口",
-      "priority": "P1",
-      "win_rate": 0.2,
-      "n": 25,
-      "why": "恐慌区间显著跑输，胜率仅20%",
-      "disclaimer": "相对减配，不是裸空指令",
-      "sector": "公用事业",
-      "etf_code": "560620",
-      "etf_name": "公用事业ETF万家",
-      "etf_label": "560620 公用事业ETF万家",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "公用事业 → 560620 公用事业ETF万家",
-      "instrument_display": "公用事业（560620 公用事业ETF万家）"
-    },
-    {
-      "rank": 10,
-      "market": "SECTOR",
-      "side": "OVERWEIGHT_RELATIVE",
       "name": "通信",
       "instrument": "通信",
       "stage": "升温冲击（ΔRT_5≥+5）",
@@ -788,16 +667,15 @@
       }
     },
     "market_state": {
-      "rt": 79.4,
-      "rt_d1": 1.2000000000000028,
-      "rt_d5": 19.300000000000004,
-      "hs300_dd60": -0.08475039222018566,
+      "rt": 73.2,
+      "rt_d1": -5.0,
+      "rt_d5": 13.100000000000001,
+      "hs300_dd60": -0.06332997210483415,
       "regime_cn": "恐慌区"
     },
     "active_stages": [
       "RISING_HARD",
-      "CSI300_CORE_BUY",
-      "PANIC_SMALL_N"
+      "CSI300_CORE_BUY"
     ],
     "suppressed_stages": [],
     "merge_note_cn": "多阶段合并：RISING_HARD, CSI300_CORE_BUY；被门控压制：无；升温日不追恒科/电子/计算机（除非 CORE 同步）",
@@ -958,13 +836,13 @@
           "weight_in_sat": 0.1897,
           "quality": "good",
           "quality_weight": 1.0,
-          "win_rate": 0.72,
-          "n": 25,
+          "win_rate": 0.58,
+          "n": 165,
           "mean_excess": 0.008,
           "stages": [
             "CSI300_CORE_BUY"
           ],
-          "why": "恐慌区间5日超额高、胜率72%，但n=25——研究仓",
+          "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
           "tier": "high",
           "sector": "恒生科技",
           "etf_code": "513180",
