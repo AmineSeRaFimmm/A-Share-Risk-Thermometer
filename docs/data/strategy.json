@@ -1,18 +1,18 @@
 {
   "status": "ready",
   "latest": {
-    "trade_date": "2026-07-20",
+    "trade_date": "2026-07-21",
     "execution_trade_date": null,
     "execution_sse_open": null,
-    "avix": 25.1004,
-    "sse_open": 3791.662,
-    "sse_close": 3796.281,
-    "sse_ret1": 0.0085,
-    "sse_ret10": -0.0606,
-    "sse_ma5": 3873.1106,
-    "sse_ma10": 3927.3212,
-    "s3_signal": true,
-    "s4_signal": false,
+    "avix": 22.5678,
+    "sse_open": 3812.162,
+    "sse_close": 3864.367,
+    "sse_ret1": 0.0179,
+    "sse_ret10": -0.0315,
+    "sse_ma5": 3852.5588,
+    "sse_ma10": 3914.7344,
+    "s3_signal": false,
+    "s4_signal": true,
     "s3_s4_signal": true,
     "s3_buy": false,
     "s3_sell": false,
@@ -500,6 +500,31 @@
       "s4_sell_reason": "",
       "s3_s4_sell_reason": "",
       "signal_quality": "OK"
+    },
+    {
+      "trade_date": "2026-07-20",
+      "execution_trade_date": "2026-07-21",
+      "execution_sse_open": 3812.162,
+      "avix": 25.1004,
+      "sse_open": 3791.662,
+      "sse_close": 3796.281,
+      "sse_ret1": 0.0085,
+      "sse_ret10": -0.0606,
+      "sse_ma5": 3873.1106,
+      "sse_ma10": 3927.3212,
+      "s3_signal": true,
+      "s4_signal": false,
+      "s3_s4_signal": true,
+      "s3_buy": true,
+      "s3_sell": false,
+      "s4_buy": false,
+      "s4_sell": false,
+      "s3_s4_buy": false,
+      "s3_s4_sell": false,
+      "s3_sell_reason": "",
+      "s4_sell_reason": "",
+      "s3_s4_sell_reason": "",
+      "signal_quality": "WARN_NOT_BRACKET_30D"
     }
   ],
   "recent_sell": [
@@ -830,14 +855,13 @@
     }
   ],
   "position": {
-    "s3": "flat",
+    "s3": "holding",
     "s4": "holding",
     "s3_s4": "holding",
     "last_action": {
       "s3": {
-        "action": "sell",
-        "trade_date": "2025-04-14",
-        "reason": "AVIX<20"
+        "action": "buy",
+        "trade_date": "2026-07-20"
       },
       "s4": {
         "action": "buy",

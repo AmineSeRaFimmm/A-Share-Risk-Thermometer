@@ -37,26 +37,24 @@
   },
   "as_of": "2026-07-21",
   "data_quality": {
-    "risk_source": "OFFICIAL_PLUS_NOWCAST_BRIDGE",
-    "official_as_of": "2026-07-20",
-    "bridged": true,
-    "bridged_dates": [
-      "2026-07-21"
-    ],
-    "bridge_source": "NOWCAST_RT",
-    "note_cn": "策略书 as_of 已用指数日历 + NOWCAST/桥接补齐正式 RT 缺口；温度图正式序列仍以 official 为准。"
+    "risk_source": "OFFICIAL_CLOSE",
+    "official_as_of": "2026-07-21",
+    "bridged": false,
+    "bridged_dates": [],
+    "bridge_source": null,
+    "note_cn": "策略书 as_of 与正式 risk_components 一致。"
   },
   "market_state": {
     "trade_date": "2026-07-21",
-    "rt": 73.2,
+    "rt": 70.9,
     "prev_rt": 78.2,
-    "rt_d1": -5.0,
-    "rt_d5": 13.100000000000001,
+    "rt_d1": -7.299999999999997,
+    "rt_d5": 10.800000000000004,
     "rt_rollmax_10": 82.4,
-    "hs300_dd60": -0.06332997210483415,
-    "regime": "PANIC",
-    "regime_cn": "恐慌区",
-    "quality": "WARN_NOT_BRACKET_30D|NOWCAST_BRIDGE"
+    "hs300_dd60": -0.0633301697466508,
+    "regime": "HIGH_RISK",
+    "regime_cn": "高风险",
+    "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING"
   },
   "active_stage_ids": [
     "RISING_HARD",
@@ -667,11 +665,11 @@
       }
     },
     "market_state": {
-      "rt": 73.2,
-      "rt_d1": -5.0,
-      "rt_d5": 13.100000000000001,
-      "hs300_dd60": -0.06332997210483415,
-      "regime_cn": "恐慌区"
+      "rt": 70.9,
+      "rt_d1": -7.299999999999997,
+      "rt_d5": 10.800000000000004,
+      "hs300_dd60": -0.0633301697466508,
+      "regime_cn": "高风险"
     },
     "active_stages": [
       "RISING_HARD",
