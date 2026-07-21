@@ -4,9 +4,9 @@
   "components": [
     {
       "name": "AVIX两年分位",
-      "score": 92.2619,
+      "score": 92.0635,
       "weight": 0.28,
-      "contribution": 25.8333
+      "contribution": 25.7778
     },
     {
       "name": "AVIX Z-score",
@@ -16,9 +16,9 @@
     },
     {
       "name": "AVIX 5日变化",
-      "score": 89.1129,
+      "score": 88.8781,
       "weight": 0.08,
-      "contribution": 7.129
+      "contribution": 7.1102
     },
     {
       "name": "QVIX确认",
