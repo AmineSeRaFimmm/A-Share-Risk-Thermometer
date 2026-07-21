@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-07-21",
-  "update_time": "2026-07-21T14:36:41+08:00",
+  "update_time": "2026-07-21T14:37:54+08:00",
   "risk_temperature": 73.3,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
@@ -16,8 +16,8 @@
   "is_final": false,
   "components": {
     "avix_percentile_2y": 84.3254,
-    "avix_zscore_1y": 81.873,
-    "avix_5d_change": 62.0017,
+    "avix_zscore_1y": 82.1494,
+    "avix_5d_change": 62.2872,
     "qvix_confirmation": 30.0,
     "realized_vol": 95.0397,
     "drawdown_pressure": 83.188,
@@ -38,7 +38,7 @@
   "avix": {
     "avix_clean_close": 25.1004,
     "avix_raw_close": 25.1004,
-    "avix_realtime_mid": 22.4939,
+    "avix_realtime_mid": 22.5242,
     "avix_realtime_quality": "WARN_NOT_BRACKET_30D",
     "avix_realtime_note": "nearest two terms do not bracket 30D",
     "avix_realtime_usable": true,
@@ -69,9 +69,9 @@
     "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D",
     "baseline_trade_date": "2026-07-20",
     "official_risk_temperature": 78.2,
-    "realtime_avix": 22.4939,
+    "realtime_avix": 22.5242,
     "realtime_avix_quality": "WARN_NOT_BRACKET_30D",
-    "realtime_valuation_time": "2026-07-21T14:36:39+08:00",
+    "realtime_valuation_time": "2026-07-21T14:37:51+08:00",
     "method": "Realtime AVIX factors + previous official close non-AVIX factors",
     "active": true
   },
