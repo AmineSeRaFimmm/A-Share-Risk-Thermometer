@@ -2356,13 +2356,17 @@ body.in-app-webview.app-tabs-mode .topbar-minimal {
   .flex-summary { margin-left: 16px; margin-right: 16px; }
 
   .flex-strip-fund {
-    width: 100%;
-    grid-template-columns: auto 1fr auto;
+    width: auto;
+    max-width: 100%;
   }
-  .flex-strip-fund input { width: 100%; min-width: 0; }
+  .flex-strip-fund input {
+    flex: 0 0 80px;
+    width: 80px;
+    max-width: 80px;
+  }
   .flex-fund-actions .flex-exec-btn {
-    width: 64px;
-    min-width: 64px;
+    width: 48px;
+    min-width: 48px;
   }
 
   .posture {

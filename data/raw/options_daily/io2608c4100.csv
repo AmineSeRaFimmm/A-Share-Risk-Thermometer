@@ -1,0 +1,2 @@
+date,open,high,low,close,volume,contract,month,cp,strike,source,fetch_time
+2026-07-20,478.6,522.6,428.6,482.0,87.0,io2608c4100,2026-08,C,4100,CFFEX_RTJ_XML,2026-07-21T01:30:20
