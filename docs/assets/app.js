@@ -1163,14 +1163,12 @@ function flexEtfMarksCoverage() {
 /**
  * Effective mark date for holdings P&L.
  * Always prefer last available EOD close — never invent "today" nowcast without bars.
- * Optional preferredAsOf (strategy as_of) is only an upper bound when it is *older*.
+ * Strategy as_of only controls which paper positions exist. It must never delay
+ * valuation or a local stop/target check once a newer EOD ETF bar is available.
  */
-function flexEffectiveMarkDate(preferredAsOf) {
+function flexEffectiveMarkDate() {
   const cov = flexEtfMarksCoverage();
-  const pref = preferredAsOf ? String(preferredAsOf).slice(0, 10) : '';
-  if (cov.session && pref && pref < cov.session) return pref;
   if (cov.session) return cov.session;
-  if (pref) return pref;
   try {
     const td = dashboardState.latest?.trade_date || dashboardState.lastTradeDate;
     if (td) return String(td).slice(0, 10);
@@ -1204,15 +1202,9 @@ function flexSimEodPrices(etfCode, entryDate, markDate) {
  * Remount open positions to last EOD close for display / totals.
  * Does not rewrite cost/avg (real fills stay). Safe for both real + sim books.
  */
-function flexApplyEodMarksToLedger(ledger, preferredAsOf) {
+function flexApplyEodMarksToLedger(ledger) {
   const L = normalizeFlexLedger(JSON.parse(JSON.stringify(ledger || {})));
-  const markDate = flexEffectiveMarkDate(
-    preferredAsOf
-      || L.mark_as_of
-      || L.strategy_as_of
-      || dashboardState.flexPlaybook?.flex?.as_of
-      || dashboardState.latest?.trade_date,
-  );
+  const markDate = flexEffectiveMarkDate();
   let marked = 0;
   let missing = 0;
   Object.keys(L.positions || {}).forEach(key => {
@@ -1280,8 +1272,8 @@ function rebuildSimLedgerFromStrategy(flex) {
   const f = flex || {};
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
   // Mark to last available EOD close (休市 → 上一交易日截止), not nowcast calendar date.
-  const markAsOf = flexEffectiveMarkDate(asOf);
-  const prev = flexApplyEodMarksToLedger(loadFlexLedgerForBook('sim'), markAsOf);
+  const markAsOf = flexEffectiveMarkDate();
+  const prev = flexApplyEodMarksToLedger(loadFlexLedgerForBook('sim'));
   let capital = Number(prev.capital) || 0;
   if (!(capital > 0)) {
     capital = Number(loadFlexLedgerForBook('real').capital) || 0;
@@ -2630,22 +2622,37 @@ function clearOpenSignalCache() {
   try { localStorage.removeItem('ashare_flex_open_signal_cache_v1'); } catch { /* ignore */ }
 }
 
-/** True when local ledger has an open position matching this signal row. */
-function flexIsLocallyHeld(item, ledger = loadFlexLedger()) {
-  if (!item) return false;
+/**
+ * Resolve a strategy row to the actual local position it represents.
+ *
+ * Signal keys can change when an ETF mapping is corrected, while old browser
+ * ledgers retain their original key. All rendering and mutations must use this
+ * same resolved key; a boolean-only match can otherwise offer a duplicate buy.
+ */
+function flexFindLocalPosition(item, ledger = loadFlexLedger()) {
+  if (!item) return null;
   const openPos = flexOpenPositions(ledger);
-  if (!openPos.length) return false;
+  if (!openPos.length) return null;
   const key = flexPositionKey(item);
-  if (ledger.positions?.[key] && Number(ledger.positions[key].qty) > 1e-9) return true;
+  if (ledger.positions?.[key] && Number(ledger.positions[key].qty) > 1e-9) {
+    return { key, position: ledger.positions[key] };
+  }
   const code = String(item.etf_code || item.code || '').trim();
   const name = String(item.name || item.sector || '').trim();
-  return openPos.some(p => {
+  const position = openPos.find(p => {
     const pc = String(p.etf_code || '').trim();
     const pn = String(p.name || '').trim();
     if (code && pc && code === pc) return true;
     if (name && pn && name === pn) return true;
     return false;
   });
+  if (!position) return null;
+  return { key: position.key || flexPositionKey(position), position };
+}
+
+/** True when local ledger has an open position matching this signal row. */
+function flexIsLocallyHeld(item, ledger = loadFlexLedger()) {
+  return !!flexFindLocalPosition(item, ledger);
 }
 
 /**
@@ -2831,7 +2838,7 @@ function deskLocalDueCloses(ledger = loadFlexLedger()) {
 
 /** Satellite stop-loss / take-profit closes from local EOD marks. */
 function deskLocalRiskCloses(flex, ledger = loadFlexLedger()) {
-  const marked = flexApplyEodMarksToLedger(ledger, flex?.as_of || flex?.market_state?.trade_date);
+  const marked = flexApplyEodMarksToLedger(ledger);
   const rows = [];
   for (const pos of flexOpenPositions(marked)) {
     const st = flexSatelliteRiskStatus(pos, flex);
@@ -2946,8 +2953,10 @@ function renderFlexSignalRows(items, flex, options = {}) {
 
   return items.map(item => {
     const action = String(item.action || item.side || '').toUpperCase();
-    const key = item._key || flexPositionKey(item);
-    const held = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
+    const signalKey = item._key || flexPositionKey(item);
+    const localMatch = flexFindLocalPosition(item, ledger);
+    const held = !!localMatch;
+    const key = localMatch?.key || signalKey;
     const isHoldRow = forceKind === 'hold' || action === 'HOLD';
     const badgeInfo = isHoldRow
       ? flexActionBadge({ ...item, action: 'HOLD' }, flex, { localHeld: held, signalAsOf })
@@ -2961,7 +2970,7 @@ function renderFlexSignalRows(items, flex, options = {}) {
     const w = item.weight_hint || (item.weight_target != null ? pctLabel(item.weight_target) : '—');
     const amt = suggested != null ? formatMoney(suggested) : '—';
     // 清仓列：本机持仓用个人 exit 计划；策略平仓提示用「下一交易日开盘」
-    const localPos = held ? ledger.positions[key] : null;
+    const localPos = localMatch?.position || null;
     let left = '—';
     if (held) left = flexPositionExitInfo(localPos).label;
     else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
@@ -3162,8 +3171,16 @@ function bindFlexExecControls() {
     const prev = Number(ledger.capital) || 0;
     const next = Math.round(capital * 100) / 100;
     const delta = next - prev;
-    // Adjust cash by the same delta so funding changes affect spendable cash.
-    ledger.cash = Math.max(0, Number(ledger.cash) + delta);
+    const cash = flexAvailableCash(ledger);
+    // A capital withdrawal can only come from cash. Silently zeroing cash would
+    // make the book's funding base disagree with its recorded positions.
+    if (delta < 0 && -delta > cash + 1e-6) {
+      flexToast(`下调全仓需先减仓或平仓；当前可用现金约 ${formatMoney(cash)} 元`, 'err', 3600);
+      input?.focus();
+      return;
+    }
+    // Funding changes affect spendable cash one-for-one after the guard above.
+    ledger.cash = cash + delta;
     ledger.capital = next;
     if (prev !== next) {
       appendFlexJournal(ledger, {
