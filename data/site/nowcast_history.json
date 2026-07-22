@@ -16,7 +16,7 @@
       "gap_reason": "正式期权日线缺失或不合格；使用实时AVIX估算",
       "avix_realtime_mid": 22.9441,
       "avix_realtime_quality": "OK",
-      "realtime_valuation_time": "2026-07-22T09:04:33+08:00",
+      "realtime_valuation_time": "2026-07-22T09:11:57+08:00",
       "hs300_close": null,
       "drawdown_pressure": 50.0,
       "breadth_pressure": 29.1147,
