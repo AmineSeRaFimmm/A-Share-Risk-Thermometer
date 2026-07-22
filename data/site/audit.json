@@ -15,12 +15,12 @@
     "usable_nowcast": true,
     "usable_gap_fill": true,
     "note": "exact 30D term",
-    "avix_mid": 22.0574
+    "avix_mid": 22.0756
   },
   "nowcast": {
     "active": true,
     "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
-    "risk_temperature": 62.2,
+    "risk_temperature": 62.3,
     "baseline_trade_date": "2026-07-21",
     "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors"
   },
@@ -35,5 +35,5 @@
     "WARN_OFFICIAL_AVIX_MISSING",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-22T09:58:04+08:00"
+  "last_successful_update": "2026-07-22T10:02:32+08:00"
 }
