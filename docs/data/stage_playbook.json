@@ -38,7 +38,7 @@
   "as_of": "2026-07-21",
   "data_quality": {
     "risk_source": "OFFICIAL_CLOSE",
-    "official_as_of": "2026-07-21",
+    "official_as_of": null,
     "bridged": false,
     "bridged_dates": [],
     "bridge_source": null,
@@ -597,6 +597,12 @@
     "execution_cn": "信号日 T 收盘确认 → 下一交易日开盘执行",
     "hold_days": 5,
     "hold_days_sat_cn": "卫星 3–8 日（最短3，事件可提前，最长8）",
+    "satellite_risk_rule": {
+      "stop_loss": -0.03,
+      "take_profit": 0.04,
+      "rule_cn": "卫星持有满3日后，篮子收益≤-3%止损；≥4%止盈；触发后下一交易日开盘平仓",
+      "price_basis_cn": "真实仓按本机成交均价与最近可得收盘价；模拟仓按T+1开盘入场与最近可得收盘价"
+    },
     "allocation_cn": "双仓：核心 60% + 卫星 40%（进取 Flex：单仓100%；双仓 60/40）",
     "allocation_mode": "BOTH",
     "allocation": {
@@ -621,21 +627,21 @@
         "stats": {
           "note": "对照口径；总暴露 capped；同一日度路径与成本模型",
           "full_sample": {
-            "total_return": 0.9783989831224873,
-            "ann_return": 0.11404813492203703,
-            "max_dd": -0.12222177561250269,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 1.2798173038814442,
-            "turnover": 171.20000000000002
+            "total_return": 1.2612891670616873,
+            "ann_return": 0.13786710862795348,
+            "max_dd": -0.13230407193901617,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 1.5294260244615356,
+            "turnover": 183.5
           },
           "oos": {
-            "total_return": 0.3481714696997269,
-            "ann_return": 0.12999768591867067,
-            "max_dd": -0.06925871770524128,
-            "win_rate": 0.6078431372549019,
-            "trade_count": 102,
-            "turnover": 69.19999999999999
+            "total_return": 0.4620854676257353,
+            "ann_return": 0.16812375690624304,
+            "max_dd": -0.04604594479551205,
+            "win_rate": 0.6146788990825688,
+            "trade_count": 109,
+            "turnover": 73.7
           }
         }
       },
@@ -647,23 +653,23 @@
         "label_cn": "进取 Flex：单仓100%；双仓 60/40",
         "active": true,
         "stats": {
-          "note": "生产进取模式；单仓满仓、双仓60/40；含换仓成本",
+          "note": "生产进取模式；单仓满仓、双仓60/40；卫星-3%止损/+4%止盈；含换仓成本",
           "full_sample": {
-            "total_return": 2.880062967666079,
-            "ann_return": 0.23939045618527155,
-            "max_dd": -0.17481732981157716,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 1.1434451612304664,
-            "turnover": 499.80000000000007
+            "total_return": 5.061807345418504,
+            "ann_return": 0.3300844972142787,
+            "max_dd": -0.18124620927171275,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 1.5363467519369218,
+            "turnover": 526.2
           },
           "oos": {
-            "total_return": 0.9907389652989664,
-            "ann_return": 0.32533003082378786,
-            "max_dd": -0.15755975615500284,
-            "win_rate": 0.6078431372549019,
-            "trade_count": 102,
-            "turnover": 198.6
+            "total_return": 1.4488242941532836,
+            "ann_return": 0.44251065081394425,
+            "max_dd": -0.13385848042693038,
+            "win_rate": 0.6146788990825688,
+            "trade_count": 109,
+            "turnover": 210.6
           }
         }
       }
@@ -1187,7 +1193,7 @@
           "instrument_display": "银行（512800 银行ETF华宝）"
         }
       ],
-      "detail": "高置信阶段全量；小样本为观察仓；按得分×映射质量加权；弱代理不进默认篮子；long-only 不做空。",
+      "detail": "高置信阶段全量；小样本为观察仓；按得分×映射质量加权；弱代理不进默认篮子；收益≤-3%止损，≥4%止盈；long-only 不做空。",
       "weights": {
         "通信": 0.2328,
         "恒生科技": 0.1897,
@@ -1264,7 +1270,7 @@
         "days_held": 6,
         "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 2 日 / 事件退出",
+        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "恒生科技",
         "etf_code": "513180",
         "etf_name": "恒生科技ETF华夏",
@@ -1289,7 +1295,7 @@
         "days_held": 6,
         "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 2 日 / 事件退出",
+        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "建筑材料",
         "etf_code": "159745",
         "etf_name": "建材ETF国泰",
@@ -1314,7 +1320,7 @@
         "days_held": 6,
         "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 2 日 / 事件退出",
+        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "传媒",
         "etf_code": "512980",
         "etf_name": "传媒ETF广发",
@@ -1339,7 +1345,7 @@
         "days_held": 6,
         "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 2 日 / 事件退出",
+        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "商贸零售",
         "etf_code": "159928",
         "etf_name": "消费ETF汇添富",
@@ -1566,7 +1572,7 @@
         "days_held": 6,
         "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 2 日 / 事件退出",
+        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "恒生科技",
         "etf_code": "513180",
         "etf_name": "恒生科技ETF华夏",
@@ -1591,7 +1597,7 @@
         "days_held": 6,
         "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 2 日 / 事件退出",
+        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "建筑材料",
         "etf_code": "159745",
         "etf_name": "建材ETF国泰",
@@ -1616,7 +1622,7 @@
         "days_held": 6,
         "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 2 日 / 事件退出",
+        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "传媒",
         "etf_code": "512980",
         "etf_name": "传媒ETF广发",
@@ -1641,7 +1647,7 @@
         "days_held": 6,
         "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 2 日 / 事件退出",
+        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "商贸零售",
         "etf_code": "159928",
         "etf_name": "消费ETF汇添富",
@@ -1841,6 +1847,8 @@
       "default_mode": "aggressive",
       "hold_days_core": 5,
       "hold_days_sat": "3-8",
+      "satellite_stop_loss": -0.03,
+      "satellite_take_profit": 0.04,
       "execution": "T 收盘信号 → T+1 开盘",
       "core_only": {
         "total_return": 0.51647525032459,
@@ -1852,197 +1860,198 @@
       "conservative": {
         "note": "对照口径；总暴露 capped；同一日度路径与成本模型",
         "full_sample": {
-          "total_return": 0.9783989831224873,
-          "ann_return": 0.11404813492203703,
-          "max_dd": -0.12222177561250269,
-          "win_rate": 0.610236220472441,
-          "trade_count": 254,
-          "sharpe": 1.2798173038814442,
-          "turnover": 171.20000000000002
+          "total_return": 1.2612891670616873,
+          "ann_return": 0.13786710862795348,
+          "max_dd": -0.13230407193901617,
+          "win_rate": 0.5985401459854015,
+          "trade_count": 274,
+          "sharpe": 1.5294260244615356,
+          "turnover": 183.5
         },
         "oos": {
-          "total_return": 0.3481714696997269,
-          "ann_return": 0.12999768591867067,
-          "max_dd": -0.06925871770524128,
-          "win_rate": 0.6078431372549019,
-          "trade_count": 102,
-          "turnover": 69.19999999999999
+          "total_return": 0.4620854676257353,
+          "ann_return": 0.16812375690624304,
+          "max_dd": -0.04604594479551205,
+          "win_rate": 0.6146788990825688,
+          "trade_count": 109,
+          "turnover": 73.7
         }
       },
       "aggressive": {
-        "note": "生产进取模式；单仓满仓、双仓60/40；含换仓成本",
+        "note": "生产进取模式；单仓满仓、双仓60/40；卫星-3%止损/+4%止盈；含换仓成本",
         "full_sample": {
-          "total_return": 2.880062967666079,
-          "ann_return": 0.23939045618527155,
-          "max_dd": -0.17481732981157716,
-          "win_rate": 0.610236220472441,
-          "trade_count": 254,
-          "sharpe": 1.1434451612304664,
-          "turnover": 499.80000000000007
+          "total_return": 5.061807345418504,
+          "ann_return": 0.3300844972142787,
+          "max_dd": -0.18124620927171275,
+          "win_rate": 0.5985401459854015,
+          "trade_count": 274,
+          "sharpe": 1.5363467519369218,
+          "turnover": 526.2
         },
         "oos": {
-          "total_return": 0.9907389652989664,
-          "ann_return": 0.32533003082378786,
-          "max_dd": -0.15755975615500284,
-          "win_rate": 0.6078431372549019,
-          "trade_count": 102,
-          "turnover": 198.6
+          "total_return": 1.4488242941532836,
+          "ann_return": 0.44251065081394425,
+          "max_dd": -0.13385848042693038,
+          "win_rate": 0.6146788990825688,
+          "trade_count": 109,
+          "turnover": 210.6
         }
       },
       "cost_stress": {
         "base_bps_one_way": 1,
         "stress_15bps": {
           "conservative": {
-            "total_return": 0.556814408600323,
-            "ann_return": 0.07257939579965766,
-            "max_dd": -0.1341005014322998,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 0.8448486040277149,
-            "turnover": 171.20000000000002
+            "total_return": 0.7490046862221784,
+            "ann_return": 0.09252588885502644,
+            "max_dd": -0.14548472252434907,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 1.0595944329268177,
+            "turnover": 183.5
           },
           "aggressive": {
-            "total_return": 0.9273985823802298,
-            "ann_return": 0.10945210780167458,
-            "max_dd": -0.19773969411770442,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 0.6058539240788746,
-            "turnover": 499.80000000000007
+            "total_return": 1.9010459932098005,
+            "ann_return": 0.18363675848744654,
+            "max_dd": -0.21188519564274932,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 0.9455661328130309,
+            "turnover": 526.2
           }
         },
         "stress_30bps": {
           "conservative": {
-            "total_return": 0.20409705633858866,
-            "ann_return": 0.029835895996314976,
-            "max_dd": -0.1474894390925936,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 0.37887727652106856,
-            "turnover": 171.20000000000002
+            "total_return": 0.32796676221438736,
+            "ann_return": 0.04592244349533825,
+            "max_dd": -0.15939501260644273,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 0.5568926154649223,
+            "turnover": 183.5
           },
           "aggressive": {
-            "total_return": -0.09030992570612217,
-            "ann_return": -0.014870815481168309,
-            "max_dd": -0.3891851838497422,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 0.03132799173032477,
-            "turnover": 499.80000000000007
+            "total_return": 0.31560323145909686,
+            "ann_return": 0.04437498022522002,
+            "max_dd": -0.3739751655360495,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 0.31610849994896595,
+            "turnover": 526.2
           }
         },
         "etf_haircut_note": "proxy 正收益折扣、负收益放大 / weak 剔除；行业指数≠ETF"
       },
-      "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；回测已计入日度路径、换仓成本和代理亏损惩罚。",
+      "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；卫星按-3%止损/+4%止盈；回测已计入日度路径、换仓成本和代理亏损惩罚。",
       "backtest_protocol": {
         "price_path": "entry open → daily close path → exit open; no endpoint smoothing",
         "cost": "target-weight turnover × one-way bps; entries, exits and rebalances all counted",
         "proxy": "proxy gains are discounted; proxy losses are amplified by the same factor",
         "observe": "observe-only satellite sleeve uses 0.25 production scale",
+        "satellite_risk_exit": "after min hold, close satellite when basket return <= -3% or >= 4%",
         "oos": "independent simulation starts flat on 2024-01-01"
       },
       "scenarios": [
         {
           "mode": "conservative",
           "cost_label": "base_1bps",
-          "ann_return": 0.11404813492203703,
-          "max_dd": -0.12222177561250269,
-          "win_rate": 0.610236220472441,
-          "trade_count": 254,
-          "turnover": 171.20000000000002
+          "ann_return": 0.13786710862795348,
+          "max_dd": -0.13230407193901617,
+          "win_rate": 0.5985401459854015,
+          "trade_count": 274,
+          "turnover": 183.5
         },
         {
           "mode": "conservative",
           "cost_label": "stress_15bps",
-          "ann_return": 0.07257939579965766,
-          "max_dd": -0.1341005014322998,
-          "win_rate": 0.610236220472441,
-          "trade_count": 254,
-          "turnover": 171.20000000000002
+          "ann_return": 0.09252588885502644,
+          "max_dd": -0.14548472252434907,
+          "win_rate": 0.5985401459854015,
+          "trade_count": 274,
+          "turnover": 183.5
         },
         {
           "mode": "conservative",
           "cost_label": "stress_30bps",
-          "ann_return": 0.029835895996314976,
-          "max_dd": -0.1474894390925936,
-          "win_rate": 0.610236220472441,
-          "trade_count": 254,
-          "turnover": 171.20000000000002
+          "ann_return": 0.04592244349533825,
+          "max_dd": -0.15939501260644273,
+          "win_rate": 0.5985401459854015,
+          "trade_count": 274,
+          "turnover": 183.5
         },
         {
           "mode": "aggressive",
           "cost_label": "base_1bps",
-          "ann_return": 0.23939045618527155,
-          "max_dd": -0.17481732981157716,
-          "win_rate": 0.610236220472441,
-          "trade_count": 254,
-          "turnover": 499.80000000000007
+          "ann_return": 0.3300844972142787,
+          "max_dd": -0.18124620927171275,
+          "win_rate": 0.5985401459854015,
+          "trade_count": 274,
+          "turnover": 526.2
         },
         {
           "mode": "aggressive",
           "cost_label": "stress_15bps",
-          "ann_return": 0.10945210780167458,
-          "max_dd": -0.19773969411770442,
-          "win_rate": 0.610236220472441,
-          "trade_count": 254,
-          "turnover": 499.80000000000007
+          "ann_return": 0.18363675848744654,
+          "max_dd": -0.21188519564274932,
+          "win_rate": 0.5985401459854015,
+          "trade_count": 274,
+          "turnover": 526.2
         },
         {
           "mode": "aggressive",
           "cost_label": "stress_30bps",
-          "ann_return": -0.014870815481168309,
-          "max_dd": -0.3891851838497422,
-          "win_rate": 0.610236220472441,
-          "trade_count": 254,
-          "turnover": 499.80000000000007
+          "ann_return": 0.04437498022522002,
+          "max_dd": -0.3739751655360495,
+          "win_rate": 0.5985401459854015,
+          "trade_count": 274,
+          "turnover": 526.2
         }
       ]
     },
     "backtest_display": {
       "mode": "aggressive",
-      "win_rate": 0.610236220472441,
-      "ann_return": 0.23939045618527155,
+      "win_rate": 0.5985401459854015,
+      "ann_return": 0.3300844972142787,
       "core_only_ann": 0.0681314126421444,
       "cost_stress": {
         "base_bps_one_way": 1,
         "stress_15bps": {
           "conservative": {
-            "total_return": 0.556814408600323,
-            "ann_return": 0.07257939579965766,
-            "max_dd": -0.1341005014322998,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 0.8448486040277149,
-            "turnover": 171.20000000000002
+            "total_return": 0.7490046862221784,
+            "ann_return": 0.09252588885502644,
+            "max_dd": -0.14548472252434907,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 1.0595944329268177,
+            "turnover": 183.5
           },
           "aggressive": {
-            "total_return": 0.9273985823802298,
-            "ann_return": 0.10945210780167458,
-            "max_dd": -0.19773969411770442,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 0.6058539240788746,
-            "turnover": 499.80000000000007
+            "total_return": 1.9010459932098005,
+            "ann_return": 0.18363675848744654,
+            "max_dd": -0.21188519564274932,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 0.9455661328130309,
+            "turnover": 526.2
           }
         },
         "stress_30bps": {
           "conservative": {
-            "total_return": 0.20409705633858866,
-            "ann_return": 0.029835895996314976,
-            "max_dd": -0.1474894390925936,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 0.37887727652106856,
-            "turnover": 171.20000000000002
+            "total_return": 0.32796676221438736,
+            "ann_return": 0.04592244349533825,
+            "max_dd": -0.15939501260644273,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 0.5568926154649223,
+            "turnover": 183.5
           },
           "aggressive": {
-            "total_return": -0.09030992570612217,
-            "ann_return": -0.014870815481168309,
-            "max_dd": -0.3891851838497422,
-            "win_rate": 0.610236220472441,
-            "trade_count": 254,
-            "sharpe": 0.03132799173032477,
-            "turnover": 499.80000000000007
+            "total_return": 0.31560323145909686,
+            "ann_return": 0.04437498022522002,
+            "max_dd": -0.3739751655360495,
+            "win_rate": 0.5985401459854015,
+            "trade_count": 274,
+            "sharpe": 0.31610849994896595,
+            "turnover": 526.2
           }
         },
         "etf_haircut_note": "proxy 正收益折扣、负收益放大 / weak 剔除；行业指数≠ETF"
@@ -2053,6 +2062,8 @@
       "OPEN": "新开绝对仓位",
       "HOLD": "已有仓位继续持有",
       "CLOSE": "到期或事件退出卖出",
+      "STOP_LOSS": "卫星篮子收益触及止损后卖出",
+      "TAKE_PROFIT": "卫星篮子收益触及止盈后卖出",
       "OVERWEIGHT": "卫星超配（研究绝对仓位，语义来自相对超额）",
       "AVOID": "无持仓则不操作；有持仓则减至 0",
       "FLAT": "空仓观望"

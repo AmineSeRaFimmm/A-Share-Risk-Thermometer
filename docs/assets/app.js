@@ -862,6 +862,9 @@ const FLEX_BUY_ACTIONS = new Set(['OPEN', 'OVERWEIGHT', 'BUY', 'OVERWEIGHT_RELAT
 const FLEX_CLOSE_ACTIONS = new Set(['CLOSE', 'SELL']);
 /** Open signal lives on real signal day T and next trading day T+1; gone from T+2 trade sessions. */
 const FLEX_OPEN_SIGNAL_MAX_LAG_DAYS = 1;
+const FLEX_SAT_MIN_HOLD_DAYS = 3;
+const FLEX_SAT_STOP_LOSS_DEFAULT = -0.03;
+const FLEX_SAT_TAKE_PROFIT_DEFAULT = 0.04;
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -1096,6 +1099,8 @@ function collectStrategyPaperTargets(flex) {
         signal_as_of: sat.entry_signal_date || '',
         hold_days: Number(f.hold_days_sat) || Number(f.satellite?.hold_days) || 8,
         exit_date: sat.exit_due_date || (f.exit_plan?.satellite?.paths?.max_signal_date) || '',
+        stop_loss: flexSatelliteRiskRule(f).stopLoss,
+        take_profit: flexSatelliteRiskRule(f).takeProfit,
       });
     }
   }
@@ -1276,7 +1281,7 @@ function rebuildSimLedgerFromStrategy(flex) {
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
   // Mark to last available EOD close (休市 → 上一交易日截止), not nowcast calendar date.
   const markAsOf = flexEffectiveMarkDate(asOf);
-  const prev = loadFlexLedgerForBook('sim');
+  const prev = flexApplyEodMarksToLedger(loadFlexLedgerForBook('sim'), markAsOf);
   let capital = Number(prev.capital) || 0;
   if (!(capital > 0)) {
     capital = Number(loadFlexLedgerForBook('real').capital) || 0;
@@ -1331,6 +1336,16 @@ function rebuildSimLedgerFromStrategy(flex) {
     const hasMark = markPx > 0;
     const qty = hasEntry ? notional / entryPx : 0;
     const key = flexSimPositionKey(t);
+    const mtmRet = hasEntry && hasMark ? (markPx / entryPx - 1) : null;
+    const stopLoss = Number.isFinite(Number(t.stop_loss)) ? Number(t.stop_loss) : FLEX_SAT_STOP_LOSS_DEFAULT;
+    const takeProfit = Number.isFinite(Number(t.take_profit)) ? Number(t.take_profit) : FLEX_SAT_TAKE_PROFIT_DEFAULT;
+    const daysHeld = flexTradingDaysBetween(buyDate, px.mark_bar_date || markAsOf);
+    const riskExit = String(t.sleeve || '').toLowerCase() === 'satellite'
+        && mtmRet != null
+        && daysHeld >= FLEX_SAT_MIN_HOLD_DAYS
+      ? (mtmRet <= stopLoss ? 'STOP_LOSS' : (mtmRet >= takeProfit ? 'TAKE_PROFIT' : null))
+      : null;
+    if (riskExit) continue;
     // Also resolve legacy keys so re-key does not look like CLOSE+OPEN
     const old = prev.positions?.[key]
       || prev.positions?.[flexPositionKey(t)]
@@ -1455,10 +1470,13 @@ function rebuildSimLedgerFromStrategy(flex) {
       const pnl = Math.round((mark - cost) * 100) / 100;
       const ret = cost > 0 ? pnl / cost : 0;
       const avoided = flexTargetIsAvoided(old, f);
+      const riskStatus = flexSatelliteRiskStatus(old, f);
       journal.push({
         id: flexUid('jn'),
         type: 'CLOSE',
-        type_cn: avoided ? '模拟回避清仓' : '模拟平仓',
+        type_cn: riskStatus?.triggered
+          ? (riskStatus.close_code === 'LOCAL_STOP_LOSS' ? '模拟止损平仓' : '模拟止盈平仓')
+          : (avoided ? '模拟回避清仓' : '模拟平仓'),
         name: old.name || '—',
         etf_code: old.etf_code || '',
         amount: Math.round(mark * 100) / 100,
@@ -1467,9 +1485,11 @@ function rebuildSimLedgerFromStrategy(flex) {
         pnl,
         return_pct: Math.round(ret * 1e6) / 1e6,
         at: new Date().toISOString(),
-        note: avoided
-          ? `AVOID 归零 · as_of=${asOf || '—'}`
-          : `策略纸面退出 · as_of=${asOf || '—'}`,
+        note: riskStatus?.triggered
+          ? `${riskStatus.label} · as_of=${asOf || '—'}`
+          : (avoided
+            ? `AVOID 归零 · as_of=${asOf || '—'}`
+            : `策略纸面退出 · as_of=${asOf || '—'}`),
       });
     }
   }
@@ -1584,6 +1604,74 @@ function flexPositionReturnPct(pos) {
   if (!(qty > 0) || !(markPx > 0)) return null;
   const mtm = qty * markPx;
   return mtm / cost - 1;
+}
+
+function flexSatelliteRiskRule(flex) {
+  const rule = flex?.satellite_risk_rule || {};
+  const stopLoss = Number(rule.stop_loss);
+  const takeProfit = Number(rule.take_profit);
+  return {
+    stopLoss: Number.isFinite(stopLoss) ? stopLoss : FLEX_SAT_STOP_LOSS_DEFAULT,
+    takeProfit: Number.isFinite(takeProfit) ? takeProfit : FLEX_SAT_TAKE_PROFIT_DEFAULT,
+    ruleCn: rule.rule_cn || `卫星持有满${FLEX_SAT_MIN_HOLD_DAYS}日后，收益≤${flexFormatSignedPct(FLEX_SAT_STOP_LOSS_DEFAULT, 0)}止损；≥${flexFormatSignedPct(FLEX_SAT_TAKE_PROFIT_DEFAULT, 0)}止盈`,
+    priceBasisCn: rule.price_basis_cn || '按成交均价/入场开盘价与最近可得收盘价计算',
+  };
+}
+
+function flexSatelliteRiskStatus(pos, flex) {
+  if (String(pos?.sleeve || '').toLowerCase() !== 'satellite') return null;
+  const ret = flexPositionReturnPct(pos);
+  const rule = flexSatelliteRiskRule(flex);
+  const markDay = pos?.mark_bar_date || flex?.as_of || flex?.market_state?.trade_date || flexSessionTradeDate();
+  const daysHeld = flexPositionDaysHeld(pos, markDay);
+  if (ret == null) {
+    return {
+      triggered: false,
+      label: `满${FLEX_SAT_MIN_HOLD_DAYS}日后查止损${flexFormatSignedPct(rule.stopLoss, 0)} / 止盈${flexFormatSignedPct(rule.takeProfit, 0)} · 缺价`,
+      rule,
+    };
+  }
+  if (daysHeld < FLEX_SAT_MIN_HOLD_DAYS) {
+    return {
+      triggered: false,
+      label: `已持有${daysHeld}日 · 满${FLEX_SAT_MIN_HOLD_DAYS}日后检查止损/止盈`,
+      rule,
+      ret,
+      daysHeld,
+    };
+  }
+  if (ret <= rule.stopLoss) {
+    return {
+      triggered: true,
+      close_code: 'LOCAL_STOP_LOSS',
+      action_cn: '卫星止损卖出',
+      badge: '止损平仓',
+      label: `已触发止损 ${flexFormatSignedPct(ret)} ≤ ${flexFormatSignedPct(rule.stopLoss, 0)}`,
+      why: `卫星持仓收益 ${flexFormatSignedPct(ret)} 已低于止损线 ${flexFormatSignedPct(rule.stopLoss, 0)}；按规则下一交易日开盘平仓`,
+      rule,
+      ret,
+    };
+  }
+  if (ret >= rule.takeProfit) {
+    return {
+      triggered: true,
+      close_code: 'LOCAL_TAKE_PROFIT',
+      action_cn: '卫星止盈卖出',
+      badge: '止盈平仓',
+      label: `已触发止盈 ${flexFormatSignedPct(ret)} ≥ ${flexFormatSignedPct(rule.takeProfit, 0)}`,
+      why: `卫星持仓收益 ${flexFormatSignedPct(ret)} 已高于止盈线 ${flexFormatSignedPct(rule.takeProfit, 0)}；按规则下一交易日开盘平仓`,
+      rule,
+      ret,
+    };
+  }
+  const toStop = ret - rule.stopLoss;
+  const toTake = rule.takeProfit - ret;
+  return {
+    triggered: false,
+    label: `距止损${(toStop * 100).toFixed(1)}个百分点 · 距止盈${(toTake * 100).toFixed(1)}个百分点`,
+    rule,
+    ret,
+  };
 }
 
 function flexSuggestedAmount(item, capital) {
@@ -2058,9 +2146,14 @@ function renderFlexHoldings() {
     const pnlCls = ret == null ? '' : ret > 0 ? 'up' : ret < 0 ? 'down' : '';
     const pnlTxt = missingPx ? '缺价' : (ret == null ? '—' : flexFormatSignedPct(ret));
     const exitInfo = flexPositionExitInfo(pos);
+    const riskStatus = flexSatelliteRiskStatus(pos, dashboardState.flexPlaybook?.flex);
+    const exitLabel = riskStatus?.triggered
+      ? riskStatus.label
+      : [exitInfo.label, riskStatus?.label].filter(Boolean).join(' · ');
     const markDay = pos.mark_bar_date || ledger.mark_as_of || '';
     const titleBits = [
-      exitInfo.label,
+      exitLabel,
+      riskStatus?.rule?.ruleCn,
       missingPx
         ? '缺 EOD 行情，涨跌幅不可用'
         : (ret != null ? `涨跌幅 ${flexFormatSignedPct(ret)} · 收盘 ${markDay || '—'}` : ''),
@@ -2075,7 +2168,7 @@ function renderFlexHoldings() {
       <span class="flex-row-num" data-label="均价">${Number(pos.avg_price) > 0 ? formatPrice(pos.avg_price) : (missingPx ? '缺价' : '—')}</span>
       <span class="flex-row-num" data-label="仓位">${weight != null ? pctLabel(weight) : '—'}</span>
       <span class="flex-row-num ${pnlCls}" data-label="涨跌幅">${pnlTxt}</span>
-      <span class="flex-row-num flex-row-exit" data-label="清仓">${escapeHtml(exitInfo.label)}</span>
+      <span class="flex-row-num flex-row-exit" data-label="清仓">${escapeHtml(exitLabel)}</span>
       <span class="flex-row-acts" data-label="操作">
         <button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">加</button>
         <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(pos.key)}">减</button>
@@ -2414,6 +2507,8 @@ function flexActionBadge(item, flex, options = {}) {
     if (code === 'MAX_HOLD' || code === 'CORE_MAX_HOLD') return { text: '到期平仓', cls: 'sell' };
     if (code === 'EVENT_FLIP') return { text: '事件平仓', cls: 'sell' };
     if (code === 'DEFAULT_NO_STAGE') return { text: '默认平仓', cls: 'sell' };
+    if (code === 'LOCAL_STOP_LOSS') return { text: '止损平仓', cls: 'sell' };
+    if (code === 'LOCAL_TAKE_PROFIT') return { text: '止盈平仓', cls: 'sell' };
     return { text: '平仓', cls: 'sell' };
   }
   return FLEX_ACTION_BADGE[action] || { text: flexShortAction(action, item?.action_cn), cls: 'wait' };
@@ -2734,6 +2829,38 @@ function deskLocalDueCloses(ledger = loadFlexLedger()) {
   return rows;
 }
 
+/** Satellite stop-loss / take-profit closes from local EOD marks. */
+function deskLocalRiskCloses(flex, ledger = loadFlexLedger()) {
+  const marked = flexApplyEodMarksToLedger(ledger, flex?.as_of || flex?.market_state?.trade_date);
+  const rows = [];
+  for (const pos of flexOpenPositions(marked)) {
+    const st = flexSatelliteRiskStatus(pos, flex);
+    if (!st?.triggered) continue;
+    rows.push({
+      action: 'CLOSE',
+      action_cn: st.action_cn,
+      side: 'CLOSE',
+      side_cn: '卖出',
+      sleeve: pos.sleeve || 'satellite',
+      name: pos.name || '—',
+      etf_code: pos.etf_code || '',
+      etf_name: pos.etf_name || '',
+      priority: 'P0',
+      entry: '下一交易日开盘',
+      exit: '平仓',
+      why: st.why,
+      close_code: st.close_code,
+      guaranteed: true,
+      weight_target: 0,
+      weight_hint: '0%',
+      return_pct: st.ret,
+      _key: pos.key || flexPositionKey(pos),
+      _deskLocalRisk: true,
+    });
+  }
+  return rows;
+}
+
 /** Split engine lists into desk buckets — personal book only. */
 function splitFlexSignalBuckets(flex) {
   const f = flex || {};
@@ -2758,6 +2885,9 @@ function splitFlexSignalBuckets(flex) {
     if (flexIsLocallyHeld(item, ledger)) continue;
     pushUnique('open', item);
   }
+
+  // Local satellite risk exits have the clearest user-facing reason; show before paper exits.
+  for (const item of deskLocalRiskCloses(f, ledger)) pushUnique('close', item);
 
   // CLOSE: ALWAYS surface engine close_list when as_of is today (guaranteed tip path).
   // - You hold it → actionable 平
@@ -2836,13 +2966,17 @@ function renderFlexSignalRows(items, flex, options = {}) {
     if (held) left = flexPositionExitInfo(localPos).label;
     else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
       left = item.entry && item.entry !== '—' ? String(item.entry) : '下一交易日开盘';
+    } else if (String(item.sleeve || '').toLowerCase() === 'satellite' && (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action))) {
+      left = item.risk_rule_cn || item.exit || flexSatelliteRiskRule(flex).ruleCn;
     }
     const isAvoid = forceKind === 'avoid' || action === 'AVOID' || action === 'UNDERWEIGHT_RELATIVE' || action === 'FLAT';
     // Avoid rows only appear when held; strategy CLOSE always listed (tip if not held).
     const interactive = !isAvoid || held;
 
     // Buy plan starts when user confirms (today's bookkeeping); full default hold window.
-    const planDays = options.defaultHoldDays != null ? Number(options.defaultHoldDays) : null;
+    const planDays = item.hold_days != null
+      ? Number(item.hold_days)
+      : (String(item.sleeve || '').toLowerCase() === 'satellite' ? 8 : (options.defaultHoldDays != null ? Number(options.defaultHoldDays) : null));
 
     let acts = '';
     if (interactive) {
@@ -3361,7 +3495,8 @@ function renderFlexTradePanel(playbook) {
     // lag 1 = still T+1 trade window; only warn when past next trading session
     asOfEl.classList.toggle('warn', !!(lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS));
   }
-  setText('flexHold', `${flex.hold_days || 5}交易日`);
+  const satRule = flexSatelliteRiskRule(flex);
+  setText('flexHold', `核心${flex.hold_days || 5}日 · 卫星${satRule.ruleCn}`);
   // Win rate + ann return (1bp baseline when present in stats)
   const win = full.win_rate;
   const ann = full.ann_return;

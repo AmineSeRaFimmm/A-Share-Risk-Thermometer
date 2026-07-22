@@ -25,6 +25,8 @@ CORE_HOLD_DAYS = 5
 SAT_MIN_HOLD = 3
 SAT_MAX_HOLD = 8
 SAT_DEFAULT_HOLD = 5
+SAT_STOP_LOSS = -0.03
+SAT_TAKE_PROFIT = 0.04
 
 # Conservative (default) vs aggressive Flex
 MODE_CONSERVATIVE = "conservative"
@@ -181,6 +183,8 @@ DEFAULT_BACKTEST_STATS: dict[str, Any] = {
     "default_mode": MODE_AGGRESSIVE,
     "hold_days_core": CORE_HOLD_DAYS,
     "hold_days_sat": f"{SAT_MIN_HOLD}-{SAT_MAX_HOLD}",
+    "satellite_stop_loss": SAT_STOP_LOSS,
+    "satellite_take_profit": SAT_TAKE_PROFIT,
     "execution": "T 收盘信号 → T+1 开盘",
     "core_only": {
         "total_return": 0.8523,
@@ -195,7 +199,7 @@ DEFAULT_BACKTEST_STATS: dict[str, Any] = {
         "oos": {},
     },
     "aggressive": {
-        "note": "生产进取模式；单仓满仓、双仓60/40；日度路径与换仓成本口径",
+        "note": "生产进取模式；单仓满仓、双仓60/40；卫星-3%止损/+4%止盈；日度路径与换仓成本口径",
         "full_sample": {
             "total_return": 6.1101,
             "ann_return": 0.3660,
@@ -217,7 +221,7 @@ DEFAULT_BACKTEST_STATS: dict[str, Any] = {
         "stress_30bps": {},
         "etf_haircut_note": "proxy 正收益折扣、负收益放大；weak 剔除；行业指数≠ETF",
     },
-    "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；实盘收益应低于回测。",
+    "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；卫星按-3%止损/+4%止盈；实盘收益应低于回测。",
 }
 
 
@@ -969,7 +973,10 @@ def build_flex_panel_v2(
                         "days_held": state.satellite.days_held,
                         "days_remaining": state.satellite.days_remaining,
                         "entry": "—",
-                        "exit": f"最长 {SAT_MAX_HOLD} 日或事件翻转",
+                        "exit": (
+                            f"收益≤{SAT_STOP_LOSS:.0%}止损 / ≥{SAT_TAKE_PROFIT:.0%}止盈；"
+                            f"否则最长 {SAT_MAX_HOLD} 日或事件翻转"
+                        ),
                     }
                 )
             )
@@ -994,7 +1001,10 @@ def build_flex_panel_v2(
                         "days_held": state.satellite.days_held,
                         "days_remaining": state.satellite.days_remaining,
                         "entry": "—",
-                        "exit": f"约剩 {state.satellite.days_remaining} 日 / 事件退出",
+                        "exit": (
+                            f"约剩 {state.satellite.days_remaining} 日；"
+                            f"收益≤{SAT_STOP_LOSS:.0%}止损 / ≥{SAT_TAKE_PROFIT:.0%}止盈 / 事件退出"
+                        ),
                     }
                 )
             )
@@ -1015,7 +1025,14 @@ def build_flex_panel_v2(
                         "side_cn": "超配买入",
                         "priority": "P1" if (x.get("n") or 0) >= MIN_N_FULL else "P2",
                         "entry": "T+1 开盘",
-                        "exit": f"{SAT_MIN_HOLD}–{SAT_MAX_HOLD} 日（事件可提前）",
+                        "exit": (
+                            f"收益≤{SAT_STOP_LOSS:.0%}止损 / ≥{SAT_TAKE_PROFIT:.0%}止盈；"
+                            f"否则 {SAT_MIN_HOLD}–{SAT_MAX_HOLD} 日（事件可提前）"
+                        ),
+                        "hold_days": SAT_MAX_HOLD,
+                        "stop_loss": SAT_STOP_LOSS,
+                        "take_profit": SAT_TAKE_PROFIT,
+                        "risk_rule_cn": f"卫星篮子收益≤{SAT_STOP_LOSS:.0%}止损，≥{SAT_TAKE_PROFIT:.0%}止盈",
                         "weight_target": tw,
                         "weight_hint": f"{tw:.0%}",
                         "weight_in_sat": x.get("weight_in_sat"),
@@ -1158,6 +1175,12 @@ def build_flex_panel_v2(
         "execution_cn": "信号日 T 收盘确认 → 下一交易日开盘执行",
         "hold_days": CORE_HOLD_DAYS,
         "hold_days_sat_cn": f"卫星 {SAT_MIN_HOLD}–{SAT_MAX_HOLD} 日（最短{SAT_MIN_HOLD}，事件可提前，最长{SAT_MAX_HOLD}）",
+        "satellite_risk_rule": {
+            "stop_loss": SAT_STOP_LOSS,
+            "take_profit": SAT_TAKE_PROFIT,
+            "rule_cn": f"卫星持有满{SAT_MIN_HOLD}日后，篮子收益≤{SAT_STOP_LOSS:.0%}止损；≥{SAT_TAKE_PROFIT:.0%}止盈；触发后下一交易日开盘平仓",
+            "price_basis_cn": "真实仓按本机成交均价与最近可得收盘价；模拟仓按T+1开盘入场与最近可得收盘价",
+        },
         "allocation_cn": alloc["allocation_cn"],
         "allocation_mode": alloc["allocation_mode"],
         "allocation": alloc,
@@ -1207,7 +1230,8 @@ def build_flex_panel_v2(
             "avoid": avoid_list,
             "detail": (
                 "高置信阶段全量；小样本为观察仓；"
-                "按得分×映射质量加权；弱代理不进默认篮子；long-only 不做空。"
+                f"按得分×映射质量加权；弱代理不进默认篮子；"
+                f"收益≤{SAT_STOP_LOSS:.0%}止损，≥{SAT_TAKE_PROFIT:.0%}止盈；long-only 不做空。"
             ),
             "weights": sat_weights,
             "weight_target": alloc["w_sat"],
@@ -1243,6 +1267,8 @@ def build_flex_panel_v2(
             "OPEN": "新开绝对仓位",
             "HOLD": "已有仓位继续持有",
             "CLOSE": "到期或事件退出卖出",
+            "STOP_LOSS": "卫星篮子收益触及止损后卖出",
+            "TAKE_PROFIT": "卫星篮子收益触及止盈后卖出",
             "OVERWEIGHT": "卫星超配（研究绝对仓位，语义来自相对超额）",
             "AVOID": "无持仓则不操作；有持仓则减至 0",
             "FLAT": "空仓观望",

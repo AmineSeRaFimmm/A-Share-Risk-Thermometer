@@ -42,6 +42,8 @@ from src.core.flex_engine import (  # noqa: E402
     SAT_DEFAULT_HOLD,
     SAT_MAX_HOLD,
     SAT_MIN_HOLD,
+    SAT_STOP_LOSS,
+    SAT_TAKE_PROFIT,
     STAGE_OPPOSITES,
     STAGE_TIER,
     SIZING,
@@ -164,6 +166,19 @@ def _sat_exit_i(df: pd.DataFrame, entry_i: int, primary: str, n: int, event_exit
     return min(entry_i + SAT_MAX_HOLD, n - 1)
 
 
+def _apply_sat_risk_exit(path: dict[int, float], entry_i: int, planned_exit_i: int) -> tuple[dict[int, float], int]:
+    cum = 1.0
+    for j in range(entry_i, planned_exit_i + 1):
+        cum *= 1.0 + path.get(j, 0.0)
+        held = j - entry_i
+        if held < SAT_MIN_HOLD:
+            continue
+        ret = cum - 1.0
+        if ret <= SAT_STOP_LOSS or ret >= SAT_TAKE_PROFIT:
+            return {k: v for k, v in path.items() if k <= j}, j
+    return path, planned_exit_i
+
+
 def _simulate(
     df: pd.DataFrame,
     meta: dict,
@@ -251,11 +266,16 @@ def _simulate(
             continue
         w = np.asarray(weights, dtype=float)
         w = w / w.sum()
-        for j in range(entry_i, exit_i + 1):
-            sat_daily[j] = float(sum(w[k] * paths[k].get(j, 0.0) for k in range(len(paths))))
+        basket_path = {
+            j: float(sum(w[k] * paths[k].get(j, 0.0) for k in range(len(paths))))
+            for j in range(entry_i, exit_i + 1)
+        }
+        basket_path, exit_i = _apply_sat_risk_exit(basket_path, entry_i, exit_i)
+        for j, r in basket_path.items():
+            sat_daily[j] = r
             sat_active[j] = True
             sat_observe[j] = observe_only
-        trade_ret = _path_total({j: sat_daily[j] for j in range(entry_i, exit_i + 1)})
+        trade_ret = _path_total(basket_path)
         sat_trades.append(
             Trade(
                 "satellite",
@@ -426,12 +446,15 @@ def main() -> None:
         "default_mode": MODE_AGGRESSIVE,
         "hold_days_core": CORE_HOLD_DAYS,
         "hold_days_sat": f"{SAT_MIN_HOLD}-{SAT_MAX_HOLD}",
+        "satellite_stop_loss": SAT_STOP_LOSS,
+        "satellite_take_profit": SAT_TAKE_PROFIT,
         "execution": "T 收盘信号 → T+1 开盘",
         "backtest_protocol": {
             "price_path": "entry open → daily close path → exit open; no endpoint smoothing",
             "cost": "target-weight turnover × one-way bps; entries, exits and rebalances all counted",
             "proxy": "proxy gains are discounted; proxy losses are amplified by the same factor",
             "observe": "observe-only satellite sleeve uses 0.25 production scale",
+            "satellite_risk_exit": f"after min hold, close satellite when basket return <= {SAT_STOP_LOSS:.0%} or >= {SAT_TAKE_PROFIT:.0%}",
             "oos": f"independent simulation starts flat on {OOS_SPLIT.date()}",
         },
         "core_only": core_only,
@@ -441,7 +464,7 @@ def main() -> None:
             "oos": cons["oos"],
         },
         "aggressive": {
-            "note": "生产进取模式；单仓满仓、双仓60/40；含换仓成本",
+            "note": "生产进取模式；单仓满仓、双仓60/40；卫星-3%止损/+4%止盈；含换仓成本",
             "full_sample": agg["full_sample"],
             "oos": agg["oos"],
         },
@@ -457,7 +480,7 @@ def main() -> None:
             },
             "etf_haircut_note": "proxy 正收益折扣、负收益放大 / weak 剔除；行业指数≠ETF",
         },
-        "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；回测已计入日度路径、换仓成本和代理亏损惩罚。",
+        "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；卫星按-3%止损/+4%止盈；回测已计入日度路径、换仓成本和代理亏损惩罚。",
         "scenarios": [
             {
                 "mode": s["mode"],
