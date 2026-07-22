@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from src.core.calendar import merged_trading_days
+from src.data_sources.akshare_breadth import fetch_breadth_summary_multi
 from src.core.realtime_avix import (
     calculate_realtime_avix,
     realtime_avix_allows_gap_fill,
@@ -100,6 +101,50 @@ def _pseudo_avix_clean(official_clean: pd.DataFrame, realtime_avix: pd.DataFrame
     return combined.drop_duplicates("trade_date", keep="last").sort_values("trade_date")
 
 
+def _augment_breadth_for_realtime_dates(
+    breadth_history: pd.DataFrame,
+    realtime_avix: pd.DataFrame,
+    fetcher=fetch_breadth_summary_multi,
+) -> pd.DataFrame:
+    """Add exact-date live breadth for estimated-close rows when official breadth lags."""
+    base = breadth_history.copy() if breadth_history is not None and not breadth_history.empty else pd.DataFrame()
+    if realtime_avix is None or realtime_avix.empty or fetcher is None:
+        return base
+
+    existing = set()
+    if not base.empty and "trade_date" in base.columns:
+        existing = set(base["trade_date"].astype(str))
+
+    additions = []
+    for trade_date in sorted(realtime_avix["trade_date"].dropna().astype(str).unique()):
+        if trade_date in existing:
+            continue
+        try:
+            summary = fetcher(trade_date)
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN live breadth fetch failed {trade_date}: {exc}")
+            continue
+        if summary is None or summary.empty:
+            continue
+        row = summary.iloc[[0]].copy()
+        if str(row.iloc[0].get("trade_date", ""))[:10] != trade_date:
+            print(f"WARN live breadth date mismatch want={trade_date} got={row.iloc[0].get('trade_date')}")
+            continue
+        if not str(row.iloc[0].get("quality", "")).startswith("OK"):
+            print(f"WARN live breadth weak {trade_date}: {row.iloc[0].get('quality')}")
+            continue
+        additions.append(row)
+
+    if not additions:
+        return base
+    return (
+        pd.concat([base, *additions], ignore_index=True)
+        .drop_duplicates("trade_date", keep="last")
+        .sort_values("trade_date")
+        .reset_index(drop=True)
+    )
+
+
 def _gap_rows(
     official_risk: pd.DataFrame,
     index_history: pd.DataFrame,
@@ -168,7 +213,11 @@ def build_nowcast_history(
     qvix = validate_qvix(pseudo_clean, qvix_raw)
     realized = compute_realized_vol(index_history)
     drawdown = compute_drawdown(index_history)
-    breadth = compute_breadth_pressure(drop_legacy_synthetic_breadth(breadth_history))
+    breadth_source = _augment_breadth_for_realtime_dates(
+        drop_legacy_synthetic_breadth(breadth_history),
+        realtime_avix,
+    )
+    breadth = compute_breadth_pressure(breadth_source)
     estimated = compute_risk_temperature(pseudo_clean, qvix, realized, drawdown, breadth, index_history)
     estimated = estimated[estimated["trade_date"].astype(str).isin(set(realtime_avix["trade_date"].astype(str)))].copy()
     if estimated.empty:
@@ -245,7 +294,7 @@ def _methodology() -> dict:
     return {
         "official_series": "risk_temperature.csv remains official close only and is not backfilled with weak daily option data.",
         "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected.",
-        "non_avix_factors": "Index-derived realized volatility, drawdown, turnover and index-breadth proxy are recomputed from available close data; missing stock breadth remains flagged.",
+        "non_avix_factors": "Index-derived realized volatility, drawdown, and turnover use available close data; estimated rows fetch exact-date live stock breadth when official breadth lags.",
         "chart_rule": "The website renders official close as a solid line and estimated close as a dashed line.",
     }
 
