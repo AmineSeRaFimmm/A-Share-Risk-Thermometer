@@ -1,7 +1,7 @@
 {
   "trade_date": "2026-07-22",
-  "update_time": "2026-07-22T09:45:40+08:00",
-  "risk_temperature": 62.0,
+  "update_time": "2026-07-22T09:47:11+08:00",
+  "risk_temperature": 61.9,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
   "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
@@ -16,8 +16,8 @@
   "is_final": false,
   "components": {
     "avix_percentile_2y": 82.7038,
-    "avix_zscore_1y": 78.2307,
-    "avix_5d_change": 61.9406,
+    "avix_zscore_1y": 77.9779,
+    "avix_5d_change": 61.6755,
     "qvix_confirmation": 50.0,
     "realized_vol": 50.0,
     "drawdown_pressure": 50.0,
@@ -38,7 +38,7 @@
   "avix": {
     "avix_clean_close": 22.5678,
     "avix_raw_close": 22.5678,
-    "avix_realtime_mid": 22.1276,
+    "avix_realtime_mid": 22.0999,
     "avix_realtime_quality": "OK",
     "avix_realtime_note": "exact 30D term",
     "avix_realtime_usable": true,
@@ -63,21 +63,21 @@
   },
   "nowcast": {
     "trade_date": "2026-07-22",
-    "risk_temperature": 62.0,
+    "risk_temperature": 61.9,
     "regime": "HIGH_RISK",
     "regime_cn": "高风险",
     "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
     "baseline_trade_date": "2026-07-21",
     "official_risk_temperature": 67.0,
-    "realtime_avix": 22.1276,
+    "realtime_avix": 22.0999,
     "realtime_avix_quality": null,
-    "realtime_valuation_time": "2026-07-22T09:45:36+08:00",
+    "realtime_valuation_time": "2026-07-22T09:47:06+08:00",
     "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors",
     "active": true
   },
   "interpretation": {
-    "headline": "市场风险温度 62.0，处于高风险",
-    "summary": "AVIX两年分位、AVIX异常程度、AVIX短期变化是当前风险温度的主要驱动；多因子合成后给出 62.0/100。",
+    "headline": "市场风险温度 61.9，处于高风险",
+    "summary": "AVIX两年分位、AVIX异常程度、AVIX短期变化是当前风险温度的主要驱动；多因子合成后给出 61.9/100。",
     "posture": "防守 + 等待风险释放",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
