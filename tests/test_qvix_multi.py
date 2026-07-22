@@ -7,9 +7,11 @@ import pandas as pd
 
 from src.data_sources.akshare_qvix import (
     SOURCE_AK_ETF,
+    SOURCE_RT_ETF_CSV,
     SOURCE_ETF,
     SOURCE_INDEX,
     _extract_pack,
+    _normalize_min_qvix,
     fetch_qvix,
     fetch_qvix_from_optbbs_parse,
     merge_qvix_cache,
@@ -110,3 +112,21 @@ def test_fetch_qvix_fills_stale_optbbs_tail_from_akshare_etf(monkeypatch):
     assert float(by.loc["2026-07-16", "close"]) == 22.69
     assert float(by.loc["2026-07-21", "close"]) == 21.81
     assert by.loc["2026-07-21", "source"] == SOURCE_AK_ETF
+
+
+def test_normalize_min_qvix_builds_intraday_proxy_bar():
+    raw = pd.DataFrame(
+        [
+            {"time": "9:30:00", "qvix": "21.74"},
+            {"time": "9:31:40", "qvix": "#NAME?"},
+            {"time": "10:01:40", "qvix": "21.28"},
+            {"time": "10:02:40", "qvix": ""},
+        ]
+    )
+    out = _normalize_min_qvix(raw, "2026-07-22", SOURCE_RT_ETF_CSV)
+    row = out.iloc[0]
+    assert row["date"] == "2026-07-22"
+    assert float(row["open"]) == 21.74
+    assert float(row["close"]) == 21.28
+    assert row["source"] == SOURCE_RT_ETF_CSV
+    assert int(row["intraday_points"]) == 2

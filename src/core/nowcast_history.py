@@ -4,6 +4,7 @@ import pandas as pd
 
 from src.core.calendar import merged_trading_days
 from src.data_sources.akshare_breadth import fetch_breadth_summary_multi
+from src.data_sources.akshare_qvix import fetch_realtime_qvix_for_date
 from src.core.realtime_avix import (
     calculate_realtime_avix,
     realtime_avix_allows_gap_fill,
@@ -145,6 +146,53 @@ def _augment_breadth_for_realtime_dates(
     )
 
 
+def _augment_qvix_for_realtime_dates(
+    qvix_raw: pd.DataFrame,
+    realtime_avix: pd.DataFrame,
+    fetcher=fetch_realtime_qvix_for_date,
+) -> pd.DataFrame:
+    """Add exact-date realtime QVIX rows for estimated-close rows only."""
+    base = qvix_raw.copy() if qvix_raw is not None and not qvix_raw.empty else pd.DataFrame()
+    if realtime_avix is None or realtime_avix.empty or fetcher is None:
+        return base
+
+    existing = set()
+    if not base.empty and "date" in base.columns:
+        valid = base.copy()
+        valid["close"] = pd.to_numeric(valid.get("close"), errors="coerce")
+        existing = set(valid.loc[valid["close"].notna() & valid["close"].gt(0), "date"].astype(str))
+
+    additions = []
+    for trade_date in sorted(realtime_avix["trade_date"].dropna().astype(str).unique()):
+        if trade_date in existing:
+            continue
+        try:
+            row = fetcher(trade_date)
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN realtime QVIX fetch failed {trade_date}: {exc}")
+            continue
+        if row is None or row.empty:
+            continue
+        row = row.iloc[[0]].copy()
+        if str(row.iloc[0].get("date", ""))[:10] != trade_date:
+            print(f"WARN realtime QVIX date mismatch want={trade_date} got={row.iloc[0].get('date')}")
+            continue
+        close = pd.to_numeric(row.iloc[0].get("close"), errors="coerce")
+        if pd.isna(close) or float(close) <= 0:
+            print(f"WARN realtime QVIX weak {trade_date}: close={row.iloc[0].get('close')}")
+            continue
+        additions.append(row)
+
+    if not additions:
+        return base
+    return (
+        pd.concat([base, *additions], ignore_index=True)
+        .drop_duplicates("date", keep="last")
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+
+
 def _gap_rows(
     official_risk: pd.DataFrame,
     index_history: pd.DataFrame,
@@ -210,7 +258,8 @@ def build_nowcast_history(
         }
 
     pseudo_clean = _pseudo_avix_clean(official_clean, realtime_avix)
-    qvix = validate_qvix(pseudo_clean, qvix_raw)
+    qvix_source = _augment_qvix_for_realtime_dates(qvix_raw, realtime_avix)
+    qvix = validate_qvix(pseudo_clean, qvix_source)
     realized = compute_realized_vol(index_history)
     drawdown = compute_drawdown(index_history)
     breadth_source = _augment_breadth_for_realtime_dates(
@@ -263,6 +312,8 @@ def build_nowcast_history(
             "avix_realtime_quality": getattr(row, "realtime_avix_quality", None),
             "realtime_valuation_time": getattr(row, "valuation_time", None),
             "hs300_close": _finite(getattr(row, "sh000300_close", None)),
+            "qvix_close": _finite(getattr(row, "qvix_close", None)),
+            "qvix_source": getattr(row, "qvix_source", None),
             "drawdown_pressure": _finite(getattr(row, "drawdown_pressure", None)),
             "breadth_pressure": _finite(getattr(row, "market_breadth_pressure", None)),
             "model_confidence": _finite(getattr(row, "model_confidence", None)),
@@ -293,7 +344,7 @@ def build_nowcast_history(
 def _methodology() -> dict:
     return {
         "official_series": "risk_temperature.csv remains official close only and is not backfilled with weak daily option data.",
-        "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected.",
+        "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected; missing QVIX may use exact-date realtime 300 index QVIX, else 300ETF QVIX as an explicit proxy.",
         "non_avix_factors": "Index-derived realized volatility, drawdown, and turnover use available close data; estimated rows fetch exact-date live stock breadth when official breadth lags.",
         "chart_rule": "The website renders official close as a solid line and estimated close as a dashed line.",
     }

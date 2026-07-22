@@ -22,9 +22,9 @@
     },
     {
       "name": "QVIX确认",
-      "score": 50.0,
+      "score": 30.0,
       "weight": 0.12,
-      "contribution": 6.0
+      "contribution": 3.6
     },
     {
       "name": "实现波动率",
@@ -40,9 +40,9 @@
     },
     {
       "name": "市场宽度",
-      "score": 36.1154,
+      "score": 40.739,
       "weight": 0.1,
-      "contribution": 3.6115
+      "contribution": 4.0739
     },
     {
       "name": "成交压力",

@@ -21,7 +21,9 @@ Missing QVIX no longer means “single-source total blackout”.
 from __future__ import annotations
 
 from datetime import datetime
+from email.utils import parsedate_to_datetime
 from io import StringIO
+from urllib.parse import urljoin
 
 import pandas as pd
 import requests
@@ -33,11 +35,25 @@ SOURCE_INDEX = "OPTBBS_PARSE_300INDEX_QVIX"
 SOURCE_ETF = "OPTBBS_PARSE_300ETF_QVIX"
 SOURCE_AK_INDEX = "AKSHARE_OPTBBS_QVIX"
 SOURCE_AK_ETF = "AKSHARE_OPTBBS_300ETF_QVIX"
+SOURCE_RT_INDEX_CSV = "OPTBBS_CSV_300INDEX_MIN_QVIX"
+SOURCE_RT_INDEX_PAGE = "OPTBBS_PAGE_300INDEX_MIN_QVIX"
+SOURCE_RT_INDEX_AK = "AKSHARE_300INDEX_MIN_QVIX"
+SOURCE_RT_ETF_CSV = "OPTBBS_CSV_300ETF_MIN_QVIX_PROXY"
+SOURCE_RT_ETF_PAGE = "OPTBBS_PAGE_300ETF_MIN_QVIX_PROXY"
+SOURCE_RT_ETF_AK = "AKSHARE_300ETF_MIN_QVIX_PROXY"
 
 # 0-based OHLC column packs in k.csv (date is always column 0)
 _PACKS = {
     "300index": (17, 18, 19, 20),
     "300etf": (9, 10, 11, 12),
+}
+_REALTIME_CSV = {
+    "300index": "http://1.optbbs.com/d/csv/d/vixindex.csv",
+    "300etf": "http://1.optbbs.com/d/csv/d/vix300.csv",
+}
+_REALTIME_PAGE = {
+    "300index": "http://1.optbbs.com/d/csv/csvindex.html",
+    "300etf": "http://1.optbbs.com/d/csv/csv300.html",
 }
 
 
@@ -92,6 +108,134 @@ def fetch_optbbs_k_csv(*, timeout: int = 30) -> pd.DataFrame:
         return pd.read_csv(StringIO(text))
 
     return retry_call(_get, times=3, sleep_seconds=1.5)
+
+
+def _last_modified_trade_date(headers: dict) -> str | None:
+    raw = headers.get("Last-Modified") or headers.get("last-modified")
+    if not raw:
+        return None
+    try:
+        return parsedate_to_datetime(raw).astimezone(pd.Timestamp.now(tz="Asia/Shanghai").tz).strftime("%Y-%m-%d")
+    except Exception:  # noqa: BLE001
+        return None
+
+
+def _normalize_min_qvix(df: pd.DataFrame, trade_date: str, source: str) -> pd.DataFrame:
+    if df is None or df.empty or df.shape[1] < 2:
+        return pd.DataFrame()
+    out = df.iloc[:, :2].copy()
+    out.columns = ["time", "qvix"]
+    out["qvix"] = pd.to_numeric(out["qvix"], errors="coerce")
+    out = out[out["qvix"].notna() & out["qvix"].gt(0)].copy()
+    if out.empty:
+        return pd.DataFrame()
+    return pd.DataFrame(
+        [
+            {
+                "date": trade_date,
+                "open": float(out.iloc[0]["qvix"]),
+                "high": float(out["qvix"].max()),
+                "low": float(out["qvix"].min()),
+                "close": float(out.iloc[-1]["qvix"]),
+                "source": source,
+                "fetch_time": datetime.now().isoformat(timespec="seconds"),
+                "last_time": str(out.iloc[-1]["time"]),
+                "intraday_points": int(len(out)),
+            }
+        ]
+    )
+
+
+def _fetch_optbbs_min_csv(url: str, trade_date: str, source: str, *, timeout: int = 20) -> pd.DataFrame:
+    def _get() -> pd.DataFrame:
+        resp = requests.get(
+            url,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; a-share-risk-thermometer/1.0)"},
+            timeout=timeout,
+        )
+        resp.raise_for_status()
+        source_date = _last_modified_trade_date(resp.headers)
+        if source_date != trade_date:
+            print(f"WARN realtime QVIX date mismatch source={source} want={trade_date} got={source_date}")
+            return pd.DataFrame()
+        raw = pd.read_csv(StringIO(resp.content.decode("utf-8", errors="replace")))
+        return _normalize_min_qvix(raw, trade_date, source)
+
+    return retry_call(_get, times=2, sleep_seconds=1.0)
+
+
+def _fetch_optbbs_min_from_page(page_url: str, expected_csv: str, trade_date: str, source: str) -> pd.DataFrame:
+    try:
+        resp = requests.get(
+            page_url,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; a-share-risk-thermometer/1.0)"},
+            timeout=20,
+        )
+        resp.raise_for_status()
+        text = resp.content.decode("utf-8", errors="replace")
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN realtime QVIX page fetch failed source={source}: {exc}")
+        return pd.DataFrame()
+    marker = expected_csv.rsplit("/", 1)[-1]
+    if marker not in text:
+        return pd.DataFrame()
+    # The widget uses a relative path such as d/vix300.csv?v=timestamp.
+    relative = f"d/{marker}"
+    csv_url = urljoin(page_url, relative)
+    return _fetch_optbbs_min_csv(csv_url, trade_date, source)
+
+
+def _fetch_akshare_min_qvix(fn_name: str, trade_date: str, source: str) -> pd.DataFrame:
+    today = pd.Timestamp.now(tz="Asia/Shanghai").strftime("%Y-%m-%d")
+    if trade_date != today:
+        return pd.DataFrame()
+    try:
+        import akshare as ak
+
+        fn = getattr(ak, fn_name, None)
+        if fn is None:
+            return pd.DataFrame()
+        return _normalize_min_qvix(fn(), trade_date, source)
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN realtime QVIX akshare fetch failed source={source}: {exc}")
+        return pd.DataFrame()
+
+
+def fetch_realtime_qvix_for_date(trade_date: str) -> pd.DataFrame:
+    """Fetch exact-date realtime QVIX for estimated close.
+
+    Prefer 300 index realtime QVIX when usable. If it is missing/broken, use
+    300ETF realtime QVIX as an explicit proxy. The returned row is intended for
+    nowcast only and must not be persisted as official daily QVIX.
+    """
+    trade_date = str(trade_date)[:10]
+    sources = [
+        lambda: _fetch_optbbs_min_csv(_REALTIME_CSV["300index"], trade_date, SOURCE_RT_INDEX_CSV),
+        lambda: _fetch_optbbs_min_from_page(
+            _REALTIME_PAGE["300index"], _REALTIME_CSV["300index"], trade_date, SOURCE_RT_INDEX_PAGE
+        ),
+        lambda: _fetch_akshare_min_qvix("index_option_300index_min_qvix", trade_date, SOURCE_RT_INDEX_AK),
+        lambda: _fetch_optbbs_min_csv(_REALTIME_CSV["300etf"], trade_date, SOURCE_RT_ETF_CSV),
+        lambda: _fetch_optbbs_min_from_page(
+            _REALTIME_PAGE["300etf"], _REALTIME_CSV["300etf"], trade_date, SOURCE_RT_ETF_PAGE
+        ),
+        lambda: _fetch_akshare_min_qvix("index_option_300etf_min_qvix", trade_date, SOURCE_RT_ETF_AK),
+    ]
+    for fetcher in sources:
+        try:
+            out = fetcher()
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN realtime QVIX source failed {trade_date}: {exc}")
+            continue
+        if out is not None and not out.empty:
+            row = out.iloc[0]
+            print(
+                "QVIX realtime: "
+                f"date={trade_date} close={row.get('close')} source={row.get('source')} "
+                f"points={row.get('intraday_points')} last_time={row.get('last_time')}"
+            )
+            return out
+    return pd.DataFrame()
 
 
 def _extract_pack(raw: pd.DataFrame, pack: str, source: str) -> pd.DataFrame:
