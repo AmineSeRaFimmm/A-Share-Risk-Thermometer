@@ -412,15 +412,18 @@ function renderBreadthMode(latest) {
   const market = latest?.market || {};
   const modeCn = market.breadth_mode_cn || '--';
   const mode = market.breadth_mode || '';
-  setText('breadthMode', modeCn);
+  const score = Number(market.breadth_pressure);
+  const scoreLabel = Number.isFinite(score) ? ` · ${score.toFixed(1)}` : '';
+  setText('breadthMode', `${modeCn}${scoreLabel}`);
   const el = document.getElementById('breadthMode');
   if (!el) return;
   el.dataset.breadth = (mode || 'unknown').toLowerCase();
+  const asOf = market.as_of_trade_date ? ` / 日期: ${market.as_of_trade_date}` : '';
   el.title = market.breadth_quality
-    ? `宽度质量: ${market.breadth_quality}`
+    ? `宽度质量: ${market.breadth_quality}${asOf}`
     : mode === 'INDEX_PROXY'
       ? '历史多数日期使用宽基指数代理宽度，不是全A个股涨跌统计'
-      : '基于全A现货快照统计';
+      : `基于全A现货快照统计${asOf}`;
 }
 
 function updateRefreshStatus(status, detail) {

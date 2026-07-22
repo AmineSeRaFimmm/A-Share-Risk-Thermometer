@@ -133,6 +133,28 @@ def _breadth_mode_cn(row: pd.Series) -> str:
     }.get(_breadth_mode(row), "宽度未知")
 
 
+def _estimate_breadth_mode(quality: str) -> str:
+    if "WARN_BREADTH_MISSING" in str(quality):
+        return "MISSING"
+    if "WARN_BREADTH_PROXY" in str(quality):
+        return "INDEX_PROXY"
+    return "STOCK_A"
+
+
+def _estimate_breadth_mode_cn(quality: str) -> str:
+    return {
+        "STOCK_A": "全A个股宽度",
+        "INDEX_PROXY": "宽基指数代理",
+        "MISSING": "宽度缺失",
+    }.get(_estimate_breadth_mode(quality), "宽度未知")
+
+
+def _estimate_breadth_quality(quality: str) -> str:
+    flags = str(quality or "").split("|")
+    breadth_flags = [flag for flag in flags if "BREADTH" in flag]
+    return "|".join(breadth_flags) if breadth_flags else "OK"
+
+
 def _active_view(risk: pd.DataFrame, realtime: pd.DataFrame | None):
     official = risk.sort_values("trade_date").iloc[-1]
     nowcast = realtime_nowcast_payload(risk, realtime)
@@ -200,6 +222,9 @@ def latest_payload(
         confidence = _model_confidence_summary(row, quality)
         mode = "OFFICIAL_CLOSE"
         mode_cn = "收盘正式"
+    active_breadth_pressure = estimate.get("breadth_pressure") if use_estimate else comps.get("market_breadth_pressure")
+    active_breadth_quality = _estimate_breadth_quality(quality) if use_estimate else str(row.get("breadth_quality") or "")
+    active_breadth_mode = _estimate_breadth_mode(quality) if use_estimate else _breadth_mode(row)
     return {
         "trade_date": trade_date,
         "update_time": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
@@ -217,12 +242,13 @@ def latest_payload(
             "hs300_close": finite(row.get("sh000300_close")),
             "hs300_ret_1d": None,
             "hs300_drawdown_60d": finite(row.get("sh000300_dd60")),
-            "advancing_ratio": finite(row.get("advancing_ratio")),
-            "big_down_ratio": finite(row.get("big_down_ratio")),
-            "as_of_trade_date": row.trade_date,
-            "breadth_mode": _breadth_mode(row),
-            "breadth_mode_cn": _breadth_mode_cn(row),
-            "breadth_quality": str(row.get("breadth_quality") or ""),
+            "advancing_ratio": None if use_estimate else finite(row.get("advancing_ratio")),
+            "big_down_ratio": None if use_estimate else finite(row.get("big_down_ratio")),
+            "breadth_pressure": finite(active_breadth_pressure),
+            "as_of_trade_date": trade_date if use_estimate else row.trade_date,
+            "breadth_mode": active_breadth_mode,
+            "breadth_mode_cn": _estimate_breadth_mode_cn(quality) if use_estimate else _breadth_mode_cn(row),
+            "breadth_quality": active_breadth_quality,
         },
         "avix": {
             "avix_clean_close": finite(row.get("avix_clean")),
