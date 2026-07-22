@@ -39,6 +39,13 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("if (delta < 0 && -delta > cash + 1e-6)", self.web)
         self.assertIn("下调全仓需先减仓或平仓", self.web)
 
+    def test_intraday_quotes_are_display_only_with_two_sources(self) -> None:
+        self.assertIn("https://qt.gtimg.cn/q=${symbols.join(',')}", self.web)
+        self.assertIn("https://push2.eastmoney.com/api/qt/stock/get?secid=${market}.${c}", self.web)
+        self.assertIn("function flexApplyDisplayMarksToLedger", self.web)
+        self.assertIn("function flexPositionEodReturnPct", self.web)
+        self.assertIn("const ret = flexPositionEodReturnPct(pos);", self.web)
+
 
 if __name__ == "__main__":
     unittest.main()
