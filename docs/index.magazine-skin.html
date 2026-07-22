@@ -113,14 +113,7 @@
             <span class="flex-pill muted" id="flexAsOf" hidden title="策略书数据日期"></span>
             <span class="flex-pill book" id="flexBookPill" title="当前账本">真实仓</span>
           </div>
-          <div class="flex-controls" aria-label="策略模式与账本">
-            <div class="flex-control-group">
-              <span class="flex-control-label">策略</span>
-              <div class="flex-mode-row" role="group" aria-label="策略模式">
-                <button type="button" class="flex-mode-btn active" data-flex-mode="aggressive" id="flexModeAggressive" title="单仓可满仓；收益更高、回撤更大">进取</button>
-                <button type="button" class="flex-mode-btn secondary" data-flex-mode="conservative" id="flexModeConservative" title="核心≤50% / 卫星≤30% / 总暴露≤80%">保守</button>
-              </div>
-            </div>
+          <div class="flex-controls" aria-label="账本">
             <div class="flex-control-group">
               <span class="flex-control-label">账本</span>
               <div class="flex-mode-row" role="group" aria-label="账本切换">
@@ -133,7 +126,7 @@
 
         <div class="flex-guide" id="flexGuide" hidden>
           <ol class="flex-guide-steps">
-            <li><strong>选策略</strong>：进取 / 保守（只改仓位，不改信号逻辑）</li>
+            <li><strong>策略</strong>：进取 Flex（后端策略书直接给出目标仓位）</li>
             <li><strong>选账本</strong>：真实=点买记账；模拟=自动跟策略</li>
             <li><strong>填全仓</strong>：用于建议金额与仓位%</li>
             <li><strong>看信号</strong>：T～T+1 可买；到期/事件会提示平仓</li>

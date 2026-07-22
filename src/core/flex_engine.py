@@ -178,7 +178,7 @@ POSITION_STATE_PATH = CALCULATED / "flex_position_state.json"
 DEFAULT_BACKTEST_STATS: dict[str, Any] = {
     "mode": "combined_flex_v2",
     "label_cn": "组合 Flex v2（状态机+质量降权+成本压力）",
-    "default_mode": MODE_CONSERVATIVE,
+    "default_mode": MODE_AGGRESSIVE,
     "hold_days_core": CORE_HOLD_DAYS,
     "hold_days_sat": f"{SAT_MIN_HOLD}-{SAT_MAX_HOLD}",
     "execution": "T 收盘信号 → T+1 开盘",
@@ -195,7 +195,7 @@ DEFAULT_BACKTEST_STATS: dict[str, Any] = {
         "oos": {},
     },
     "aggressive": {
-        "note": "单仓满仓 Flex；收益偏高、换手大",
+        "note": "生产进取模式；单仓满仓、双仓60/40；日度路径与换仓成本口径",
         "full_sample": {
             "total_return": 6.1101,
             "ann_return": 0.3660,
@@ -215,7 +215,7 @@ DEFAULT_BACKTEST_STATS: dict[str, Any] = {
         "base_bps_one_way": 1,
         "stress_15bps": {},
         "stress_30bps": {},
-        "etf_haircut_note": "proxy×0.85 / weak 剔除；行业指数≠ETF",
+        "etf_haircut_note": "proxy 正收益折扣、负收益放大；weak 剔除；行业指数≠ETF",
     },
     "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；实盘收益应低于回测。",
 }
@@ -298,6 +298,17 @@ def _quality_of(name: str) -> str:
     return str(m.get("quality") or "missing")
 
 
+def quality_adjusted_return(r: float, quality: str) -> float:
+    """Apply ETF proxy realism without making losses look smaller."""
+    q = str(quality or "missing")
+    h = float(QUALITY_RETURN_HAIRCUT.get(q, 0.85))
+    if h <= 0:
+        return float(r)
+    if r >= 0:
+        return float(r) * h
+    return float(r) / h
+
+
 def _sector_score(name: str, stage_id: str) -> float:
     meta = SECTOR_META.get(name) or {}
     n = float(meta.get("n") or 30)
@@ -331,6 +342,7 @@ def merge_satellite_targets(
     stage_src: dict[str, list[str]] = {}
     why_map: dict[str, str] = {}
     meta_map: dict[str, dict] = {}
+    stage_score_map: dict[str, list[dict[str, Any]]] = {}
     suppressed: list[str] = []
 
     for sid in stages:
@@ -349,6 +361,15 @@ def merge_satellite_targets(
             stage_src.setdefault(name, []).append(sid)
             meta = SECTOR_META.get(name) or {}
             meta_map[name] = meta
+            stage_score_map.setdefault(name, []).append(
+                {
+                    "stage_id": sid,
+                    "score": round(sc, 6),
+                    "win_rate": meta.get("win_rate"),
+                    "n": meta.get("n"),
+                    "mean_excess": meta.get("mean_excess"),
+                }
+            )
             why_map[name] = f"阶段{'+'.join(stage_src[name])} 合并得分"
 
     # normalize weights among positive scores
@@ -369,6 +390,7 @@ def merge_satellite_targets(
                 "n": meta.get("n"),
                 "mean_excess": meta.get("mean_excess"),
                 "stages": stage_src.get(name, []),
+                "stage_evidence": stage_score_map.get(name, []),
                 "why": why_map.get(name, "阶段超配"),
                 "tier": STAGE_TIER.get(stage_src.get(name, [""])[0], "high"),
             }
@@ -646,7 +668,7 @@ def build_risk_dashboard(
     return {
         "estimated_beta": round(beta, 3),
         "estimated_daily_vol": round(est_daily_vol, 4),
-        "estimated_daily_vol_cn": f"约 {est_daily_vol*100:.1f}%（启发式）",
+        "estimated_daily_vol_cn": f"约 {est_daily_vol*100:.1f}%（固定beta启发式）",
         "total_exposure": alloc.get("total_exposure"),
         "cash": alloc.get("w_cash"),
         "growth_sat_share": round(growth_w, 3),
@@ -656,6 +678,12 @@ def build_risk_dashboard(
             max([w_core] + [w_sat * float(w) for w in sat_weights.values()] or [0.0]), 4
         ),
         "circuit_breaker_cn": "组合研究回撤>15% 时建议卫星清零、仅保留核心规则",
+        "model_cn": "固定beta + 目标仓位的暴露估算；不是实盘风控执行器",
+        "controls": [
+            {"key": "max_exposure", "value": alloc.get("total_exposure"), "enforced": True},
+            {"key": "max_single_name", "value": round(max([w_core] + [w_sat * float(w) for w in sat_weights.values()] or [0.0]), 4), "enforced": True},
+            {"key": "research_drawdown_stop", "value": -0.15, "enforced": False},
+        ],
     }
 
 
@@ -689,14 +717,29 @@ def build_flex_panel_v2(
     observe_stages = [s for s in stages if STAGE_TIER.get(s) == "observe"]
     sat_signal = bool(longs) and (bool(high_stages) or bool(observe_stages))
 
-    # Prefer why/win_rate from detailed stage cards
-    detail_by_name: dict[str, dict] = {}
+    # Prefer why/win_rate from detailed stage cards, preserving the stage that supplied the evidence.
+    detail_by_name_stage: dict[tuple[str, str], dict] = {}
     for st in detailed:
         for sec in (st.get("sectors_long") or []) + (st.get("sectors_short") or []):
-            detail_by_name[sec["name"]] = sec
+            detail_by_name_stage[(sec["name"], st.get("stage_id"))] = sec
 
     for item in longs:
-        d = detail_by_name.get(item["name"]) or {}
+        evidence = []
+        for sid in item.get("stages") or []:
+            d = detail_by_name_stage.get((item["name"], sid)) or {}
+            if d:
+                evidence.append(
+                    {
+                        "stage_id": sid,
+                        "why": d.get("why"),
+                        "win_rate": d.get("win_rate"),
+                        "n": d.get("n"),
+                        "horizon": d.get("horizon"),
+                    }
+                )
+        if evidence:
+            item["stage_evidence"] = evidence
+        d = evidence[0] if len(evidence) == 1 else {}
         if d.get("why"):
             item["why"] = d["why"]
         if d.get("win_rate") is not None:
@@ -1185,7 +1228,7 @@ def build_flex_panel_v2(
             "good": 1.0,
             "proxy": 0.70,
             "weak": 0.0,
-            "note_cn": "弱代理不进默认买入；主题代理权重×0.7",
+            "note_cn": "弱代理不进默认买入；主题代理权重×0.7；回测中 proxy 正收益折扣、负收益放大",
         },
         "backtest": bt,
         "backtest_display": {
@@ -1206,7 +1249,7 @@ def build_flex_panel_v2(
         },
         "disclaimer": (
             "研究回测指令，非投资建议。"
-            "默认保守仓位；弱代理已剔除；"
+            "默认展示进取仓位；弱代理已剔除；"
             "超额≠绝对收益；ETF 映射见 config/sector_etf_map.yml。"
         ),
         "primary_stage_cn": primary.get("name_cn"),

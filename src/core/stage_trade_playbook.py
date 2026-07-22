@@ -16,7 +16,7 @@ from typing import Any
 
 import pandas as pd
 
-from src.core.flex_engine import build_flex_panel_v2, load_backtest_stats_file
+from src.core.flex_engine import MODE_AGGRESSIVE, build_flex_panel_v2, load_backtest_stats_file
 from src.core.sector_etf_map import attach_etf_fields
 
 # ---- CSI300 primary rule (strict backtest, balanced IS/OOS) ----
@@ -555,7 +555,7 @@ def build_playbook_payload(
         primary,
         risk_components=risk_components,
         index_history=index_history,
-        mode="conservative",
+        mode=MODE_AGGRESSIVE,
         backtest_stats=load_backtest_stats_file(),
     )
 

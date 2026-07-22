@@ -1,6 +1,6 @@
 {
   "as_of": "2026-07-21",
-  "mode": "conservative",
+  "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-07-15",

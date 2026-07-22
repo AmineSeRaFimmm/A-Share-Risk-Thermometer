@@ -1051,8 +1051,7 @@ function collectStrategyPaperTargets(flex) {
   const f = flex || {};
   const pos = f.position_state || {};
   const alloc = f.allocation || {};
-  // App product lock: aggressive sizing only
-  const mode = 'aggressive';
+  const mode = f.mode || 'aggressive';
   const cfg = (f.modes || {})[mode] || (f.modes || {}).aggressive || {};
   const targets = [];
 
@@ -3317,10 +3316,12 @@ function renderFlexTradePanel(playbook) {
   }
 
   dashboardState.flexPlaybook = playbook;
-  // Product lock: only aggressive Flex sizing is exposed in the app.
-  const mode = 'aggressive';
+  // Product lock: only aggressive Flex sizing is exposed in the app; backend is the sizing source of truth.
+  const mode = flex.mode || 'aggressive';
   dashboardState.flexMode = 'aggressive';
-  flex = applyFlexModeOverlay(flex, mode);
+  if (flex.mode !== 'aggressive') {
+    flex = applyFlexModeOverlay(flex, mode);
+  }
   // Promote root playbook metadata onto flex for signal filters / empty-state copy.
   flex = {
     ...flex,
