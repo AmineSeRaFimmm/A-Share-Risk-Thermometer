@@ -6,9 +6,11 @@ from io import StringIO
 import pandas as pd
 
 from src.data_sources.akshare_qvix import (
+    SOURCE_AK_ETF,
     SOURCE_ETF,
     SOURCE_INDEX,
     _extract_pack,
+    fetch_qvix,
     fetch_qvix_from_optbbs_parse,
     merge_qvix_cache,
 )
@@ -75,3 +77,36 @@ def test_merge_cache_does_not_overwrite_with_nan():
     m = merge_qvix_cache(fresh, cached)
     assert float(m.iloc[0]["close"]) == 22.0
     assert m.iloc[0]["source"] == "OLD"
+
+
+def test_fetch_qvix_fills_stale_optbbs_tail_from_akshare_etf(monkeypatch):
+    raw = _fake_k_csv()
+    monkeypatch.setattr(
+        "src.data_sources.akshare_qvix.fetch_optbbs_k_csv",
+        lambda **kwargs: raw,
+    )
+
+    def fake_akshare(fn_name: str, source: str) -> pd.DataFrame:
+        if fn_name == "index_option_300etf_qvix":
+            return pd.DataFrame(
+                [
+                    {
+                        "date": "2026-07-21",
+                        "open": 24.29,
+                        "high": 25.01,
+                        "low": 21.66,
+                        "close": 21.81,
+                        "source": source,
+                        "fetch_time": "test",
+                    }
+                ]
+            )
+        return pd.DataFrame()
+
+    monkeypatch.setattr("src.data_sources.akshare_qvix._fetch_akshare_series", fake_akshare)
+
+    out = fetch_qvix()
+    by = out.set_index("date")
+    assert float(by.loc["2026-07-16", "close"]) == 22.69
+    assert float(by.loc["2026-07-21", "close"]) == 21.81
+    assert by.loc["2026-07-21", "source"] == SOURCE_AK_ETF

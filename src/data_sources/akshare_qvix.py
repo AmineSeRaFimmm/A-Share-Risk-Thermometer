@@ -185,6 +185,57 @@ def _fetch_akshare_series(fn_name: str, source: str) -> pd.DataFrame:
         return pd.DataFrame()
 
 
+def _merge_prefer_primary(primary: pd.DataFrame, fallback: pd.DataFrame) -> pd.DataFrame:
+    """Merge QVIX frames by date, using fallback only where primary has no close."""
+    if primary is None or primary.empty:
+        return fallback.copy() if fallback is not None and not fallback.empty else pd.DataFrame()
+    if fallback is None or fallback.empty:
+        return primary.copy()
+    cols = ["date", "open", "high", "low", "close", "source", "fetch_time"]
+    left = primary.copy()
+    right = fallback.copy()
+    for frame in (left, right):
+        for col in cols:
+            if col not in frame.columns:
+                frame[col] = pd.NA
+        frame["date"] = pd.to_datetime(frame["date"], errors="coerce").dt.strftime("%Y-%m-%d")
+    m = left[cols].merge(right[cols], on="date", how="outer", suffixes=("_p", "_f"))
+    primary_close = pd.to_numeric(m["close_p"], errors="coerce")
+    fallback_close = pd.to_numeric(m["close_f"], errors="coerce")
+    use_fallback = (primary_close.isna() | primary_close.le(0)) & fallback_close.notna() & fallback_close.gt(0)
+    out = pd.DataFrame({"date": m["date"]})
+    for col in ["open", "high", "low", "close"]:
+        primary_col = pd.to_numeric(m[f"{col}_p"], errors="coerce")
+        fallback_col = pd.to_numeric(m[f"{col}_f"], errors="coerce")
+        out[col] = primary_col.where(~use_fallback, fallback_col)
+    out["source"] = m["source_p"].where(~use_fallback, m["source_f"])
+    out["fetch_time"] = m["fetch_time_p"].where(~use_fallback, m["fetch_time_f"])
+    return (
+        out.dropna(subset=["date", "close"])
+        .loc[lambda df: pd.to_numeric(df["close"], errors="coerce").gt(0)]
+        .sort_values("date")
+        .drop_duplicates("date", keep="last")
+        .reset_index(drop=True)
+    )
+
+
+def _fetch_akshare_qvix_merge() -> pd.DataFrame:
+    idx = _fetch_akshare_series("index_option_300index_qvix", SOURCE_AK_INDEX)
+    etf = _fetch_akshare_series("index_option_300etf_qvix", SOURCE_AK_ETF)
+    if idx.empty and etf.empty:
+        return pd.DataFrame()
+    if idx.empty:
+        print(f"QVIX multi-source(akshare): using 300ETF only rows={len(etf)}")
+        return etf
+    if etf.empty:
+        print(f"QVIX multi-source(akshare): using 300index only rows={len(idx)}")
+        return idx
+    m = _merge_prefer_primary(idx, etf)
+    fallback_days = int(m["source"].eq(SOURCE_AK_ETF).sum()) if "source" in m.columns else 0
+    print(f"QVIX multi-source(akshare merge): rows={len(m)} etf_fallback_days={fallback_days}")
+    return m
+
+
 def fetch_qvix() -> pd.DataFrame:
     """Multi-source QVIX for RT confirmation.
 
@@ -199,32 +250,18 @@ def fetch_qvix() -> pd.DataFrame:
             f"index_rows={meta.get('index_rows')} etf_rows={meta.get('etf_rows')} "
             f"etf_fallback_days={meta.get('etf_used_as_fallback')}"
         )
-        return parsed
+        ak = _fetch_akshare_qvix_merge()
+        merged = _merge_prefer_primary(parsed, ak)
+        if not ak.empty and str(ak["date"].max()) > str(parsed["date"].max()):
+            print(
+                "QVIX multi-source: filled stale optbbs tail "
+                f"optbbs_max={parsed['date'].max()} akshare_max={ak['date'].max()} "
+                f"merged_rows={len(merged)}"
+            )
+        return merged
 
     print(f"WARN QVIX optbbs parse empty/failed: {meta.get('error', meta)}")
-    idx = _fetch_akshare_series("index_option_300index_qvix", SOURCE_AK_INDEX)
-    etf = _fetch_akshare_series("index_option_300etf_qvix", SOURCE_AK_ETF)
-    if idx.empty and etf.empty:
-        return pd.DataFrame()
-    if idx.empty:
-        print(f"QVIX multi-source(akshare): using 300ETF only rows={len(etf)}")
-        return etf
-    if etf.empty:
-        print(f"QVIX multi-source(akshare): using 300index only rows={len(idx)}")
-        return idx
-    m = idx.merge(etf, on="date", how="outer", suffixes=("_i", "_e"))
-    use_etf = m["close_i"].isna() & m["close_e"].notna()
-    out = pd.DataFrame({"date": m["date"]})
-    for col in ["open", "high", "low", "close"]:
-        out[col] = m[f"{col}_i"].combine_first(m[f"{col}_e"])
-    out["source"] = m["source_i"].where(~use_etf, m["source_e"])
-    out["fetch_time"] = m["fetch_time_i"].combine_first(m["fetch_time_e"])
-    out = out.dropna(subset=["date", "close"])
-    out = out[out["close"] > 0].sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
-    print(
-        f"QVIX multi-source(akshare merge): rows={len(out)} etf_fallback_days={int(use_etf.sum())}"
-    )
-    return out
+    return _fetch_akshare_qvix_merge()
 
 
 def merge_qvix_cache(fresh: pd.DataFrame, cached: pd.DataFrame) -> pd.DataFrame:
