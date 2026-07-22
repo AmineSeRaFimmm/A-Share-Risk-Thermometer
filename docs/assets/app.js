@@ -273,6 +273,22 @@ function getAshareActionWindow(date = new Date()) {
   }
 }
 
+/**
+ * Flex display quotes remain useful after the continuous auction ends: providers
+ * publish the day's final ETF value before the daily-bars pipeline catches up.
+ * This is deliberately separate from the action window used for trading actions.
+ */
+function getFlexQuoteWindow(date = new Date()) {
+  const action = getAshareActionWindow(date);
+  const p = action.parts || getShanghaiDateParts(date);
+  const afterCloseMins = 15 * 60 + 16;
+  if (action.inSession) return { active: true, phase: 'intraday', parts: p };
+  if (action.tradingDay && p && p.minutes >= afterCloseMins) {
+    return { active: true, phase: 'final', parts: p };
+  }
+  return { active: false, phase: 'eod', parts: p };
+}
+
 async function loadJSON(path, { bust = true } = {}) {
   let url = path;
   if (bust) {
@@ -1318,9 +1334,9 @@ function flexRealtimeQuoteCodes() {
 }
 
 async function flexRefreshRealtimeQuotes() {
-  const win = getAshareActionWindow();
+  const quoteWindow = getFlexQuoteWindow();
   const codes = flexRealtimeQuoteCodes();
-  if (!win.inSession || !codes.length || dashboardState.flexRealtimeQuoteInFlight) return;
+  if (!quoteWindow.active || !codes.length || dashboardState.flexRealtimeQuoteInFlight) return;
   const snapshot = dashboardState.flexRealtimeQuotes || {};
   if (Date.now() - (Number(snapshot.fetchedAt) || 0) < FLEX_REALTIME_QUOTE_TTL_MS) return;
   dashboardState.flexRealtimeQuoteInFlight = true;
@@ -1363,9 +1379,9 @@ function flexEnsureRealtimeQuotePolling() {
 /** Apply ephemeral intraday prices for display only. It never writes local storage. */
 function flexApplyRealtimeMarksToLedger(ledger) {
   const L = normalizeFlexLedger(JSON.parse(JSON.stringify(ledger || {})));
-  const win = getAshareActionWindow();
+  const quoteWindow = getFlexQuoteWindow();
   const snapshot = dashboardState.flexRealtimeQuotes || {};
-  if (!win.inSession || Date.now() - (Number(snapshot.fetchedAt) || 0) > FLEX_REALTIME_QUOTE_TTL_MS * 2) return L;
+  if (!quoteWindow.active || Date.now() - (Number(snapshot.fetchedAt) || 0) > FLEX_REALTIME_QUOTE_TTL_MS * 2) return L;
   const quotes = snapshot.quotes || {};
   let marked = 0;
   let latestAt = null;
@@ -1385,6 +1401,7 @@ function flexApplyRealtimeMarksToLedger(ledger) {
     source = q.source || source;
   });
   L._realtime_mark_stats = { marked, latest_at: latestAt, source };
+  L._realtime_mark_stats.phase = quoteWindow.phase;
   return L;
 }
 
@@ -2258,14 +2275,16 @@ function renderFlexAccountBar() {
   const note = document.getElementById('flexMarkNote');
   if (note) {
     const md = ledger.mark_as_of || flexEffectiveMarkDate();
-    const win = typeof getAshareActionWindow === 'function' ? getAshareActionWindow() : { inSession: false };
+    const quoteWindow = typeof getFlexQuoteWindow === 'function' ? getFlexQuoteWindow() : { active: false, phase: 'eod' };
     if (hasBook && md) {
       note.hidden = false;
       const rt = ledger._realtime_mark_stats;
-      note.textContent = win.inSession && rt?.marked
-        ? `盯市：实时 ETF 报价 ${rt.latest_at || '—'}（${rt.source === 'TENCENT' ? '腾讯' : '东财'}）· 止损止盈仍按EOD ${md} 确认`
-        : win.inSession
-          ? `盯市：实时行情暂不可用，回退最近收盘 ${md}`
+      note.textContent = quoteWindow.active && rt?.marked
+        ? (rt.phase === 'final'
+          ? `盯市：当日收盘报价 ${rt.latest_at || '—'}（${rt.source === 'TENCENT' ? '腾讯' : '东财'}）· 待正式EOD确认`
+          : `盯市：实时 ETF 报价 ${rt.latest_at || '—'}（${rt.source === 'TENCENT' ? '腾讯' : '东财'}）· 止损止盈仍按EOD ${md} 确认`)
+        : quoteWindow.active
+          ? `盯市：当日报价暂不可用，回退最近收盘 ${md}`
         : `盯市：上一交易日收盘 ${md}（休市总涨跌幅）`;
     } else {
       note.hidden = true;

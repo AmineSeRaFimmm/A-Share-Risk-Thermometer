@@ -45,6 +45,9 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("function flexApplyDisplayMarksToLedger", self.web)
         self.assertIn("function flexPositionEodReturnPct", self.web)
         self.assertIn("const ret = flexPositionEodReturnPct(pos);", self.web)
+        self.assertIn("function getFlexQuoteWindow", self.web)
+        self.assertIn("const afterCloseMins = 15 * 60 + 16;", self.web)
+        self.assertIn("phase: 'final'", self.web)
 
 
 if __name__ == "__main__":
