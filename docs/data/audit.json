@@ -1,34 +1,40 @@
 {
-  "trade_date": "2026-07-21",
-  "temperature_mode": "OFFICIAL_CLOSE",
+  "trade_date": "2026-07-22",
+  "temperature_mode": "ESTIMATED_CLOSE",
   "data_health": {
-    "options_history": "OK",
-    "options_realtime": "WARN",
+    "options_history": "WARN",
+    "options_realtime": "OK",
     "qvix": "WARN",
     "indices": "OK",
-    "breadth": "OK",
+    "breadth": "WARN",
     "shibor": "OK"
   },
   "realtime_avix": {
-    "quality": "WARN_NOT_BRACKET_30D",
+    "quality": "OK",
     "usable": true,
     "usable_nowcast": true,
-    "usable_gap_fill": false,
-    "note": "nearest two terms do not bracket 30D",
-    "avix_mid": 22.474
+    "usable_gap_fill": true,
+    "note": "exact 30D term",
+    "avix_mid": 22.9441
   },
   "nowcast": {
-    "active": false,
-    "reason_cn": "盘中 nowcast 未激活；正式收盘优先官方 AVIX"
+    "active": true,
+    "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
+    "risk_temperature": 64.5,
+    "baseline_trade_date": "2026-07-21",
+    "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors"
   },
   "model_confidence": {
-    "score": 88.0,
+    "score": 78.0,
     "grade": "MEDIUM",
-    "missing_components": "QVIX"
+    "missing_components": "QVIX|BREADTH"
   },
   "warnings": [
-    "WARN_NOT_BRACKET_30D",
+    "OK_ESTIMATED_CLOSE",
+    "OK_REALTIME_AVIX_ESTIMATE",
+    "WARN_BREADTH_MISSING",
+    "WARN_OFFICIAL_AVIX_MISSING",
     "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-21T19:29:15+08:00"
+  "last_successful_update": "2026-07-22T09:01:16+08:00"
 }
