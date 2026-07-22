@@ -37,26 +37,24 @@
   },
   "as_of": "2026-07-22",
   "data_quality": {
-    "risk_source": "OFFICIAL_PLUS_NOWCAST_BRIDGE",
-    "official_as_of": "2026-07-21",
-    "bridged": true,
-    "bridged_dates": [
-      "2026-07-22"
-    ],
-    "bridge_source": "NOWCAST_RT",
-    "note_cn": "策略书 as_of 已用指数日历 + NOWCAST/桥接补齐正式 RT 缺口；温度图正式序列仍以 official 为准。"
+    "risk_source": "OFFICIAL_CLOSE",
+    "official_as_of": "2026-07-22",
+    "bridged": false,
+    "bridged_dates": [],
+    "bridge_source": null,
+    "note_cn": "策略书 as_of 与正式 risk_components 一致。"
   },
   "market_state": {
     "trade_date": "2026-07-22",
-    "rt": 65.3,
+    "rt": 67.7,
     "prev_rt": 67.0,
-    "rt_d1": -1.7000000000000028,
-    "rt_d5": 1.8999999999999986,
+    "rt_d1": 0.7000000000000028,
+    "rt_d5": 4.300000000000004,
     "rt_rollmax_10": 82.4,
     "hs300_dd60": -0.0676753250911426,
     "regime": "HIGH_RISK",
     "regime_cn": "高风险",
-    "quality": "WARN_NOT_BRACKET_30D|NOWCAST_BRIDGE"
+    "quality": "WARN_QVIX_MISSING"
   },
   "active_stage_ids": [
     "CSI300_CORE_BUY"
@@ -424,9 +422,9 @@
       }
     },
     "market_state": {
-      "rt": 65.3,
-      "rt_d1": -1.7000000000000028,
-      "rt_d5": 1.8999999999999986,
+      "rt": 67.7,
+      "rt_d1": 0.7000000000000028,
+      "rt_d5": 4.300000000000004,
       "hs300_dd60": -0.0676753250911426,
       "regime_cn": "高风险"
     },

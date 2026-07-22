@@ -1,19 +1,19 @@
 {
   "status": "ready",
   "latest": {
-    "trade_date": "2026-07-21",
+    "trade_date": "2026-07-22",
     "execution_trade_date": null,
     "execution_sse_open": null,
-    "avix": 22.5678,
-    "sse_open": 3812.162,
-    "sse_close": 3864.367,
-    "sse_ret1": 0.0179,
-    "sse_ret10": -0.0315,
-    "sse_ma5": 3852.5588,
-    "sse_ma10": 3914.7344,
+    "avix": 20.7287,
+    "sse_open": 3839.665,
+    "sse_close": 3867.034,
+    "sse_ret1": 0.0007,
+    "sse_ret10": -0.0262,
+    "sse_ma5": 3834.85,
+    "sse_ma10": 3904.3498,
     "s3_signal": false,
-    "s4_signal": true,
-    "s3_s4_signal": true,
+    "s4_signal": false,
+    "s3_s4_signal": false,
     "s3_buy": false,
     "s3_sell": false,
     "s4_buy": false,
@@ -23,7 +23,7 @@
     "s3_sell_reason": "",
     "s4_sell_reason": "",
     "s3_s4_sell_reason": "",
-    "signal_quality": "WARN_NOT_BRACKET_30D"
+    "signal_quality": "OK"
   },
   "recent_buy": [
     {
