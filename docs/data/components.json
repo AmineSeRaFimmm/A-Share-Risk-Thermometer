@@ -34,15 +34,15 @@
     },
     {
       "name": "回撤压力",
-      "score": 65.4111,
+      "score": 65.5113,
       "weight": 0.12,
-      "contribution": 7.8493
+      "contribution": 7.8614
     },
     {
       "name": "市场宽度",
-      "score": 33.2158,
+      "score": 33.3568,
       "weight": 0.1,
-      "contribution": 3.3216
+      "contribution": 3.3357
     },
     {
       "name": "成交压力",

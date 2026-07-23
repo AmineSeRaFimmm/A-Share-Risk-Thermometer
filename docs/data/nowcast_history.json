@@ -6,7 +6,7 @@
     {
       "date": "2026-07-23",
       "trade_date": "2026-07-23",
-      "risk_temperature_estimated": 50.5,
+      "risk_temperature_estimated": 55.8,
       "regime": "CAUTION",
       "regime_cn": "警戒",
       "temperature_mode": "ESTIMATED_CLOSE",
@@ -16,14 +16,18 @@
       "gap_reason": "正式期权日线缺失或不合格；使用实时AVIX估算",
       "avix_realtime_mid": 19.9157,
       "avix_realtime_quality": "OK",
-      "realtime_valuation_time": "2026-07-23T14:07:44+08:00",
-      "hs300_close": null,
-      "qvix_close": 19.9458,
+      "realtime_valuation_time": "2026-07-23T14:10:06+08:00",
+      "hs300_close": 4719.98,
+      "hs300_drawdown_60d": -0.0671,
+      "realtime_index_source": "TENCENT_INDEX_QUOTE_RT",
+      "realtime_index_quote_time": "2026-07-23T14:10:10+08:00",
+      "realtime_index_symbols": "sh000001,sh000300",
+      "qvix_close": 19.9532,
       "qvix_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
-      "qvix_quote_time": "2026-07-23T13:52:52+08:00",
+      "qvix_quote_time": "2026-07-23T13:55:08+08:00",
       "qvix_delay_minutes": 15.0,
-      "drawdown_pressure": 50.0,
-      "breadth_pressure": 33.2158,
+      "drawdown_pressure": 65.5113,
+      "breadth_pressure": 33.3568,
       "model_confidence": 97.6,
       "model_missing_components": "QVIX_DELAYED",
       "components": {
@@ -31,10 +35,10 @@
         "avix_zscore_1y": 57.7527,
         "avix_5d_change": 25.5626,
         "qvix_confirmation": 30.0,
-        "realized_vol_percentile": 50.0,
-        "drawdown_pressure": 50.0,
-        "market_breadth_pressure": 33.2158,
-        "turnover_stress": 50.0
+        "realized_vol_percentile": 94.6429,
+        "drawdown_pressure": 65.5113,
+        "market_breadth_pressure": 33.3568,
+        "turnover_stress": 0.0
       }
     }
   ],
