@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-07-23",
-  "update_time": "2026-07-23T11:43:37+08:00",
+  "update_time": "2026-07-23T11:47:24+08:00",
   "risk_temperature": 51.8,
   "regime": "CAUTION",
   "regime_cn": "警戒",
@@ -72,10 +72,10 @@
     "official_risk_temperature": 67.7,
     "realtime_avix": 20.1955,
     "realtime_avix_quality": null,
-    "realtime_valuation_time": "2026-07-23T11:40:16+08:00",
-    "qvix_close": 19.9727,
+    "realtime_valuation_time": "2026-07-23T11:44:28+08:00",
+    "qvix_close": 19.8939,
     "qvix_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
-    "qvix_quote_time": "2026-07-23T11:25:22+08:00",
+    "qvix_quote_time": "2026-07-23T11:29:35+08:00",
     "qvix_delay_minutes": 15.0,
     "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors",
     "active": true
