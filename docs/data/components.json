@@ -10,15 +10,15 @@
     },
     {
       "name": "AVIX Z-score",
-      "score": 57.7527,
+      "score": 57.702,
       "weight": 0.14,
-      "contribution": 8.0854
+      "contribution": 8.0783
     },
     {
       "name": "AVIX 5日变化",
-      "score": 25.5626,
+      "score": 25.5143,
       "weight": 0.08,
-      "contribution": 2.045
+      "contribution": 2.0411
     },
     {
       "name": "QVIX确认",
@@ -34,15 +34,15 @@
     },
     {
       "name": "回撤压力",
-      "score": 65.5113,
+      "score": 66.0002,
       "weight": 0.12,
-      "contribution": 7.8614
+      "contribution": 7.92
     },
     {
       "name": "市场宽度",
-      "score": 33.3568,
+      "score": 33.385,
       "weight": 0.1,
-      "contribution": 3.3357
+      "contribution": 3.3385
     },
     {
       "name": "成交压力",

@@ -15,7 +15,7 @@
     "usable_nowcast": true,
     "usable_gap_fill": true,
     "note": "normal two-term interpolation",
-    "avix_mid": 19.9157
+    "avix_mid": 19.9103
   },
   "nowcast": {
     "active": true,
@@ -36,5 +36,5 @@
     "WARN_OFFICIAL_AVIX_MISSING",
     "WARN_QVIX_DELAYED"
   ],
-  "last_successful_update": "2026-07-23T14:10:28+08:00"
+  "last_successful_update": "2026-07-23T14:15:09+08:00"
 }
