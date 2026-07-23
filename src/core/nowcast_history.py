@@ -6,6 +6,7 @@ from src.core.calendar import merged_trading_days
 from src.data_sources.akshare_breadth import fetch_breadth_summary_multi
 from src.data_sources.akshare_qvix import fetch_realtime_qvix_for_date
 from src.data_sources.eastmoney_qvix import fetch_eastmoney_delayed_qvix_for_date
+from src.data_sources.eastmoney_indices import fetch_realtime_index_snapshot
 from src.core.realtime_avix import (
     calculate_realtime_avix,
     realtime_avix_allows_gap_fill,
@@ -14,6 +15,7 @@ from src.core.risk_temperature import compute_risk_temperature
 from src.core.qvix_validation import validate_qvix
 from src.core.realized_vol import compute_realized_vol
 from src.core.drawdown import compute_drawdown
+from src.core.realtime_index_factors import augment_index_history_with_realtime
 from src.core.breadth import compute_breadth_pressure, drop_legacy_synthetic_breadth
 from src.storage.csv_store import read_csv
 from src.storage.paths import CALCULATED, NORMALIZED, RAW
@@ -271,14 +273,17 @@ def build_nowcast_history(
     pseudo_clean = _pseudo_avix_clean(official_clean, realtime_avix)
     qvix_source = _augment_qvix_for_realtime_dates(qvix_raw, realtime_avix, rate_curve, index_history)
     qvix = validate_qvix(pseudo_clean, qvix_source)
-    realized = compute_realized_vol(index_history)
-    drawdown = compute_drawdown(index_history)
+    realtime_trade_date = str(realtime_avix["trade_date"].max())
+    realtime_index = fetch_realtime_index_snapshot(realtime_trade_date)
+    factor_index_history = augment_index_history_with_realtime(index_history, realtime_index, realtime_trade_date)
+    realized = compute_realized_vol(factor_index_history)
+    drawdown = compute_drawdown(factor_index_history)
     breadth_source = _augment_breadth_for_realtime_dates(
         drop_legacy_synthetic_breadth(breadth_history),
         realtime_avix,
     )
     breadth = compute_breadth_pressure(breadth_source)
-    estimated = compute_risk_temperature(pseudo_clean, qvix, realized, drawdown, breadth, index_history)
+    estimated = compute_risk_temperature(pseudo_clean, qvix, realized, drawdown, breadth, factor_index_history)
     estimated = estimated[estimated["trade_date"].astype(str).isin(set(realtime_avix["trade_date"].astype(str)))].copy()
     if estimated.empty:
         return {
@@ -302,9 +307,27 @@ def build_nowcast_history(
     estimated["temperature_mode_cn"] = "估算收盘"
     estimated["baseline_trade_date"] = official_latest
     estimated["quality"] = estimated["quality"].map(
-        lambda q: merge_quality(["OK_ESTIMATED_CLOSE", q, "WARN_OFFICIAL_AVIX_MISSING"])
+        lambda q: merge_quality([
+            "OK_ESTIMATED_CLOSE",
+            q,
+            "WARN_OFFICIAL_AVIX_MISSING",
+            "OK_REALTIME_INDEX_FACTORS" if not realtime_index.empty else "WARN_REALTIME_INDEX_FACTORS_MISSING",
+        ])
     )
+    if realtime_index.empty:
+        estimated["model_confidence"] = pd.to_numeric(estimated["model_confidence"], errors="coerce").sub(28.0).clip(lower=0.0)
+        estimated["model_missing_components"] = estimated["model_missing_components"].fillna("").astype(str).map(
+            lambda value: "|".join(part for part in [value, "REALTIME_INDEX_FACTORS"] if part and part != "nan")
+        )
     estimated["gap_reason"] = "正式期权日线缺失或不合格；使用实时AVIX估算"
+    if not realtime_index.empty:
+        estimated["realtime_index_source"] = str(realtime_index.iloc[0].get("source") or "")
+        estimated["realtime_index_quote_time"] = str(realtime_index["quote_time"].max())
+        estimated["realtime_index_symbols"] = ",".join(sorted(realtime_index["symbol"].astype(str).unique()))
+    else:
+        estimated["realtime_index_source"] = None
+        estimated["realtime_index_quote_time"] = None
+        estimated["realtime_index_symbols"] = None
 
     rows = []
     for row in estimated.sort_values("trade_date").itertuples(index=False):
@@ -323,6 +346,10 @@ def build_nowcast_history(
             "avix_realtime_quality": _text_or_none(getattr(row, "realtime_avix_quality", None)),
             "realtime_valuation_time": _text_or_none(getattr(row, "valuation_time", None)),
             "hs300_close": _finite(getattr(row, "sh000300_close", None)),
+            "hs300_drawdown_60d": _finite(getattr(row, "sh000300_dd60", None)),
+            "realtime_index_source": _text_or_none(getattr(row, "realtime_index_source", None)),
+            "realtime_index_quote_time": _text_or_none(getattr(row, "realtime_index_quote_time", None)),
+            "realtime_index_symbols": _text_or_none(getattr(row, "realtime_index_symbols", None)),
             "qvix_close": _finite(getattr(row, "qvix_close", None)),
             "qvix_source": _text_or_none(getattr(row, "qvix_source", None)),
             "qvix_quote_time": _text_or_none(getattr(row, "qvix_quote_time", None)),
@@ -358,7 +385,7 @@ def _methodology() -> dict:
     return {
         "official_series": "risk_temperature.csv remains official close only and is not backfilled with weak daily option data.",
         "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected; missing QVIX may use exact-date realtime 300 index QVIX, else 300ETF QVIX proxy, then the clearly marked 15-minute delayed Eastmoney CFFEX 300-index option replica.",
-        "non_avix_factors": "Index-derived realized volatility, drawdown, and turnover use available close data; estimated rows fetch exact-date live stock breadth when official breadth lags.",
+        "non_avix_factors": "Estimated rows use same-day webpage index quotes for HS300/SSE realized volatility, drawdown, turnover, and HS300 close; official close history remains unchanged and takes over after the daily pipeline catches up.",
         "chart_rule": "The website renders official close as a solid line and estimated close as a dashed line.",
     }
 

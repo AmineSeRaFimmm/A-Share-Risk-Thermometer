@@ -28,27 +28,27 @@
     },
     {
       "name": "实现波动率",
-      "score": 50.0,
+      "score": 94.6429,
       "weight": 0.12,
-      "contribution": 6.0
+      "contribution": 11.3571
     },
     {
       "name": "回撤压力",
-      "score": 50.0,
+      "score": 65.4111,
       "weight": 0.12,
-      "contribution": 6.0
+      "contribution": 7.8493
     },
     {
       "name": "市场宽度",
-      "score": 25.086,
+      "score": 32.9667,
       "weight": 0.1,
-      "contribution": 2.5086
+      "contribution": 3.2967
     },
     {
       "name": "成交压力",
-      "score": 50.0,
+      "score": 0.0,
       "weight": 0.04,
-      "contribution": 2.0
+      "contribution": 0.0
     }
   ]
 }

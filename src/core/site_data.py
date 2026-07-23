@@ -225,6 +225,8 @@ def latest_payload(
     active_breadth_pressure = estimate.get("breadth_pressure") if use_estimate else comps.get("market_breadth_pressure")
     active_breadth_quality = _estimate_breadth_quality(quality) if use_estimate else str(row.get("breadth_quality") or "")
     active_breadth_mode = _estimate_breadth_mode(quality) if use_estimate else _breadth_mode(row)
+    active_hs300_close = estimate.get("hs300_close") if use_estimate else row.get("sh000300_close")
+    active_hs300_drawdown = estimate.get("hs300_drawdown_60d") if use_estimate else row.get("sh000300_dd60")
     return {
         "trade_date": trade_date,
         "update_time": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
@@ -239,9 +241,9 @@ def latest_payload(
         "is_final": mode == "OFFICIAL_CLOSE",
         "components": _latest_component_summary(comps),
         "market": {
-            "hs300_close": finite(row.get("sh000300_close")),
+            "hs300_close": finite(active_hs300_close),
             "hs300_ret_1d": None,
-            "hs300_drawdown_60d": finite(row.get("sh000300_dd60")),
+            "hs300_drawdown_60d": finite(active_hs300_drawdown),
             "advancing_ratio": None if use_estimate else finite(row.get("advancing_ratio")),
             "big_down_ratio": None if use_estimate else finite(row.get("big_down_ratio")),
             "breadth_pressure": finite(active_breadth_pressure),
@@ -312,8 +314,11 @@ def latest_payload(
             "qvix_source": estimate.get("qvix_source") if use_estimate else None,
             "qvix_quote_time": estimate.get("qvix_quote_time") if use_estimate else None,
             "qvix_delay_minutes": finite(estimate.get("qvix_delay_minutes")) if use_estimate else None,
+            "realtime_index_source": estimate.get("realtime_index_source") if use_estimate else None,
+            "realtime_index_quote_time": estimate.get("realtime_index_quote_time") if use_estimate else None,
+            "realtime_index_symbols": estimate.get("realtime_index_symbols") if use_estimate else None,
             "method": (
-                "Estimated close from realtime AVIX plus available close-based non-AVIX factors"
+                "Estimated close from realtime volatility and index factors; official close history remains separate"
                 if use_estimate
                 else nowcast["method"]
                 if nowcast
@@ -437,7 +442,7 @@ def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None, nowc
             "quality": active_quality,
             "risk_temperature": finite(estimate.get("risk_temperature_estimated")) if use_estimate else finite(nowcast["risk_temperature"]) if nowcast else finite(row.risk_temperature),
             "baseline_trade_date": estimate.get("baseline_trade_date") if use_estimate else nowcast["baseline_trade_date"] if nowcast else row.trade_date,
-            "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors" if use_estimate else nowcast["method"] if nowcast else "Official close",
+            "method": "Estimated close from realtime volatility and index factors; official close history remains separate" if use_estimate else nowcast["method"] if nowcast else "Official close",
         } if (use_estimate or nowcast) else {
             "active": False,
             "reason_cn": "盘中 nowcast 未激活；正式收盘优先官方 AVIX",

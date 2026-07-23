@@ -450,6 +450,22 @@ function renderQvixFallback(latest) {
   }
 }
 
+function renderRealtimeIndexFactors(latest) {
+  ensureRealtimeMeta();
+  appendMetaItem('指数因子', 'realtimeIndexFactors');
+  const nowcast = latest?.nowcast || {};
+  const source = String(nowcast.realtime_index_source || '');
+  const quoteTime = nowcast.realtime_index_quote_time;
+  const label = source.includes('EASTMONEY_INDEX_QUOTE_RT') || source.includes('TENCENT_INDEX_QUOTE_RT')
+    ? `沪深300/上证实时 · 因子已盘中重算 · ${source.includes('TENCENT') ? '腾讯备用' : '东财'}`
+    : '上一正式收盘 · 因子未盘中重算';
+  setText('realtimeIndexFactors', label);
+  const el = document.getElementById('realtimeIndexFactors');
+  if (el) {
+    el.title = [source || null, nowcast.realtime_index_symbols || null, quoteTime ? `行情时间: ${quoteTime}` : null].filter(Boolean).join(' | ') || '当前页面未使用实时指数因子';
+  }
+}
+
 function renderBreadthMode(latest) {
   ensureRealtimeMeta();
   appendMetaItem('宽度口径', 'breadthMode');
@@ -520,6 +536,7 @@ function renderLatest(latest) {
   }
   renderRealtimeAvix(latest.avix || {});
   renderQvixFallback(latest);
+  renderRealtimeIndexFactors(latest);
   updateFreshness(latest);
   renderNowcastNote(latest);
   // Cover: headline + posture only — no long essay on the page.

@@ -6,24 +6,28 @@
     {
       "date": "2026-07-23",
       "trade_date": "2026-07-23",
-      "risk_temperature_estimated": 53.2,
+      "risk_temperature_estimated": 59.2,
       "regime": "CAUTION",
       "regime_cn": "警戒",
       "temperature_mode": "ESTIMATED_CLOSE",
       "temperature_mode_cn": "估算收盘",
-      "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_DELAYED|WARN_OFFICIAL_AVIX_MISSING",
+      "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_DELAYED|OK_REALTIME_INDEX_FACTORS|WARN_OFFICIAL_AVIX_MISSING",
       "baseline_trade_date": "2026-07-22",
       "gap_reason": "正式期权日线缺失或不合格；使用实时AVIX估算",
       "avix_realtime_mid": 20.7378,
       "avix_realtime_quality": "OK",
-      "realtime_valuation_time": "2026-07-23T10:31:38+08:00",
-      "hs300_close": null,
-      "qvix_close": 20.2242,
+      "realtime_valuation_time": "2026-07-23T14:07:37+08:00",
+      "hs300_close": 4720.8,
+      "hs300_drawdown_60d": -0.067,
+      "realtime_index_source": "TENCENT_INDEX_QUOTE_RT",
+      "realtime_index_quote_time": "2026-07-23T14:07:41+08:00",
+      "realtime_index_symbols": "sh000001,sh000300",
+      "qvix_close": 19.952,
       "qvix_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
-      "qvix_quote_time": "2026-07-23T10:16:40+08:00",
+      "qvix_quote_time": "2026-07-23T13:52:40+08:00",
       "qvix_delay_minutes": 15.0,
-      "drawdown_pressure": 50.0,
-      "breadth_pressure": 25.086,
+      "drawdown_pressure": 65.4111,
+      "breadth_pressure": 32.9667,
       "model_confidence": 97.6,
       "model_missing_components": "QVIX_DELAYED",
       "components": {
@@ -31,10 +35,10 @@
         "avix_zscore_1y": 65.3489,
         "avix_5d_change": 32.8092,
         "qvix_confirmation": 30.0,
-        "realized_vol_percentile": 50.0,
-        "drawdown_pressure": 50.0,
-        "market_breadth_pressure": 25.086,
-        "turnover_stress": 50.0
+        "realized_vol_percentile": 94.6429,
+        "drawdown_pressure": 65.4111,
+        "market_breadth_pressure": 32.9667,
+        "turnover_stress": 0.0
       }
     }
   ],
@@ -42,7 +46,7 @@
   "methodology": {
     "official_series": "risk_temperature.csv remains official close only and is not backfilled with weak daily option data.",
     "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected; missing QVIX may use exact-date realtime 300 index QVIX, else 300ETF QVIX proxy, then the clearly marked 15-minute delayed Eastmoney CFFEX 300-index option replica.",
-    "non_avix_factors": "Index-derived realized volatility, drawdown, and turnover use available close data; estimated rows fetch exact-date live stock breadth when official breadth lags.",
+    "non_avix_factors": "Estimated rows use same-day webpage index quotes for HS300/SSE realized volatility, drawdown, turnover, and HS300 close; official close history remains unchanged and takes over after the daily pipeline catches up.",
     "chart_rule": "The website renders official close as a solid line and estimated close as a dashed line."
   }
 }
