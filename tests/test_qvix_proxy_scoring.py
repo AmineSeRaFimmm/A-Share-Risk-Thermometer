@@ -29,6 +29,24 @@ def test_qvix_validation_marks_realtime_etf_proxy_quality():
     assert row["quality"] == "WARN_QVIX_REALTIME_PROXY"
 
 
+def test_qvix_validation_preserves_delayed_index_metadata():
+    avix = pd.DataFrame([{"trade_date": "2026-07-23", "avix_clean": 20.7}])
+    qvix = pd.DataFrame(
+        [{
+            "date": "2026-07-23",
+            "close": 20.2,
+            "source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
+            "qvix_quote_time": "2026-07-23T10:16:40+08:00",
+            "qvix_delay_minutes": 15,
+        }]
+    )
+
+    row = validate_qvix(avix, qvix).iloc[0]
+    assert row["quality"] == "WARN_QVIX_DELAYED"
+    assert row["qvix_quote_time"] == "2026-07-23T10:16:40+08:00"
+    assert int(row["qvix_delay_minutes"]) == 15
+
+
 def test_model_confidence_discounts_qvix_proxy_weight():
     row = pd.Series(
         {
@@ -48,3 +66,24 @@ def test_model_confidence_discounts_qvix_proxy_weight():
     score, missing = _model_confidence(row)
     assert score == 95.2
     assert missing == "QVIX_PROXY"
+
+
+def test_model_confidence_discounts_delayed_index_replica_less_than_etf_proxy():
+    row = pd.Series(
+        {
+            "avix_clean": 22.0,
+            "avix_quality": "OK",
+            "qvix_close": 20.1,
+            "qvix_quality": "WARN_QVIX_DELAYED",
+            "qvix_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
+            "realized_vol_percentile": 50.0,
+            "drawdown_pressure": 50.0,
+            "breadth_pressure": 35.0,
+            "breadth_quality": "OK",
+            "turnover_stress": 50.0,
+        }
+    )
+
+    score, missing = _model_confidence(row)
+    assert score == 97.6
+    assert missing == "QVIX_DELAYED"

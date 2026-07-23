@@ -1,16 +1,16 @@
 {
   "trade_date": "2026-07-23",
-  "update_time": "2026-07-23T10:04:53+08:00",
-  "risk_temperature": 55.1,
+  "update_time": "2026-07-23T10:33:07+08:00",
+  "risk_temperature": 53.2,
   "regime": "CAUTION",
   "regime_cn": "警戒",
-  "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
+  "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_DELAYED|WARN_OFFICIAL_AVIX_MISSING",
   "model_confidence": {
-    "score": 88.0,
+    "score": 97.6,
     "grade": "MEDIUM",
-    "missing_components": "QVIX"
+    "missing_components": "QVIX_DELAYED"
   },
-  "model_confidence_label": "88.0 / 中",
+  "model_confidence_label": "97.6 / 中",
   "temperature_mode": "ESTIMATED_CLOSE",
   "temperature_mode_cn": "估算收盘",
   "is_final": false,
@@ -18,10 +18,10 @@
     "avix_percentile_2y": 76.1431,
     "avix_zscore_1y": 65.3489,
     "avix_5d_change": 32.8092,
-    "qvix_confirmation": 50.0,
+    "qvix_confirmation": 30.0,
     "realized_vol": 50.0,
     "drawdown_pressure": 50.0,
-    "breadth_pressure": 20.2181,
+    "breadth_pressure": 25.086,
     "turnover_stress": 50.0
   },
   "market": {
@@ -30,7 +30,7 @@
     "hs300_drawdown_60d": -0.0677,
     "advancing_ratio": null,
     "big_down_ratio": null,
-    "breadth_pressure": 20.2181,
+    "breadth_pressure": 25.086,
     "as_of_trade_date": "2026-07-23",
     "breadth_mode": "STOCK_A",
     "breadth_mode_cn": "全A个股宽度",
@@ -64,23 +64,25 @@
   },
   "nowcast": {
     "trade_date": "2026-07-23",
-    "risk_temperature": 55.1,
+    "risk_temperature": 53.2,
     "regime": "CAUTION",
     "regime_cn": "警戒",
-    "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_MISSING|WARN_OFFICIAL_AVIX_MISSING",
+    "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_DELAYED|WARN_OFFICIAL_AVIX_MISSING",
     "baseline_trade_date": "2026-07-22",
     "official_risk_temperature": 67.7,
     "realtime_avix": 20.7378,
     "realtime_avix_quality": null,
-    "realtime_valuation_time": "2026-07-23T10:03:21+08:00",
-    "qvix_close": null,
-    "qvix_source": null,
+    "realtime_valuation_time": "2026-07-23T10:31:38+08:00",
+    "qvix_close": 20.2242,
+    "qvix_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
+    "qvix_quote_time": "2026-07-23T10:16:40+08:00",
+    "qvix_delay_minutes": 15.0,
     "method": "Estimated close from realtime AVIX plus available close-based non-AVIX factors",
     "active": true
   },
   "interpretation": {
-    "headline": "市场风险温度 55.1，处于警戒",
-    "summary": "AVIX两年分位、AVIX异常程度、成交压力是当前风险温度的主要驱动；多因子合成后给出 55.1/100。",
+    "headline": "市场风险温度 53.2，处于警戒",
+    "summary": "AVIX两年分位、AVIX异常程度、成交压力是当前风险温度的主要驱动；多因子合成后给出 53.2/100。",
     "posture": "降低追高倾向",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }

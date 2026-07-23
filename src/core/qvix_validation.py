@@ -9,6 +9,17 @@ REPLICA_LOW_OBS = 5
 _THRESHOLDS = load_thresholds()
 MIN_QVIX_CORR_60 = float(_THRESHOLDS["min_qvix_corr_60"])
 PERCENTILE_WARNING = float(_THRESHOLDS["percentile_warning"])
+QVIX_METADATA_COLUMNS = ["qvix_quote_time", "qvix_delay_minutes"]
+
+
+def _result_columns() -> list[str]:
+    return [
+        "trade_date", "avix_clean", "qvix_close", "qvix_source", *QVIX_METADATA_COLUMNS,
+        "qvix_replica", "qvix_replica_basis", "qvix_replica_calibration_count",
+        "qvix_replica_quality", "qvix_replica_method", "avix_change_1d", "qvix_change_1d",
+        "direction_match", "spread", "spread_zscore_252", "rolling_corr_60",
+        "rolling_corr_120", "extreme_match", "qvix_confirmation", "quality",
+    ]
 
 
 def _add_qvix_replica(df: pd.DataFrame) -> pd.DataFrame:
@@ -45,6 +56,8 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
     if qvix.empty:
         av["qvix_close"] = np.nan
         av["qvix_source"] = pd.NA
+        for column in QVIX_METADATA_COLUMNS:
+            av[column] = pd.NA
         av["avix_change_1d"] = av["avix_clean"].diff()
         av["qvix_change_1d"] = np.nan
         av["direction_match"] = False
@@ -56,17 +69,14 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
         av["qvix_confirmation"] = 50.0
         av["quality"] = "WARN_QVIX_MISSING"
         av = _add_qvix_replica(av)
-        return av[[
-            "trade_date", "avix_clean", "qvix_close", "qvix_source", "qvix_replica", "qvix_replica_basis",
-            "qvix_replica_calibration_count", "qvix_replica_quality", "qvix_replica_method",
-            "avix_change_1d", "qvix_change_1d",
-            "direction_match", "spread", "spread_zscore_252", "rolling_corr_60",
-            "rolling_corr_120", "extreme_match", "qvix_confirmation", "quality",
-        ]]
+        return av[_result_columns()]
     q = qvix.rename(columns={"date": "trade_date", "close": "qvix_close"}).copy()
     if "source" not in q.columns:
         q["source"] = pd.NA
-    q = q[["trade_date", "qvix_close", "source"]].rename(columns={"source": "qvix_source"})
+    for column in QVIX_METADATA_COLUMNS:
+        if column not in q.columns:
+            q[column] = pd.NA
+    q = q[["trade_date", "qvix_close", "source", *QVIX_METADATA_COLUMNS]].rename(columns={"source": "qvix_source"})
     q["qvix_close"] = pd.to_numeric(q["qvix_close"], errors="coerce")
     df = av.merge(q, on="trade_date", how="left").sort_values("trade_date")
     df["avix_change_1d"] = df["avix_clean"].diff()
@@ -93,11 +103,6 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
     df["quality"] = "OK"
     df.loc[df["qvix_close"].isna(), "quality"] = "WARN_QVIX_MISSING"
     df.loc[df["qvix_close"].notna() & source.str.contains("PROXY", na=False), "quality"] = "WARN_QVIX_REALTIME_PROXY"
+    df.loc[df["qvix_close"].notna() & source.str.contains("DELAYED", na=False), "quality"] = "WARN_QVIX_DELAYED"
     df = _add_qvix_replica(df)
-    return df[[
-        "trade_date", "avix_clean", "qvix_close", "qvix_source", "qvix_replica", "qvix_replica_basis",
-        "qvix_replica_calibration_count", "qvix_replica_quality", "qvix_replica_method",
-        "avix_change_1d", "qvix_change_1d",
-        "direction_match", "spread", "spread_zscore_252", "rolling_corr_60",
-        "rolling_corr_120", "extreme_match", "qvix_confirmation", "quality",
-    ]]
+    return df[_result_columns()]

@@ -310,6 +310,8 @@ def latest_payload(
             ),
             "qvix_close": finite(estimate.get("qvix_close")) if use_estimate else None,
             "qvix_source": estimate.get("qvix_source") if use_estimate else None,
+            "qvix_quote_time": estimate.get("qvix_quote_time") if use_estimate else None,
+            "qvix_delay_minutes": finite(estimate.get("qvix_delay_minutes")) if use_estimate else None,
             "method": (
                 "Estimated close from realtime AVIX plus available close-based non-AVIX factors"
                 if use_estimate

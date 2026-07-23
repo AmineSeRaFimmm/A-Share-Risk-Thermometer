@@ -5,6 +5,7 @@ import pandas as pd
 from src.core.calendar import merged_trading_days
 from src.data_sources.akshare_breadth import fetch_breadth_summary_multi
 from src.data_sources.akshare_qvix import fetch_realtime_qvix_for_date
+from src.data_sources.eastmoney_qvix import fetch_eastmoney_delayed_qvix_for_date
 from src.core.realtime_avix import (
     calculate_realtime_avix,
     realtime_avix_allows_gap_fill,
@@ -155,6 +156,8 @@ def _augment_breadth_for_realtime_dates(
 def _augment_qvix_for_realtime_dates(
     qvix_raw: pd.DataFrame,
     realtime_avix: pd.DataFrame,
+    rate_curve: pd.DataFrame | None = None,
+    index_history: pd.DataFrame | None = None,
     fetcher=fetch_realtime_qvix_for_date,
 ) -> pd.DataFrame:
     """Add exact-date realtime QVIX rows for estimated-close rows only."""
@@ -177,6 +180,8 @@ def _augment_qvix_for_realtime_dates(
         except Exception as exc:  # noqa: BLE001
             print(f"WARN realtime QVIX fetch failed {trade_date}: {exc}")
             continue
+        if (row is None or row.empty) and rate_curve is not None and index_history is not None:
+            row = fetch_eastmoney_delayed_qvix_for_date(trade_date, rate_curve, index_history)
         if row is None or row.empty:
             continue
         row = row.iloc[[0]].copy()
@@ -264,7 +269,7 @@ def build_nowcast_history(
         }
 
     pseudo_clean = _pseudo_avix_clean(official_clean, realtime_avix)
-    qvix_source = _augment_qvix_for_realtime_dates(qvix_raw, realtime_avix)
+    qvix_source = _augment_qvix_for_realtime_dates(qvix_raw, realtime_avix, rate_curve, index_history)
     qvix = validate_qvix(pseudo_clean, qvix_source)
     realized = compute_realized_vol(index_history)
     drawdown = compute_drawdown(index_history)
@@ -320,6 +325,8 @@ def build_nowcast_history(
             "hs300_close": _finite(getattr(row, "sh000300_close", None)),
             "qvix_close": _finite(getattr(row, "qvix_close", None)),
             "qvix_source": _text_or_none(getattr(row, "qvix_source", None)),
+            "qvix_quote_time": _text_or_none(getattr(row, "qvix_quote_time", None)),
+            "qvix_delay_minutes": _finite(getattr(row, "qvix_delay_minutes", None)),
             "drawdown_pressure": _finite(getattr(row, "drawdown_pressure", None)),
             "breadth_pressure": _finite(getattr(row, "market_breadth_pressure", None)),
             "model_confidence": _finite(getattr(row, "model_confidence", None)),
@@ -350,7 +357,7 @@ def build_nowcast_history(
 def _methodology() -> dict:
     return {
         "official_series": "risk_temperature.csv remains official close only and is not backfilled with weak daily option data.",
-        "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected; missing QVIX may use exact-date realtime 300 index QVIX, else 300ETF QVIX as an explicit proxy.",
+        "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected; missing QVIX may use exact-date realtime 300 index QVIX, else 300ETF QVIX proxy, then the clearly marked 15-minute delayed Eastmoney CFFEX 300-index option replica.",
         "non_avix_factors": "Index-derived realized volatility, drawdown, and turnover use available close data; estimated rows fetch exact-date live stock breadth when official breadth lags.",
         "chart_rule": "The website renders official close as a solid line and estimated close as a dashed line.",
     }

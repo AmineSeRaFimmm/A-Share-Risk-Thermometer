@@ -71,9 +71,12 @@ def _model_confidence(row: pd.Series) -> tuple[float, str]:
         qvix_quality = str(row.get("qvix_quality", ""))
         qvix_source = str(row.get("qvix_source", ""))
         uses_proxy = "QVIX_REALTIME_PROXY" in qvix_quality or "PROXY" in qvix_source
-        available_weight += WEIGHTS["qvix_confirmation"] * (0.6 if uses_proxy else 1.0)
+        uses_delayed = "QVIX_DELAYED" in qvix_quality or "DELAYED" in qvix_source
+        available_weight += WEIGHTS["qvix_confirmation"] * (0.6 if uses_proxy else 0.8 if uses_delayed else 1.0)
         if uses_proxy:
             missing.append("QVIX_PROXY")
+        elif uses_delayed:
+            missing.append("QVIX_DELAYED")
     else:
         missing.append("QVIX")
     if pd.notna(row.get("realized_vol_percentile")):
@@ -143,7 +146,7 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
             )
     qvix_cols = [
         "trade_date", "qvix_confirmation", "qvix_close", "quality",
-        "qvix_source", "qvix_replica", "qvix_replica_quality", "qvix_replica_method",
+        "qvix_source", "qvix_quote_time", "qvix_delay_minutes", "qvix_replica", "qvix_replica_quality", "qvix_replica_method",
     ]
     available_qvix_cols = [col for col in qvix_cols if col in qvix_validation.columns]
     qvix_for_merge = qvix_validation[available_qvix_cols].rename(columns={"quality": "qvix_quality"}) if not qvix_validation.empty else pd.DataFrame()

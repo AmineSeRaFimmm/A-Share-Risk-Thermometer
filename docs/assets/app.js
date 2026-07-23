@@ -427,6 +427,29 @@ function renderNowcastNote(latest) {
   note.textContent = '';
 }
 
+function renderQvixFallback(latest) {
+  ensureRealtimeMeta();
+  appendMetaItem('QVIX来源', 'qvixSource');
+  const nowcast = latest?.nowcast || {};
+  const source = String(nowcast.qvix_source || '');
+  const delay = Number(nowcast.qvix_delay_minutes);
+  let label = '--';
+  if (source.includes('EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED')) {
+    label = `东财300股指期权复刻 · 延迟约${Number.isFinite(delay) ? delay : 15}分`;
+  } else if (source) {
+    label = source.includes('300ETF') ? '300ETF QVIX代理' : '300股指QVIX';
+  }
+  setText('qvixSource', label);
+  const el = document.getElementById('qvixSource');
+  if (el) {
+    el.title = [
+      source || null,
+      nowcast.qvix_quote_time ? `盘口时间: ${nowcast.qvix_quote_time}` : null,
+      nowcast.qvix_close != null ? `QVIX: ${formatRealtimeAvix(nowcast.qvix_close)}` : null,
+    ].filter(Boolean).join(' | ') || '无盘中 QVIX 备用数据';
+  }
+}
+
 function renderBreadthMode(latest) {
   ensureRealtimeMeta();
   appendMetaItem('宽度口径', 'breadthMode');
@@ -496,6 +519,7 @@ function renderLatest(latest) {
       : '—';
   }
   renderRealtimeAvix(latest.avix || {});
+  renderQvixFallback(latest);
   updateFreshness(latest);
   renderNowcastNote(latest);
   // Cover: headline + posture only — no long essay on the page.
