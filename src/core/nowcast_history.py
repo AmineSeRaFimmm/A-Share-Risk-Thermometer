@@ -27,6 +27,12 @@ def _finite(value):
     return round(numeric, 4) if pd.notna(numeric) else None
 
 
+def _text_or_none(value) -> str | None:
+    if value is None or pd.isna(value):
+        return None
+    return str(value)
+
+
 def _latest_clean_before(clean: pd.DataFrame, trade_date: str) -> float | None:
     if clean.empty:
         return None
@@ -309,15 +315,15 @@ def build_nowcast_history(
             "baseline_trade_date": row.baseline_trade_date,
             "gap_reason": row.gap_reason,
             "avix_realtime_mid": _finite(getattr(row, "avix_mid", None)),
-            "avix_realtime_quality": getattr(row, "realtime_avix_quality", None),
-            "realtime_valuation_time": getattr(row, "valuation_time", None),
+            "avix_realtime_quality": _text_or_none(getattr(row, "realtime_avix_quality", None)),
+            "realtime_valuation_time": _text_or_none(getattr(row, "valuation_time", None)),
             "hs300_close": _finite(getattr(row, "sh000300_close", None)),
             "qvix_close": _finite(getattr(row, "qvix_close", None)),
-            "qvix_source": getattr(row, "qvix_source", None),
+            "qvix_source": _text_or_none(getattr(row, "qvix_source", None)),
             "drawdown_pressure": _finite(getattr(row, "drawdown_pressure", None)),
             "breadth_pressure": _finite(getattr(row, "market_breadth_pressure", None)),
             "model_confidence": _finite(getattr(row, "model_confidence", None)),
-            "model_missing_components": getattr(row, "model_missing_components", None),
+            "model_missing_components": _text_or_none(getattr(row, "model_missing_components", None)),
             "components": {
                 "avix_percentile_2y": _finite(getattr(row, "avix_percentile_2y", None)),
                 "avix_zscore_1y": _finite(getattr(row, "avix_zscore_1y", None)),

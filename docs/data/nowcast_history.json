@@ -6,7 +6,7 @@
     {
       "date": "2026-07-23",
       "trade_date": "2026-07-23",
-      "risk_temperature_estimated": 55.6,
+      "risk_temperature_estimated": 55.1,
       "regime": "CAUTION",
       "regime_cn": "警戒",
       "temperature_mode": "ESTIMATED_CLOSE",
@@ -16,12 +16,12 @@
       "gap_reason": "正式期权日线缺失或不合格；使用实时AVIX估算",
       "avix_realtime_mid": 20.7378,
       "avix_realtime_quality": "OK",
-      "realtime_valuation_time": "2026-07-23T09:43:53+08:00",
+      "realtime_valuation_time": "2026-07-23T10:03:21+08:00",
       "hs300_close": null,
       "qvix_close": null,
-      "qvix_source": NaN,
+      "qvix_source": null,
       "drawdown_pressure": 50.0,
-      "breadth_pressure": 25.0452,
+      "breadth_pressure": 20.2181,
       "model_confidence": 88.0,
       "model_missing_components": "QVIX",
       "components": {
@@ -31,7 +31,7 @@
         "qvix_confirmation": 50.0,
         "realized_vol_percentile": 50.0,
         "drawdown_pressure": 50.0,
-        "market_breadth_pressure": 25.0452,
+        "market_breadth_pressure": 20.2181,
         "turnover_stress": 50.0
       }
     }
