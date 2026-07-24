@@ -8,14 +8,14 @@
   "source": "research/output/csi300_risk_temp_strategy_report.md",
   "disclaimer": "研究观察信号，来自历史回测（推荐区间 60-75 + 60日回撤确认）。不是买卖建议，也不是生产交易指令；与 S3/S4（AVIX 规则）相互独立。",
   "latest": {
-    "trade_date": "2026-07-23",
-    "risk_temperature": 54.2,
-    "drawdown_60d": -0.0655,
-    "in_band": false,
+    "trade_date": "2026-07-24",
+    "risk_temperature": 66.8,
+    "drawdown_60d": -0.0811,
+    "in_band": true,
     "drawdown_confirmed": true,
-    "active": false,
-    "status": "BELOW_BAND",
-    "status_cn": "低于研究下沿",
+    "active": true,
+    "status": "WATCH_RESEARCH",
+    "status_cn": "研究关注",
     "avix_warning_level": 22.0,
     "avix_panic_level": 25.0
   }
