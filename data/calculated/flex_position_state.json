@@ -1,11 +1,11 @@
 {
-  "as_of": "2026-07-24",
+  "as_of": "2026-07-27",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-07-24",
-    "entry_date": "2026-07-24",
-    "exit_due_date": "2026-07-31",
+    "entry_date": "2026-07-27",
+    "exit_due_date": "2026-08-03",
     "days_held": 0,
     "days_remaining": 5,
     "stage_id": "CSI300_CORE_BUY",
@@ -22,8 +22,8 @@
     "entry_signal_date": "2026-07-23",
     "entry_date": "2026-07-24",
     "exit_due_date": "2026-08-05",
-    "days_held": 0,
-    "days_remaining": 8,
+    "days_held": 1,
+    "days_remaining": 7,
     "stage_id": "FALLING_HARD",
     "names": [
       "有色金属",
