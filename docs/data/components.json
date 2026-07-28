@@ -4,21 +4,21 @@
   "components": [
     {
       "name": "AVIX两年分位",
-      "score": 86.0835,
+      "score": 85.6859,
       "weight": 0.28,
-      "contribution": 24.1034
+      "contribution": 23.9921
     },
     {
       "name": "AVIX Z-score",
-      "score": 85.9061,
+      "score": 83.6323,
       "weight": 0.14,
-      "contribution": 12.0269
+      "contribution": 11.7085
     },
     {
       "name": "AVIX 5日变化",
-      "score": 53.9176,
+      "score": 51.7038,
       "weight": 0.08,
-      "contribution": 4.3134
+      "contribution": 4.1363
     },
     {
       "name": "QVIX确认",
@@ -34,15 +34,15 @@
     },
     {
       "name": "回撤压力",
-      "score": 86.7091,
+      "score": 87.9093,
       "weight": 0.12,
-      "contribution": 10.4051
+      "contribution": 10.5491
     },
     {
       "name": "市场宽度",
-      "score": 79.0122,
+      "score": 78.7959,
       "weight": 0.1,
-      "contribution": 7.9012
+      "contribution": 7.8796
     },
     {
       "name": "成交压力",
