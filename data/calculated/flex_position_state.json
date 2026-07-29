@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-07-28",
+  "as_of": "2026-07-29",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-07-24",
     "entry_date": "2026-07-27",
     "exit_due_date": "2026-08-03",
-    "days_held": 1,
-    "days_remaining": 4,
+    "days_held": 2,
+    "days_remaining": 3,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -22,8 +22,8 @@
     "entry_signal_date": "2026-07-23",
     "entry_date": "2026-07-24",
     "exit_due_date": "2026-08-05",
-    "days_held": 2,
-    "days_remaining": 6,
+    "days_held": 3,
+    "days_remaining": 5,
     "stage_id": "FALLING_HARD",
     "names": [
       "有色金属",
