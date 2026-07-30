@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-07-29",
+  "as_of": "2026-07-30",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-07-24",
     "entry_date": "2026-07-27",
     "exit_due_date": "2026-08-03",
-    "days_held": 2,
-    "days_remaining": 3,
+    "days_held": 3,
+    "days_remaining": 2,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -19,23 +19,29 @@
   },
   "satellite": {
     "status": "open",
-    "entry_signal_date": "2026-07-23",
-    "entry_date": "2026-07-24",
-    "exit_due_date": "2026-08-05",
-    "days_held": 3,
-    "days_remaining": 5,
-    "stage_id": "FALLING_HARD",
+    "entry_signal_date": "2026-07-29",
+    "entry_date": "2026-07-30",
+    "exit_due_date": "2026-08-11",
+    "days_held": 0,
+    "days_remaining": 8,
+    "stage_id": "CSI300_CORE_BUY",
     "names": [
-      "有色金属",
-      "基础化工",
-      "电力设备",
-      "煤炭"
+      "通信",
+      "恒生科技",
+      "机械设备",
+      "建筑材料",
+      "传媒",
+      "国防军工",
+      "商贸零售"
     ],
     "weights": {
-      "有色金属": 0.3673,
-      "基础化工": 0.3135,
-      "电力设备": 0.1836,
-      "煤炭": 0.1356
+      "通信": 0.2328,
+      "恒生科技": 0.1897,
+      "机械设备": 0.1281,
+      "建筑材料": 0.1252,
+      "传媒": 0.1252,
+      "国防军工": 0.1099,
+      "商贸零售": 0.0891
     },
     "etf_code": null
   },
