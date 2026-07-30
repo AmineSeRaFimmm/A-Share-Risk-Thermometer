@@ -4269,6 +4269,12 @@ function bindMagazineChrome() {
 }
 
 async function fetchDataPlaneStatus() {
+  if (location.hostname.endsWith('.github.io')) {
+    dashboardState.dataPlane.available = false;
+    dashboardState.dataPlane.status = null;
+    renderDataPlaneBar(null);
+    return null;
+  }
   try {
     const res = await fetch('./api/status', { cache: 'no-store' });
     if (!res.ok) throw new Error('status ' + res.status);
