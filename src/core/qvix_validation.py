@@ -9,7 +9,16 @@ REPLICA_LOW_OBS = 5
 _THRESHOLDS = load_thresholds()
 MIN_QVIX_CORR_60 = float(_THRESHOLDS["min_qvix_corr_60"])
 PERCENTILE_WARNING = float(_THRESHOLDS["percentile_warning"])
-QVIX_METADATA_COLUMNS = ["qvix_quote_time", "qvix_delay_minutes"]
+QVIX_METADATA_COLUMNS = [
+    "qvix_quote_time",
+    "qvix_delay_minutes",
+    "age_seconds",
+    "is_proxy",
+    "is_delayed",
+    "sample_size",
+    "observed",
+    "quality_flags",
+]
 
 
 def _result_columns() -> list[str]:

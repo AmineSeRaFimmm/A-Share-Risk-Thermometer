@@ -41,7 +41,10 @@ def main() -> None:
     require("rows" in nowcast and "gaps" in nowcast, "nowcast_history missing rows/gaps")
     for row in nowcast.get("rows", []):
         require(0 <= float(row["risk_temperature_estimated"]) <= 100, "nowcast risk_temperature outside 0-100")
-        require(row.get("temperature_mode") == "ESTIMATED_CLOSE", "nowcast row mode mismatch")
+        require(
+            row.get("temperature_mode") in {"NOWCAST", "CLOSE_PENDING", "ESTIMATED_CLOSE"},
+            "nowcast row mode mismatch",
+        )
     sector_path = SITE / "sector_correlation.json"
     require(sector_path.exists(), "sector_correlation.json missing")
     sector = json.loads(sector_path.read_text(encoding="utf-8"))

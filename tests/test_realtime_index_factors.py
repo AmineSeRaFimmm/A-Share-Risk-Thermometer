@@ -16,6 +16,9 @@ def test_parse_eastmoney_index_quote_scales_price_and_volume():
     assert row["close"] == 4718.1
     assert row["previous_close"] == 4717.24
     assert row["volume"] == 19898909200.0
+    assert row["quality"] == "WARN_INDEX_TIME_UNVERIFIED"
+    assert row["source_quote_time"] is None
+    assert row["quote_time"] == row["fetch_time"]
 
 
 def test_realtime_index_row_replaces_same_day_without_mutating_history():

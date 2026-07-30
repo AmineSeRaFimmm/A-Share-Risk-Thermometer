@@ -28,6 +28,7 @@ from urllib.parse import urljoin
 import pandas as pd
 import requests
 
+from src.core.data_quality import quality_metadata
 from src.utils.retry import retry_call
 
 OPTBBS_K_CSV = "http://1.optbbs.com/d/csv/d/k.csv"
@@ -129,21 +130,32 @@ def _normalize_min_qvix(df: pd.DataFrame, trade_date: str, source: str) -> pd.Da
     out = out[out["qvix"].notna() & out["qvix"].gt(0)].copy()
     if out.empty:
         return pd.DataFrame()
-    return pd.DataFrame(
-        [
-            {
-                "date": trade_date,
-                "open": float(out.iloc[0]["qvix"]),
-                "high": float(out["qvix"].max()),
-                "low": float(out["qvix"].min()),
-                "close": float(out.iloc[-1]["qvix"]),
-                "source": source,
-                "fetch_time": datetime.now().isoformat(timespec="seconds"),
-                "last_time": str(out.iloc[-1]["time"]),
-                "intraday_points": int(len(out)),
-            }
-        ]
+    last_time = str(out.iloc[-1]["time"])
+    meta = quality_metadata(
+        source=source,
+        trade_date=trade_date,
+        source_quote_time=last_time,
+        fetch_time=datetime.now().astimezone().isoformat(timespec="seconds"),
+        sample_size=len(out),
+        is_proxy="PROXY" in source,
+        max_age_seconds=15 * 60,
     )
+    return pd.DataFrame([{
+        "date": trade_date,
+        "open": float(out.iloc[0]["qvix"]),
+        "high": float(out["qvix"].max()),
+        "low": float(out["qvix"].min()),
+        "close": float(out.iloc[-1]["qvix"]),
+        **meta,
+        "last_time": last_time,
+        "intraday_points": int(len(out)),
+        "qvix_quote_time": meta["source_quote_time"],
+        "qvix_delay_minutes": (
+            round(float(meta["age_seconds"]) / 60.0, 1)
+            if meta["age_seconds"] is not None
+            else None
+        ),
+    }])
 
 
 def _fetch_optbbs_min_csv(url: str, trade_date: str, source: str, *, timeout: int = 20) -> pd.DataFrame:

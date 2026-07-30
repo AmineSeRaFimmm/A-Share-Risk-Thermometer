@@ -130,3 +130,6 @@ def test_normalize_min_qvix_builds_intraday_proxy_bar():
     assert float(row["close"]) == 21.28
     assert row["source"] == SOURCE_RT_ETF_CSV
     assert int(row["intraday_points"]) == 2
+    assert row["qvix_quote_time"] == "2026-07-22T10:01:40+08:00"
+    assert bool(row["is_proxy"])
+    assert int(row["sample_size"]) == 2

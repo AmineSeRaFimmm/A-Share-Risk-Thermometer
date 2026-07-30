@@ -22,10 +22,13 @@ def augment_index_history_with_realtime(
     rows = rows[rows["close"] > 0]
     if rows.empty:
         return base
-    keep = [column for column in base.columns if column in rows.columns]
-    for column in base.columns:
+    columns = list(base.columns) + [column for column in rows.columns if column not in base.columns]
+    for column in columns:
+        if column not in base.columns:
+            base[column] = pd.NA
         if column not in rows.columns:
             rows[column] = pd.NA
-    rows = rows[base.columns]
+    rows = rows[columns]
+    base = base[columns]
     out = pd.concat([base, rows], ignore_index=True)
     return out.drop_duplicates(["date", "symbol"], keep="last").sort_values(["symbol", "date"]).reset_index(drop=True)

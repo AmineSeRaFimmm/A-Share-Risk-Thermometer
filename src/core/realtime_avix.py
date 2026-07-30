@@ -7,6 +7,7 @@ import pandas as pd
 
 from src.core.avix_formula import _rate_for_dte
 from src.core.calendar import get_expiry_date
+from src.core.data_quality import quality_metadata
 from src.utils.dates import now_cn
 
 MONTH_RE = re.compile(r"(?i)io(?P<yy>\d{2})(?P<mm>\d{2})")
@@ -433,6 +434,14 @@ def _build_output(
             quality_flags.append("WARN_DEVIATES_FROM_CLOSE_AVIX")
 
     quality = "|".join(sorted(set(flag for flag in quality_flags if flag and flag != "OK"))) or "OK"
+    source = "SINA_AKSHARE_REALTIME_MONTH_MID"
+    metadata = quality_metadata(
+        source=source,
+        trade_date=trade_date,
+        source_quote_time=None,
+        fetch_time=valuation_time,
+        sample_size=valid_quotes,
+    )
     return {
         "valuation_time": valuation_time,
         "trade_date": trade_date,
@@ -468,7 +477,15 @@ def _build_output(
         "next_term_quality": nxt.quality,
         "quality": quality,
         "note": ";".join(notes) if notes else "normal two-term realtime AVIX",
-        "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+        "source": source,
+        "source_quote_time": metadata["source_quote_time"],
+        "fetch_time": metadata["fetch_time"],
+        "age_seconds": metadata["age_seconds"],
+        "is_proxy": metadata["is_proxy"],
+        "is_delayed": metadata["is_delayed"],
+        "sample_size": metadata["sample_size"],
+        "observed": metadata["observed"],
+        "quality_flags": metadata["quality_flags"],
     }
 
 def compute_realtime_avix_from_chain(

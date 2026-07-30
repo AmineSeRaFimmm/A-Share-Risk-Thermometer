@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from src.core.qvix_validation import validate_qvix
-from src.core.risk_temperature import _model_confidence
+from src.core.risk_temperature import _model_confidence, _model_confidence_details
 
 
 def test_qvix_validation_marks_realtime_etf_proxy_quality():
@@ -87,3 +87,29 @@ def test_model_confidence_discounts_delayed_index_replica_less_than_etf_proxy():
     score, missing = _model_confidence(row)
     assert score == 97.6
     assert missing == "QVIX_DELAYED"
+
+
+def test_neutral_fill_does_not_count_as_observed_data():
+    row = pd.Series(
+        {
+            "avix_clean": 22.0,
+            "avix_quality": "OK",
+            "qvix_close": 21.28,
+            "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
+            "qvix_source": "OPTBBS_CSV_300ETF_MIN_QVIX_PROXY",
+            "realized_vol_percentile": 50.0,
+            "realized_vol_observed": False,
+            "drawdown_pressure": 50.0,
+            "drawdown_observed": False,
+            "breadth_pressure": 35.0,
+            "breadth_quality": "OK",
+            "turnover_stress": 50.0,
+            "turnover_observed": False,
+        }
+    )
+
+    details = _model_confidence_details(row)
+    assert details["coverage_score"] == 72.0
+    assert details["data_quality_score"] == 93.3
+    assert details["score"] == 67.2
+    assert details["missing_components"] == "QVIX_PROXY|REALIZED_VOL|DRAWDOWN|TURNOVER"

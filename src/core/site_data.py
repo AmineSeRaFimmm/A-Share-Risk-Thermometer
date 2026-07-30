@@ -95,6 +95,8 @@ def _model_confidence_summary(row: pd.Series, quality: str) -> dict:
         grade = "LOW"
     return {
         "score": finite(confidence),
+        "coverage_score": finite(row.get("model_coverage_score")),
+        "data_quality_score": finite(row.get("model_data_quality_score")),
         "grade": grade,
         "missing_components": "" if pd.isna(missing) else str(missing or ""),
     }
@@ -107,6 +109,15 @@ def _confidence_label(confidence: dict) -> str:
         return "--"
     grade_cn = {"HIGH": "高", "MEDIUM": "中", "LOW": "低"}.get(str(grade), str(grade))
     return f"{score:.1f} / {grade_cn}"
+
+
+def _confidence_grade(score) -> str:
+    value = float(score or 0)
+    if value >= 90:
+        return "HIGH"
+    if value >= 75:
+        return "MEDIUM"
+    return "LOW"
 
 
 def _breadth_mode(row: pd.Series) -> str:
@@ -199,11 +210,13 @@ def latest_payload(
         trade_date = estimate_date
         confidence = {
             "score": finite(estimate.get("model_confidence")),
-            "grade": "MEDIUM" if float(estimate.get("model_confidence") or 0) >= 75 else "LOW",
+            "coverage_score": finite(estimate.get("model_coverage_score")),
+            "data_quality_score": finite(estimate.get("model_data_quality_score")),
+            "grade": _confidence_grade(estimate.get("model_confidence")),
             "missing_components": str(estimate.get("model_missing_components") or ""),
         }
-        mode = "ESTIMATED_CLOSE"
-        mode_cn = "估算收盘"
+        mode = str(estimate.get("temperature_mode") or "NOWCAST")
+        mode_cn = str(estimate.get("temperature_mode_cn") or "盘中估算")
     elif nowcast:
         temp = nowcast["risk_temperature"]
         regime = nowcast["regime"]
@@ -244,9 +257,15 @@ def latest_payload(
             "hs300_close": finite(active_hs300_close),
             "hs300_ret_1d": None,
             "hs300_drawdown_60d": finite(active_hs300_drawdown),
-            "advancing_ratio": None if use_estimate else finite(row.get("advancing_ratio")),
-            "big_down_ratio": None if use_estimate else finite(row.get("big_down_ratio")),
+            "advancing_ratio": finite(estimate.get("advancing_ratio")) if use_estimate else finite(row.get("advancing_ratio")),
+            "decline_ratio": finite(estimate.get("decline_ratio")) if use_estimate else finite(row.get("decline_ratio")),
+            "big_down_ratio": finite(estimate.get("big_down_ratio")) if use_estimate else finite(row.get("big_down_ratio")),
+            "limit_down_ratio": finite(estimate.get("limit_down_ratio")) if use_estimate else finite(row.get("limit_down_ratio")),
             "breadth_pressure": finite(active_breadth_pressure),
+            "breadth_source": estimate.get("breadth_source") if use_estimate else row.get("source"),
+            "breadth_secondary_source": estimate.get("breadth_secondary_source") if use_estimate else row.get("secondary_source"),
+            "breadth_source_agreement": finite(estimate.get("breadth_source_agreement")) if use_estimate else finite(row.get("source_agreement")),
+            "breadth_source_score_delta": finite(estimate.get("breadth_source_score_delta")) if use_estimate else finite(row.get("source_score_delta")),
             "as_of_trade_date": trade_date if use_estimate else row.trade_date,
             "breadth_mode": active_breadth_mode,
             "breadth_mode_cn": _estimate_breadth_mode_cn(quality) if use_estimate else _breadth_mode_cn(row),
@@ -263,6 +282,9 @@ def latest_payload(
             "avix_realtime_usable_nowcast": nowcast_ok and realtime_avix_has_value(realtime_mid),
             "avix_realtime_usable_gap_fill": gap_fill_ok and realtime_avix_has_value(realtime_mid),
             "avix_realtime_source": None if realtime_row is None else realtime_row.get("source"),
+            "avix_realtime_source_quote_time": None if realtime_row is None else realtime_row.get("source_quote_time"),
+            "avix_realtime_fetch_time": None if realtime_row is None else realtime_row.get("fetch_time"),
+            "avix_realtime_quality_flags": None if realtime_row is None else realtime_row.get("quality_flags"),
             "avix_percentile_2y": finite(comps.get("avix_percentile_2y") / 100 if comps.get("avix_percentile_2y") is not None else None),
             "quality": row.get("avix_quality", "OK"),
         },
@@ -316,9 +338,10 @@ def latest_payload(
             "qvix_delay_minutes": finite(estimate.get("qvix_delay_minutes")) if use_estimate else None,
             "realtime_index_source": estimate.get("realtime_index_source") if use_estimate else None,
             "realtime_index_quote_time": estimate.get("realtime_index_quote_time") if use_estimate else None,
+            "realtime_index_fetch_time": estimate.get("realtime_index_fetch_time") if use_estimate else None,
             "realtime_index_symbols": estimate.get("realtime_index_symbols") if use_estimate else None,
             "method": (
-                "Estimated close from realtime volatility and index factors; official close history remains separate"
+                f"{mode_cn} from realtime volatility and index factors; official close history remains separate"
                 if use_estimate
                 else nowcast["method"]
                 if nowcast
@@ -378,13 +401,104 @@ def components_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None,
         "market_breadth_pressure": "市场宽度",
         "turnover_stress": "成交压力",
     }
+    if use_estimate:
+        index_source = estimate.get("realtime_index_source")
+        index_time = estimate.get("realtime_index_quote_time")
+        index_fetch_time = estimate.get("realtime_index_fetch_time")
+        factor_meta = {
+            "avix_percentile_2y": {
+                "raw_value": estimate.get("avix_realtime_mid"),
+                "source": estimate.get("avix_realtime_source"),
+                "quote_time": estimate.get("avix_source_quote_time") or estimate.get("realtime_valuation_time"),
+                "quality": estimate.get("avix_realtime_quality_flags") or estimate.get("avix_realtime_quality"),
+            },
+            "avix_zscore_1y": {},
+            "avix_5d_change": {},
+            "qvix_confirmation": {
+                "raw_value": estimate.get("qvix_close"),
+                "source": estimate.get("qvix_source"),
+                "quote_time": estimate.get("qvix_quote_time"),
+                "quality": estimate.get("qvix_quality_flags"),
+            },
+            "realized_vol_percentile": {
+                "raw_value": estimate.get("realized_vol_20"),
+                "source": index_source,
+                "quote_time": index_time,
+                "fetch_time": index_fetch_time,
+                "quality": "REALTIME_INDEX",
+            },
+            "drawdown_pressure": {
+                "raw_value": estimate.get("hs300_drawdown_60d"),
+                "source": index_source,
+                "quote_time": index_time,
+                "fetch_time": index_fetch_time,
+                "quality": "REALTIME_INDEX",
+            },
+            "market_breadth_pressure": {
+                "raw_value": estimate.get("advancing_ratio"),
+                "source": estimate.get("breadth_source"),
+                "quote_time": None,
+                "quality": (
+                    f"CROSSCHECK_DELTA_{estimate.get('breadth_source_score_delta')}"
+                    if estimate.get("breadth_secondary_source")
+                    else "SINGLE_SOURCE"
+                ),
+            },
+            "turnover_stress": {
+                "raw_value": estimate.get("turnover_volume_ratio_20"),
+                "source": index_source,
+                "quote_time": index_time,
+                "fetch_time": index_fetch_time,
+                "quality": "SESSION_NORMALIZED",
+            },
+        }
+        for key in ["avix_zscore_1y", "avix_5d_change"]:
+            factor_meta[key] = dict(factor_meta["avix_percentile_2y"])
+    else:
+        factor_meta = {
+            key: {
+                "raw_value": row.get("avix_clean") if key.startswith("avix_") else None,
+                "source": "OFFICIAL_CLOSE",
+                "quote_time": str(row.trade_date),
+                "quality": str(row.get("quality") or "OK"),
+            }
+            for key in WEIGHTS
+        }
+    missing = set(str(
+        estimate.get("model_missing_components") if use_estimate else row.get("model_missing_components") or ""
+    ).split("|"))
+
+    def component_item(key: str, weight: float) -> dict:
+        meta = factor_meta.get(key, {})
+        missing_key = {
+            "avix_percentile_2y": "AVIX",
+            "avix_zscore_1y": "AVIX",
+            "avix_5d_change": "AVIX",
+            "qvix_confirmation": "QVIX",
+            "realized_vol_percentile": "REALIZED_VOL",
+            "drawdown_pressure": "DRAWDOWN",
+            "market_breadth_pressure": "BREADTH",
+            "turnover_stress": "TURNOVER",
+        }[key]
+        score = comps.get(key)
+        return {
+            "key": key,
+            "name": names[key],
+            "score": finite(score),
+            "weight": weight,
+            "contribution": finite(score * weight if score is not None else None),
+            "observed": missing_key not in missing,
+            "raw_value": finite(meta.get("raw_value")),
+            "source": meta.get("source"),
+            "quote_time": meta.get("quote_time"),
+            "fetch_time": meta.get("fetch_time"),
+            "quality": meta.get("quality") or "TIME_UNVERIFIED",
+        }
+
     return {
         "trade_date": estimate_date if use_estimate else nowcast["trade_date"] if nowcast else row.trade_date,
-        "temperature_mode": "ESTIMATED_CLOSE" if use_estimate else "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
-        "components": [
-            {"name": names[k], "score": finite(comps.get(k)), "weight": w, "contribution": finite(comps.get(k) * w if comps.get(k) is not None else None)}
-            for k, w in WEIGHTS.items()
-        ],
+        "temperature_mode": str(estimate.get("temperature_mode") or "NOWCAST") if use_estimate else "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
+        "components": [component_item(key, weight) for key, weight in WEIGHTS.items()],
     }
 
 
@@ -404,14 +518,16 @@ def audit_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None, nowc
     confidence = (
         {
             "score": finite(estimate.get("model_confidence")),
-            "grade": "MEDIUM" if float(estimate.get("model_confidence") or 0) >= 75 else "LOW",
+            "coverage_score": finite(estimate.get("model_coverage_score")),
+            "data_quality_score": finite(estimate.get("model_data_quality_score")),
+            "grade": _confidence_grade(estimate.get("model_confidence")),
             "missing_components": str(estimate.get("model_missing_components") or ""),
         }
         if use_estimate else _model_confidence_summary(row, nowcast["quality"] if nowcast else row.quality)
     )
     return {
         "trade_date": estimate_date if use_estimate else nowcast["trade_date"] if nowcast else row.trade_date,
-        "temperature_mode": "ESTIMATED_CLOSE" if use_estimate else "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
+        "temperature_mode": str(estimate.get("temperature_mode") or "NOWCAST") if use_estimate else "NOWCAST" if nowcast else "OFFICIAL_CLOSE",
         "data_health": {
             "options_history": "WARN" if use_estimate else "LOW" if "AVIX" in quality or "NO_CHAIN" in quality else "OK",
             "options_realtime": _realtime_health(realtime_quality),

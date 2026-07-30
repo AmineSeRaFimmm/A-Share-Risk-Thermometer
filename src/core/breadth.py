@@ -13,7 +13,15 @@ def compute_breadth_pressure(breadth_history: pd.DataFrame) -> pd.DataFrame:
         + 30 * df["big_down_ratio"].fillna(0).map(lambda x: clip(x / 0.08, 0, 1))
         + 20 * df["limit_down_ratio"].fillna(0).map(lambda x: clip(x / 0.02, 0, 1))
     )
-    return df[["trade_date", "advancing_ratio", "decline_ratio", "big_down_ratio", "limit_down_ratio", "breadth_pressure", "quality"]]
+    columns = [
+        "trade_date", "advancing_ratio", "decline_ratio", "big_down_ratio",
+        "limit_down_ratio", "breadth_pressure", "quality", "source",
+        "source_quote_time", "fetch_time", "age_seconds", "is_proxy",
+        "is_delayed", "sample_size", "observed", "quality_flags",
+        "secondary_source", "secondary_valid_count", "secondary_breadth_score",
+        "source_score_delta", "source_agreement",
+    ]
+    return df[[column for column in columns if column in df.columns]]
 
 
 def compute_index_breadth_proxy(index_history: pd.DataFrame) -> pd.DataFrame:

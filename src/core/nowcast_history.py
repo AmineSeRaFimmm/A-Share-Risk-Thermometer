@@ -16,6 +16,7 @@ from src.core.qvix_validation import validate_qvix
 from src.core.realized_vol import compute_realized_vol
 from src.core.drawdown import compute_drawdown
 from src.core.realtime_index_factors import augment_index_history_with_realtime
+from src.core.market_state import estimated_temperature_mode
 from src.core.breadth import compute_breadth_pressure, drop_legacy_synthetic_breadth
 from src.storage.csv_store import read_csv
 from src.storage.paths import CALCULATED, NORMALIZED, RAW
@@ -105,6 +106,11 @@ def _pseudo_avix_clean(official_clean: pd.DataFrame, realtime_avix: pd.DataFrame
         "next_var": realtime_avix.get("next_var"),
         "near_n_options": realtime_avix.get("near_n_options"),
         "next_n_options": realtime_avix.get("next_n_options"),
+        "quality_flags": realtime_avix.get("quality_flags"),
+        "source_quote_time": realtime_avix.get("source_quote_time"),
+        "fetch_time": realtime_avix.get("fetch_time"),
+        "age_seconds": realtime_avix.get("age_seconds"),
+        "observed": realtime_avix.get("observed", True),
     })
     estimate_rows = estimate_rows.dropna(subset=["trade_date", "avix_clean"])
     combined = pd.concat([clean, estimate_rows], ignore_index=True)
@@ -297,36 +303,66 @@ def build_nowcast_history(
     realtime_cols = [
         "trade_date", "valuation_time", "avix_mid", "near_expiry", "next_expiry",
         "near_dte", "next_dte", "near_n_options", "next_n_options", "quality", "note",
+        "source", "source_quote_time", "fetch_time", "age_seconds", "observed", "quality_flags",
     ]
     estimated = estimated.merge(
-        realtime_avix[[col for col in realtime_cols if col in realtime_avix.columns]].rename(columns={"quality": "realtime_avix_quality"}),
+        realtime_avix[[col for col in realtime_cols if col in realtime_avix.columns]].rename(columns={
+            "quality": "realtime_avix_quality",
+            "source": "realtime_avix_source",
+            "quality_flags": "realtime_avix_quality_flags",
+            "source_quote_time": "realtime_avix_source_quote_time",
+            "fetch_time": "realtime_avix_fetch_time",
+            "age_seconds": "realtime_avix_age_seconds",
+            "observed": "realtime_avix_observed",
+        }),
         on="trade_date",
         how="left",
     )
-    estimated["temperature_mode"] = "ESTIMATED_CLOSE"
-    estimated["temperature_mode_cn"] = "估算收盘"
+    modes = estimated["valuation_time"].map(estimated_temperature_mode)
+    estimated["temperature_mode"] = modes.map(lambda item: item[0])
+    estimated["temperature_mode_cn"] = modes.map(lambda item: item[1])
     estimated["baseline_trade_date"] = official_latest
-    estimated["quality"] = estimated["quality"].map(
-        lambda q: merge_quality([
-            "OK_ESTIMATED_CLOSE",
-            q,
+    index_quality_flags = sorted(set(
+        flag
+        for value in realtime_index.get("quality_flags", pd.Series(dtype=str)).dropna().astype(str)
+        for flag in value.split("|")
+        if flag and flag != "OK"
+    ))
+    index_quality_label = (
+        "OK_REALTIME_INDEX_FACTORS"
+        if not index_quality_flags
+        else "|".join(f"WARN_INDEX_{flag}" for flag in index_quality_flags)
+    )
+    estimated["quality"] = estimated.apply(
+        lambda row: merge_quality([
+            f"OK_{row['temperature_mode']}",
+            row["quality"],
             "WARN_OFFICIAL_AVIX_MISSING",
-            "OK_REALTIME_INDEX_FACTORS" if not realtime_index.empty else "WARN_REALTIME_INDEX_FACTORS_MISSING",
-        ])
+            index_quality_label if not realtime_index.empty else "WARN_REALTIME_INDEX_FACTORS_MISSING",
+        ]),
+        axis=1,
     )
     if realtime_index.empty:
         estimated["model_confidence"] = pd.to_numeric(estimated["model_confidence"], errors="coerce").sub(28.0).clip(lower=0.0)
         estimated["model_missing_components"] = estimated["model_missing_components"].fillna("").astype(str).map(
             lambda value: "|".join(part for part in [value, "REALTIME_INDEX_FACTORS"] if part and part != "nan")
         )
-    estimated["gap_reason"] = "正式期权日线缺失或不合格；使用实时AVIX估算"
+    estimated["gap_reason"] = estimated["temperature_mode"].map({
+        "NOWCAST": "盘中实时估算；正式收盘尚未产生",
+        "CLOSE_PENDING": "市场已收盘；等待15:16最终网页快照",
+        "ESTIMATED_CLOSE": "正式期权日线缺失或不合格；使用15:16后快照估算收盘",
+    })
     if not realtime_index.empty:
         estimated["realtime_index_source"] = str(realtime_index.iloc[0].get("source") or "")
-        estimated["realtime_index_quote_time"] = str(realtime_index["quote_time"].max())
+        verified_times = realtime_index.get("source_quote_time", pd.Series(dtype=str)).dropna()
+        fetch_times = realtime_index.get("fetch_time", realtime_index.get("quote_time", pd.Series(dtype=str))).dropna()
+        estimated["realtime_index_quote_time"] = str(verified_times.max()) if not verified_times.empty else None
+        estimated["realtime_index_fetch_time"] = str(fetch_times.max()) if not fetch_times.empty else None
         estimated["realtime_index_symbols"] = ",".join(sorted(realtime_index["symbol"].astype(str).unique()))
     else:
         estimated["realtime_index_source"] = None
         estimated["realtime_index_quote_time"] = None
+        estimated["realtime_index_fetch_time"] = None
         estimated["realtime_index_symbols"] = None
 
     rows = []
@@ -344,19 +380,37 @@ def build_nowcast_history(
             "gap_reason": row.gap_reason,
             "avix_realtime_mid": _finite(getattr(row, "avix_mid", None)),
             "avix_realtime_quality": _text_or_none(getattr(row, "realtime_avix_quality", None)),
+            "avix_realtime_source": _text_or_none(getattr(row, "realtime_avix_source", None)),
+            "avix_realtime_quality_flags": _text_or_none(getattr(row, "realtime_avix_quality_flags", None)),
+            "avix_source_quote_time": _text_or_none(getattr(row, "realtime_avix_source_quote_time", None)),
             "realtime_valuation_time": _text_or_none(getattr(row, "valuation_time", None)),
             "hs300_close": _finite(getattr(row, "sh000300_close", None)),
             "hs300_drawdown_60d": _finite(getattr(row, "sh000300_dd60", None)),
             "realtime_index_source": _text_or_none(getattr(row, "realtime_index_source", None)),
             "realtime_index_quote_time": _text_or_none(getattr(row, "realtime_index_quote_time", None)),
+            "realtime_index_fetch_time": _text_or_none(getattr(row, "realtime_index_fetch_time", None)),
             "realtime_index_symbols": _text_or_none(getattr(row, "realtime_index_symbols", None)),
             "qvix_close": _finite(getattr(row, "qvix_close", None)),
             "qvix_source": _text_or_none(getattr(row, "qvix_source", None)),
             "qvix_quote_time": _text_or_none(getattr(row, "qvix_quote_time", None)),
             "qvix_delay_minutes": _finite(getattr(row, "qvix_delay_minutes", None)),
+            "qvix_quality_flags": _text_or_none(getattr(row, "qvix_quality_flags", None)),
             "drawdown_pressure": _finite(getattr(row, "drawdown_pressure", None)),
+            "realized_vol_20": _finite(getattr(row, "rv20", None)),
+            "turnover_volume_ratio_20": _finite(getattr(row, "volume_ratio_20", None)),
+            "turnover_session_progress": _finite(getattr(row, "session_progress", None)),
             "breadth_pressure": _finite(getattr(row, "market_breadth_pressure", None)),
+            "breadth_source": _text_or_none(getattr(row, "source", None)),
+            "breadth_secondary_source": _text_or_none(getattr(row, "secondary_source", None)),
+            "breadth_source_agreement": _finite(getattr(row, "breadth_source_agreement", None)),
+            "breadth_source_score_delta": _finite(getattr(row, "source_score_delta", None)),
+            "advancing_ratio": _finite(getattr(row, "advancing_ratio", None)),
+            "decline_ratio": _finite(getattr(row, "decline_ratio", None)),
+            "big_down_ratio": _finite(getattr(row, "big_down_ratio", None)),
+            "limit_down_ratio": _finite(getattr(row, "limit_down_ratio", None)),
             "model_confidence": _finite(getattr(row, "model_confidence", None)),
+            "model_coverage_score": _finite(getattr(row, "model_coverage_score", None)),
+            "model_data_quality_score": _finite(getattr(row, "model_data_quality_score", None)),
             "model_missing_components": _text_or_none(getattr(row, "model_missing_components", None)),
             "components": {
                 "avix_percentile_2y": _finite(getattr(row, "avix_percentile_2y", None)),

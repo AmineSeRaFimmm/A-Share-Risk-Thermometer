@@ -13,11 +13,11 @@ on:
     - cron: "15,25,35,45,55 1 * * 1-5"
     - cron: "5,15,25,35,45,55 2 * * 1-5"
     - cron: "5,15,25,35 3 * * 1-5"
-    # Afternoon 04:50–07:10 UTC
+    # Afternoon 04:50–07:16 UTC. The 07:16 tick captures the final close snapshot.
     - cron: "50,55 4 * * 1-5"
     - cron: "5,15,25,35,45,55 5 * * 1-5"
     - cron: "5,15,25,35,45,55 6 * * 1-5"
-    - cron: "5 7 * * 1-5"
+    - cron: "5,16 7 * * 1-5"
   workflow_dispatch:
     inputs:
       mode:
@@ -62,11 +62,11 @@ jobs:
 
           # Padded windows so mildly delayed runners still update.
           # Morning: 01:15–03:40 UTC (09:15–11:40 CST)
-          # Afternoon: 04:50–07:15 UTC (12:50–15:15 CST)
+          # Afternoon: 04:50–07:20 UTC (12:50–15:20 CST)
           in_morning=0
           in_afternoon=0
           if (( utc_total >= 75 && utc_total <= 220 )); then in_morning=1; fi
-          if (( utc_total >= 290 && utc_total <= 435 )); then in_afternoon=1; fi
+          if (( utc_total >= 290 && utc_total <= 440 )); then in_afternoon=1; fi
 
           event_name="${{ github.event_name }}"
           mode="${{ github.event.inputs.mode || 'single' }}"
@@ -78,7 +78,7 @@ jobs:
             if (( in_morning == 1 )); then
               echo "session_end_utc=03:40" >> "$GITHUB_OUTPUT"
             else
-              echo "session_end_utc=07:15" >> "$GITHUB_OUTPUT"
+              echo "session_end_utc=07:20" >> "$GITHUB_OUTPUT"
             fi
             exit 0
           fi
@@ -95,7 +95,7 @@ jobs:
             echo "Schedule tick inside afternoon window."
             echo "should_run=true" >> "$GITHUB_OUTPUT"
             echo "mode=single" >> "$GITHUB_OUTPUT"
-            echo "session_end_utc=07:15" >> "$GITHUB_OUTPUT"
+            echo "session_end_utc=07:20" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 

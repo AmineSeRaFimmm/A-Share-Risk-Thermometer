@@ -376,6 +376,9 @@ function renderRealtimeAvix(avix) {
     qualityEl.title = [
       avix?.avix_realtime_note,
       avix?.avix_realtime_source,
+      avix?.avix_realtime_quality_flags ? `数据质量: ${avix.avix_realtime_quality_flags}` : null,
+      avix?.avix_realtime_source_quote_time ? `行情时间: ${avix.avix_realtime_source_quote_time}` : null,
+      avix?.avix_realtime_fetch_time ? `抓取时间: ${avix.avix_realtime_fetch_time}` : null,
       '盘中 nowcast 允许 WARN；估算收盘补缺要求严格 OK；正式历史只用官方收盘 AVIX',
     ].filter(Boolean).join(' | ');
   }
@@ -412,6 +415,11 @@ function renderNowcastNote(latest) {
   const official = latest?.official_close || {};
   const nowcast = latest?.nowcast || {};
   const mode = latest?.temperature_mode || '';
+  if (mode === 'CLOSE_PENDING') {
+    note.hidden = false;
+    note.textContent = '收盘确认中';
+    return;
+  }
   // Magazine: one short line only when not official close.
   if (mode === 'NOWCAST' || (nowcast.active && latest?.is_final === false && mode !== 'ESTIMATED_CLOSE')) {
     note.hidden = false;
@@ -456,13 +464,19 @@ function renderRealtimeIndexFactors(latest) {
   const nowcast = latest?.nowcast || {};
   const source = String(nowcast.realtime_index_source || '');
   const quoteTime = nowcast.realtime_index_quote_time;
+  const fetchTime = nowcast.realtime_index_fetch_time;
   const label = source.includes('EASTMONEY_INDEX_QUOTE_RT') || source.includes('TENCENT_INDEX_QUOTE_RT')
     ? `沪深300/上证实时 · 因子已盘中重算 · ${source.includes('TENCENT') ? '腾讯备用' : '东财'}`
     : '上一正式收盘 · 因子未盘中重算';
   setText('realtimeIndexFactors', label);
   const el = document.getElementById('realtimeIndexFactors');
   if (el) {
-    el.title = [source || null, nowcast.realtime_index_symbols || null, quoteTime ? `行情时间: ${quoteTime}` : null].filter(Boolean).join(' | ') || '当前页面未使用实时指数因子';
+    el.title = [
+      source || null,
+      nowcast.realtime_index_symbols || null,
+      quoteTime ? `行情时间: ${quoteTime}` : '行情时间未验证',
+      fetchTime ? `抓取时间: ${fetchTime}` : null,
+    ].filter(Boolean).join(' | ') || '当前页面未使用实时指数因子';
   }
 }
 
@@ -479,8 +493,15 @@ function renderBreadthMode(latest) {
   if (!el) return;
   el.dataset.breadth = (mode || 'unknown').toLowerCase();
   const asOf = market.as_of_trade_date ? ` / 日期: ${market.as_of_trade_date}` : '';
+  const sourceDetail = [
+    market.breadth_source,
+    market.breadth_secondary_source ? `复核: ${market.breadth_secondary_source}` : null,
+    market.breadth_source_score_delta != null ? `源差: ${Number(market.breadth_source_score_delta).toFixed(2)}` : null,
+    market.advancing_ratio != null ? `上涨: ${(Number(market.advancing_ratio) * 100).toFixed(1)}%` : null,
+    market.big_down_ratio != null ? `大跌: ${(Number(market.big_down_ratio) * 100).toFixed(1)}%` : null,
+  ].filter(Boolean).join(' | ');
   el.title = market.breadth_quality
-    ? `宽度质量: ${market.breadth_quality}${asOf}`
+    ? `宽度质量: ${market.breadth_quality}${asOf}${sourceDetail ? ` | ${sourceDetail}` : ''}`
     : mode === 'INDEX_PROXY'
       ? '历史多数日期使用宽基指数代理宽度，不是全A个股涨跌统计'
       : `基于全A现货快照统计${asOf}`;
@@ -509,7 +530,11 @@ function renderLatest(latest) {
   const confidenceEl = document.getElementById('modelConfidence');
   if (confidenceEl) {
     const confidence = latest.model_confidence || {};
-    confidenceEl.title = confidence.missing_components ? `缺失或降级: ${confidence.missing_components}` : '主要模型输入完整';
+    confidenceEl.title = [
+      confidence.coverage_score != null ? `数据覆盖: ${Number(confidence.coverage_score).toFixed(1)}%` : null,
+      confidence.data_quality_score != null ? `数据质量: ${Number(confidence.data_quality_score).toFixed(1)}%` : null,
+      confidence.missing_components ? `缺失或降级: ${confidence.missing_components}` : '主要模型输入完整',
+    ].filter(Boolean).join(' | ');
     confidenceEl.dataset.grade = (confidence.grade || '').toLowerCase();
   }
   // Always surface official close RT next to active reading

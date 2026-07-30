@@ -7,6 +7,7 @@ from src.data_sources.akshare_breadth import (
     SOURCE_EM_FENBU,
     SOURCE_SOHU_ZDT,
     parse_sohu_zdt_html,
+    reconcile_breadth_summaries,
     summarize_breadth,
 )
 
@@ -58,3 +59,33 @@ def test_summarize_breadth_ok_stock_level():
     assert out.iloc[0]["quality"] == "OK"
     assert int(out.iloc[0]["advancing_count"]) == 700
     assert abs(float(out.iloc[0]["advancing_ratio"]) - 700 / 1200) < 1e-9
+    assert int(out.iloc[0]["sample_size"]) == 1200
+    assert "TIME_UNVERIFIED" in out.iloc[0]["quality_flags"]
+
+
+def test_reconcile_breadth_preserves_primary_and_records_agreement():
+    primary = pd.DataFrame([{
+        "trade_date": "2026-07-30",
+        "advancing_ratio": 0.315,
+        "big_down_ratio": 0.189,
+        "limit_down_ratio": 0.050,
+        "valid_count": 5197,
+        "quality": "OK",
+        "quality_flags": "TIME_UNVERIFIED",
+        "source": "PARSE_EM_A_SPOT",
+    }])
+    secondary = pd.DataFrame([{
+        "trade_date": "2026-07-30",
+        "advancing_ratio": 0.325,
+        "big_down_ratio": 0.242,
+        "limit_down_ratio": 0.084,
+        "valid_count": 5321,
+        "quality": "OK",
+        "source": SOURCE_EM_FENBU,
+    }])
+
+    row = reconcile_breadth_summaries(primary, secondary).iloc[0]
+    assert row["source"] == "PARSE_EM_A_SPOT"
+    assert row["secondary_source"] == SOURCE_EM_FENBU
+    assert row["quality"] == "OK_CROSSCHECKED"
+    assert float(row["source_score_delta"]) < 1.0

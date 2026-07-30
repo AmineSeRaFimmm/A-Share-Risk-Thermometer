@@ -181,7 +181,16 @@ function renderComponentsChart(payload) {
       formatter: params => {
         const item = Array.isArray(params) ? params[0] : params;
         const source = items.slice().reverse()[item.dataIndex] || {};
-        return `${source.name}<br>贡献: <strong>${fmt(source.contribution)}</strong><br>分数: ${fmt(source.score)} / 权重: ${fmt(Number(source.weight) * 100)}%`;
+        return [
+          source.name,
+          `贡献: <strong>${fmt(source.contribution)}</strong>`,
+          `分数: ${fmt(source.score)} / 权重: ${fmt(Number(source.weight) * 100)}%`,
+          `原始值: ${fmt(source.raw_value, 4)}`,
+          `状态: ${source.observed === false ? '中性填充' : (source.quality || 'OK')}`,
+          source.source ? `来源: ${source.source}` : null,
+          source.quote_time ? `行情时间: ${source.quote_time}` : null,
+          !source.quote_time && source.fetch_time ? `行情时间未验证 / 抓取: ${source.fetch_time}` : null,
+        ].filter(Boolean).join('<br>');
       },
     },
     grid: { left: isNarrow() ? 86 : 118, right: isNarrow() ? 8 : 24, top: 8, bottom: 34 },

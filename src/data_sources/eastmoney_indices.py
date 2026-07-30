@@ -6,6 +6,7 @@ from datetime import datetime
 import pandas as pd
 import requests
 
+from src.core.data_quality import quality_metadata
 
 SOURCE_EASTMONEY_INDEX_RT = "EASTMONEY_INDEX_QUOTE_RT"
 SOURCE_TENCENT_INDEX_RT = "TENCENT_INDEX_QUOTE_RT"
@@ -24,6 +25,12 @@ def _parse_index_payload(payload: dict, symbol: str, trade_date: str) -> dict | 
     # Eastmoney reports index volume in lots; project daily index history uses shares.
     volume = pd.to_numeric(data.get("f47"), errors="coerce") * 100.0
     amount = pd.to_numeric(data.get("f48"), errors="coerce")
+    meta = quality_metadata(
+        source=SOURCE_EASTMONEY_INDEX_RT,
+        trade_date=trade_date,
+        source_quote_time=None,
+        sample_size=1,
+    )
     return {
         "trade_date": str(trade_date)[:10],
         "symbol": symbol,
@@ -34,8 +41,11 @@ def _parse_index_payload(payload: dict, symbol: str, trade_date: str) -> dict | 
         "previous_close": float(previous),
         "volume": float(volume) if pd.notna(volume) and volume > 0 else None,
         "amount": float(amount) if pd.notna(amount) and amount > 0 else None,
-        "source": SOURCE_EASTMONEY_INDEX_RT,
-        "quote_time": datetime.now().astimezone().isoformat(timespec="seconds"),
+        **meta,
+        # Compatibility field. This is explicitly the fetch time, not an
+        # exchange-provided quote timestamp.
+        "quote_time": meta["fetch_time"],
+        "quality": "WARN_INDEX_TIME_UNVERIFIED",
     }
 
 
@@ -91,6 +101,13 @@ def fetch_realtime_index_snapshot(trade_date: str, *, timeout: int = 15) -> pd.D
             volume = pd.to_numeric(values[6], errors="coerce")
             if pd.isna(price) or pd.isna(change) or float(price) <= 0:
                 continue
+            meta = quality_metadata(
+                source=SOURCE_TENCENT_INDEX_RT,
+                trade_date=trade_date,
+                source_quote_time=None,
+                fetch_time=fetched_at,
+                sample_size=1,
+            )
             fallback_rows.append({
                 "trade_date": str(trade_date)[:10],
                 "symbol": symbol,
@@ -101,8 +118,9 @@ def fetch_realtime_index_snapshot(trade_date: str, *, timeout: int = 15) -> pd.D
                 "previous_close": float(price) - float(change),
                 "volume": float(volume) * 100.0 if pd.notna(volume) and volume > 0 else None,
                 "amount": None,
-                "source": SOURCE_TENCENT_INDEX_RT,
-                "quote_time": fetched_at,
+                **meta,
+                "quote_time": meta["fetch_time"],
+                "quality": "WARN_INDEX_TIME_UNVERIFIED",
             })
         if len(fallback_rows) == len(_SYMBOLS):
             return pd.DataFrame(fallback_rows)

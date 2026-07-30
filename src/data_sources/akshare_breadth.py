@@ -19,6 +19,7 @@ import re
 import pandas as pd
 import requests
 
+from src.core.data_quality import quality_metadata
 from src.utils.retry import retry_call
 
 EASTMONEY_CLIST_HOSTS = [
@@ -177,6 +178,16 @@ def summarize_breadth(df: pd.DataFrame, trade_date: str) -> pd.DataFrame:
     src = ""
     if "source" in work.columns and len(work):
         src = str(work["source"].dropna().iloc[0]) if work["source"].notna().any() else SOURCE_EM_SPOT
+    fetch_time = None
+    if "fetch_time" in work.columns and work["fetch_time"].notna().any():
+        fetch_time = str(work["fetch_time"].dropna().max())
+    metadata = quality_metadata(
+        source=src or SOURCE_EM_SPOT,
+        trade_date=trade_date,
+        source_quote_time=None,
+        fetch_time=fetch_time,
+        sample_size=valid_count,
+    )
     out = {
         "trade_date": trade_date,
         "valid_count": valid_count,
@@ -194,7 +205,7 @@ def summarize_breadth(df: pd.DataFrame, trade_date: str) -> pd.DataFrame:
         if volume_ratio_col
         else None,
         "quality": "OK",
-        "source": src or SOURCE_EM_SPOT,
+        **metadata,
     }
     return pd.DataFrame([out])
 
@@ -264,9 +275,13 @@ def fetch_eastmoney_zdfenbu_summary(trade_date: str) -> pd.DataFrame:
             ]
         )
     denom = float(total)
-    return pd.DataFrame(
-        [
-            {
+    metadata = quality_metadata(
+        source=SOURCE_EM_FENBU,
+        trade_date=trade_date,
+        source_quote_time=None,
+        sample_size=total,
+    )
+    return pd.DataFrame([{
                 "trade_date": trade_date,
                 "valid_count": total,
                 "advancing_count": up,
@@ -278,10 +293,8 @@ def fetch_eastmoney_zdfenbu_summary(trade_date: str) -> pd.DataFrame:
                 "big_down_ratio": big_down / denom,
                 "limit_down_ratio": limit_down / denom,
                 "quality": "OK",
-                "source": SOURCE_EM_FENBU,
-            }
-        ]
-    )
+                **metadata,
+            }])
 
 
 def _parse_sohu_int(x) -> int:
@@ -391,31 +404,80 @@ def _is_good_breadth_summary(summary: pd.DataFrame) -> bool:
     return q.startswith("OK")
 
 
+def _breadth_score(row: pd.Series) -> float:
+    advancing = float(pd.to_numeric(row.get("advancing_ratio"), errors="coerce"))
+    big_down = float(pd.to_numeric(row.get("big_down_ratio"), errors="coerce"))
+    limit_down = float(pd.to_numeric(row.get("limit_down_ratio"), errors="coerce"))
+    return (
+        50.0 * (1.0 - advancing)
+        + 30.0 * min(max(big_down / 0.08, 0.0), 1.0)
+        + 20.0 * min(max(limit_down / 0.02, 0.0), 1.0)
+    )
+
+
+def reconcile_breadth_summaries(primary: pd.DataFrame, secondary: pd.DataFrame) -> pd.DataFrame:
+    if not _is_good_breadth_summary(primary):
+        return secondary.copy()
+    if not _is_good_breadth_summary(secondary):
+        return primary.copy()
+    first = primary.iloc[0]
+    second = secondary.iloc[0]
+    if str(first.get("trade_date"))[:10] != str(second.get("trade_date"))[:10]:
+        return primary.copy()
+    score_delta = abs(_breadth_score(first) - _breadth_score(second))
+    out = primary.iloc[[0]].copy()
+    out["secondary_source"] = str(second.get("source") or "")
+    out["secondary_valid_count"] = pd.to_numeric(second.get("valid_count"), errors="coerce")
+    out["secondary_breadth_score"] = round(_breadth_score(second), 4)
+    out["source_score_delta"] = round(score_delta, 4)
+    out["source_agreement"] = round(max(0.0, 1.0 - score_delta / 100.0), 4)
+    if score_delta <= 5.0:
+        out["quality"] = "OK_CROSSCHECKED"
+        prior = str(out.iloc[0].get("quality_flags") or "")
+        flags = [flag for flag in prior.split("|") if flag and flag != "OK"]
+        flags.append("CROSSCHECKED")
+        out["quality_flags"] = "|".join(sorted(set(flags)))
+    else:
+        out["quality"] = "WARN_BREADTH_SOURCE_DIVERGENCE"
+        prior = str(out.iloc[0].get("quality_flags") or "")
+        flags = [flag for flag in prior.split("|") if flag and flag != "OK"]
+        flags.append("SOURCE_DIVERGENCE")
+        out["quality_flags"] = "|".join(sorted(set(flags)))
+    return out
+
+
 def fetch_breadth_summary_multi(trade_date: str) -> pd.DataFrame:
     """Resolve one-day breadth summary via multi-source parse stack."""
     day = str(trade_date)[:10]
+    spot = pd.DataFrame()
     # 1) Full A-share spot (best: true stock-level)
     try:
         snap = fetch_a_breadth_snapshot()
-        summary = summarize_breadth(snap, day)
-        if _is_good_breadth_summary(summary):
-            print(
-                f"Breadth multi-source {day}: EM/AK spot OK "
-                f"n={summary.iloc[0].get('valid_count')} source={summary.iloc[0].get('source')}"
-            )
-            return summary
-        print(f"WARN breadth spot incomplete {day}: {summary.iloc[0].to_dict() if not summary.empty else summary}")
+        spot = summarize_breadth(snap, day)
+        if not _is_good_breadth_summary(spot):
+            print(f"WARN breadth spot incomplete {day}: {spot.iloc[0].to_dict() if not spot.empty else spot}")
     except Exception as exc:  # noqa: BLE001
         print(f"WARN breadth spot path failed {day}: {exc}")
 
     # 2) Eastmoney distribution buckets
     fenbu = fetch_eastmoney_zdfenbu_summary(day)
-    if _is_good_breadth_summary(fenbu):
-        # if fenbu date differs (latest board), only accept exact day match
-        if str(fenbu.iloc[0]["trade_date"])[:10] == day:
-            print(f"Breadth multi-source {day}: EM fenbu OK n={fenbu.iloc[0].get('valid_count')}")
-            return fenbu
+    if _is_good_breadth_summary(fenbu) and str(fenbu.iloc[0]["trade_date"])[:10] != day:
         print(f"WARN EM fenbu date mismatch want={day} got={fenbu.iloc[0].get('trade_date')}")
+        fenbu = pd.DataFrame()
+
+    if _is_good_breadth_summary(spot):
+        resolved = reconcile_breadth_summaries(spot, fenbu)
+        print(
+            f"Breadth multi-source {day}: spot={spot.iloc[0].get('source')} "
+            f"secondary={resolved.iloc[0].get('secondary_source', '')} "
+            f"quality={resolved.iloc[0].get('quality')} "
+            f"delta={resolved.iloc[0].get('source_score_delta', '')}"
+        )
+        return resolved
+
+    if _is_good_breadth_summary(fenbu):
+        print(f"Breadth multi-source {day}: EM fenbu OK n={fenbu.iloc[0].get('valid_count')}")
+        return fenbu
 
     # 3) Sohu history table (exact day)
     sohu = fetch_sohu_zdt_history()
