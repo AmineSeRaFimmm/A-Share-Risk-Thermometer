@@ -3,52 +3,108 @@
   "temperature_mode": "ESTIMATED_CLOSE",
   "components": [
     {
+      "key": "avix_percentile_2y",
       "name": "AVIX两年分位",
-      "score": 89.8608,
+      "score": 90.0596,
       "weight": 0.28,
-      "contribution": 25.161
+      "contribution": 25.2167,
+      "observed": true,
+      "raw_value": 24.5577,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-07-30T16:07:46+08:00",
+      "fetch_time": null,
+      "quality": "TIME_UNVERIFIED"
     },
     {
+      "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 98.9214,
+      "score": 99.0533,
       "weight": 0.14,
-      "contribution": 13.849
+      "contribution": 13.8675,
+      "observed": true,
+      "raw_value": 24.5577,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-07-30T16:07:46+08:00",
+      "fetch_time": null,
+      "quality": "TIME_UNVERIFIED"
     },
     {
+      "key": "avix_5d_change",
       "name": "AVIX 5日变化",
       "score": 100.0,
       "weight": 0.08,
-      "contribution": 8.0
+      "contribution": 8.0,
+      "observed": true,
+      "raw_value": 24.5577,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-07-30T16:07:46+08:00",
+      "fetch_time": null,
+      "quality": "TIME_UNVERIFIED"
     },
     {
+      "key": "qvix_confirmation",
       "name": "QVIX确认",
       "score": 100.0,
       "weight": 0.12,
-      "contribution": 12.0
+      "contribution": 12.0,
+      "observed": true,
+      "raw_value": 24.84,
+      "source": "OPTBBS_CSV_300ETF_MIN_QVIX_PROXY",
+      "quote_time": "2026-07-30T15:00:40+08:00",
+      "fetch_time": null,
+      "quality": "CROSSCHECKED|PROXY"
     },
     {
+      "key": "realized_vol_percentile",
       "name": "实现波动率",
       "score": 92.0635,
       "weight": 0.12,
-      "contribution": 11.0476
+      "contribution": 11.0476,
+      "observed": true,
+      "raw_value": 28.4758,
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-07-30T16:07:54+08:00",
+      "quality": "REALTIME_INDEX"
     },
     {
+      "key": "drawdown_pressure",
       "name": "回撤压力",
-      "score": 88.5549,
+      "score": 88.7913,
       "weight": 0.12,
-      "contribution": 10.6266
+      "contribution": 10.655,
+      "observed": true,
+      "raw_value": -0.1008,
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-07-30T16:07:54+08:00",
+      "quality": "REALTIME_INDEX"
     },
     {
+      "key": "market_breadth_pressure",
       "name": "市场宽度",
-      "score": 84.1665,
+      "score": 83.7531,
       "weight": 0.1,
-      "contribution": 8.4167
+      "contribution": 8.3753,
+      "observed": true,
+      "raw_value": 0.3249,
+      "source": "PARSE_EM_ZDFENBU",
+      "quote_time": null,
+      "fetch_time": null,
+      "quality": "SINGLE_SOURCE"
     },
     {
+      "key": "turnover_stress",
       "name": "成交压力",
-      "score": 14.4265,
+      "score": 17.4515,
       "weight": 0.04,
-      "contribution": 0.5771
+      "contribution": 0.6981,
+      "observed": true,
+      "raw_value": 1.0094,
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-07-30T16:07:54+08:00",
+      "quality": "SESSION_NORMALIZED"
     }
   ]
 }
