@@ -39,3 +39,24 @@ def test_unverified_proxy_is_observed_but_quality_discounted():
 
 def test_missing_neutral_fill_never_counts_as_observed():
     assert observation_quality_score(observed=False, quality_flags="MISSING") == 0.0
+
+
+def test_final_close_does_not_become_stale_after_market():
+    meta = quality_metadata(
+        source="EOD",
+        trade_date="2026-07-30",
+        source_quote_time="15:00:40",
+        now="2026-07-30T17:00:00+08:00",
+        is_final=True,
+        max_age_seconds=15 * 60,
+    )
+    assert meta["is_final"] is True
+    assert meta["age_seconds"] > 15 * 60
+    assert meta["quality_flags"] == "OK"
+    assert observation_quality_score(
+        observed=True,
+        quality_flags=meta["quality_flags"],
+        age_seconds=meta["age_seconds"],
+        max_age_seconds=15 * 60,
+        is_final=True,
+    ) == 1.0

@@ -25,11 +25,14 @@ def _parse_index_payload(payload: dict, symbol: str, trade_date: str) -> dict | 
     # Eastmoney reports index volume in lots; project daily index history uses shares.
     volume = pd.to_numeric(data.get("f47"), errors="coerce") * 100.0
     amount = pd.to_numeric(data.get("f48"), errors="coerce")
+    now_cn = pd.Timestamp.now(tz="Asia/Shanghai")
+    is_final = (now_cn.hour * 60 + now_cn.minute) >= 15 * 60 + 15
     meta = quality_metadata(
         source=SOURCE_EASTMONEY_INDEX_RT,
         trade_date=trade_date,
         source_quote_time=None,
         sample_size=1,
+        is_final=is_final,
     )
     return {
         "trade_date": str(trade_date)[:10],
@@ -49,14 +52,8 @@ def _parse_index_payload(payload: dict, symbol: str, trade_date: str) -> dict | 
     }
 
 
-def fetch_realtime_index_snapshot(trade_date: str, *, timeout: int = 15) -> pd.DataFrame:
-    """Fetch same-day HS300 and SSE composite snapshots.
-
-    Empty/invalid responses are rejected so callers retain the official-close
-    path instead of silently treating missing intraday data as current.
-    """
+def _fetch_eastmoney_snapshot(trade_date: str, timeout: int) -> pd.DataFrame:
     rows: list[dict] = []
-    fetched_at = datetime.now().astimezone().isoformat(timespec="seconds")
     for symbol, secid in _SYMBOLS.items():
         try:
             response = requests.get(
@@ -74,11 +71,11 @@ def fetch_realtime_index_snapshot(trade_date: str, *, timeout: int = 15) -> pd.D
                 rows.append(row)
         except Exception as exc:  # noqa: BLE001
             print(f"WARN Eastmoney realtime index failed {symbol}: {exc}")
-    if len(rows) == len(_SYMBOLS):
-        return pd.DataFrame(rows)
+    return pd.DataFrame(rows) if len(rows) == len(_SYMBOLS) else pd.DataFrame()
 
-    # Tencent's public quote page is a lightweight fallback when Eastmoney
-    # closes its push host or returns an empty response.
+
+def _fetch_tencent_snapshot(trade_date: str, timeout: int) -> pd.DataFrame:
+    fetched_at = datetime.now().astimezone().isoformat(timespec="seconds")
     try:
         response = requests.get(
             _TENCENT_URL + ",".join(f"s_{symbol}" for symbol in _SYMBOLS),
@@ -101,12 +98,15 @@ def fetch_realtime_index_snapshot(trade_date: str, *, timeout: int = 15) -> pd.D
             volume = pd.to_numeric(values[6], errors="coerce")
             if pd.isna(price) or pd.isna(change) or float(price) <= 0:
                 continue
+            now_cn = pd.Timestamp.now(tz="Asia/Shanghai")
+            is_final = (now_cn.hour * 60 + now_cn.minute) >= 15 * 60 + 15
             meta = quality_metadata(
                 source=SOURCE_TENCENT_INDEX_RT,
                 trade_date=trade_date,
                 source_quote_time=None,
                 fetch_time=fetched_at,
                 sample_size=1,
+                is_final=is_final,
             )
             fallback_rows.append({
                 "trade_date": str(trade_date)[:10],
@@ -127,3 +127,44 @@ def fetch_realtime_index_snapshot(trade_date: str, *, timeout: int = 15) -> pd.D
     except Exception as exc:  # noqa: BLE001
         print(f"WARN Tencent realtime index failed: {exc}")
     return pd.DataFrame()
+
+
+def _reconcile_index_snapshots(primary: pd.DataFrame, secondary: pd.DataFrame) -> pd.DataFrame:
+    if primary.empty:
+        return secondary
+    if secondary.empty:
+        return primary
+    out = primary.copy()
+    secondary_by_symbol = secondary.set_index("symbol")
+    for idx, row in out.iterrows():
+        symbol = row["symbol"]
+        if symbol not in secondary_by_symbol.index:
+            continue
+        other = secondary_by_symbol.loc[symbol]
+        first = pd.to_numeric(row.get("close"), errors="coerce")
+        second = pd.to_numeric(other.get("close"), errors="coerce")
+        if pd.isna(first) or pd.isna(second) or float(first) <= 0:
+            continue
+        delta = abs(float(first) - float(second)) / float(first)
+        agreement = max(0.0, 1.0 - delta / 0.002)
+        prior = str(row.get("quality_flags") or "")
+        flags = [flag for flag in prior.split("|") if flag and flag != "OK"]
+        flags.append("CROSSCHECKED" if delta <= 0.002 else "SOURCE_DIVERGENCE")
+        out.at[idx, "secondary_source"] = str(other.get("source") or "")
+        out.at[idx, "secondary_close"] = float(second)
+        out.at[idx, "source_price_delta_pct"] = round(delta, 8)
+        out.at[idx, "source_agreement"] = round(agreement, 4)
+        out.at[idx, "quality_flags"] = "|".join(sorted(set(flags)))
+        out.at[idx, "quality"] = (
+            "OK_INDEX_CROSSCHECKED" if delta <= 0.002 and "TIME_UNVERIFIED" not in flags
+            else "WARN_INDEX_TIME_UNVERIFIED" if delta <= 0.002
+            else "WARN_INDEX_SOURCE_DIVERGENCE"
+        )
+    return out
+
+
+def fetch_realtime_index_snapshot(trade_date: str, *, timeout: int = 15) -> pd.DataFrame:
+    """Fetch and reconcile same-day HS300 and SSE snapshots from two hosts."""
+    eastmoney = _fetch_eastmoney_snapshot(trade_date, timeout)
+    tencent = _fetch_tencent_snapshot(trade_date, timeout)
+    return _reconcile_index_snapshots(eastmoney, tencent)

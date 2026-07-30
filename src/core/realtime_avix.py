@@ -435,12 +435,30 @@ def _build_output(
 
     quality = "|".join(sorted(set(flag for flag in quality_flags if flag and flag != "OK"))) or "OK"
     source = "SINA_AKSHARE_REALTIME_MONTH_MID"
+    valuation_cn = pd.to_datetime(valuation_time, errors="coerce")
+    if pd.notna(valuation_cn):
+        valuation_cn = (
+            valuation_cn.tz_localize("Asia/Shanghai")
+            if valuation_cn.tzinfo is None
+            else valuation_cn.tz_convert("Asia/Shanghai")
+        )
+    is_final = bool(
+        pd.notna(valuation_cn)
+        and (
+            valuation_cn.strftime("%Y-%m-%d") > str(trade_date)[:10]
+            or (
+                valuation_cn.strftime("%Y-%m-%d") == str(trade_date)[:10]
+                and (valuation_cn.hour * 60 + valuation_cn.minute) >= 15 * 60 + 15
+            )
+        )
+    )
     metadata = quality_metadata(
         source=source,
         trade_date=trade_date,
         source_quote_time=None,
         fetch_time=valuation_time,
         sample_size=valid_quotes,
+        is_final=is_final,
     )
     return {
         "valuation_time": valuation_time,
@@ -481,6 +499,7 @@ def _build_output(
         "source_quote_time": metadata["source_quote_time"],
         "fetch_time": metadata["fetch_time"],
         "age_seconds": metadata["age_seconds"],
+        "is_final": metadata["is_final"],
         "is_proxy": metadata["is_proxy"],
         "is_delayed": metadata["is_delayed"],
         "sample_size": metadata["sample_size"],

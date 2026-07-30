@@ -13,6 +13,7 @@ import pandas as pd
 import requests
 
 from src.core.calendar import merged_trading_days
+from src.core.data_quality import quality_metadata
 from src.core.realtime_avix import calculate_realtime_avix
 
 
@@ -137,6 +138,20 @@ def fetch_eastmoney_delayed_qvix_for_date(
         quote_time_cn = quote_time.tz_convert("Asia/Shanghai") if quote_time is not None else None
         now_cn = pd.Timestamp.now(tz="Asia/Shanghai")
         delay_minutes = None if quote_time_cn is None else max(0, int((now_cn - quote_time_cn).total_seconds() // 60))
+        meta = quality_metadata(
+            source=SOURCE_EASTMONEY_DELAYED,
+            trade_date=trade_date,
+            source_quote_time=quote_time_cn,
+            fetch_time=datetime.now().astimezone().isoformat(timespec="seconds"),
+            sample_size=len(raw),
+            is_delayed=True,
+            is_final=bool(
+                quote_time_cn is not None
+                and (quote_time_cn.hour * 60 + quote_time_cn.minute) >= 14 * 60 + 55
+                and (now_cn.hour * 60 + now_cn.minute) >= 15 * 60 + 15
+            ),
+            max_age_seconds=30 * 60,
+        )
         return pd.DataFrame([{
             "date": trade_date,
             "open": float(value),
@@ -144,7 +159,7 @@ def fetch_eastmoney_delayed_qvix_for_date(
             "low": float(value),
             "close": float(value),
             "source": SOURCE_EASTMONEY_DELAYED,
-            "fetch_time": datetime.now().isoformat(timespec="seconds"),
+            **meta,
             "last_time": quote_time_cn.isoformat(timespec="seconds") if quote_time_cn is not None else None,
             "intraday_points": int(len(raw)),
             "qvix_quote_time": quote_time_cn.isoformat(timespec="seconds") if quote_time_cn is not None else None,

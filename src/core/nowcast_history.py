@@ -110,6 +110,7 @@ def _pseudo_avix_clean(official_clean: pd.DataFrame, realtime_avix: pd.DataFrame
         "source_quote_time": realtime_avix.get("source_quote_time"),
         "fetch_time": realtime_avix.get("fetch_time"),
         "age_seconds": realtime_avix.get("age_seconds"),
+        "is_final": realtime_avix.get("is_final", False),
         "observed": realtime_avix.get("observed", True),
     })
     estimate_rows = estimate_rows.dropna(subset=["trade_date", "avix_clean"])
@@ -187,9 +188,28 @@ def _augment_qvix_for_realtime_dates(
             row = fetcher(trade_date)
         except Exception as exc:  # noqa: BLE001
             print(f"WARN realtime QVIX fetch failed {trade_date}: {exc}")
-            continue
-        if (row is None or row.empty) and rate_curve is not None and index_history is not None:
-            row = fetch_eastmoney_delayed_qvix_for_date(trade_date, rate_curve, index_history)
+            row = pd.DataFrame()
+        secondary = pd.DataFrame()
+        if rate_curve is not None and index_history is not None:
+            secondary = fetch_eastmoney_delayed_qvix_for_date(trade_date, rate_curve, index_history)
+        if row is None or row.empty:
+            row = secondary
+        elif secondary is not None and not secondary.empty:
+            primary_value = pd.to_numeric(row.iloc[0].get("close"), errors="coerce")
+            secondary_value = pd.to_numeric(secondary.iloc[0].get("close"), errors="coerce")
+            if pd.notna(primary_value) and pd.notna(secondary_value) and float(primary_value) > 0:
+                delta = abs(float(primary_value) - float(secondary_value))
+                relative_delta = delta / float(primary_value)
+                agreement = max(0.0, 1.0 - relative_delta / 0.20)
+                row = row.iloc[[0]].copy()
+                row["secondary_source"] = str(secondary.iloc[0].get("source") or "")
+                row["secondary_close"] = float(secondary_value)
+                row["source_value_delta"] = round(delta, 4)
+                row["source_agreement"] = round(agreement, 4)
+                prior = str(row.iloc[0].get("quality_flags") or "")
+                flags = [flag for flag in prior.split("|") if flag and flag != "OK"]
+                flags.append("CROSSCHECKED" if relative_delta <= 0.20 else "SOURCE_DIVERGENCE")
+                row["quality_flags"] = "|".join(sorted(set(flags)))
         if row is None or row.empty:
             continue
         row = row.iloc[[0]].copy()
@@ -304,6 +324,7 @@ def build_nowcast_history(
         "trade_date", "valuation_time", "avix_mid", "near_expiry", "next_expiry",
         "near_dte", "next_dte", "near_n_options", "next_n_options", "quality", "note",
         "source", "source_quote_time", "fetch_time", "age_seconds", "observed", "quality_flags",
+        "is_final",
     ]
     estimated = estimated.merge(
         realtime_avix[[col for col in realtime_cols if col in realtime_avix.columns]].rename(columns={
@@ -314,6 +335,7 @@ def build_nowcast_history(
             "fetch_time": "realtime_avix_fetch_time",
             "age_seconds": "realtime_avix_age_seconds",
             "observed": "realtime_avix_observed",
+            "is_final": "realtime_avix_is_final",
         }),
         on="trade_date",
         how="left",

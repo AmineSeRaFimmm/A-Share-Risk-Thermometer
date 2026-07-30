@@ -10,6 +10,7 @@ QUALITY_FIELDS = [
     "source_quote_time",
     "fetch_time",
     "age_seconds",
+    "is_final",
     "is_proxy",
     "is_delayed",
     "sample_size",
@@ -46,6 +47,7 @@ def quality_metadata(
     is_proxy: bool = False,
     is_delayed: bool = False,
     observed: bool = True,
+    is_final: bool = False,
     max_age_seconds: int | None = None,
     now=None,
     flags: list[str] | None = None,
@@ -60,7 +62,7 @@ def quality_metadata(
         quality_flags.append("MISSING")
     if quote is None:
         quality_flags.append("TIME_UNVERIFIED")
-    elif max_age_seconds is not None and age_seconds is not None and age_seconds > max_age_seconds:
+    elif not is_final and max_age_seconds is not None and age_seconds is not None and age_seconds > max_age_seconds:
         quality_flags.append("STALE")
     if is_proxy:
         quality_flags.append("PROXY")
@@ -75,6 +77,7 @@ def quality_metadata(
         "source_quote_time": quote.isoformat(timespec="seconds") if quote is not None else None,
         "fetch_time": fetched.isoformat(timespec="seconds"),
         "age_seconds": age_seconds,
+        "is_final": bool(is_final),
         "is_proxy": bool(is_proxy),
         "is_delayed": bool(is_delayed),
         "sample_size": int(sample_size) if sample_size is not None else None,
@@ -90,6 +93,7 @@ def observation_quality_score(
     age_seconds=None,
     max_age_seconds: int | None = None,
     source_agreement: float | None = None,
+    is_final: bool = False,
 ) -> float:
     if not observed:
         return 0.0
@@ -109,7 +113,7 @@ def observation_quality_score(
         age = float(age_seconds)
     except (TypeError, ValueError):
         age = math.nan
-    if max_age_seconds and math.isfinite(age) and age > 0:
+    if not is_final and max_age_seconds and math.isfinite(age) and age > 0:
         score *= max(0.25, min(1.0, max_age_seconds / age))
     if source_agreement is not None:
         score *= max(0.0, min(1.0, float(source_agreement)))

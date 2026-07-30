@@ -111,6 +111,11 @@ def _observed(row: pd.Series, name: str, fallback_value: str) -> bool:
     return pd.notna(row.get(fallback_value))
 
 
+def _flag(row: pd.Series, name: str) -> bool:
+    value = row.get(name)
+    return bool(value) if value is not None and not pd.isna(value) else False
+
+
 def _model_confidence_details(row: pd.Series) -> dict[str, object]:
     coverage_weight = 0.0
     quality_weight = 0.0
@@ -133,6 +138,7 @@ def _model_confidence_details(row: pd.Series) -> dict[str, object]:
         quality_flags=avix_flags,
         age_seconds=row.get("avix_age_seconds"),
         max_age_seconds=15 * 60,
+        is_final=_flag(row, "avix_is_final"),
     )
     avix_factor_weight = sum(WEIGHTS[key] for key in ["avix_percentile_2y", "avix_zscore_1y", "avix_5d_change"])
     add("AVIX", avix_factor_weight, avix_usable, avix_score, "AVIX")
@@ -140,14 +146,18 @@ def _model_confidence_details(row: pd.Series) -> dict[str, object]:
     qvix_quality = str(row.get("qvix_quality", ""))
     qvix_source = str(row.get("qvix_source", ""))
     qvix_flags = str(row.get("qvix_quality_flags", ""))
-    uses_proxy = "QVIX_REALTIME_PROXY" in qvix_quality or "PROXY" in qvix_source or "PROXY" in qvix_flags
-    uses_delayed = "QVIX_DELAYED" in qvix_quality or "DELAYED" in qvix_source or "DELAYED" in qvix_flags
+    uses_proxy = _flag(row, "is_proxy") or "QVIX_REALTIME_PROXY" in qvix_quality or "PROXY" in qvix_source or "PROXY" in qvix_flags
+    uses_delayed = _flag(row, "is_delayed") or "QVIX_DELAYED" in qvix_quality or "DELAYED" in qvix_source or "DELAYED" in qvix_flags
     qvix_observed = _observed(row, "qvix", "qvix_close")
     qvix_score = observation_quality_score(
         observed=qvix_observed,
         quality_flags=qvix_flags or ("PROXY" if uses_proxy else "DELAYED" if uses_delayed else "OK"),
         age_seconds=row.get("qvix_age_seconds"),
         max_age_seconds=15 * 60,
+        source_agreement=pd.to_numeric(row.get("qvix_source_agreement"), errors="coerce")
+        if pd.notna(row.get("qvix_source_agreement"))
+        else None,
+        is_final=_flag(row, "is_final"),
     )
     add("QVIX", WEIGHTS["qvix_confirmation"], qvix_observed, qvix_score, "QVIX")
     if qvix_observed and uses_proxy:
@@ -161,6 +171,10 @@ def _model_confidence_details(row: pd.Series) -> dict[str, object]:
         quality_flags=index_flags,
         age_seconds=row.get("index_age_seconds"),
         max_age_seconds=15 * 60,
+        source_agreement=pd.to_numeric(row.get("index_source_agreement"), errors="coerce")
+        if pd.notna(row.get("index_source_agreement"))
+        else None,
+        is_final=_flag(row, "index_is_final"),
     )
     realized_observed = _observed(row, "realized_vol", "realized_vol_percentile")
     drawdown_observed = _observed(row, "drawdown", "drawdown_pressure")
@@ -180,6 +194,7 @@ def _model_confidence_details(row: pd.Series) -> dict[str, object]:
         source_agreement=pd.to_numeric(row.get("breadth_source_agreement"), errors="coerce")
         if pd.notna(row.get("breadth_source_agreement"))
         else None,
+        is_final=_flag(row, "breadth_is_final"),
     )
     add("BREADTH", WEIGHTS["market_breadth_pressure"], breadth_observed, breadth_score, "BREADTH")
     if breadth_observed and breadth_proxy:
@@ -213,6 +228,7 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
         avix_columns = [
             "trade_date", "avix_clean", "quality", "quality_flags",
             "source_quote_time", "fetch_time", "age_seconds", "observed",
+            "is_final",
         ]
         df = avix_clean[[column for column in avix_columns if column in avix_clean.columns]].rename(
             columns={
@@ -222,6 +238,7 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
                 "fetch_time": "avix_fetch_time",
                 "age_seconds": "avix_age_seconds",
                 "observed": "avix_observed",
+                "is_final": "avix_is_final",
             }
         ).copy()
         avix_quality = None
@@ -261,10 +278,19 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
         "trade_date", "qvix_confirmation", "qvix_close", "quality",
         "qvix_source", "qvix_quote_time", "qvix_delay_minutes", "age_seconds",
         "is_proxy", "is_delayed", "sample_size", "observed", "quality_flags",
+        "is_final", "secondary_source", "source_agreement", "source_value_delta",
         "qvix_replica", "qvix_replica_quality", "qvix_replica_method",
     ]
     available_qvix_cols = [col for col in qvix_cols if col in qvix_validation.columns]
-    qvix_for_merge = qvix_validation[available_qvix_cols].rename(columns={"quality": "qvix_quality"}) if not qvix_validation.empty else pd.DataFrame()
+    qvix_for_merge = (
+        qvix_validation[available_qvix_cols].rename(columns={
+            "quality": "qvix_quality",
+            "source_agreement": "qvix_source_agreement",
+            "secondary_source": "qvix_secondary_source",
+        })
+        if not qvix_validation.empty
+        else pd.DataFrame()
+    )
     for extra in [qvix_for_merge, realized, drawdown, breadth_for_merge, compute_turnover(index_history)]:
         if not extra.empty:
             df = df.merge(extra, on="trade_date", how="left", suffixes=("", "_extra"))
@@ -286,7 +312,8 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
         df["breadth_quality_flags"] = df["quality_flags_extra"]
     if "age_seconds_extra" in df.columns:
         df["breadth_age_seconds"] = df["age_seconds_extra"]
-
+    if "is_final_extra" in df.columns:
+        df["breadth_is_final"] = df["is_final_extra"]
     index_meta = index_history.copy()
     if not index_meta.empty and "quality_flags" in index_meta.columns:
         index_meta["trade_date"] = pd.to_datetime(index_meta["date"], errors="coerce").dt.strftime("%Y-%m-%d")
@@ -296,6 +323,8 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
                 flag for value in values.dropna().astype(str) for flag in value.split("|") if flag and flag != "OK"
             ))) or "OK"),
             index_age_seconds=("age_seconds", "max") if "age_seconds" in index_meta.columns else ("trade_date", lambda _x: None),
+            index_source_agreement=("source_agreement", "min") if "source_agreement" in index_meta.columns else ("trade_date", lambda _x: None),
+            index_is_final=("is_final", "all") if "is_final" in index_meta.columns else ("trade_date", lambda _x: False),
         )
         df = df.merge(index_meta, on="trade_date", how="left")
     df["qvix_confirmation"] = df["qvix_confirmation"].fillna(50)

@@ -29,6 +29,19 @@ def test_qvix_validation_marks_realtime_etf_proxy_quality():
     assert row["quality"] == "WARN_QVIX_REALTIME_PROXY"
 
 
+def test_qvix_validation_marks_legacy_daily_etf_source_as_proxy():
+    avix = pd.DataFrame([{"trade_date": "2026-07-22", "avix_clean": 22.0}])
+    qvix = pd.DataFrame([{
+        "date": "2026-07-22",
+        "close": 21.28,
+        "source": "OPTBBS_PARSE_300ETF_QVIX",
+    }])
+    row = validate_qvix(avix, qvix).iloc[0]
+    assert bool(row["is_proxy"])
+    assert row["quality"] == "WARN_QVIX_REALTIME_PROXY"
+    assert "PROXY" in row["quality_flags"]
+
+
 def test_qvix_validation_preserves_delayed_index_metadata():
     avix = pd.DataFrame([{"trade_date": "2026-07-23", "avix_clean": 20.7}])
     qvix = pd.DataFrame(

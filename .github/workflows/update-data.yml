@@ -13,9 +13,11 @@ on:
           - rebuild_recent
           - rebuild_all
   schedule:
+    # Redundant close passes: free scheduled runners provide no exact-time SLA.
     - cron: "37 7 * * 1-5"
     - cron: "17 8 * * 1-5"
     - cron: "37 9 * * 1-5"
+    - cron: "17 10 * * 1-5"
 
 permissions:
   contents: write

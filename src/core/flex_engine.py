@@ -595,8 +595,8 @@ def simulate_positions(
                     state.satellite = SleevePos(status="flat")
 
         # --- core open (signal day = i; entry next session) ---
-        if core_sig and state.core.status != "open":
-            entry_date = dates[i + 1] if i + 1 < len(dates) else d
+        if core_sig and state.core.status != "open" and i + 1 < len(dates):
+            entry_date = dates[i + 1]
             state.core = SleevePos(
                 status="open",
                 entry_signal_date=d,
@@ -614,7 +614,7 @@ def simulate_positions(
         high_stages = [s for s in stages if STAGE_TIER.get(s) == "high"]
         observe_stages = [s for s in stages if STAGE_TIER.get(s) == "observe"]
         sat_sig = bool(longs) and (bool(high_stages) or bool(observe_stages))
-        if sat_sig and state.satellite.status != "open" and longs:
+        if sat_sig and state.satellite.status != "open" and longs and i + 1 < len(dates):
             primary = next(
                 (
                     s
@@ -633,7 +633,7 @@ def simulate_positions(
             weights = {x["name"]: x["weight_in_sat"] for x in use}
             ssum = sum(weights.values()) or 1.0
             weights = {k: round(v / ssum, 4) for k, v in weights.items()}
-            entry_date = dates[i + 1] if i + 1 < len(dates) else d
+            entry_date = dates[i + 1]
             state.satellite = SleevePos(
                 status="open",
                 entry_signal_date=d,
@@ -1173,6 +1173,7 @@ def build_flex_panel_v2(
         "headline": headline,
         "as_of": feat.get("trade_date"),
         "execution_cn": "信号日 T 收盘确认 → 下一交易日开盘执行",
+        "transaction_cost_bps_one_way": 1,
         "hold_days": CORE_HOLD_DAYS,
         "hold_days_sat_cn": f"卫星 {SAT_MIN_HOLD}–{SAT_MAX_HOLD} 日（最短{SAT_MIN_HOLD}，事件可提前，最长{SAT_MAX_HOLD}）",
         "satellite_risk_rule": {

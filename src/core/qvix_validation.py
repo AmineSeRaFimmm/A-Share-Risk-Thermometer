@@ -13,11 +13,15 @@ QVIX_METADATA_COLUMNS = [
     "qvix_quote_time",
     "qvix_delay_minutes",
     "age_seconds",
+    "is_final",
     "is_proxy",
     "is_delayed",
     "sample_size",
     "observed",
     "quality_flags",
+    "secondary_source",
+    "source_agreement",
+    "source_value_delta",
 ]
 
 
@@ -109,9 +113,17 @@ def validate_qvix(avix_clean: pd.DataFrame, qvix: pd.DataFrame) -> pd.DataFrame:
         return 30.0
     df["qvix_confirmation"] = df.apply(score, axis=1)
     source = df["qvix_source"].astype(str)
+    proxy = df["is_proxy"].fillna(False).astype(bool) | source.str.contains("300ETF|PROXY", case=False, na=False)
+    delayed = df["is_delayed"].fillna(False).astype(bool) | source.str.contains("DELAYED", case=False, na=False)
+    df["is_proxy"] = proxy
+    df["is_delayed"] = delayed
+    flags = df["quality_flags"].fillna("").astype(str)
+    df.loc[proxy & ~flags.str.contains("PROXY"), "quality_flags"] = flags[proxy & ~flags.str.contains("PROXY")].map(
+        lambda value: "|".join(part for part in [value if value != "OK" else "", "PROXY"] if part)
+    )
     df["quality"] = "OK"
     df.loc[df["qvix_close"].isna(), "quality"] = "WARN_QVIX_MISSING"
-    df.loc[df["qvix_close"].notna() & source.str.contains("PROXY", na=False), "quality"] = "WARN_QVIX_REALTIME_PROXY"
-    df.loc[df["qvix_close"].notna() & source.str.contains("DELAYED", na=False), "quality"] = "WARN_QVIX_DELAYED"
+    df.loc[df["qvix_close"].notna() & proxy, "quality"] = "WARN_QVIX_REALTIME_PROXY"
+    df.loc[df["qvix_close"].notna() & delayed & ~proxy, "quality"] = "WARN_QVIX_DELAYED"
     df = _add_qvix_replica(df)
     return df[_result_columns()]

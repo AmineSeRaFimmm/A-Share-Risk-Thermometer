@@ -3,7 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from src.core.realtime_index_factors import augment_index_history_with_realtime
-from src.data_sources.eastmoney_indices import _parse_index_payload
+from src.data_sources.eastmoney_indices import _parse_index_payload, _reconcile_index_snapshots
 from src.data_sources.eastmoney_indices import SOURCE_TENCENT_INDEX_RT, fetch_realtime_index_snapshot
 
 
@@ -58,3 +58,22 @@ def test_realtime_index_uses_tencent_when_eastmoney_fails(monkeypatch):
     assert len(out) == 2
     assert set(out["source"]) == {SOURCE_TENCENT_INDEX_RT}
     assert float(out.loc[out["symbol"] == "sh000300", "close"].iloc[0]) == 4718.16
+
+
+def test_realtime_index_records_cross_source_agreement():
+    primary = pd.DataFrame([{
+        "symbol": "sh000300",
+        "close": 4549.72,
+        "source": "EASTMONEY_INDEX_QUOTE_RT",
+        "quality_flags": "TIME_UNVERIFIED",
+        "quality": "WARN_INDEX_TIME_UNVERIFIED",
+    }])
+    secondary = pd.DataFrame([{
+        "symbol": "sh000300",
+        "close": 4549.72,
+        "source": "TENCENT_INDEX_QUOTE_RT",
+    }])
+    row = _reconcile_index_snapshots(primary, secondary).iloc[0]
+    assert row["secondary_source"] == "TENCENT_INDEX_QUOTE_RT"
+    assert float(row["source_agreement"]) == 1.0
+    assert "CROSSCHECKED" in row["quality_flags"]

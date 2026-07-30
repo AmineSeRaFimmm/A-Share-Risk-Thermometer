@@ -187,6 +187,14 @@ def summarize_breadth(df: pd.DataFrame, trade_date: str) -> pd.DataFrame:
         source_quote_time=None,
         fetch_time=fetch_time,
         sample_size=valid_count,
+        is_final=(
+            str(trade_date)[:10] < pd.Timestamp.now(tz="Asia/Shanghai").strftime("%Y-%m-%d")
+            or (
+                str(trade_date)[:10] == pd.Timestamp.now(tz="Asia/Shanghai").strftime("%Y-%m-%d")
+                and pd.Timestamp.now(tz="Asia/Shanghai").hour * 60
+                + pd.Timestamp.now(tz="Asia/Shanghai").minute >= 15 * 60 + 15
+            )
+        ),
     )
     out = {
         "trade_date": trade_date,
@@ -280,6 +288,14 @@ def fetch_eastmoney_zdfenbu_summary(trade_date: str) -> pd.DataFrame:
         trade_date=trade_date,
         source_quote_time=None,
         sample_size=total,
+        is_final=(
+            str(trade_date)[:10] < pd.Timestamp.now(tz="Asia/Shanghai").strftime("%Y-%m-%d")
+            or (
+                str(trade_date)[:10] == pd.Timestamp.now(tz="Asia/Shanghai").strftime("%Y-%m-%d")
+                and pd.Timestamp.now(tz="Asia/Shanghai").hour * 60
+                + pd.Timestamp.now(tz="Asia/Shanghai").minute >= 15 * 60 + 15
+            )
+        ),
     )
     return pd.DataFrame([{
                 "trade_date": trade_date,

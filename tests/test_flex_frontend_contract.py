@@ -49,6 +49,23 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("const afterCloseMins = 15 * 60 + 16;", self.web)
         self.assertIn("phase: 'final'", self.web)
 
+    def test_execution_and_rebalance_contracts_are_explicit(self) -> None:
+        self.assertIn("const FLEX_ONE_WAY_COST_RATE = 0.0001;", self.web)
+        self.assertIn("function deskLocalRebalanceActions", self.web)
+        self.assertIn("targetValue - currentValue", self.web)
+        self.assertIn("待T+1开盘", self.web)
+        self.assertIn("strictExecutionReady", self.web)
+
+    def test_satellite_risk_exit_is_basket_level_and_persistent(self) -> None:
+        self.assertIn("function flexSatelliteBasketRiskStatus", self.web)
+        self.assertIn("risk_exits:", self.web)
+        self.assertIn("riskExits[satSignalId]", self.web)
+        self.assertIn("下一交易日开盘整篮平仓", self.web)
+
+    def test_named_sector_positions_do_not_fall_through_to_shared_etf_code(self) -> None:
+        self.assertIn("Named strategy intents must not fall through to code-only matching", self.web)
+        self.assertIn("if (name) return null;", self.web)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -33,9 +33,9 @@ from src.utils.retry import retry_call
 
 OPTBBS_K_CSV = "http://1.optbbs.com/d/csv/d/k.csv"
 SOURCE_INDEX = "OPTBBS_PARSE_300INDEX_QVIX"
-SOURCE_ETF = "OPTBBS_PARSE_300ETF_QVIX"
+SOURCE_ETF = "OPTBBS_PARSE_300ETF_QVIX_PROXY"
 SOURCE_AK_INDEX = "AKSHARE_OPTBBS_QVIX"
-SOURCE_AK_ETF = "AKSHARE_OPTBBS_300ETF_QVIX"
+SOURCE_AK_ETF = "AKSHARE_OPTBBS_300ETF_QVIX_PROXY"
 SOURCE_RT_INDEX_CSV = "OPTBBS_CSV_300INDEX_MIN_QVIX"
 SOURCE_RT_INDEX_PAGE = "OPTBBS_PAGE_300INDEX_MIN_QVIX"
 SOURCE_RT_INDEX_AK = "AKSHARE_300INDEX_MIN_QVIX"
@@ -88,10 +88,63 @@ def _normalize_ohlc(df: pd.DataFrame, source: str) -> pd.DataFrame:
         out.loc[out[col] <= 0, col] = pd.NA
     out["source"] = source
     out["fetch_time"] = datetime.now().isoformat(timespec="seconds")
+    out["source_quote_time"] = out["date"].map(lambda value: f"{value}T15:00:00+08:00")
+    out["age_seconds"] = pd.NA
+    now_cn = pd.Timestamp.now(tz="Asia/Shanghai")
+    today = now_cn.strftime("%Y-%m-%d")
+    after_close = (now_cn.hour * 60 + now_cn.minute) >= 15 * 60 + 15
+    out["is_final"] = out["date"].map(lambda value: str(value) < today or (str(value) == today and after_close))
+    out["is_proxy"] = "PROXY" in source
+    out["is_delayed"] = False
+    out["sample_size"] = 1
+    out["observed"] = True
+    out["quality_flags"] = "PROXY" if "PROXY" in source else "OK"
     out = out.dropna(subset=["date"])
     # keep rows with usable close only
     out = out[out["close"].notna() & (out["close"] > 0)].copy()
     return out.sort_values("date").drop_duplicates("date", keep="last").reset_index(drop=True)
+
+
+def _ensure_qvix_metadata(df: pd.DataFrame) -> pd.DataFrame:
+    if df is None or df.empty:
+        return pd.DataFrame() if df is None else df.copy()
+    out = df.copy()
+    source = out.get("source", pd.Series("", index=out.index)).fillna("").astype(str)
+    dates = pd.to_datetime(out.get("date"), errors="coerce").dt.strftime("%Y-%m-%d")
+    proxy = source.str.contains("300ETF|PROXY", case=False, regex=True)
+    delayed = source.str.contains("DELAYED", case=False, regex=False)
+    now_cn = pd.Timestamp.now(tz="Asia/Shanghai")
+    today = now_cn.strftime("%Y-%m-%d")
+    after_close = (now_cn.hour * 60 + now_cn.minute) >= 15 * 60 + 15
+    final = dates.map(lambda value: bool(pd.notna(value) and (value < today or (value == today and after_close))))
+    defaults = {
+        "source_quote_time": dates.map(lambda value: f"{value}T15:00:00+08:00" if pd.notna(value) else None),
+        "age_seconds": pd.NA,
+        "is_final": final,
+        "is_proxy": proxy,
+        "is_delayed": delayed,
+        "sample_size": 1,
+        "observed": pd.to_numeric(out.get("close"), errors="coerce").gt(0),
+    }
+    for column, values in defaults.items():
+        if column not in out.columns:
+            out[column] = values
+        else:
+            out[column] = out[column].combine_first(
+                values if isinstance(values, pd.Series) else pd.Series(values, index=out.index)
+            )
+    out["is_final"] = final
+    flags = out.get("quality_flags", pd.Series("", index=out.index)).fillna("").astype(str)
+    normalized_flags = []
+    for current, is_proxy, is_delayed in zip(flags, proxy, delayed):
+        parts = [part for part in current.split("|") if part and part != "OK"]
+        if is_proxy:
+            parts.append("PROXY")
+        if is_delayed:
+            parts.append("DELAYED")
+        normalized_flags.append("|".join(sorted(set(parts))) or "OK")
+    out["quality_flags"] = normalized_flags
+    return out
 
 
 def fetch_optbbs_k_csv(*, timeout: int = 30) -> pd.DataFrame:
@@ -131,6 +184,20 @@ def _normalize_min_qvix(df: pd.DataFrame, trade_date: str, source: str) -> pd.Da
     if out.empty:
         return pd.DataFrame()
     last_time = str(out.iloc[-1]["time"])
+    now_cn = pd.Timestamp.now(tz="Asia/Shanghai")
+    quote = pd.to_datetime(f"{trade_date}T{last_time}", errors="coerce")
+    if pd.notna(quote):
+        quote = quote.tz_localize("Asia/Shanghai") if quote.tzinfo is None else quote.tz_convert("Asia/Shanghai")
+    is_final = bool(
+        pd.notna(quote)
+        and quote.strftime("%Y-%m-%d") == trade_date
+        and (quote.hour * 60 + quote.minute) >= 14 * 60 + 55
+        and now_cn.strftime("%Y-%m-%d") >= trade_date
+        and (
+            now_cn.strftime("%Y-%m-%d") > trade_date
+            or (now_cn.hour * 60 + now_cn.minute) >= 15 * 60 + 15
+        )
+    )
     meta = quality_metadata(
         source=source,
         trade_date=trade_date,
@@ -138,6 +205,7 @@ def _normalize_min_qvix(df: pd.DataFrame, trade_date: str, source: str) -> pd.Da
         fetch_time=datetime.now().astimezone().isoformat(timespec="seconds"),
         sample_size=len(out),
         is_proxy="PROXY" in source,
+        is_final=is_final,
         max_age_seconds=15 * 60,
     )
     return pd.DataFrame([{
@@ -414,10 +482,10 @@ def fetch_qvix() -> pd.DataFrame:
                 f"optbbs_max={parsed['date'].max()} akshare_max={ak['date'].max()} "
                 f"merged_rows={len(merged)}"
             )
-        return merged
+        return _ensure_qvix_metadata(merged)
 
     print(f"WARN QVIX optbbs parse empty/failed: {meta.get('error', meta)}")
-    return _fetch_akshare_qvix_merge()
+    return _ensure_qvix_metadata(_fetch_akshare_qvix_merge())
 
 
 def merge_qvix_cache(fresh: pd.DataFrame, cached: pd.DataFrame) -> pd.DataFrame:
@@ -427,9 +495,9 @@ def merge_qvix_cache(fresh: pd.DataFrame, cached: pd.DataFrame) -> pd.DataFrame:
     good closes instead of overwriting them with NaN.
     """
     if fresh is None or fresh.empty:
-        return cached.copy() if cached is not None and not cached.empty else pd.DataFrame()
+        return _ensure_qvix_metadata(cached)
     if cached is None or cached.empty:
-        return fresh.copy()
+        return _ensure_qvix_metadata(fresh)
     cols = ["date", "open", "high", "low", "close", "source", "fetch_time"]
     for frame in (fresh, cached):
         for col in cols:
@@ -452,4 +520,4 @@ def merge_qvix_cache(fresh: pd.DataFrame, cached: pd.DataFrame) -> pd.DataFrame:
     prefer_new = new_close.notna() & (new_close > 0)
     out["source"] = merged["source_new"].where(prefer_new, merged["source_old"])
     out["fetch_time"] = merged["fetch_time_new"].where(prefer_new, merged["fetch_time_old"])
-    return out.dropna(subset=["date"]).sort_values("date").reset_index(drop=True)
+    return _ensure_qvix_metadata(out.dropna(subset=["date"]).sort_values("date").reset_index(drop=True))

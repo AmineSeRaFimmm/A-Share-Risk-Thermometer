@@ -12,7 +12,9 @@ from src.core.flex_engine import (
     _sat_close_meta,
     _sat_should_close,
     build_sleeve_exit_plan,
+    simulate_positions,
 )
+import pandas as pd
 
 
 def test_sat_max_hold_always_closes():
@@ -82,3 +84,21 @@ def test_exit_plan_has_max_path():
     assert sat["paths"]["max_exec_next_open"] == "2026-07-27"
     assert sat["days_to_max"] == SAT_MAX_HOLD - 1
     assert sat["triggered_close"] is None
+
+
+def test_latest_close_signal_stays_pending_until_next_session_exists():
+    risk = pd.DataFrame([
+        {"trade_date": "2026-07-29", "risk_temperature": 50.0, "sh000300_dd60": -0.06},
+        {"trade_date": "2026-07-30", "risk_temperature": 70.0, "sh000300_dd60": -0.06},
+    ])
+    pending = simulate_positions(risk, None, active_stages_fn=lambda _feat: [])
+    assert pending.core.status == "flat"
+
+    next_session = pd.concat([
+        risk,
+        pd.DataFrame([{"trade_date": "2026-07-31", "risk_temperature": 82.0, "sh000300_dd60": -0.04}]),
+    ], ignore_index=True)
+    opened = simulate_positions(next_session, None, active_stages_fn=lambda _feat: [])
+    assert opened.core.status == "open"
+    assert opened.core.entry_signal_date == "2026-07-30"
+    assert opened.core.entry_date == "2026-07-31"

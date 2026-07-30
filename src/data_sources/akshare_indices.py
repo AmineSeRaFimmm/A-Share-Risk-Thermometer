@@ -139,7 +139,9 @@ def fetch_index_daily_tx_parse(symbol: str) -> pd.DataFrame:
                 "close": b[2],
                 "high": b[3],
                 "low": b[4],
-                "volume": b[5] if len(b) > 5 else pd.NA,
+                # Tencent index K-line volume is reported in lots; normalized
+                # project history and Sina use shares.
+                "volume": float(b[5]) * 100.0 if len(b) > 5 and pd.notna(pd.to_numeric(b[5], errors="coerce")) else pd.NA,
             }
         )
     return _to_frame(rows, sym, SOURCE_TX_PARSE)

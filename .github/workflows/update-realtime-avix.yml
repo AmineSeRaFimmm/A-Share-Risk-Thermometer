@@ -13,11 +13,14 @@ on:
     - cron: "15,25,35,45,55 1 * * 1-5"
     - cron: "5,15,25,35,45,55 2 * * 1-5"
     - cron: "5,15,25,35 3 * * 1-5"
-    # Afternoon 04:50–07:16 UTC. The 07:16 tick captures the final close snapshot.
+    # Afternoon 04:50–07:05 UTC.
     - cron: "50,55 4 * * 1-5"
     - cron: "5,15,25,35,45,55 5 * * 1-5"
     - cron: "5,15,25,35,45,55 6 * * 1-5"
-    - cron: "5,16 7 * * 1-5"
+    - cron: "5 7 * * 1-5"
+    # Dedicated close snapshots. Scheduled jobs can be delayed substantially on
+    # free GitHub runners, so the gate identifies these ticks by their schedule.
+    - cron: "16,26,46 7 * * 1-5"
   workflow_dispatch:
     inputs:
       mode:
@@ -69,6 +72,7 @@ jobs:
           if (( utc_total >= 290 && utc_total <= 440 )); then in_afternoon=1; fi
 
           event_name="${{ github.event_name }}"
+          scheduled_cron="${{ github.event.schedule }}"
           mode="${{ github.event.inputs.mode || 'single' }}"
 
           if [[ "${event_name}" == "workflow_dispatch" ]]; then
@@ -80,6 +84,17 @@ jobs:
             else
               echo "session_end_utc=07:20" >> "$GITHUB_OUTPUT"
             fi
+            exit 0
+          fi
+
+          # Close ticks remain valid until 18:30 CST. The input sources retain
+          # the same-day final quote, so a delayed free runner must catch up
+          # instead of being discarded by the intraday wall-clock gate.
+          if [[ "${scheduled_cron}" == "16,26,46 7 * * 1-5" ]] && (( utc_total <= 630 )); then
+            echo "Scheduled close snapshot (catch-up allowed)."
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+            echo "mode=single" >> "$GITHUB_OUTPUT"
+            echo "session_end_utc=10:30" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
