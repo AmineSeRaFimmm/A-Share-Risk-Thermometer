@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-07-30",
+  "as_of": "2026-07-31",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-07-24",
     "entry_date": "2026-07-27",
     "exit_due_date": "2026-08-03",
-    "days_held": 3,
-    "days_remaining": 2,
+    "days_held": 4,
+    "days_remaining": 1,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -22,8 +22,8 @@
     "entry_signal_date": "2026-07-29",
     "entry_date": "2026-07-30",
     "exit_due_date": "2026-08-11",
-    "days_held": 0,
-    "days_remaining": 8,
+    "days_held": 1,
+    "days_remaining": 7,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "通信",
