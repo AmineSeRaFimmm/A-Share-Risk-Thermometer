@@ -6,7 +6,7 @@
     "options_realtime": "OK",
     "qvix": "WARN",
     "indices": "OK",
-    "breadth": "WARN",
+    "breadth": "OK",
     "shibor": "OK"
   },
   "realtime_avix": {
@@ -19,25 +19,24 @@
   },
   "nowcast": {
     "active": true,
-    "quality": "OK_NOWCAST|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_DELAYED|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
-    "risk_temperature": 92.4,
+    "quality": "OK_NOWCAST|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_MISSING|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
+    "risk_temperature": 76.1,
     "baseline_trade_date": "2026-07-30",
     "method": "Estimated close from realtime volatility and index factors; official close history remains separate"
   },
   "model_confidence": {
-    "score": 67.5,
-    "coverage_score": 90.0,
-    "data_quality_score": 75.0,
+    "score": 74.8,
+    "coverage_score": 88.0,
+    "data_quality_score": 85.0,
     "grade": "LOW",
-    "missing_components": "QVIX_DELAYED|BREADTH"
+    "missing_components": "QVIX"
   },
   "warnings": [
     "OK_NOWCAST",
     "OK_REALTIME_AVIX_ESTIMATE",
-    "WARN_BREADTH_MISSING",
     "WARN_INDEX_TIME_UNVERIFIED",
     "WARN_OFFICIAL_AVIX_MISSING",
-    "WARN_QVIX_DELAYED"
+    "WARN_QVIX_MISSING"
   ],
-  "last_successful_update": "2026-07-31T08:47:43+08:00"
+  "last_successful_update": "2026-07-31T09:19:24+08:00"
 }
