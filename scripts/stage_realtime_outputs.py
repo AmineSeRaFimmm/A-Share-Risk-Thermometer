@@ -10,14 +10,17 @@ ALLOWED_PATHS = [
     "data/normalized/realtime_option_chain.csv",
     "data/calculated/avix_realtime_mid.csv",
     "data/calculated/risk_temperature_nowcast.csv",
+    "data/calculated/intraday_temperature_history.csv",
     "data/site/latest.json",
     "data/site/components.json",
     "data/site/audit.json",
     "data/site/nowcast_history.json",
+    "data/site/intraday_temperature.json",
     "docs/data/latest.json",
     "docs/data/components.json",
     "docs/data/audit.json",
     "docs/data/nowcast_history.json",
+    "docs/data/intraday_temperature.json",
     "docs/data/downloads/risk_temperature_nowcast.csv",
 ]
 

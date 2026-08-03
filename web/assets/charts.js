@@ -210,6 +210,128 @@ function renderComponentsChart(payload) {
   return chart;
 }
 
+function renderIntradayTemperatureChart(payload) {
+  const el = document.getElementById('intradayTemperatureChart');
+  if (!el) return null;
+  const chart = echarts.init(el);
+  const rows = (payload?.rows || []).filter(row => Number.isFinite(Number(row.risk_temperature)));
+  if (!rows.length) {
+    chart.setOption({
+      aria: { enabled: true, label: { description: '今日尚无温度刷新采样。' } },
+      xAxis: { show: false, type: 'category' },
+      yAxis: { show: false, type: 'value' },
+      series: [],
+      graphic: [{
+        type: 'text',
+        left: 'center',
+        top: 'middle',
+        style: {
+          text: '今日尚无刷新采样',
+          fill: '#8b8175',
+          font: '600 13px Source Sans 3, Noto Sans SC, sans-serif',
+        },
+      }],
+    });
+    setChartA11y(chart, '今日温度轨迹', '今日尚无后端温度计算刷新采样。');
+    return chart;
+  }
+
+  const values = rows.map(row => Number(row.risk_temperature));
+  const low = Math.min(...values);
+  const high = Math.max(...values);
+  const center = (low + high) / 2;
+  const span = Math.max(high - low, 6);
+  const axisMin = Math.max(0, Math.floor((center - span * 0.7) * 2) / 2);
+  const axisMax = Math.min(100, Math.ceil((center + span * 0.7) * 2) / 2);
+  const finalIndex = rows.findIndex(row => row.is_final);
+  const temperatureColor = value => {
+    if (value >= 90) return '#5c1414';
+    if (value >= 75) return '#8f2a2a';
+    if (value >= 60) return '#b5652a';
+    if (value >= 40) return '#b1842d';
+    return '#1e5c42';
+  };
+  const markLines = [60, 75, 90]
+    .filter(value => value > axisMin && value < axisMax)
+    .map(value => ({ yAxis: value, label: { formatter: String(value) } }));
+
+  chart.setOption({
+    aria: {
+      enabled: true,
+      label: { description: `${payload.trade_date || '今日'}共有${rows.length}个温度刷新采样点。` },
+    },
+    animationDuration: 280,
+    tooltip: {
+      confine: true,
+      trigger: 'axis',
+      formatter: params => {
+        const item = Array.isArray(params) ? params[0] : params;
+        const row = rows[item?.dataIndex] || {};
+        return [
+          `<strong>${payload.trade_date || ''} ${row.time || '--'}</strong>`,
+          `${item?.marker || ''}风险温度: <strong>${fmt(row.risk_temperature, 1)}</strong>`,
+          `口径: ${row.temperature_mode_cn || row.temperature_mode || '--'}`,
+          Number.isFinite(Number(row.model_confidence)) ? `置信度: ${fmt(row.model_confidence, 1)}` : null,
+          row.is_final ? '状态: 正式收盘终点' : '状态: 刷新采样',
+        ].filter(Boolean).join('<br>');
+      },
+    },
+    grid: { left: isNarrow() ? 44 : 54, right: isNarrow() ? 14 : 28, top: 18, bottom: 42 },
+    xAxis: {
+      type: 'category',
+      boundaryGap: false,
+      data: rows.map(row => row.time),
+      axisLabel: { ...axisText(), hideOverlap: true },
+      axisLine: { lineStyle: { color: '#cfc5b7' } },
+      axisTick: { show: false },
+    },
+    yAxis: {
+      type: 'value',
+      min: axisMin,
+      max: axisMax,
+      axisLabel: { ...axisText(), formatter: value => Number(value).toFixed(0) },
+      splitNumber: 4,
+      splitLine: { lineStyle: { color: '#ebe4d7' } },
+    },
+    dataZoom: rows.length > 36 ? [{ type: 'inside', start: Math.max(0, 100 - (36 / rows.length) * 100), end: 100 }] : [],
+    series: [{
+      name: '风险温度',
+      type: 'line',
+      smooth: false,
+      showSymbol: rows.length <= 24,
+      symbolSize: 6,
+      lineStyle: { width: 2.4, color: temperatureColor(values[values.length - 1]) },
+      areaStyle: { color: temperatureColor(values[values.length - 1]), opacity: 0.07 },
+      itemStyle: { color: params => temperatureColor(Number(params.value)) },
+      data: rows.map(row => ({
+        value: Number(row.risk_temperature),
+        symbol: row.is_final ? 'diamond' : 'circle',
+        symbolSize: row.is_final ? 11 : 6,
+      })),
+      markLine: {
+        silent: true,
+        symbol: 'none',
+        lineStyle: { color: '#a79d91', type: 'dashed', width: 1 },
+        label: { color: '#8b8175', fontSize: 10 },
+        data: markLines,
+      },
+      markPoint: finalIndex >= 0 ? {
+        symbol: 'diamond',
+        symbolSize: 13,
+        itemStyle: { color: '#1a1714' },
+        label: { show: true, formatter: '收盘', position: 'top', color: '#1a1714', fontSize: 10 },
+        data: [{ coord: [rows[finalIndex].time, values[finalIndex]] }],
+      } : undefined,
+    }],
+  });
+  setChartA11y(
+    chart,
+    '今日温度轨迹',
+    `${payload.trade_date || '今日'}从${rows[0].time}到${rows[rows.length - 1].time}共${rows.length}个采样点，最新温度${fmt(values[values.length - 1], 1)}。`,
+  );
+  return chart;
+}
+
 function renderHistoryChart(history, strategy) {
   const chart = echarts.init(document.getElementById('historyChart'));
   const estimatedData = history.map(d => numericOrNull(d.risk_temperature_estimated));

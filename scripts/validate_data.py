@@ -45,6 +45,32 @@ def main() -> None:
             row.get("temperature_mode") in {"NOWCAST", "CLOSE_PENDING", "ESTIMATED_CLOSE"},
             "nowcast row mode mismatch",
         )
+    intraday_path = SITE / "intraday_temperature.json"
+    require(intraday_path.exists(), "intraday_temperature.json missing")
+    intraday = json.loads(intraday_path.read_text(encoding="utf-8"))
+    require("rows" in intraday and "sample_count" in intraday, "intraday_temperature missing rows/sample_count")
+    intraday_rows = intraday.get("rows", [])
+    require(int(intraday.get("sample_count", -1)) == len(intraday_rows), "intraday sample_count mismatch")
+    require(
+        len({str(row.get("sampled_at")) for row in intraday_rows}) == len(intraday_rows),
+        "duplicate intraday sampled_at",
+    )
+    require(
+        [str(row.get("sampled_at")) for row in intraday_rows]
+        == sorted(str(row.get("sampled_at")) for row in intraday_rows),
+        "intraday rows not chronological",
+    )
+    require(sum(bool(row.get("is_final")) for row in intraday_rows) <= 1, "multiple intraday official endpoints")
+    for row in intraday_rows:
+        require(0 <= float(row["risk_temperature"]) <= 100, "intraday risk_temperature outside 0-100")
+        require(row.get("temperature_mode") in {
+            "NOWCAST", "CLOSE_PENDING", "ESTIMATED_CLOSE", "OFFICIAL_CLOSE",
+        }, "intraday temperature mode mismatch")
+    if intraday_rows:
+        require(
+            (CALCULATED / "intraday_temperature_history.csv").exists(),
+            "intraday history CSV missing",
+        )
     sector_path = SITE / "sector_correlation.json"
     require(sector_path.exists(), "sector_correlation.json missing")
     sector = json.loads(sector_path.read_text(encoding="utf-8"))

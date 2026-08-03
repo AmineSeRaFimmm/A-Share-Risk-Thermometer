@@ -13,6 +13,7 @@ from src.core.strategy_s3_s4 import build_s3_s4_strategy
 from src.core.sector_correlation import analyze_sector_correlation
 from src.core.low_position_sector_study import analyze_low_position_sector_study
 from src.core.nowcast_history import build_nowcast_history_from_files, nowcast_rows_csv
+from src.core.intraday_temperature import record_intraday_temperature
 from src.core.rt_tactical import build_rt_tactical_payload
 from src.core.stage_trade_playbook import build_playbook_payload, extend_risk_for_playbook
 import pandas as pd
@@ -93,7 +94,13 @@ def main() -> None:
     write_json(nowcast_history, SITE / "nowcast_history.json")
     nowcast_csv = nowcast_rows_csv(nowcast_history)
     nowcast_csv.to_csv(CALCULATED / "risk_temperature_nowcast.csv", index=False)
-    write_json(latest_payload(risk, raw, realtime, nowcast_history), SITE / "latest.json")
+    latest = latest_payload(risk, raw, realtime, nowcast_history)
+    write_json(latest, SITE / "latest.json")
+    intraday, _changed = record_intraday_temperature(
+        latest,
+        CALCULATED / "intraday_temperature_history.csv",
+    )
+    write_json(intraday, SITE / "intraday_temperature.json")
     write_json(components_payload(risk, realtime, nowcast_history), SITE / "components.json")
     write_json(audit_payload(risk, realtime, nowcast_history), SITE / "audit.json")
     write_json(strategy_payload(strategy), SITE / "strategy.json")
@@ -103,7 +110,7 @@ def main() -> None:
     nowcast_rt = None
     nowcast_td = None
     try:
-        latest_probe = latest_payload(risk, raw, realtime, nowcast_history)
+        latest_probe = latest
         nc = latest_probe.get("nowcast") or {}
         if latest_probe.get("temperature_mode") in {"NOWCAST", "ESTIMATED_CLOSE"}:
             nowcast_rt = latest_probe.get("risk_temperature")

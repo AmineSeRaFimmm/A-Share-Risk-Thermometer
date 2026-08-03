@@ -99,6 +99,17 @@
           </article>
         </div>
 
+        <section class="chart-row intraday-temperature-section" aria-label="当日温度轨迹">
+          <article class="chart-panel wide intraday-temperature-panel">
+            <div class="section-head">
+              <h2>今日温度轨迹</h2>
+              <span id="intradayTemperatureMeta">等待采样</span>
+            </div>
+            <p class="chart-note">刷新采样 · 非逐笔实时</p>
+            <div id="intradayTemperatureChart" class="chart intraday"></div>
+          </article>
+        </section>
+
       </section>
 
       <!-- ② 历史（温度曲线 + AVIX/QVIX + 沪深300，各自独立时间段） -->
@@ -388,7 +399,7 @@
     </nav>
 
     <script src="./vendor/echarts.min.js"></script>
-    <script src="./assets/charts.js?v=20260719-hist-clean"></script>
-    <script src="./assets/app.js?v=20260723-eastmoney-qvix"></script>
+    <script src="./assets/charts.js?v=20260803-intraday-temperature"></script>
+    <script src="./assets/app.js?v=20260803-intraday-temperature"></script>
   </body>
 </html>

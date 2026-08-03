@@ -68,6 +68,7 @@ const dashboardState = {
   /** @deprecated use chartRanges.history — kept for any leftover reads */
   activeRange: '1Y',
   componentChart: null,
+  intradayTemperatureChart: null,
 
   timeCharts: [],
   chartInstances: { history: null, avix: null, hs300: null },
@@ -854,14 +855,15 @@ async function loadCriticalDashboardData() {
   if (!dashboardState.cacheBust) {
     await resolveCacheBust();
   }
-  const [latest, history, nowcastHistory, components, audit] = await Promise.all([
+  const [latest, history, nowcastHistory, intradayTemperature, components, audit] = await Promise.all([
     loadJSON('./data/latest.json'),
     loadJSON('./data/history.json'),
     loadJSON('./data/nowcast_history.json').catch(() => ({ status: 'missing', rows: [], gaps: [] })),
+    loadJSON('./data/intraday_temperature.json').catch(() => ({ status: 'no_samples', rows: [] })),
     loadJSON('./data/components.json'),
     loadJSON('./data/audit.json'),
   ]);
-  return { latest, history, nowcastHistory, components, audit };
+  return { latest, history, nowcastHistory, intradayTemperature, components, audit };
 }
 
 async function loadHeavyDashboardData() {
@@ -878,13 +880,37 @@ async function loadHeavyDashboardData() {
   return { strategy, rtTactical, stagePlaybook, etfMarks: dashboardState.etfMarks };
 }
 
-function renderCriticalDashboard({ latest, history, nowcastHistory, components, audit }) {
+function renderIntradayTemperaturePanel(payload) {
+  const meta = document.getElementById('intradayTemperatureMeta');
+  const rows = payload?.rows || [];
+  if (meta) {
+    if (!rows.length) {
+      meta.textContent = '暂无采样';
+    } else {
+      const last = rows[rows.length - 1];
+      meta.textContent = [
+        payload.trade_date,
+        `${rows.length}点`,
+        last.time,
+        payload.has_final ? '已收盘' : '盘中',
+      ].filter(Boolean).join(' · ');
+    }
+  }
+  const dom = document.getElementById('intradayTemperatureChart');
+  if (!dom) return;
+  const previous = echarts.getInstanceByDom(dom);
+  if (previous) previous.dispose();
+  dashboardState.intradayTemperatureChart = renderIntradayTemperatureChart(payload || { rows: [] });
+}
+
+function renderCriticalDashboard({ latest, history, nowcastHistory, intradayTemperature, components, audit }) {
   document.body.classList.remove('error');
   hideLoadError();
   dashboardState.latest = latest || null;
   renderLatest(latest);
   renderAudit(audit);
   renderNowcastGapSummary(nowcastHistory);
+  renderIntradayTemperaturePanel(intradayTemperature);
   setText('componentsMode', `${components.temperature_mode || '--'} / ${components.trade_date || '--'}`);
   const componentDom = document.getElementById('componentsChart');
   if (componentDom) {
@@ -4191,6 +4217,7 @@ const APP_VIEW_KEY = 'ashare_app_view_v1';
 function resizeVisibleCharts() {
   try {
     dashboardState.componentChart?.resize();
+    dashboardState.intradayTemperatureChart?.resize();
     (dashboardState.timeCharts || []).forEach(chart => chart?.resize?.());
     Object.values(dashboardState.chartInstances || {}).forEach(chart => chart?.resize?.());
   } catch (_) { /* ignore */ }

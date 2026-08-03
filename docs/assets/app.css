@@ -651,6 +651,16 @@ dd[data-freshness="stale"] { color: var(--red); }
 .chart.compact { height: 280px; }
 .chart.large { height: 400px; }
 #hs300Chart { height: 380px; }
+#intradayTemperatureChart { height: 320px; }
+
+.intraday-temperature-section {
+  margin-top: 28px;
+}
+
+.intraday-temperature-panel .section-head span {
+  text-align: right;
+  overflow-wrap: anywhere;
+}
 
 .chart-row {
   margin-top: 28px;
@@ -2327,6 +2337,7 @@ body.in-app-webview.app-tabs-mode .topbar-minimal {
   .chart.large,
   #avixQvixChart,
   #hs300Chart { height: 340px; }
+  #intradayTemperatureChart { height: 290px; }
 
   .content-page {
     width: calc(100% - 24px);

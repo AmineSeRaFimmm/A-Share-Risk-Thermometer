@@ -8,6 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.core.nowcast_history import build_nowcast_history_from_files, nowcast_rows_csv
+from src.core.intraday_temperature import record_intraday_temperature
 from src.core.site_data import audit_payload, components_payload, latest_payload
 from src.storage.csv_store import read_csv, write_csv
 from src.storage.json_store import write_json
@@ -25,13 +26,25 @@ def main() -> None:
     nowcast_history = build_nowcast_history_from_files()
     write_json(nowcast_history, SITE / "nowcast_history.json")
     write_csv(nowcast_rows_csv(nowcast_history), CALCULATED / "risk_temperature_nowcast.csv")
-    write_json(latest_payload(risk, raw, realtime, nowcast_history), SITE / "latest.json")
+    latest = latest_payload(risk, raw, realtime, nowcast_history)
+    write_json(latest, SITE / "latest.json")
+    intraday, _changed = record_intraday_temperature(
+        latest,
+        CALCULATED / "intraday_temperature_history.csv",
+    )
+    write_json(intraday, SITE / "intraday_temperature.json")
     write_json(components_payload(risk, realtime, nowcast_history), SITE / "components.json")
     write_json(audit_payload(risk, realtime, nowcast_history), SITE / "audit.json")
 
     data_dir = DOCS / "data"
     if data_dir.exists():
-        for name in ["latest.json", "components.json", "audit.json", "nowcast_history.json"]:
+        for name in [
+            "latest.json",
+            "components.json",
+            "audit.json",
+            "nowcast_history.json",
+            "intraday_temperature.json",
+        ]:
             shutil.copy2(SITE / name, data_dir / name)
         downloads = data_dir / "downloads"
         downloads.mkdir(exist_ok=True)
