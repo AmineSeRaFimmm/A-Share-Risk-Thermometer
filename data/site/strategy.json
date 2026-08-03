@@ -1,19 +1,19 @@
 {
   "status": "ready",
   "latest": {
-    "trade_date": "2026-07-31",
+    "trade_date": "2026-08-03",
     "execution_trade_date": null,
     "execution_sse_open": null,
-    "avix": 22.9491,
-    "sse_open": 3833.536,
-    "sse_close": 3832.262,
-    "sse_ret1": 0.0072,
-    "sse_ret10": 0.0181,
-    "sse_ma5": 3827.3968,
-    "sse_ma10": 3835.5641,
+    "avix": 23.5126,
+    "sse_open": 3812.613,
+    "sse_close": 3809.663,
+    "sse_ret1": -0.0059,
+    "sse_ret10": 0.0035,
+    "sse_ma5": 3817.6804,
+    "sse_ma10": 3836.9023,
     "s3_signal": false,
-    "s4_signal": true,
-    "s3_s4_signal": true,
+    "s4_signal": false,
+    "s3_s4_signal": false,
     "s3_buy": false,
     "s3_sell": false,
     "s4_buy": false,
@@ -26,31 +26,6 @@
     "signal_quality": "OK"
   },
   "recent_buy": [
-    {
-      "trade_date": "2020-02-04",
-      "execution_trade_date": "2020-02-05",
-      "execution_sse_open": 2792.371,
-      "avix": 27.2677,
-      "sse_open": 2685.269,
-      "sse_close": 2783.288,
-      "sse_ret1": 0.0134,
-      "sse_ret10": -0.1067,
-      "sse_ma5": 2923.8638,
-      "sse_ma10": 3006.1541,
-      "s3_signal": true,
-      "s4_signal": false,
-      "s3_s4_signal": true,
-      "s3_buy": true,
-      "s3_sell": false,
-      "s4_buy": false,
-      "s4_sell": false,
-      "s3_s4_buy": true,
-      "s3_s4_sell": false,
-      "s3_sell_reason": "",
-      "s4_sell_reason": "",
-      "s3_s4_sell_reason": "",
-      "signal_quality": "OK"
-    },
     {
       "trade_date": "2020-02-06",
       "execution_trade_date": "2020-02-07",
@@ -525,6 +500,31 @@
       "s4_sell_reason": "",
       "s3_s4_sell_reason": "",
       "signal_quality": "WARN_NOT_BRACKET_30D"
+    },
+    {
+      "trade_date": "2026-07-31",
+      "execution_trade_date": "2026-08-03",
+      "execution_sse_open": 3812.613,
+      "avix": 22.9491,
+      "sse_open": 3833.536,
+      "sse_close": 3832.262,
+      "sse_ret1": 0.0072,
+      "sse_ret10": 0.0181,
+      "sse_ma5": 3827.3968,
+      "sse_ma10": 3835.5641,
+      "s3_signal": false,
+      "s4_signal": true,
+      "s3_s4_signal": true,
+      "s3_buy": false,
+      "s3_sell": false,
+      "s4_buy": true,
+      "s4_sell": false,
+      "s3_s4_buy": true,
+      "s3_s4_sell": false,
+      "s3_sell_reason": "",
+      "s4_sell_reason": "",
+      "s3_s4_sell_reason": "",
+      "signal_quality": "OK"
     }
   ],
   "recent_sell": [
@@ -881,8 +881,8 @@
   ],
   "position": {
     "s3": "flat",
-    "s4": "flat",
-    "s3_s4": "flat",
+    "s4": "holding",
+    "s3_s4": "holding",
     "last_action": {
       "s3": {
         "action": "sell",
@@ -890,14 +890,12 @@
         "reason": "AVIX<20"
       },
       "s4": {
-        "action": "sell",
-        "trade_date": "2026-07-23",
-        "reason": "AVIX<20"
+        "action": "buy",
+        "trade_date": "2026-07-31"
       },
       "s3_s4": {
-        "action": "sell",
-        "trade_date": "2026-07-23",
-        "reason": "AVIX<20"
+        "action": "buy",
+        "trade_date": "2026-07-31"
       }
     }
   },

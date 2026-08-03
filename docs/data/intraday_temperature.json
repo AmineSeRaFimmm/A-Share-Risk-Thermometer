@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "trade_date": "2026-08-03",
-  "sample_count": 34,
-  "eligible_count": 25,
+  "sample_count": 35,
+  "eligible_count": 26,
   "excluded_count": 9,
-  "has_final": false,
+  "has_final": true,
   "first_sample_at": "2026-08-03T08:55:56+08:00",
-  "last_sample_at": "2026-08-03T16:02:39+08:00",
+  "last_sample_at": "2026-08-03T16:57:32+08:00",
   "rows": [
     {
       "sampled_at": "2026-08-03T08:55:56+08:00",
@@ -479,6 +479,20 @@
       "is_final": false,
       "quality": "OK_ESTIMATED_CLOSE|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_REALTIME_PROXY|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
       "model_confidence": 80.7,
+      "breadth_observed": true,
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU",
+      "plot_eligible": true
+    },
+    {
+      "sampled_at": "2026-08-03T16:57:32+08:00",
+      "time": "16:57",
+      "risk_temperature": 76.5,
+      "temperature_mode": "OFFICIAL_CLOSE",
+      "temperature_mode_cn": "收盘正式",
+      "is_final": true,
+      "quality": "WARN_QVIX_MISSING",
+      "model_confidence": 86.5,
       "breadth_observed": true,
       "breadth_quality": "OK",
       "breadth_source": "PARSE_EM_ZDFENBU",
