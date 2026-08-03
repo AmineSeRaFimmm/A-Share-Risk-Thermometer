@@ -18,6 +18,10 @@ HISTORY_COLUMNS = [
     "is_final",
     "quality",
     "model_confidence",
+    "breadth_observed",
+    "breadth_quality",
+    "breadth_source",
+    "plot_eligible",
     "source_update_time",
 ]
 
@@ -61,7 +65,28 @@ def _normalized_history(history: pd.DataFrame | None) -> pd.DataFrame:
     frame["risk_temperature"] = pd.to_numeric(frame["risk_temperature"], errors="coerce")
     frame["model_confidence"] = pd.to_numeric(frame["model_confidence"], errors="coerce")
     frame["is_final"] = frame["is_final"].astype(str).str.lower().isin({"true", "1"})
+    quality = frame["quality"].fillna("").astype(str)
+    derived_breadth = ~quality.str.contains("WARN_BREADTH_MISSING", regex=False)
+    for column, fallback in [
+        ("breadth_observed", derived_breadth),
+        ("plot_eligible", derived_breadth),
+    ]:
+        values = frame[column].map(_optional_bool)
+        frame[column] = [bool(default) if value is None else value for value, default in zip(values, fallback)]
     return frame.dropna(subset=["risk_temperature"])
+
+
+def _optional_bool(value: Any) -> bool | None:
+    if value is None or pd.isna(value):
+        return None
+    if isinstance(value, bool):
+        return value
+    text = str(value).strip().lower()
+    if text in {"true", "1", "yes"}:
+        return True
+    if text in {"false", "0", "no"}:
+        return False
+    return None
 
 
 def update_intraday_temperature_history(
@@ -91,6 +116,13 @@ def update_intraday_temperature_history(
         return frame, False
 
     is_final = bool(latest.get("is_final")) or mode == "OFFICIAL_CLOSE"
+    market = latest.get("market") if isinstance(latest.get("market"), dict) else {}
+    breadth_pressure = pd.to_numeric(market.get("breadth_pressure"), errors="coerce")
+    quality_text = str(latest.get("quality") or "")
+    breadth_observed = (
+        pd.notna(breadth_pressure)
+        and "WARN_BREADTH_MISSING" not in quality_text
+    )
     sampled_iso = sampled_at.isoformat(timespec="seconds")
     sample_minute = sampled_at.strftime("%Y-%m-%dT%H:%M")
     new_row = {
@@ -101,8 +133,12 @@ def update_intraday_temperature_history(
         "temperature_mode": mode,
         "temperature_mode_cn": str(latest.get("temperature_mode_cn") or mode),
         "is_final": is_final,
-        "quality": str(latest.get("quality") or ""),
+        "quality": quality_text,
         "model_confidence": _confidence_score(latest),
+        "breadth_observed": bool(breadth_observed),
+        "breadth_quality": str(market.get("breadth_quality") or ""),
+        "breadth_source": str(market.get("breadth_source") or ""),
+        "plot_eligible": bool(breadth_observed),
         "source_update_time": sampled_iso,
     }
 
@@ -138,6 +174,8 @@ def intraday_temperature_payload(
             "status": "no_samples",
             "trade_date": None,
             "sample_count": 0,
+            "eligible_count": 0,
+            "excluded_count": 0,
             "has_final": False,
             "rows": [],
             "available_dates": [],
@@ -159,11 +197,18 @@ def intraday_temperature_payload(
             "is_final": bool(row.is_final),
             "quality": row.quality,
             "model_confidence": None if pd.isna(row.model_confidence) else float(row.model_confidence),
+            "breadth_observed": bool(row.breadth_observed),
+            "breadth_quality": row.breadth_quality,
+            "breadth_source": row.breadth_source,
+            "plot_eligible": bool(row.plot_eligible),
         })
+    eligible_count = sum(item["plot_eligible"] for item in rows)
     return {
         "status": "ok",
         "trade_date": trade_date,
         "sample_count": len(rows),
+        "eligible_count": eligible_count,
+        "excluded_count": len(rows) - eligible_count,
         "has_final": any(item["is_final"] for item in rows),
         "first_sample_at": rows[0]["sampled_at"],
         "last_sample_at": rows[-1]["sampled_at"],
@@ -189,4 +234,5 @@ def _methodology() -> dict[str, str]:
         "deduplication": "Intraday refreshes are idempotent within one Beijing-time minute.",
         "official_close": "Official close is stored as the single final endpoint for each trade date.",
         "stale_guard": "A rebuild is recorded only when its Beijing calendar date equals the market trade date.",
+        "chart_quality": "Samples with missing A-share breadth remain in the audit history but are excluded from the connected trend line.",
     }

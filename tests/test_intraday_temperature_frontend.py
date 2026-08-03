@@ -21,6 +21,7 @@ def test_temperature_page_loads_persisted_intraday_series() -> None:
     charts = (ROOT / "web/assets/charts.js").read_text(encoding="utf-8")
 
     assert 'id="intradayTemperatureChart"' in html
+    assert 'id="intradayTemperatureNote"' in html
     assert "./data/intraday_temperature.json" in app
     assert "function renderIntradayTemperaturePanel(payload)" in app
     assert "function renderIntradayTemperatureChart(payload)" in charts
@@ -29,6 +30,9 @@ def test_temperature_page_loads_persisted_intraday_series() -> None:
     assert "type: 'time'" in charts
     assert "T08:45:00+08:00" in charts
     assert "T15:30:00+08:00" in charts
+    assert "WARN_BREADTH_MISSING" in charts
+    assert "A股宽度缺失，暂不绘制趋势" in charts
+    assert "个A股宽度缺失点未连线" in app
 
 
 def test_realtime_workflow_publishes_intraday_artifacts() -> None:

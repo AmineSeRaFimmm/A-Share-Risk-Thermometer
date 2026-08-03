@@ -215,6 +215,10 @@ function renderIntradayTemperatureChart(payload) {
   if (!el) return null;
   const chart = echarts.init(el);
   const rows = (payload?.rows || []).filter(row => Number.isFinite(Number(row.risk_temperature)));
+  const isEligible = row => (
+    row.plot_eligible !== false
+    && !String(row.quality || '').includes('WARN_BREADTH_MISSING')
+  );
   if (!rows.length) {
     chart.setOption({
       aria: { enabled: true, label: { description: '今日尚无温度刷新采样。' } },
@@ -236,7 +240,29 @@ function renderIntradayTemperatureChart(payload) {
     return chart;
   }
 
-  const values = rows.map(row => Number(row.risk_temperature));
+  const eligibleRows = rows.filter(isEligible);
+  if (!eligibleRows.length) {
+    chart.setOption({
+      aria: { enabled: true, label: { description: '采样存在，但A股宽度缺失，暂无可比较温度点。' } },
+      xAxis: { show: false, type: 'time' },
+      yAxis: { show: false, type: 'value' },
+      series: [],
+      graphic: [{
+        type: 'text',
+        left: 'center',
+        top: 'middle',
+        style: {
+          text: 'A股宽度缺失，暂不绘制趋势',
+          fill: '#8b8175',
+          font: '600 13px Source Sans 3, Noto Sans SC, sans-serif',
+        },
+      }],
+    });
+    setChartA11y(chart, '今日温度轨迹', '所有采样均缺少A股宽度，未绘制趋势。');
+    return chart;
+  }
+
+  const values = eligibleRows.map(row => Number(row.risk_temperature));
   const sessionStart = `${payload.trade_date}T08:45:00+08:00`;
   const sessionEnd = `${payload.trade_date}T15:30:00+08:00`;
   const beijingTimeLabel = value => new Intl.DateTimeFormat('zh-CN', {
@@ -251,7 +277,7 @@ function renderIntradayTemperatureChart(payload) {
   const span = Math.max(high - low, 6);
   const axisMin = Math.max(0, Math.floor((center - span * 0.7) * 2) / 2);
   const axisMax = Math.min(100, Math.ceil((center + span * 0.7) * 2) / 2);
-  const finalIndex = rows.findIndex(row => row.is_final);
+  const finalRow = rows.find(row => row.is_final && isEligible(row));
   const temperatureColor = value => {
     if (value >= 90) return '#5c1414';
     if (value >= 75) return '#8f2a2a';
@@ -309,7 +335,7 @@ function renderIntradayTemperatureChart(payload) {
       name: '风险温度',
       type: 'line',
       smooth: false,
-      showSymbol: rows.length <= 24,
+      showSymbol: eligibleRows.length <= 24,
       symbolSize: 6,
       lineStyle: { width: 2.4, color: temperatureColor(values[values.length - 1]) },
       areaStyle: { color: temperatureColor(values[values.length - 1]), opacity: 0.07 },
@@ -317,7 +343,7 @@ function renderIntradayTemperatureChart(payload) {
         color: params => temperatureColor(Number(Array.isArray(params.value) ? params.value[1] : params.value)),
       },
       data: rows.map(row => ({
-        value: [row.sampled_at, Number(row.risk_temperature)],
+        value: [row.sampled_at, isEligible(row) ? Number(row.risk_temperature) : null],
         symbol: row.is_final ? 'diamond' : 'circle',
         symbolSize: row.is_final ? 11 : 6,
       })),
@@ -328,19 +354,19 @@ function renderIntradayTemperatureChart(payload) {
         label: { color: '#8b8175', fontSize: 10 },
         data: markLines,
       },
-      markPoint: finalIndex >= 0 ? {
+      markPoint: finalRow ? {
         symbol: 'diamond',
         symbolSize: 13,
         itemStyle: { color: '#1a1714' },
         label: { show: true, formatter: '收盘', position: 'top', color: '#1a1714', fontSize: 10 },
-        data: [{ coord: [rows[finalIndex].sampled_at, values[finalIndex]] }],
+        data: [{ coord: [finalRow.sampled_at, Number(finalRow.risk_temperature)] }],
       } : undefined,
     }],
   });
   setChartA11y(
     chart,
     '今日温度轨迹',
-    `${payload.trade_date || '今日'}从${rows[0].time}到${rows[rows.length - 1].time}共${rows.length}个采样点，最新温度${fmt(values[values.length - 1], 1)}。`,
+    `${payload.trade_date || '今日'}共${rows.length}个采样点，其中${eligibleRows.length}个宽度有效，最新有效温度${fmt(values[values.length - 1], 1)}。`,
   );
   return chart;
 }

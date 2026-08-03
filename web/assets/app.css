@@ -662,6 +662,14 @@ dd[data-freshness="stale"] { color: var(--red); }
   overflow-wrap: anywhere;
 }
 
+.intraday-temperature-panel #intradayTemperatureNote {
+  display: block !important;
+  margin: -6px 0 8px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
 .chart-row {
   margin-top: 28px;
 }

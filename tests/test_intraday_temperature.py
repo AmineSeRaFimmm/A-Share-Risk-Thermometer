@@ -26,6 +26,11 @@ def _latest(
         "is_final": final,
         "quality": "OK_TEST",
         "model_confidence": {"score": 91.25},
+        "market": {
+            "breadth_pressure": 54.2,
+            "breadth_quality": "OK",
+            "breadth_source": "TEST_STOCK_BREADTH",
+        },
     }
 
 
@@ -111,6 +116,45 @@ def test_payload_uses_one_trade_date_and_strict_values() -> None:
     assert payload["sample_count"] == 2
     assert [row["time"] for row in payload["rows"]] == ["09:40", "10:00"]
     assert all(0 <= row["risk_temperature"] <= 100 for row in payload["rows"])
+    assert payload["eligible_count"] == 2
+    assert payload["excluded_count"] == 0
+
+
+def test_missing_breadth_remains_auditable_but_is_not_plot_eligible() -> None:
+    latest = _latest("2026-08-03T10:26:00+08:00", 77.0)
+    latest["quality"] = "OK_NOWCAST|WARN_BREADTH_MISSING"
+    latest["market"] = {
+        "breadth_pressure": None,
+        "breadth_quality": "MISSING",
+        "breadth_source": "",
+    }
+    history, changed = update_intraday_temperature_history(pd.DataFrame(), latest)
+    assert changed
+    payload = intraday_temperature_payload(history, "2026-08-03")
+    assert payload["sample_count"] == 1
+    assert payload["eligible_count"] == 0
+    assert payload["excluded_count"] == 1
+    assert payload["rows"][0]["breadth_observed"] is False
+    assert payload["rows"][0]["plot_eligible"] is False
+
+
+def test_legacy_rows_derive_plot_eligibility_from_quality_flag() -> None:
+    history = pd.DataFrame([{
+        "trade_date": "2026-08-03",
+        "sampled_at": "2026-08-03T10:33:00+08:00",
+        "sample_minute": "2026-08-03T10:33",
+        "risk_temperature": 77.2,
+        "temperature_mode": "NOWCAST",
+        "temperature_mode_cn": "盘中估算",
+        "is_final": False,
+        "quality": "OK_NOWCAST|WARN_BREADTH_MISSING",
+        "model_confidence": 71.7,
+        "source_update_time": "2026-08-03T10:33:00+08:00",
+    }])
+    payload = intraday_temperature_payload(history, "2026-08-03")
+    assert payload["eligible_count"] == 0
+    assert payload["excluded_count"] == 1
+    assert payload["rows"][0]["plot_eligible"] is False
 
 
 def test_record_creates_empty_history_contract_for_stale_build(tmp_path) -> None:

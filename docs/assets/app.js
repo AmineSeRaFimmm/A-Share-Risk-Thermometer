@@ -882,7 +882,12 @@ async function loadHeavyDashboardData() {
 
 function renderIntradayTemperaturePanel(payload) {
   const meta = document.getElementById('intradayTemperatureMeta');
+  const note = document.getElementById('intradayTemperatureNote');
   const rows = payload?.rows || [];
+  const eligibleCount = Number.isFinite(Number(payload?.eligible_count))
+    ? Number(payload.eligible_count)
+    : rows.filter(row => row.plot_eligible !== false && !String(row.quality || '').includes('WARN_BREADTH_MISSING')).length;
+  const excludedCount = Math.max(0, rows.length - eligibleCount);
   if (meta) {
     if (!rows.length) {
       meta.textContent = '暂无采样';
@@ -891,10 +896,16 @@ function renderIntradayTemperaturePanel(payload) {
       meta.textContent = [
         payload.trade_date,
         `${rows.length}点`,
+        excludedCount ? `${eligibleCount}点有效` : null,
         last.time,
         payload.has_final ? '已收盘' : '盘中',
       ].filter(Boolean).join(' · ');
     }
+  }
+  if (note) {
+    note.textContent = excludedCount
+      ? `刷新采样 · 非逐笔实时 · ${excludedCount}个A股宽度缺失点未连线`
+      : '刷新采样 · 非逐笔实时';
   }
   const dom = document.getElementById('intradayTemperatureChart');
   if (!dom) return;
