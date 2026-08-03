@@ -11,7 +11,7 @@
       "observed": true,
       "raw_value": 23.9697,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-03T09:09:50+08:00",
+      "quote_time": "2026-08-03T09:11:30+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -24,7 +24,7 @@
       "observed": true,
       "raw_value": 23.9697,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-03T09:09:50+08:00",
+      "quote_time": "2026-08-03T09:11:30+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -37,7 +37,7 @@
       "observed": true,
       "raw_value": 23.9697,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-03T09:09:50+08:00",
+      "quote_time": "2026-08-03T09:11:30+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -64,7 +64,7 @@
       "raw_value": 28.5792,
       "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-03T09:10:02+08:00",
+      "fetch_time": "2026-08-03T09:11:42+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -77,7 +77,7 @@
       "raw_value": -0.0933,
       "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-03T09:10:02+08:00",
+      "fetch_time": "2026-08-03T09:11:42+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -103,7 +103,7 @@
       "raw_value": null,
       "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-03T09:10:02+08:00",
+      "fetch_time": "2026-08-03T09:11:42+08:00",
       "quality": "SESSION_NORMALIZED"
     }
   ]
