@@ -300,7 +300,7 @@ function renderIntradayTemperatureChart(payload) {
       trigger: 'axis',
       formatter: params => {
         const item = Array.isArray(params) ? params[0] : params;
-        const row = rows[item?.dataIndex] || {};
+        const row = eligibleRows[item?.dataIndex] || {};
         return [
           `<strong>${payload.trade_date || ''} ${row.time || '--'}</strong>`,
           `${item?.marker || ''}风险温度: <strong>${fmt(row.risk_temperature, 1)}</strong>`,
@@ -342,8 +342,8 @@ function renderIntradayTemperatureChart(payload) {
       itemStyle: {
         color: params => temperatureColor(Number(Array.isArray(params.value) ? params.value[1] : params.value)),
       },
-      data: rows.map(row => ({
-        value: [row.sampled_at, isEligible(row) ? Number(row.risk_temperature) : null],
+      data: eligibleRows.map(row => ({
+        value: [row.sampled_at, Number(row.risk_temperature)],
         symbol: row.is_final ? 'diamond' : 'circle',
         symbolSize: row.is_final ? 11 : 6,
       })),

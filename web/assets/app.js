@@ -904,7 +904,7 @@ function renderIntradayTemperaturePanel(payload) {
   }
   if (note) {
     note.textContent = excludedCount
-      ? `刷新采样 · 非逐笔实时 · ${excludedCount}个A股宽度缺失点未连线`
+      ? `刷新采样 · 非逐笔实时 · ${excludedCount}个A股宽度缺失点已剔除 · 有效点连续绘制`
       : '刷新采样 · 非逐笔实时';
   }
   const dom = document.getElementById('intradayTemperatureChart');

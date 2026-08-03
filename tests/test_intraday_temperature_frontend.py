@@ -32,7 +32,8 @@ def test_temperature_page_loads_persisted_intraday_series() -> None:
     assert "T15:30:00+08:00" in charts
     assert "WARN_BREADTH_MISSING" in charts
     assert "A股宽度缺失，暂不绘制趋势" in charts
-    assert "个A股宽度缺失点未连线" in app
+    assert "个A股宽度缺失点已剔除 · 有效点连续绘制" in app
+    assert "data: eligibleRows.map(row => ({" in charts
 
 
 def test_realtime_workflow_publishes_intraday_artifacts() -> None:
