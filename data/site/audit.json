@@ -25,9 +25,9 @@
     "method": "Estimated close from realtime volatility and index factors; official close history remains separate"
   },
   "model_confidence": {
-    "score": 68.7,
+    "score": 71.4,
     "coverage_score": 90.0,
-    "data_quality_score": 76.3,
+    "data_quality_score": 79.4,
     "grade": "LOW",
     "missing_components": "QVIX_PROXY|BREADTH"
   },
@@ -40,5 +40,5 @@
     "WARN_OFFICIAL_AVIX_MISSING",
     "WARN_QVIX_REALTIME_PROXY"
   ],
-  "last_successful_update": "2026-08-03T09:04:03+08:00"
+  "last_successful_update": "2026-08-03T09:10:37+08:00"
 }
