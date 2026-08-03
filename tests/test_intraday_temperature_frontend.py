@@ -26,6 +26,9 @@ def test_temperature_page_loads_persisted_intraday_series() -> None:
     assert "function renderIntradayTemperatureChart(payload)" in charts
     assert "今日尚无刷新采样" in charts
     assert "正式收盘终点" in charts
+    assert "type: 'time'" in charts
+    assert "T08:45:00+08:00" in charts
+    assert "T15:30:00+08:00" in charts
 
 
 def test_realtime_workflow_publishes_intraday_artifacts() -> None:

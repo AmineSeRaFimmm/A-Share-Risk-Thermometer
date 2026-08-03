@@ -237,6 +237,14 @@ function renderIntradayTemperatureChart(payload) {
   }
 
   const values = rows.map(row => Number(row.risk_temperature));
+  const sessionStart = `${payload.trade_date}T08:45:00+08:00`;
+  const sessionEnd = `${payload.trade_date}T15:30:00+08:00`;
+  const beijingTimeLabel = value => new Intl.DateTimeFormat('zh-CN', {
+    timeZone: 'Asia/Shanghai',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false,
+  }).format(new Date(value));
   const low = Math.min(...values);
   const high = Math.max(...values);
   const center = (low + high) / 2;
@@ -278,10 +286,11 @@ function renderIntradayTemperatureChart(payload) {
     },
     grid: { left: isNarrow() ? 44 : 54, right: isNarrow() ? 14 : 28, top: 18, bottom: 42 },
     xAxis: {
-      type: 'category',
-      boundaryGap: false,
-      data: rows.map(row => row.time),
-      axisLabel: { ...axisText(), hideOverlap: true },
+      type: 'time',
+      min: sessionStart,
+      max: sessionEnd,
+      splitNumber: isNarrow() ? 4 : 7,
+      axisLabel: { ...axisText(), hideOverlap: true, formatter: beijingTimeLabel },
       axisLine: { lineStyle: { color: '#cfc5b7' } },
       axisTick: { show: false },
     },
@@ -289,11 +298,13 @@ function renderIntradayTemperatureChart(payload) {
       type: 'value',
       min: axisMin,
       max: axisMax,
-      axisLabel: { ...axisText(), formatter: value => Number(value).toFixed(0) },
+      axisLabel: {
+        ...axisText(),
+        formatter: value => Number(value).toFixed(1).replace(/\.0$/, ''),
+      },
       splitNumber: 4,
       splitLine: { lineStyle: { color: '#ebe4d7' } },
     },
-    dataZoom: rows.length > 36 ? [{ type: 'inside', start: Math.max(0, 100 - (36 / rows.length) * 100), end: 100 }] : [],
     series: [{
       name: '风险温度',
       type: 'line',
@@ -302,9 +313,11 @@ function renderIntradayTemperatureChart(payload) {
       symbolSize: 6,
       lineStyle: { width: 2.4, color: temperatureColor(values[values.length - 1]) },
       areaStyle: { color: temperatureColor(values[values.length - 1]), opacity: 0.07 },
-      itemStyle: { color: params => temperatureColor(Number(params.value)) },
+      itemStyle: {
+        color: params => temperatureColor(Number(Array.isArray(params.value) ? params.value[1] : params.value)),
+      },
       data: rows.map(row => ({
-        value: Number(row.risk_temperature),
+        value: [row.sampled_at, Number(row.risk_temperature)],
         symbol: row.is_final ? 'diamond' : 'circle',
         symbolSize: row.is_final ? 11 : 6,
       })),
@@ -320,7 +333,7 @@ function renderIntradayTemperatureChart(payload) {
         symbolSize: 13,
         itemStyle: { color: '#1a1714' },
         label: { show: true, formatter: '收盘', position: 'top', color: '#1a1714', fontSize: 10 },
-        data: [{ coord: [rows[finalIndex].time, values[finalIndex]] }],
+        data: [{ coord: [rows[finalIndex].sampled_at, values[finalIndex]] }],
       } : undefined,
     }],
   });
