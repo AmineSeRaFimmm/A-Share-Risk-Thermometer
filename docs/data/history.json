@@ -11688,15 +11688,15 @@
   },
   {
     "date": "2026-08-03",
-    "risk_temperature": 76.5,
-    "regime": "PANIC",
+    "risk_temperature": 73.0,
+    "regime": "HIGH_RISK",
     "avix_clean": 23.5126,
     "qvix": null,
     "qvix_replica": 23.8417,
     "qvix_replica_quality": "OK_REPLICA_ROLLING_MEDIAN_BASIS",
     "hs300_close": 4543.178,
     "drawdown_pressure": 89.5455,
-    "breadth_pressure": 50.5919,
-    "model_confidence": 86.5
+    "breadth_pressure": 16.0569,
+    "model_confidence": 88.0
   }
 ]
