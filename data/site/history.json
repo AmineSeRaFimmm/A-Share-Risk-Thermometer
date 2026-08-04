@@ -1,18 +1,5 @@
 [
   {
-    "date": "2022-11-16",
-    "risk_temperature": 72.0,
-    "regime": "HIGH_RISK",
-    "avix_clean": 23.1171,
-    "qvix": 22.63,
-    "qvix_replica": 23.2289,
-    "qvix_replica_quality": "OK_REPLICA_ROLLING_MEDIAN_BASIS",
-    "hs300_close": 3834.39,
-    "drawdown_pressure": 68.6425,
-    "breadth_pressure": 50.0,
-    "model_confidence": 100.0
-  },
-  {
     "date": "2022-11-17",
     "risk_temperature": 66.0,
     "regime": "HIGH_RISK",
@@ -11697,6 +11684,19 @@
     "hs300_close": 4543.178,
     "drawdown_pressure": 89.5455,
     "breadth_pressure": 16.0569,
+    "model_confidence": 88.0
+  },
+  {
+    "date": "2026-08-04",
+    "risk_temperature": 63.8,
+    "regime": "HIGH_RISK",
+    "avix_clean": 21.2353,
+    "qvix": null,
+    "qvix_replica": 21.5633,
+    "qvix_replica_quality": "OK_REPLICA_ROLLING_MEDIAN_BASIS",
+    "hs300_close": 4600.93,
+    "drawdown_pressure": 82.6065,
+    "breadth_pressure": 17.3546,
     "model_confidence": 88.0
   }
 ]

@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "trade_date": "2026-08-04",
-  "sample_count": 29,
-  "eligible_count": 24,
+  "sample_count": 30,
+  "eligible_count": 25,
   "excluded_count": 5,
-  "has_final": false,
+  "has_final": true,
   "first_sample_at": "2026-08-04T09:01:47+08:00",
-  "last_sample_at": "2026-08-04T15:52:34+08:00",
+  "last_sample_at": "2026-08-04T17:04:28+08:00",
   "rows": [
     {
       "sampled_at": "2026-08-04T09:01:47+08:00",
@@ -412,6 +412,20 @@
       "breadth_observed": true,
       "breadth_quality": "OK",
       "breadth_source": "PARSE_EM_ZDFENBU",
+      "plot_eligible": true
+    },
+    {
+      "sampled_at": "2026-08-04T17:04:28+08:00",
+      "time": "17:04",
+      "risk_temperature": 63.8,
+      "temperature_mode": "OFFICIAL_CLOSE",
+      "temperature_mode_cn": "收盘正式",
+      "is_final": true,
+      "quality": "WARN_QVIX_MISSING",
+      "model_confidence": 88.0,
+      "breadth_observed": true,
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_SOHU_ZDT",
       "plot_eligible": true
     }
   ],
