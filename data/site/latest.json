@@ -1,18 +1,18 @@
 {
   "trade_date": "2026-08-04",
-  "update_time": "2026-08-04T09:01:47+08:00",
-  "risk_temperature": 76.7,
-  "regime": "PANIC",
-  "regime_cn": "恐慌区",
+  "update_time": "2026-08-04T09:17:59+08:00",
+  "risk_temperature": 74.7,
+  "regime": "HIGH_RISK",
+  "regime_cn": "高风险",
   "quality": "OK_NOWCAST|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_REALTIME_PROXY|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
   "model_confidence": {
-    "score": 71.7,
+    "score": 73.5,
     "coverage_score": 90.0,
-    "data_quality_score": 79.7,
+    "data_quality_score": 81.7,
     "grade": "LOW",
     "missing_components": "QVIX_PROXY|BREADTH"
   },
-  "model_confidence_label": "71.7 / 低",
+  "model_confidence_label": "73.5 / 低",
   "temperature_mode": "NOWCAST",
   "temperature_mode_cn": "盘中估算",
   "is_final": false,
@@ -24,7 +24,7 @@
     "realized_vol": 91.6667,
     "drawdown_pressure": 89.5453,
     "breadth_pressure": 16.0569,
-    "turnover_stress": 100.0
+    "turnover_stress": 50.0
   },
   "market": {
     "hs300_close": 4543.18,
@@ -55,7 +55,7 @@
     "avix_realtime_usable_gap_fill": true,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
     "avix_realtime_source_quote_time": null,
-    "avix_realtime_fetch_time": "2026-08-04T09:01:07+08:00",
+    "avix_realtime_fetch_time": "2026-08-04T09:17:30+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
     "avix_percentile_2y": 0.8787,
     "quality": "OK"
@@ -77,30 +77,30 @@
   },
   "nowcast": {
     "trade_date": "2026-08-04",
-    "risk_temperature": 76.7,
-    "regime": "PANIC",
-    "regime_cn": "恐慌区",
+    "risk_temperature": 74.7,
+    "regime": "HIGH_RISK",
+    "regime_cn": "高风险",
     "quality": "OK_NOWCAST|OK_REALTIME_AVIX_ESTIMATE|WARN_BREADTH_MISSING|WARN_QVIX_REALTIME_PROXY|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
     "baseline_trade_date": "2026-08-03",
     "official_risk_temperature": 76.5,
     "realtime_avix": 23.8095,
     "realtime_avix_quality": null,
-    "realtime_valuation_time": "2026-08-04T09:01:10+08:00",
+    "realtime_valuation_time": "2026-08-04T09:17:32+08:00",
     "qvix_close": 22.67,
     "qvix_source": "AKSHARE_300ETF_MIN_QVIX_PROXY",
     "qvix_quote_time": "2026-08-04T14:56:15+08:00",
     "qvix_delay_minutes": 0.0,
     "realtime_index_source": "TENCENT_INDEX_QUOTE_RT",
     "realtime_index_quote_time": null,
-    "realtime_index_fetch_time": "2026-08-04T09:01:17+08:00",
+    "realtime_index_fetch_time": "2026-08-04T09:17:40+08:00",
     "realtime_index_symbols": "sh000001,sh000300",
     "method": "盘中估算 from realtime volatility and index factors; official close history remains separate",
     "active": true
   },
   "interpretation": {
-    "headline": "市场风险温度 76.7，处于恐慌区",
-    "summary": "成交压力、实现波动率、AVIX异常程度是当前风险温度的主要驱动；多因子合成后给出 76.7/100。",
-    "posture": "防守 + 观察反身修复",
+    "headline": "市场风险温度 74.7，处于高风险",
+    "summary": "实现波动率、AVIX异常程度、回撤压力是当前风险温度的主要驱动；多因子合成后给出 74.7/100。",
+    "posture": "防守 + 等待风险释放",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
 }
