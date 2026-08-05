@@ -1,8 +1,4 @@
-"""Static contracts for the browser-only Flex execution desk.
-
-The desk intentionally has no build step or JavaScript test runner. These checks
-guard the user-facing invariants in both the source and GitHub Pages artifacts.
-"""
+"""Published-artifact contracts for the browser-only Flex execution desk."""
 from __future__ import annotations
 
 from pathlib import Path
@@ -24,10 +20,11 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertEqual(self.web, self.docs)
 
     def test_marking_is_not_capped_by_strategy_as_of(self) -> None:
-        self.assertIn("function flexEffectiveMarkDate()", self.web)
+        self.assertIn("function flexEffectiveMarkDate(positionCodes = [])", self.web)
         self.assertNotIn("function flexEffectiveMarkDate(preferredAsOf)", self.web)
-        self.assertIn("const markAsOf = flexEffectiveMarkDate();", self.web)
+        self.assertIn("const markAsOf = flexEffectiveMarkDate(relevantCodes);", self.web)
         self.assertIn("const marked = flexApplyEodMarksToLedger(ledger);", self.web)
+        self.assertIn("complete_as_of", (ROOT / "src/core/etf_marks.py").read_text(encoding="utf-8"))
 
     def test_signal_actions_use_resolved_local_position_key(self) -> None:
         self.assertIn("function flexFindLocalPosition(item, ledger = loadFlexLedger())", self.web)
@@ -48,19 +45,41 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("function getFlexQuoteWindow", self.web)
         self.assertIn("const afterCloseMins = 15 * 60 + 16;", self.web)
         self.assertIn("phase: 'final'", self.web)
+        self.assertIn("quoteEpochSeconds: epochSeconds", self.web)
+        self.assertIn("f124", self.web)
 
     def test_execution_and_rebalance_contracts_are_explicit(self) -> None:
         self.assertIn("const FLEX_ONE_WAY_COST_RATE = 0.0001;", self.web)
+        self.assertIn("const FLEX_ETF_LOT_SIZE = 100;", self.web)
         self.assertIn("function deskLocalRebalanceActions", self.web)
         self.assertIn("targetValue - currentValue", self.web)
         self.assertIn("待T+1开盘", self.web)
         self.assertIn("strictExecutionReady", self.web)
+        self.assertIn("const marked = flexApplyEodMarksToLedger(ledger);", self.web)
+        self.assertIn("kind: 'rebalance'", self.web)
+        self.assertIn("function flexSimExecutePendingRebalance", self.web)
+        self.assertIn("pending_rebalance", self.web)
+        self.assertIn("type_cn: '模拟调仓减'", self.web)
 
     def test_satellite_risk_exit_is_basket_level_and_persistent(self) -> None:
         self.assertIn("function flexSatelliteBasketRiskStatus", self.web)
         self.assertIn("risk_exits:", self.web)
-        self.assertIn("riskExits[satSignalId]", self.web)
+        self.assertIn("ledger.risk_exits[satSignalId]", self.web)
+        self.assertIn("status: 'PENDING'", self.web)
         self.assertIn("下一交易日开盘整篮平仓", self.web)
+
+    def test_simulation_is_incremental_and_read_only(self) -> None:
+        self.assertIn("Incremental, read-only simulation ledger", self.web)
+        self.assertIn("模拟仓为只读账本", self.web)
+        self.assertIn("reset.disabled = sim", self.web)
+        self.assertNotIn("version: 3,\n      book: 'sim'", self.web)
+
+    def test_holding_audit_fields_and_time_context_are_visible(self) -> None:
+        index = (ROOT / "web/index.html").read_text(encoding="utf-8")
+        self.assertIn("份额</span><span>成本/均价</span><span>盯市/时点", index)
+        self.assertIn("策略信号：正式EOD", self.web)
+        self.assertIn("收益/风控：持仓共同EOD", self.web)
+        self.assertIn("const markSource = pos.mark_price_type === 'realtime'", self.web)
 
     def test_named_sector_positions_do_not_fall_through_to_shared_etf_code(self) -> None:
         self.assertIn("Named strategy intents must not fall through to code-only matching", self.web)

@@ -271,6 +271,8 @@ def build_etf_marks_payload(
     codes = collect_flex_etf_codes(playbook)
     by_code: dict[str, Any] = {}
     missing: list[str] = []
+    stale: list[str] = []
+    common_dates: set[str] | None = None
     for code in codes:
         df = load_or_fetch_etf_bars(code, start=start, end=end, force_fetch=force_fetch)
         bars = bars_to_dict(df)
@@ -283,7 +285,14 @@ def build_etf_marks_payload(
             "bar_count": len(bars),
             "first": min(bars),
             "last": max(bars),
+            "fresh_for_as_of": max(bars) >= end,
         }
+        dates = {day for day in bars if day <= end}
+        common_dates = dates if common_dates is None else common_dates & dates
+        if max(bars) < end:
+            stale.append(code)
+
+    complete_as_of = max(common_dates) if common_dates and not missing else None
 
     return {
         "title": "Flex ETF daily marks (EOD)",
@@ -298,6 +307,9 @@ def build_etf_marks_payload(
         "not_broker_feed": True,
         "code_count": len(by_code),
         "missing_codes": missing,
+        "stale_codes": stale,
+        "complete_as_of": complete_as_of,
+        "quality": "OK" if not missing and not stale and complete_as_of == end else "WARN_INCOMPLETE_AS_OF",
         "by_code": by_code,
         "updated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
     }

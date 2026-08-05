@@ -79,6 +79,7 @@ const dashboardState = {
   cacheBust: null,
   lastUpdateTime: null,
   lastTradeDate: null,
+  lastBuildTime: null,
   heavyLoaded: false,
   flexMode: 'aggressive',
   flexBook: loadFlexBookPreference(), // real = 本机点买；sim = 策略严格跟随
@@ -306,6 +307,7 @@ async function resolveCacheBust() {
     const info = await loadJSON('./data/build_info.json', { bust: true });
     if (info?.build_time) {
       dashboardState.cacheBust = info.build_time;
+      dashboardState.lastBuildTime = info.build_time;
       return;
     }
   } catch (_) {
@@ -797,6 +799,12 @@ function paintFlexBookChrome() {
     pill.classList.toggle('book-sim', sim);
     pill.classList.toggle('book-real', !sim);
   }
+  const reset = document.getElementById('flexResetLedgerBtn');
+  if (reset) {
+    reset.disabled = sim;
+    reset.hidden = sim;
+    reset.title = sim ? '模拟仓由策略自动维护' : '清空真实仓';
+  }
 }
 
 function bindFlexGuide() {
@@ -990,6 +998,7 @@ const FLEX_SAT_MIN_HOLD_DAYS = 3;
 const FLEX_SAT_STOP_LOSS_DEFAULT = -0.03;
 const FLEX_SAT_TAKE_PROFIT_DEFAULT = 0.04;
 const FLEX_ONE_WAY_COST_RATE = 0.0001;
+const FLEX_ETF_LOT_SIZE = 100;
 
 function escapeHtml(value) {
   return String(value ?? '')
@@ -1027,7 +1036,7 @@ function flexUid(prefix = 'fx') {
 
 function defaultFlexLedger(book = dashboardState.flexBook) {
   return {
-    version: 3,
+    version: 4,
     book: book === 'sim' ? 'sim' : 'real',
     capital: 0,
     cash: 0,
@@ -1036,15 +1045,20 @@ function defaultFlexLedger(book = dashboardState.flexBook) {
     updated_at: null,
     strategy_as_of: null,
     risk_exits: {},
+    pending_rebalance: null,
   };
 }
 
 function flexOpenPositions(ledger) {
-  // Sim missing-price sleeves may keep cost_basis with qty=0; still show the row.
+  // Sim pending-price sleeves may reserve capital with qty=0; keep them auditable.
   return Object.values(ledger?.positions || {}).filter(p => {
     if (Number(p.qty) > 1e-9) return true;
-    return Number(p.cost_basis) > 0 && String(p.mark_quality || '') === 'MISSING';
+    return Number(p.cost_basis) > 0 && String(p.mark_quality || '').startsWith('MISSING');
   });
+}
+
+function flexMarkMissing(pos) {
+  return String(pos?.mark_quality || '').startsWith('MISSING');
 }
 
 function flexDeployedCost(ledger) {
@@ -1054,7 +1068,7 @@ function flexDeployedCost(ledger) {
 function flexMarkValue(ledger) {
   return flexOpenPositions(ledger).reduce((sum, p) => {
     // Never invent P&L from unit-price fallback when EOD marks are missing.
-    if (String(p.mark_quality || '') === 'MISSING') {
+    if (flexMarkMissing(p)) {
       return sum + (Number(p.cost_basis) || 0);
     }
     const mark = Number(p.last_price);
@@ -1066,7 +1080,7 @@ function flexMarkValue(ledger) {
 /** Migrate v1 ledgers that derived cash as capital−cost (dropped realized PnL). */
 function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
   const ledger = {
-    version: 3,
+    version: 4,
     book: raw?.book === 'sim' || book === 'sim' ? 'sim' : 'real',
     capital: Number(raw?.capital) || 0,
     cash: raw?.cash,
@@ -1075,6 +1089,9 @@ function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
     updated_at: raw?.updated_at || null,
     strategy_as_of: raw?.strategy_as_of || null,
     risk_exits: raw?.risk_exits && typeof raw.risk_exits === 'object' ? { ...raw.risk_exits } : {},
+    pending_rebalance: raw?.pending_rebalance && typeof raw.pending_rebalance === 'object'
+      ? JSON.parse(JSON.stringify(raw.pending_rebalance))
+      : null,
   };
   if (ledger.cash == null || !Number.isFinite(Number(ledger.cash))) {
     // Best-effort migration for pre-v2 books.
@@ -1082,11 +1099,11 @@ function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
   } else {
     ledger.cash = Number(ledger.cash);
   }
-  // Recompute every open position's exit_date on trading-day axis (migrate old calendar exits).
+  // Backend/saved exit dates are authoritative. Derive only when an old row has none.
   for (const key of Object.keys(ledger.positions || {})) {
     const p = ledger.positions[key];
     if (!p || !(Number(p.qty) > 1e-9)) continue;
-    if (p.buy_date && p.hold_days != null && Number.isFinite(Number(p.hold_days))) {
+    if (!p.exit_date && p.buy_date && p.hold_days != null && Number.isFinite(Number(p.hold_days))) {
       p.exit_date = flexAddTradingDays(p.buy_date, Number(p.hold_days));
     }
   }
@@ -1175,7 +1192,8 @@ function flexAvoidZeroSet(flex) {
  * Strategy paper targets while sleeves are open (strict sim book).
  * Uses live allocation weights; if sleeve open but alloc weight 0 (e.g. close day),
  * fall back to mode sizing so sim keeps the open sleeve until state goes flat.
- * AVOID names with target 0 are excluded (sim auto-cuts; real book tips only).
+ * position_state is authoritative. Advisory AVOID rows must not rewrite an
+ * already-open paper sleeve before the engine emits a real close transition.
  */
 function collectStrategyPaperTargets(flex) {
   const f = flex || {};
@@ -1201,7 +1219,7 @@ function collectStrategyPaperTargets(flex) {
       hold_days: Number(f.hold_days) || 5,
       exit_date: core.exit_due_date || '',
     };
-    if (!flexTargetIsAvoided(row, f)) targets.push(row);
+    targets.push(row);
   }
 
   const sat = pos.satellite || {};
@@ -1210,8 +1228,7 @@ function collectStrategyPaperTargets(flex) {
     if (!(wSleeve > 0)) wSleeve = Number(cfg.sat_when_signal != null ? cfg.sat_when_signal : 0.4);
     const names = Array.isArray(sat.names) ? sat.names : [];
     const weights = sat.weights || {};
-    // Drop avoided names before weight renorm so remaining names keep sleeve budget
-    const kept = names.filter(name => !flexTargetIsAvoided({ name }, f));
+    const kept = names.slice();
     const wSum = kept.reduce((s, n) => s + (Number(weights[n]) || 0), 0) || kept.length || 1;
     for (const name of kept) {
       const win = (Number(weights[name]) || (1 / (kept.length || 1))) / wSum;
@@ -1261,28 +1278,46 @@ function flexEtfBarLookup(code, dateStr, { prefer = 'exact' } = {}) {
   for (let i = 0; i < keys.length; i += 1) {
     if (keys[i] >= day) return { ...bars[keys[i]], trade_date: keys[i], match: 'on_or_after' };
   }
-  return { ...bars[keys[keys.length - 1]], trade_date: keys[keys.length - 1], match: 'last' };
+  // Entry prices may move forward to the next available bar, never backward.
+  return null;
 }
 
 /**
  * Latest ETF EOD session we can actually mark to (max bar date in etf_daily_marks).
  * This is "上一交易日收盘" when market is closed / before today' s EOD lands.
  */
-function flexEtfMarksCoverage() {
+function flexEtfMarksCoverage(positionCodes = []) {
   const marks = dashboardState.etfMarks || {};
-  let lastBar = null;
   const by = marks.by_code || {};
-  Object.keys(by).forEach(code => {
-    const last = by[code] && by[code].last ? String(by[code].last).slice(0, 10) : null;
-    if (last && (!lastBar || last > lastBar)) lastBar = last;
-  });
+  const requested = (positionCodes || [])
+    .map(code => String(code || '').replace(/\D/g, '').padStart(6, '0'))
+    .filter(code => /^\d{6}$/.test(code));
+  const codes = requested.length ? [...new Set(requested)] : Object.keys(by);
   const fileAsOf = marks.as_of ? String(marks.as_of).slice(0, 10) : null;
-  // Truth is bars, not the file as_of claim (as_of can run ahead of incomplete bars).
-  const session = lastBar || fileAsOf || null;
+  let commonDates = null;
+  const staleCodes = [];
+  const missingCodes = [];
+  for (const code of codes) {
+    const bars = by[code]?.bars || {};
+    const dates = Object.keys(bars).filter(day => !fileAsOf || day <= fileAsOf).sort();
+    if (!dates.length) {
+      missingCodes.push(code);
+      continue;
+    }
+    if (fileAsOf && dates[dates.length - 1] < fileAsOf) staleCodes.push(code);
+    const set = new Set(dates);
+    commonDates = commonDates == null ? set : new Set([...commonDates].filter(day => set.has(day)));
+  }
+  const common = commonDates ? [...commonDates].sort() : [];
+  // A portfolio-level mark/risk check must use one session shared by every holding.
+  const session = common.length && !missingCodes.length ? common[common.length - 1] : null;
   return {
     file_as_of: fileAsOf,
-    last_bar: lastBar,
+    complete_as_of: session,
     session,
+    codes,
+    stale_codes: staleCodes,
+    missing_codes: missingCodes,
     policy: marks.policy || null,
   };
 }
@@ -1293,8 +1328,8 @@ function flexEtfMarksCoverage() {
  * Strategy as_of only controls which paper positions exist. It must never delay
  * valuation or a local stop/target check once a newer EOD ETF bar is available.
  */
-function flexEffectiveMarkDate() {
-  const cov = flexEtfMarksCoverage();
+function flexEffectiveMarkDate(positionCodes = []) {
+  const cov = flexEtfMarksCoverage(positionCodes);
   if (cov.session) return cov.session;
   try {
     const td = dashboardState.latest?.trade_date || dashboardState.lastTradeDate;
@@ -1304,34 +1339,14 @@ function flexEffectiveMarkDate() {
 }
 
 /**
- * Professional sim prices:
- *   entry = open on entry_date (T+1 open)
- *   mark  = close on markDate (last available EOD when closed)
- */
-function flexSimEodPrices(etfCode, entryDate, markDate) {
-  const entryBar = flexEtfBarLookup(etfCode, entryDate, { prefer: 'on_or_after' });
-  const markBar = flexEtfBarLookup(etfCode, markDate, { prefer: 'on_or_before' });
-  const entryOpen = entryBar && Number(entryBar.open) > 0 ? Number(entryBar.open) : null;
-  const markClose = markBar && Number(markBar.close) > 0 ? Number(markBar.close) : null;
-  let quality = 'OK';
-  if (!entryOpen || !markClose) quality = 'MISSING';
-  else if (entryBar.match !== 'exact' || markBar.match !== 'exact') quality = 'SNAP';
-  return {
-    entry_open: entryOpen,
-    mark_close: markClose,
-    entry_bar_date: entryBar?.trade_date || null,
-    mark_bar_date: markBar?.trade_date || null,
-    quality,
-  };
-}
-
-/**
  * Remount open positions to last EOD close for display / totals.
  * Does not rewrite cost/avg (real fills stay). Safe for both real + sim books.
  */
 function flexApplyEodMarksToLedger(ledger) {
   const L = normalizeFlexLedger(JSON.parse(JSON.stringify(ledger || {})));
-  const markDate = flexEffectiveMarkDate();
+  const positionCodes = flexOpenPositions(L).map(pos => pos.etf_code).filter(Boolean);
+  const coverage = flexEtfMarksCoverage(positionCodes);
+  const markDate = coverage.session;
   let marked = 0;
   let missing = 0;
   Object.keys(L.positions || {}).forEach(key => {
@@ -1345,7 +1360,7 @@ function flexApplyEodMarksToLedger(ledger) {
       }
       return;
     }
-    const bar = flexEtfBarLookup(code, markDate, { prefer: 'on_or_before' });
+    const bar = markDate ? flexEtfBarLookup(code, markDate, { prefer: 'exact' }) : null;
     if (bar && Number(bar.close) > 0) {
       pos.last_price = Number(bar.close);
       pos.eod_last_price = Number(bar.close);
@@ -1360,6 +1375,9 @@ function flexApplyEodMarksToLedger(ledger) {
     }
   });
   L.mark_as_of = markDate;
+  L.mark_requested_as_of = coverage.file_as_of;
+  L.mark_stale_codes = coverage.stale_codes;
+  L.mark_missing_codes = coverage.missing_codes;
   L.mark_policy = 'EOD_LAST_SESSION_CLOSE';
   L.mark_policy_cn = '盯市=最近可得交易日收盘（休市=上一交易日截止）';
   L._eod_mark_stats = { marked, missing, mark_date: markDate };
@@ -1417,13 +1435,31 @@ async function flexFetchEastmoneyQuote(code) {
   const data = (await res.json())?.data || {};
   const price = Number(data.f43) / 100;
   const previousClose = Number(data.f60) / 100;
-  if (!(price > 0) || !(previousClose > 0)) throw new Error('Eastmoney invalid quote');
+  const epochSeconds = Number(data.f124);
+  const quoteDate = new Date(epochSeconds * 1000);
+  if (!(price > 0) || !(previousClose > 0) || !Number.isFinite(epochSeconds) || Number.isNaN(quoteDate.getTime())) {
+    throw new Error('Eastmoney invalid quote');
+  }
   const now = getShanghaiDateParts();
+  const stamp = getShanghaiDateParts(quoteDate);
+  const phase = getFlexQuoteWindow().phase;
+  // f124 is the provider quote timestamp. A same-day final quote remains valid
+  // after close; intraday data must also be recent enough for a live mark.
+  if (!FlexExecutionCore.quoteTimestampIsUsable({
+    quoteEpochSeconds: epochSeconds,
+    nowMs: Date.now(),
+    quoteYmd: stamp.ymd,
+    todayYmd: now.ymd,
+    phase,
+  })) {
+    throw new Error('Eastmoney stale quote');
+  }
   return {
     price,
     previous_close: previousClose,
-    quote_at: `${String(now.hour).padStart(2, '0')}:${String(now.minute).padStart(2, '0')}:00`,
-    quote_date: now.ymd,
+    quote_at: `${String(stamp.hour).padStart(2, '0')}:${String(stamp.minute).padStart(2, '0')}:00`,
+    quote_date: stamp.ymd,
+    provider_timestamp: epochSeconds,
     source: 'EASTMONEY',
   };
 }
@@ -1498,6 +1534,7 @@ function flexApplyRealtimeMarksToLedger(ledger) {
     if (!q || !(Number(q.price) > 0)) return;
     pos.realtime_price = Number(q.price);
     pos.realtime_quote_at = q.quote_at;
+    pos.realtime_quote_date = q.quote_date;
     pos.realtime_quote_source = q.source;
     pos.last_price = Number(q.price);
     pos.mark_price_type = 'realtime';
@@ -1525,306 +1562,419 @@ function flexSimPositionKey(item) {
   return flexPositionKey(item);
 }
 
-/** Structural fingerprint for sim holdings (ignore mark prices / timestamps). */
-function flexSimStructureSignature(positions, capital, asOf) {
-  const keys = Object.keys(positions || {}).sort();
-  const parts = keys.map(k => {
-    const p = positions[k] || {};
-    return [
-      k,
-      Math.round((Number(p.cost_basis) || 0) * 100),
-      String(p.buy_date || ''),
-      String(p.etf_code || ''),
-      Math.round((Number(p.weight) || 0) * 1e6),
-    ].join('|');
-  });
-  return `${asOf || ''}#${Math.round((Number(capital) || 0) * 100)}#${parts.join(';')}`;
+function flexSimJournal(journal, entry) {
+  return [{
+    id: flexUid('jn'),
+    ts: entry.ts || new Date().toISOString(),
+    trade_date: entry.trade_date || null,
+    ...entry,
+  }, ...(journal || [])].slice(0, 200);
+}
+
+function flexSimTradeTimestamp(tradeDate, phase = 'open') {
+  const time = phase === 'close' ? '15:00:00' : '09:30:00';
+  return tradeDate ? `${tradeDate}T${time}+08:00` : new Date().toISOString();
+}
+
+function flexSimEntryBar(target) {
+  const day = String(target?.buy_date || '').slice(0, 10);
+  const bar = flexEtfBarLookup(target?.etf_code, day, { prefer: 'exact' });
+  return bar?.trade_date === day && Number(bar.open) > 0 ? bar : null;
+}
+
+function flexSimExecutePendingRebalance(ledger) {
+  const order = ledger.pending_rebalance;
+  if (!order?.execution_date || !Array.isArray(order.targets)) return ledger;
+  const targetByKey = new Map(order.targets.map(target => [target.key, target]));
+  const relevant = new Set([...Object.keys(ledger.positions || {}), ...targetByKey.keys()]);
+  const bars = new Map();
+  for (const key of relevant) {
+    const target = targetByKey.get(key);
+    const pos = ledger.positions[key];
+    const code = target?.etf_code || pos?.etf_code;
+    const bar = flexEtfBarLookup(code, order.execution_date, { prefer: 'exact' });
+    if (!bar || bar.trade_date !== order.execution_date || !(Number(bar.open) > 0)) return ledger;
+    bars.set(key, bar);
+  }
+
+  const equityAtOpen = Number(ledger.cash) + [...relevant].reduce((sum, key) => {
+    const pos = ledger.positions[key];
+    return sum + (Number(pos?.qty) || 0) * Number(bars.get(key)?.open || 0);
+  }, 0);
+
+  // Sells fund buys. Each leg is rounded to an ETF lot and charged 1bp.
+  for (const [key, pos] of Object.entries(ledger.positions)) {
+    const target = targetByKey.get(key);
+    if (!target || !(Number(pos.qty) > 0)) continue;
+    const price = Number(bars.get(key).open);
+    const desiredQty = Math.floor((equityAtOpen * Number(target.weight || 0)) / (price * FLEX_ETF_LOT_SIZE)) * FLEX_ETF_LOT_SIZE;
+    const sellQty = Math.max(0, Number(pos.qty) - desiredQty);
+    if (!(sellQty >= FLEX_ETF_LOT_SIZE)) continue;
+    const gross = sellQty * price;
+    const fee = gross * FLEX_ONE_WAY_COST_RATE;
+    const net = gross - fee;
+    const costRemoved = Number(pos.cost_basis) * sellQty / Number(pos.qty);
+    const pnl = net - costRemoved;
+    ledger.cash += net;
+    pos.qty -= sellQty;
+    pos.cost_basis -= costRemoved;
+    pos.avg_price = pos.qty > 0 ? pos.cost_basis / pos.qty : 0;
+    pos.last_price = price;
+    ledger.journal = flexSimJournal(ledger.journal, {
+      type: 'REDUCE', type_cn: '模拟调仓减', name: pos.name, etf_code: pos.etf_code,
+      amount: gross, net_amount: net, price, qty: sellQty, fee, pnl,
+      cost_removed: costRemoved, trade_date: order.execution_date,
+      ts: flexSimTradeTimestamp(order.execution_date, 'open'),
+      note: `目标权重 ${pctLabel(target.weight)} · 信号 ${order.signal_date}`,
+    });
+  }
+
+  for (const target of order.targets) {
+    const pos = ledger.positions[target.key];
+    if (!pos || !(Number(pos.qty) > 0)) continue;
+    const price = Number(bars.get(target.key).open);
+    const currentValue = Number(pos.qty) * price;
+    const gap = equityAtOpen * Number(target.weight || 0) - currentValue;
+    if (!(gap > price * FLEX_ETF_LOT_SIZE)) continue;
+    const buy = flexBuyOrderFromBudget(gap, price, ledger.cash);
+    if (!(buy.qty >= FLEX_ETF_LOT_SIZE)) continue;
+    const newQty = Number(pos.qty) + buy.qty;
+    const newCost = Number(pos.cost_basis) + buy.cash_required;
+    ledger.cash -= buy.cash_required;
+    pos.qty = newQty;
+    pos.cost_basis = newCost;
+    pos.avg_price = newCost / newQty;
+    pos.last_price = price;
+    ledger.journal = flexSimJournal(ledger.journal, {
+      type: 'ADD', type_cn: '模拟调仓加', name: pos.name, etf_code: pos.etf_code,
+      amount: buy.gross, price, qty: buy.qty, fee: buy.fee,
+      trade_date: order.execution_date, ts: flexSimTradeTimestamp(order.execution_date, 'open'),
+      note: `目标权重 ${pctLabel(target.weight)} · 信号 ${order.signal_date}`,
+    });
+  }
+  for (const target of order.targets) {
+    if (ledger.positions[target.key]) ledger.positions[target.key].target_weight = Number(target.weight) || 0;
+  }
+  ledger.pending_rebalance = null;
+  return ledger;
 }
 
 /**
- * Rebuild simulation ledger to strictly mirror strategy paper open sleeves.
- * EOD marks only: cost @ entry open, last_price @ as_of close. Never touches real book.
- * Journal is append-only on *material* structure changes — book switch / re-render must not spam 流水.
+ * Incremental, read-only simulation ledger.
+ * Existing fills are immutable; only authoritative position_state membership
+ * changes create trades. This prevents target refreshes from repricing history.
  */
 function rebuildSimLedgerFromStrategy(flex) {
   const f = flex || {};
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
-  // Mark to last available EOD close (休市 → 上一交易日截止), not nowcast calendar date.
-  const markAsOf = flexEffectiveMarkDate();
-  const prev = flexApplyEodMarksToLedger(loadFlexLedgerForBook('sim'));
-  const riskExits = { ...(prev.risk_exits || {}) };
-  const satSignalId = String(f.position_state?.satellite?.entry_signal_date || '').slice(0, 10);
-  for (const key of Object.keys(riskExits)) {
-    if (key !== satSignalId) delete riskExits[key];
-  }
-  let capital = Number(prev.capital) || 0;
-  if (!(capital > 0)) {
-    capital = Number(loadFlexLedgerForBook('real').capital) || 0;
-  }
-  if (!(capital > 0)) {
-    const empty = defaultFlexLedger('sim');
-    empty.strategy_as_of = asOf;
-    empty.mark_as_of = markAsOf;
-    empty.journal = Array.isArray(prev.journal) ? prev.journal.slice(-100) : [];
-    empty.mark_policy = 'SIM_ENTRY_OPEN_MARK_CLOSE';
-    empty.structure_sig = prev.structure_sig || '';
-    return saveFlexLedger(empty);
-  }
-
   let targets = collectStrategyPaperTargets(f);
-  if (satSignalId && riskExits[satSignalId]) {
-    targets = targets.filter(t => String(t.sleeve || '').toLowerCase() !== 'satellite');
+  let targetByKey = new Map(targets.map(target => [flexSimPositionKey(target), target]));
+  const raw = loadFlexLedgerForBook('sim');
+  let capital = Number(raw.capital) || Number(loadFlexLedgerForBook('real').capital) || 0;
+
+  // v3 simulation books were reconstructed from historical prices. Start one
+  // clean v4 baseline instead of carrying irreconcilable synthetic deltas.
+  let ledger = Number(raw.version) >= 4 ? normalizeFlexLedger(raw, 'sim') : defaultFlexLedger('sim');
+  if (Number(raw.version) < 4) {
+    ledger.capital = capital;
+    ledger.cash = capital;
+    ledger.journal = flexSimJournal([], {
+      type: 'MIGRATE',
+      type_cn: '模拟账本升级',
+      name: '策略纸面',
+      amount: capital,
+      price: 0,
+      qty: 0,
+      trade_date: asOf,
+      ts: flexSimTradeTimestamp(asOf, 'close'),
+      note: '升级为增量记账；旧版追溯重建流水未继承',
+    });
   }
-  const positions = {};
-  let deployed = 0;
-  let marked = 0;
-  let missingPx = 0;
-  let uPnlParts = [];
+  ledger.version = 4;
+  ledger.book = 'sim';
+  ledger.capital = capital;
+  ledger.positions = { ...(ledger.positions || {}) };
+  ledger.risk_exits = { ...(ledger.risk_exits || {}) };
+  ledger.journal = Array.isArray(ledger.journal) ? ledger.journal.slice(0, 200) : [];
+  ledger.cash = Number.isFinite(Number(ledger.cash)) ? Number(ledger.cash) : capital;
 
-  for (const t of targets) {
-    const w = Number(t.weight) || 0;
-    if (w <= 0) continue;
-    const notional = Math.round(capital * w * 100) / 100;
-    if (notional <= 0) continue;
+  const satSignalId = String(f.position_state?.satellite?.entry_signal_date || '').slice(0, 10);
+  for (const key of Object.keys(ledger.risk_exits)) {
+    if (key !== satSignalId) delete ledger.risk_exits[key];
+  }
 
-    const buyDate = String(t.buy_date || asOf || flexDateCn(0)).slice(0, 10);
-    const holdDays = t.hold_days != null ? Number(t.hold_days) : null;
-    const exitDate = t.exit_date
-      ? String(t.exit_date).slice(0, 10)
-      : holdDays != null
-        ? flexAddTradingDays(buyDate, holdDays)
-        : null;
+  if (!(capital > 0)) {
+    ledger.strategy_as_of = asOf;
+    return saveFlexLedger(ledger);
+  }
 
-    const px = flexSimEodPrices(t.etf_code, buyDate, markAsOf);
-    let entryPx = px.entry_open;
-    let markPx = px.mark_close;
-    let note = '模拟·策略纸面·入场开盘/盯市收盘';
-    let quality = px.quality;
-    if (!(entryPx > 0) || !(markPx > 0)) {
-      missingPx += 1;
-      quality = 'MISSING';
-      note = '模拟·缺行情·涨跌幅不可用';
-    } else {
-      marked += 1;
-      if (quality === 'SNAP') note += '·日期已吸附';
-    }
+  const relevantCodes = [
+    ...targets.map(target => target.etf_code),
+    ...Object.values(ledger.positions).map(pos => pos.etf_code),
+  ].filter(Boolean);
+  const markAsOf = flexEffectiveMarkDate(relevantCodes);
+  ledger = flexApplyEodMarksToLedger(ledger);
 
-    const costBasis = notional;
-    const hasEntry = entryPx > 0;
-    const hasMark = markPx > 0;
-    const qty = hasEntry ? notional / (entryPx * (1 + FLEX_ONE_WAY_COST_RATE)) : 0;
-    const key = flexSimPositionKey(t);
-    // Also resolve legacy keys so re-key does not look like CLOSE+OPEN
-    const old = prev.positions?.[key]
-      || prev.positions?.[flexPositionKey(t)]
-      || null;
-
-    if (quality !== 'MISSING' && hasEntry && hasMark) {
-      uPnlParts.push(qty * markPx - costBasis);
-    }
-
-    positions[key] = {
-      id: old?.id || flexUid('sim'),
-      key,
-      name: t.name,
-      etf_code: t.etf_code || '',
-      etf_name: t.etf_name || '',
-      sleeve: t.sleeve || '',
-      weight: w,
+  // Fill previously reserved entries only when the exact T+1 entry bar exists.
+  for (const [key, pos] of Object.entries(ledger.positions)) {
+    if (!pos?.pending_entry || Number(pos.qty) > 0) continue;
+    const target = targetByKey.get(key);
+    if (!target) continue;
+    const bar = flexSimEntryBar(target);
+    if (!bar) continue;
+    const reserved = Number(pos.reserved_amount) || Number(pos.cost_basis) || 0;
+    const qty = Math.floor(reserved / (Number(bar.open) * (1 + FLEX_ONE_WAY_COST_RATE) * 100)) * 100;
+    if (!(qty > 0)) continue;
+    const gross = qty * Number(bar.open);
+    const fee = gross * FLEX_ONE_WAY_COST_RATE;
+    const cost = gross + fee;
+    ledger.cash += Math.max(0, reserved - cost);
+    Object.assign(pos, {
       qty,
-      avg_price: hasEntry ? entryPx : 0,
-      cost_basis: costBasis,
-      last_price: hasMark ? markPx : 0,
-      opened_at: old?.opened_at || new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      signal_as_of: t.signal_as_of || '',
-      buy_date: buyDate,
-      hold_days: holdDays,
-      exit_date: exitDate,
+      avg_price: cost / qty,
+      cost_basis: cost,
+      last_price: Number(bar.open),
+      entry_bar_date: bar.trade_date,
       entry_price_type: 'open',
-      mark_price_type: 'close',
-      entry_bar_date: px.entry_bar_date,
-      mark_bar_date: px.mark_bar_date,
-      eod_last_price: hasMark ? markPx : 0,
-      eod_mark_bar_date: px.mark_bar_date,
-      mark_quality: quality,
-      note,
-      sim: true,
-    };
-    deployed += costBasis;
+      mark_quality: 'PENDING_EOD',
+      pending_entry: false,
+      reserved_amount: 0,
+      updated_at: flexSimTradeTimestamp(bar.trade_date, 'open'),
+      note: '模拟·策略纸面·T+1开盘成交',
+    });
+    ledger.journal = flexSimJournal(ledger.journal, {
+      type: 'OPEN', type_cn: '模拟开仓', name: pos.name, etf_code: pos.etf_code,
+      amount: cost, price: Number(bar.open), qty, fee,
+      trade_date: bar.trade_date, ts: flexSimTradeTimestamp(bar.trade_date, 'open'),
+      note: `策略纸面开仓 · 目标权重 ${pctLabel(pos.target_weight)}`,
+    });
   }
 
-  let basketRiskExit = null;
-  if (satSignalId && !riskExits[satSignalId]) {
-    basketRiskExit = flexSatelliteBasketRiskStatus({ positions }, f);
-    if (basketRiskExit?.triggered) {
-      riskExits[satSignalId] = {
-        close_code: basketRiskExit.close_code,
-        signal_date: markAsOf,
-        return_pct: basketRiskExit.ret,
+  // Satellite basket risk is confirmed on a common official EOD close and
+  // executed only at the next session's open. Never manufacture a same-close
+  // fill or reuse a stale mark from a different holding date.
+  ledger = flexApplyEodMarksToLedger(ledger);
+  let satRisk = satSignalId ? ledger.risk_exits[satSignalId] : null;
+  if (satSignalId && !satRisk && ledger.mark_as_of && Number(ledger._eod_mark_stats?.missing) === 0) {
+    const basket = flexSatelliteBasketRiskStatus(ledger, f);
+    if (basket?.triggered) {
+      const executionDate = flexAddTradingDays(ledger.mark_as_of, 1);
+      satRisk = {
+        status: 'PENDING',
+        close_code: basket.close_code,
+        signal_date: ledger.mark_as_of,
+        execution_date: executionDate,
+        return_pct: basket.ret,
       };
-      for (const [key, pos] of Object.entries(positions)) {
-        if (String(pos.sleeve || '').toLowerCase() === 'satellite') delete positions[key];
-      }
-      deployed = Object.values(positions).reduce((sum, pos) => sum + (Number(pos.cost_basis) || 0), 0);
-      uPnlParts = Object.values(positions)
-        .filter(pos => String(pos.mark_quality || '') !== 'MISSING')
-        .map(pos => Number(pos.qty) * Number(pos.last_price) - Number(pos.cost_basis));
+      ledger.risk_exits[satSignalId] = satRisk;
+      ledger.journal = flexSimJournal(ledger.journal, {
+        type: 'SIGNAL', type_cn: basket.action_cn, name: '卫星组合', amount: 0,
+        price: 0, qty: 0, trade_date: ledger.mark_as_of,
+        ts: flexSimTradeTimestamp(ledger.mark_as_of, 'close'),
+        note: `${basket.rule.ruleCn} · 下一交易日 ${executionDate} 开盘执行`,
+      });
     }
   }
-
-  const nextSig = flexSimStructureSignature(positions, capital, asOf);
-  const prevSig = prev.structure_sig || flexSimStructureSignature(prev.positions, prev.capital, prev.strategy_as_of);
-  const structureChanged = nextSig !== prevSig;
-  const asOfChanged = String(prev.strategy_as_of || '') !== String(asOf || '');
-
-  // Quiet path: same paper structure → only refresh marks, keep journal untouched.
-  if (!structureChanged && !asOfChanged && Object.keys(prev.positions || {}).length === Object.keys(positions).length) {
-    const quiet = {
-      ...prev,
-      version: 3,
-      book: 'sim',
-      capital,
-      cash: Math.max(0, Math.round((capital - deployed) * 100) / 100),
-      positions,
-      risk_exits: riskExits,
-      journal: Array.isArray(prev.journal) ? prev.journal : [],
-      updated_at: new Date().toISOString(),
-      strategy_as_of: asOf,
-      mark_as_of: markAsOf,
-      structure_sig: nextSig,
-      mark_policy: 'SIM_ENTRY_OPEN_MARK_CLOSE',
-      mark_policy_cn: '入场=开盘价 · 盯市=最近可得收盘（休市=上一交易日）',
-    };
-    dashboardState.flexSimSyncedAsOf = asOf;
-    return saveFlexLedger(quiet);
+  if (satRisk) {
+    targets = targets.filter(target => String(target.sleeve || '').toLowerCase() !== 'satellite');
+    targetByKey = new Map(targets.map(target => [flexSimPositionKey(target), target]));
   }
-
-  const journal = Array.isArray(prev.journal) ? prev.journal.slice() : [];
-  // Map prev positions by sim key + legacy key for stable diff
-  const prevByKey = { ...(prev.positions || {}) };
-  for (const [k, p] of Object.entries(prev.positions || {})) {
-    const alt = flexSimPositionKey(p);
-    if (alt && !prevByKey[alt]) prevByKey[alt] = p;
-  }
-
-  if (structureChanged) {
-    for (const [key, pos] of Object.entries(positions)) {
-      const old = prevByKey[key] || prev.positions?.[key];
-      const costBasis = Number(pos.cost_basis) || 0;
-      if (!old) {
-        journal.push({
-          id: flexUid('jn'),
-          type: 'OPEN',
-          type_cn: '模拟开仓',
-          name: pos.name,
-          etf_code: pos.etf_code || '',
-          amount: costBasis,
-          price: Number(pos.avg_price) || 0,
-          qty: Number(pos.qty) || 0,
-          pnl: 0,
-          at: new Date().toISOString(),
-          note: `策略纸面开仓 · 权重 ${((Number(pos.weight) || 0) * 100).toFixed(1)}% · as_of=${asOf || '—'}`,
-        });
+  if (satRisk?.status === 'PENDING') {
+    let allExecuted = true;
+    for (const [key, pos] of Object.entries(ledger.positions)) {
+      if (String(pos.sleeve || '').toLowerCase() !== 'satellite') continue;
+      if (!(Number(pos.qty) > 0)) {
+        ledger.cash += Number(pos.reserved_amount) || Number(pos.cost_basis) || 0;
+        delete ledger.positions[key];
         continue;
       }
-      const prevCost = Math.round((Number(old.cost_basis) || 0) * 100) / 100;
-      const nextCost = Math.round(costBasis * 100) / 100;
-      const delta = nextCost - prevCost;
-      // Ignore sub-yuan float noise when re-entering the same paper book
-      if (Math.abs(delta) >= Math.max(1, capital * 0.001)) {
-        journal.push({
-          id: flexUid('jn'),
-          type: delta > 0 ? 'ADD' : 'REDUCE',
-          type_cn: delta > 0 ? '模拟加仓' : '模拟减仓',
-          name: pos.name,
-          etf_code: pos.etf_code || '',
-          amount: Math.abs(delta),
-          price: Number(pos.last_price) || Number(pos.avg_price) || 0,
-          qty: Number(pos.avg_price) > 0 ? Math.abs(delta) / Number(pos.avg_price) : 0,
-          pnl: 0,
-          at: new Date().toISOString(),
-          note: `目标权重 ${((Number(pos.weight) || 0) * 100).toFixed(1)}% · as_of=${asOf || '—'}`,
-        });
+      const bar = flexEtfBarLookup(pos.etf_code, satRisk.execution_date, { prefer: 'exact' });
+      const price = bar?.trade_date === satRisk.execution_date ? Number(bar.open) : null;
+      if (!(price > 0)) {
+        pos.pending_close = true;
+        pos.pending_close_date = satRisk.execution_date;
+        allExecuted = false;
+        continue;
       }
+      const qty = Number(pos.qty);
+      const gross = qty * price;
+      const fee = gross * FLEX_ONE_WAY_COST_RATE;
+      const net = gross - fee;
+      const cost = Number(pos.cost_basis) || 0;
+      const pnl = net - cost;
+      ledger.cash += net;
+      ledger.journal = flexSimJournal(ledger.journal, {
+        type: 'CLOSE', type_cn: `模拟${satRisk.close_code === 'LOCAL_STOP_LOSS' ? '止损' : '止盈'}`,
+        name: pos.name, etf_code: pos.etf_code, amount: gross, net_amount: net,
+        price, qty, fee, pnl, cost_removed: cost, return_pct: cost > 0 ? pnl / cost : null,
+        trade_date: satRisk.execution_date,
+        ts: flexSimTradeTimestamp(satRisk.execution_date, 'open'),
+        note: `卫星组合 ${satRisk.close_code} · EOD ${satRisk.signal_date} 触发`,
+      });
+      delete ledger.positions[key];
     }
+    if (allExecuted) {
+      satRisk.status = 'EXECUTED';
+      satRisk.executed_at = flexSimTradeTimestamp(satRisk.execution_date, 'open');
+    }
+  }
 
-    for (const [key, old] of Object.entries(prev.positions || {})) {
-      const still = positions[key] || positions[flexSimPositionKey(old)];
-      if (still) continue;
-      if (!(Number(old.qty) > 0 || Number(old.cost_basis) > 0)) continue;
-      const cost = Number(old.cost_basis) || 0;
-      const mark = Number(old.last_price) > 0 && Number(old.qty) > 0
-        ? Number(old.qty) * Number(old.last_price)
-        : cost;
-      const pnl = Math.round((mark - cost) * 100) / 100;
-      const ret = cost > 0 ? pnl / cost : 0;
-      const avoided = flexTargetIsAvoided(old, f);
-      const riskStatus = String(old.sleeve || '').toLowerCase() === 'satellite' ? basketRiskExit : null;
-      journal.push({
-        id: flexUid('jn'),
-        type: 'CLOSE',
-        type_cn: riskStatus?.triggered
-          ? (riskStatus.close_code === 'LOCAL_STOP_LOSS' ? '模拟止损平仓' : '模拟止盈平仓')
-          : (avoided ? '模拟回避清仓' : '模拟平仓'),
-        name: old.name || '—',
-        etf_code: old.etf_code || '',
-        amount: Math.round(mark * 100) / 100,
-        price: Number(old.last_price) || 0,
-        qty: Number(old.qty) || 0,
-        pnl,
-        return_pct: Math.round(ret * 1e6) / 1e6,
-        at: new Date().toISOString(),
-        note: riskStatus?.triggered
-          ? `${riskStatus.label} · as_of=${asOf || '—'}`
-          : (avoided
-            ? `AVOID 归零 · as_of=${asOf || '—'}`
-            : `策略纸面退出 · as_of=${asOf || '—'}`),
+  // Authoritative state removal closes at that strategy day's open. If the bar
+  // is not available yet, retain a visibly pending close instead of inventing one.
+  for (const [key, pos] of Object.entries(ledger.positions)) {
+    if (targetByKey.has(key)) continue;
+    if (satRisk?.status === 'PENDING' && String(pos.sleeve || '').toLowerCase() === 'satellite') continue;
+    if (!(Number(pos.qty) > 0) && pos.pending_entry) {
+      const released = Number(pos.reserved_amount) || Number(pos.cost_basis) || 0;
+      ledger.cash += released;
+      ledger.journal = flexSimJournal(ledger.journal, {
+        type: 'CANCEL', type_cn: '取消待开仓', name: pos.name, etf_code: pos.etf_code,
+        amount: released, price: 0, qty: 0, trade_date: asOf,
+        ts: flexSimTradeTimestamp(asOf, 'open'), note: `策略状态已退出 · as_of=${asOf}`,
+      });
+      delete ledger.positions[key];
+      continue;
+    }
+    const bar = flexEtfBarLookup(pos.etf_code, asOf, { prefer: 'exact' });
+    const price = bar?.trade_date === asOf ? Number(bar.open) : null;
+    if (!(price > 0) || !(Number(pos.qty) > 0)) {
+      pos.pending_close = true;
+      pos.pending_close_date = asOf;
+      continue;
+    }
+    const gross = Number(pos.qty) * price;
+    const fee = gross * FLEX_ONE_WAY_COST_RATE;
+    const net = gross - fee;
+    const cost = Number(pos.cost_basis) || 0;
+    const pnl = net - cost;
+    ledger.cash += net;
+    ledger.journal = flexSimJournal(ledger.journal, {
+      type: 'CLOSE', type_cn: '模拟平仓', name: pos.name, etf_code: pos.etf_code,
+      amount: gross, net_amount: net, price, qty: Number(pos.qty), fee, pnl, cost_removed: cost,
+      return_pct: cost > 0 ? pnl / cost : null,
+      trade_date: asOf, ts: flexSimTradeTimestamp(asOf, 'open'),
+      note: `策略持仓状态退出 · as_of=${asOf}`,
+    });
+    delete ledger.positions[key];
+  }
+
+  if (ledger.pending_rebalance) {
+    const signature = rows => JSON.stringify((rows || [])
+      .map(row => [String(row.key || flexSimPositionKey(row)), Math.round((Number(row.weight) || 0) * 1000000)])
+      .sort((a, b) => a[0].localeCompare(b[0])));
+    const currentTargets = targets
+      .filter(target => ledger.positions[flexSimPositionKey(target)])
+      .map(target => ({ ...target, key: flexSimPositionKey(target) }));
+    if (signature(ledger.pending_rebalance.targets) !== signature(currentTargets)) {
+      ledger.journal = flexSimJournal(ledger.journal, {
+        type: 'CANCEL', type_cn: '取消旧调仓', name: '组合', amount: 0,
+        price: 0, qty: 0, trade_date: asOf, ts: flexSimTradeTimestamp(asOf, 'close'),
+        note: '策略目标已变化，旧调仓指令作废',
+      });
+      ledger.pending_rebalance = null;
+    }
+  }
+  ledger = flexSimExecutePendingRebalance(ledger);
+  if (!ledger.pending_rebalance) {
+    const changedTargets = targets.filter(target => {
+      const pos = ledger.positions[flexSimPositionKey(target)];
+      return pos && Math.abs((Number(pos.target_weight) || 0) - (Number(target.weight) || 0)) > 0.001;
+    });
+    if (changedTargets.length) {
+      ledger.pending_rebalance = {
+        status: 'PENDING',
+        signal_date: asOf,
+        execution_date: flexAddTradingDays(asOf, 1),
+        targets: targets
+          .filter(target => ledger.positions[flexSimPositionKey(target)])
+          .map(target => ({
+            key: flexSimPositionKey(target),
+            name: target.name,
+            etf_code: target.etf_code,
+            weight: Number(target.weight) || 0,
+          })),
+      };
+      ledger.journal = flexSimJournal(ledger.journal, {
+        type: 'SIGNAL', type_cn: '模拟调仓信号', name: '组合', amount: 0,
+        price: 0, qty: 0, trade_date: asOf, ts: flexSimTradeTimestamp(asOf, 'close'),
+        note: `目标权重变化 · ${flexAddTradingDays(asOf, 1)} 开盘执行`,
       });
     }
   }
 
-  const uPnlSum = uPnlParts.reduce((s, x) => s + x, 0);
-  const uRet = deployed > 0 ? uPnlSum / deployed : 0;
-  // One SYNC per new strategy as_of only (not every tab switch)
-  if (asOfChanged) {
-    journal.push({
-      id: flexUid('jn'),
-      type: 'SYNC',
-      type_cn: '模拟EOD同步',
-      name: '策略纸面',
-      etf_code: '',
-      amount: deployed,
-      price: 0,
-      qty: 0,
-      pnl: Math.round(uPnlSum * 100) / 100,
-      return_pct: Math.round(uRet * 1e6) / 1e6,
-      at: new Date().toISOString(),
-      note: [
-        `as_of=${asOf || '—'}`,
-        `持仓 ${Object.keys(positions).length}`,
-        `EOD盯市 ${marked}`,
-        missingPx ? `缺价 ${missingPx}` : null,
-        `涨跌幅 ${flexFormatSignedPct(uRet)}`,
-      ].filter(Boolean).join(' · '),
-    });
+  const openingEquity = flexEquity(ledger);
+  for (const target of targets) {
+    const key = flexSimPositionKey(target);
+    const existing = ledger.positions[key];
+    const buyDate = String(target.buy_date || asOf).slice(0, 10);
+    const holdDays = target.hold_days != null ? Number(target.hold_days) : null;
+    const exitDate = target.exit_date ? String(target.exit_date).slice(0, 10) : null;
+    if (existing) {
+      Object.assign(existing, {
+        key,
+        name: target.name,
+        etf_code: target.etf_code || existing.etf_code || '',
+        etf_name: target.etf_name || existing.etf_name || '',
+        sleeve: target.sleeve || existing.sleeve || '',
+        target_weight: ledger.pending_rebalance
+          ? (Number(existing.target_weight) || 0)
+          : (Number(target.weight) || 0),
+        signal_as_of: target.signal_as_of || existing.signal_as_of || '',
+        hold_days: holdDays,
+        exit_date: exitDate || existing.exit_date || null,
+        exit_date_authoritative: Boolean(exitDate || existing.exit_date_authoritative),
+        pending_close: false,
+        pending_close_date: null,
+      });
+      continue;
+    }
+
+    const targetAmount = Math.min(
+      Math.max(0, Number(ledger.cash) || 0),
+      Math.max(0, openingEquity * (Number(target.weight) || 0)),
+    );
+    if (!(targetAmount > 0)) continue;
+    const bar = flexSimEntryBar(target);
+    const entryPrice = Number(bar?.open);
+    const qty = entryPrice > 0
+      ? Math.floor(targetAmount / (entryPrice * (1 + FLEX_ONE_WAY_COST_RATE) * 100)) * 100
+      : 0;
+    const gross = qty > 0 ? qty * entryPrice : 0;
+    const fee = gross * FLEX_ONE_WAY_COST_RATE;
+    const cost = qty > 0 ? gross + fee : targetAmount;
+    ledger.cash -= cost;
+    ledger.positions[key] = {
+      id: flexUid('sim'), key, name: target.name, etf_code: target.etf_code || '',
+      etf_name: target.etf_name || '', sleeve: target.sleeve || '',
+      target_weight: Number(target.weight) || 0,
+      qty, avg_price: qty > 0 ? cost / qty : 0, cost_basis: cost,
+      last_price: qty > 0 ? entryPrice : 0,
+      opened_at: flexSimTradeTimestamp(buyDate, 'open'),
+      updated_at: flexSimTradeTimestamp(buyDate, 'open'),
+      signal_as_of: target.signal_as_of || '', buy_date: buyDate,
+      hold_days: holdDays, exit_date: exitDate,
+      exit_date_authoritative: Boolean(exitDate),
+      entry_price_type: 'open', entry_bar_date: bar?.trade_date || null,
+      mark_price_type: qty > 0 ? 'open' : null,
+      mark_quality: qty > 0 ? 'PENDING_EOD' : 'MISSING_ENTRY',
+      pending_entry: !(qty > 0), reserved_amount: qty > 0 ? 0 : targetAmount,
+      note: qty > 0 ? '模拟·策略纸面·T+1开盘成交' : `模拟·等待${buyDate}入场日行情`,
+      sim: true,
+    };
+    if (qty > 0) {
+      ledger.journal = flexSimJournal(ledger.journal, {
+        type: 'OPEN', type_cn: '模拟开仓', name: target.name, etf_code: target.etf_code || '',
+        amount: cost, price: entryPrice, qty, fee,
+        trade_date: buyDate, ts: flexSimTradeTimestamp(buyDate, 'open'),
+        note: `策略纸面开仓 · 目标权重 ${pctLabel(target.weight)}`,
+      });
+    }
   }
 
-  const ledger = {
-    version: 3,
-    book: 'sim',
-    capital,
-    cash: Math.max(0, Math.round((capital - deployed) * 100) / 100),
-    positions,
-    risk_exits: riskExits,
-    journal: journal.slice(-100),
-    updated_at: new Date().toISOString(),
-    strategy_as_of: asOf,
-    mark_as_of: markAsOf,
-    structure_sig: nextSig,
-    mark_policy: 'SIM_ENTRY_OPEN_MARK_CLOSE',
-    mark_policy_cn: '入场=开盘价 · 盯市=最近可得收盘（休市=上一交易日）',
-  };
+  ledger.strategy_as_of = asOf;
+  ledger.mark_as_of = markAsOf;
+  ledger.mark_policy = 'SIM_INCREMENTAL_ENTRY_OPEN_MARK_CLOSE';
+  ledger.mark_policy_cn = '增量账本：入场=实际T+1开盘 · 盯市=持仓共同可得EOD · 不追溯重定价';
   dashboardState.flexSimSyncedAsOf = asOf;
   return saveFlexLedger(ledger);
 }
@@ -1851,14 +2001,24 @@ function flexUnrealizedPnl(ledger) {
   return flexMarkValue(ledger) - flexDeployedCost(ledger);
 }
 
-/** Sum realized PnL from journal (CLOSE / REDUCE with pnl). */
-function flexRealizedPnl(ledger) {
-  return (ledger?.journal || []).reduce((sum, row) => {
-    const t = String(row.type || '').toUpperCase();
-    if (t !== 'CLOSE' && t !== 'REDUCE') return sum;
-    const p = Number(row.pnl);
-    return sum + (Number.isFinite(p) ? p : 0);
-  }, 0);
+function flexRealizedReturnPct(ledger) {
+  let pnl = 0;
+  let cost = 0;
+  for (const row of ledger?.journal || []) {
+    const type = String(row.type || '').toUpperCase();
+    if (type !== 'CLOSE' && type !== 'REDUCE') continue;
+    const rowPnl = Number(row.pnl);
+    if (!Number.isFinite(rowPnl)) continue;
+    let rowCost = Number(row.cost_removed);
+    if (!(rowCost > 0)) {
+      const net = Number(row.net_amount);
+      rowCost = Number.isFinite(net) ? net - rowPnl : NaN;
+    }
+    if (!(rowCost > 0)) continue;
+    pnl += rowPnl;
+    cost += rowCost;
+  }
+  return cost > 0 ? pnl / cost : null;
 }
 
 function flexFormatSignedMoney(value) {
@@ -1882,7 +2042,7 @@ function flexFormatSignedPct(ratio, digits = 2) {
 
 /** Unrealized return: (mark - cost) / cost. null when marks missing (never fake 0%). */
 function flexPositionReturnPct(pos) {
-  if (String(pos?.mark_quality || '') === 'MISSING') return null;
+  if (flexMarkMissing(pos)) return null;
   const cost = Number(pos?.cost_basis);
   if (!(cost > 0)) {
     const avg = Number(pos?.avg_price);
@@ -1899,7 +2059,7 @@ function flexPositionReturnPct(pos) {
 
 /** Risk exits remain EOD-confirmed even while the desk shows an intraday quote. */
 function flexPositionEodReturnPct(pos) {
-  if (String(pos?.mark_quality || '') === 'MISSING') return null;
+  if (flexMarkMissing(pos)) return null;
   const cost = Number(pos?.cost_basis);
   const qty = Number(pos?.qty);
   const eodPrice = Number(pos?.eod_last_price);
@@ -1987,7 +2147,7 @@ function flexSatelliteBasketRiskStatus(ledger, flex) {
     return sum + (px > 0 && qty > 0 ? px * qty : 0);
   }, 0);
   const missing = satellites.some(pos =>
-    String(pos.mark_quality || '') === 'MISSING' || !(Number(pos.eod_last_price) > 0)
+    flexMarkMissing(pos) || !(Number(pos.eod_last_price) > 0)
   );
   const rule = flexSatelliteRiskRule(flex);
   const markDay = satellites.map(pos => pos.eod_mark_bar_date || pos.mark_bar_date || '').filter(Boolean).sort().at(-1)
@@ -2046,7 +2206,13 @@ function flexSuggestedAmount(item, capital, ledger = null, localPosition = null)
 }
 
 function deskLocalRebalanceActions(flex, ledger = loadFlexLedger()) {
-  const marked = flexApplyDisplayMarksToLedger(ledger);
+  if (isFlexSimBook()) return { adds: [], reduces: [] };
+  // Rebalance instructions are decisions, not display marks. Use one common
+  // official EOD session so an intraday quote cannot continuously move orders.
+  const marked = flexApplyEodMarksToLedger(ledger);
+  if (!marked.mark_as_of || Number(marked._eod_mark_stats?.missing) > 0) {
+    return { adds: [], reduces: [] };
+  }
   const equity = flexEquity(marked);
   if (!(equity > 0)) return { adds: [], reduces: [] };
   const allocation = flex?.allocation || {};
@@ -2079,7 +2245,7 @@ function deskLocalRebalanceActions(flex, ledger = loadFlexLedger()) {
       weight_hint: pctLabel(targetWeight),
       current_weight: currentValue / equity,
       rebalance_amount: Math.round(Math.abs(gap)),
-      signal_as_of: flex?.as_of || flex?.market_state?.trade_date || '',
+      signal_as_of: marked.mark_as_of,
       _key: pos.key || flexPositionKey(pos),
       _deskRebalance: true,
       priority: 'P0',
@@ -2177,18 +2343,26 @@ function flexGenerateWeekdayRange(fromStr, toStr) {
 /** Build sorted trade_date list from site history + nowcast + flex as_of; extend weekdays forward. */
 function flexEnsureTradeCalendar() {
   const set = new Set();
+  const observed = new Set();
   const add = (v) => {
     const s = String(v || '').slice(0, 10);
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) set.add(s);
   };
-  for (const row of dashboardState.history || []) add(row.date || row.trade_date);
+  const addObserved = (v) => {
+    const s = String(v || '').slice(0, 10);
+    if (/^\d{4}-\d{2}-\d{2}$/.test(s)) {
+      set.add(s);
+      observed.add(s);
+    }
+  };
+  for (const row of dashboardState.history || []) addObserved(row.date || row.trade_date);
   const nh = dashboardState.nowcastHistory;
   const nhRows = Array.isArray(nh) ? nh : (nh?.rows || []);
-  for (const row of nhRows) add(row.date || row.trade_date);
-  add(dashboardState.lastTradeDate);
+  for (const row of nhRows) addObserved(row.date || row.trade_date);
+  addObserved(dashboardState.lastTradeDate);
   const flex = dashboardState.flexActive || dashboardState.flexPlaybook?.flex_panel;
-  add(flex?.as_of);
-  add(flex?.market_state?.trade_date);
+  addObserved(flex?.as_of);
+  addObserved(flex?.market_state?.trade_date);
   const satPaths = flex?.exit_plan?.satellite?.paths || {};
   Object.values(satPaths).forEach(add);
   const coreEp = flex?.exit_plan?.core || {};
@@ -2200,12 +2374,19 @@ function flexEnsureTradeCalendar() {
 
   let list = Array.from(set).sort();
   // Fallback if history not loaded yet: Mon–Fri skeleton (A-share proxy; no holiday table).
-  if (list.length < 30) {
+  if (observed.size < 30) {
     const today = flexDateCn(0);
     const skeleton = flexGenerateWeekdayRange('2020-01-01', flexAddCalendarDays(today, 200));
     list = Array.from(new Set([...skeleton, ...list])).sort();
   } else {
-    list = flexExtendTradeDatesForward(list, 100);
+    // Explicit exit-plan dates can be sparse. Fill forward from the last
+    // observed market session, not from the furthest plan date, or weekdays
+    // between the two disappear and exit countdowns drift.
+    const lastObserved = Array.from(observed).sort().at(-1);
+    const furthestExplicit = list.at(-1) || lastObserved;
+    const horizon = [furthestExplicit, flexAddCalendarDays(flexDateCn(0), 200)].sort().at(-1);
+    const future = flexGenerateWeekdayRange(lastObserved, horizon);
+    list = Array.from(new Set([...list, ...future])).sort();
   }
   dashboardState.flexTradeDates = list;
   return list;
@@ -2277,11 +2458,12 @@ function flexPositionDaysHeld(pos, asOf = flexDateCn(0)) {
  */
 function flexPositionExitSignalDate(pos) {
   if (!pos) return null;
+  // Strategy/backend due dates are authoritative and may include a trading
+  // calendar unavailable to the browser.
+  if (pos.exit_date) return String(pos.exit_date).slice(0, 10);
   if (pos.buy_date && pos.hold_days != null && Number.isFinite(Number(pos.hold_days))) {
     return flexAddTradingDays(pos.buy_date, Number(pos.hold_days));
   }
-  // Strategy-provided due date (already on trade calendar when from exit_plan).
-  if (pos.exit_date) return String(pos.exit_date).slice(0, 10);
   return null;
 }
 
@@ -2295,7 +2477,9 @@ function flexPositionExitInfo(pos) {
   const daysHeld = pos.buy_date ? flexPositionDaysHeld(pos, today) : null;
   const exitDate = flexPositionExitSignalDate(pos);
   let left = null;
-  if (holdDays != null && daysHeld != null) {
+  if (pos.exit_date_authoritative && exitDate) {
+    left = Math.max(0, flexTradingDaysBetween(today, exitDate));
+  } else if (holdDays != null && daysHeld != null) {
     left = Math.max(0, holdDays - daysHeld);
   } else if (exitDate) {
     // Trading sessions from today (on/before) to exit signal date.
@@ -2315,6 +2499,14 @@ function flexPositionExitInfo(pos) {
   return { left, exitDate, label, daysHeld };
 }
 
+function flexBuyOrderFromBudget(budget, price, cashAvailable) {
+  return FlexExecutionCore.buyOrderFromBudget(budget, price, cashAvailable);
+}
+
+function flexSellQuantity(positionQty, price, { amount = null, pct = null } = {}) {
+  return FlexExecutionCore.sellQuantity(positionQty, price, { amount, pct });
+}
+
 function flexApplyBuy(ledger, draft) {
   ledger = normalizeFlexLedger(ledger);
   const amount = Number(draft.amount);
@@ -2323,12 +2515,11 @@ function flexApplyBuy(ledger, draft) {
     throw new Error('请输入有效的买入金额和成交价');
   }
   const cash = flexAvailableCash(ledger);
-  const fee = amount * FLEX_ONE_WAY_COST_RATE;
-  const cashRequired = amount + fee;
-  if (cashRequired > cash + 1e-6) {
-    throw new Error(`可用现金不足（约 ${formatMoney(cash)} 元）`);
+  const order = flexBuyOrderFromBudget(amount, price, cash);
+  if (!(order.qty >= FLEX_ETF_LOT_SIZE)) {
+    throw new Error(`预算不足一手（${FLEX_ETF_LOT_SIZE}份，含1bp成本）`);
   }
-  const qty = amount / price;
+  const { qty, gross, fee, cash_required: cashRequired } = order;
   const key = draft.key;
   const existing = ledger.positions[key];
   const buyDate = String(draft.buy_date || flexDateCn(0)).slice(0, 10);
@@ -2342,7 +2533,7 @@ function flexApplyBuy(ledger, draft) {
 
   if (existing && Number(existing.qty) > 0) {
     const newQty = Number(existing.qty) + qty;
-    const newCost = Number(existing.cost_basis) + amount + fee;
+    const newCost = Number(existing.cost_basis) + cashRequired;
     existing.qty = newQty;
     existing.cost_basis = newCost;
     existing.avg_price = newCost / newQty;
@@ -2359,8 +2550,8 @@ function flexApplyBuy(ledger, draft) {
       etf_name: draft.etf_name || '',
       sleeve: draft.sleeve || '',
       qty,
-      avg_price: (amount + fee) / qty,
-      cost_basis: amount + fee,
+      avg_price: cashRequired / qty,
+      cost_basis: cashRequired,
       last_price: price,
       opened_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -2378,12 +2569,13 @@ function flexApplyBuy(ledger, draft) {
     key,
     name: draft.name,
     etf_code: draft.etf_code || '',
-    amount,
+    amount: gross,
     price,
     qty,
     fee,
     cost_rate: FLEX_ONE_WAY_COST_RATE,
     signal_as_of: draft.signal_as_of || '',
+    budget_amount: amount,
   });
   return saveFlexLedger(ledger);
 }
@@ -2395,19 +2587,12 @@ function flexApplyReduce(ledger, key, { amount, price, pct }) {
   const px = Number(price);
   if (!(px > 0)) throw new Error('请输入有效成交价');
 
-  let sellQty = 0;
-  let sellAmount = 0;
-  // Prefer explicit amount when provided; otherwise use percent.
-  if (amount != null && Number(amount) > 0) {
-    sellAmount = Number(amount);
-    sellQty = sellAmount / px;
-  } else if (pct != null && Number(pct) > 0) {
-    const ratio = Math.min(100, Math.max(0, Number(pct))) / 100;
-    sellQty = Number(pos.qty) * ratio;
-    sellAmount = sellQty * px;
-  } else {
+  if (!((amount != null && Number(amount) > 0) || (pct != null && Number(pct) > 0))) {
     throw new Error('请输入减仓金额或比例');
   }
+  const sellQty = flexSellQuantity(pos.qty, px, { amount, pct });
+  if (!(sellQty > 0)) throw new Error(`减仓不足一手（${FLEX_ETF_LOT_SIZE}份）`);
+  const sellAmount = sellQty * px;
   if (sellQty > Number(pos.qty) + 1e-9) {
     throw new Error('减仓数量超过持仓');
   }
@@ -2432,6 +2617,7 @@ function flexApplyReduce(ledger, key, { amount, price, pct }) {
       price: px,
       qty: sellQty,
       pnl,
+      cost_removed: costRemoved,
       fee,
       net_amount: netProceeds,
       cost_rate: FLEX_ONE_WAY_COST_RATE,
@@ -2452,6 +2638,7 @@ function flexApplyReduce(ledger, key, { amount, price, pct }) {
       price: px,
       qty: sellQty,
       pnl,
+      cost_removed: costRemoved,
       fee,
       net_amount: netProceeds,
       cost_rate: FLEX_ONE_WAY_COST_RATE,
@@ -2482,7 +2669,6 @@ function renderFlexAccountBar() {
   const mtm = flexMarkValue(ledger);
   const equity = flexEquity(ledger);
   const uPnl = flexUnrealizedPnl(ledger);
-  const rPnl = flexRealizedPnl(ledger);
   const capital = Number(ledger.capital) || 0;
   const hasBook = capital > 0 || cash > 0 || deployed > 0 || mtm > 0;
   const exposureBase = equity > 0 ? equity : capital;
@@ -2497,7 +2683,7 @@ function renderFlexAccountBar() {
 
   // 收益只展示涨跌幅（%），不展示金额
   const uRet = deployed > 0 ? uPnl / deployed : null;
-  const rRet = capital > 0 ? rPnl / capital : null;
+  const rRet = flexRealizedReturnPct(ledger);
 
   const uEl = document.getElementById('flexExecUPnl');
   if (uEl) {
@@ -2522,21 +2708,23 @@ function renderFlexAccountBar() {
   const note = document.getElementById('flexMarkNote');
   if (note) {
     const md = ledger.mark_as_of || flexEffectiveMarkDate();
+    const strategyAsOf = String(dashboardState.flexActive?.as_of || ledger.strategy_as_of || '').slice(0, 10);
     const quoteWindow = typeof getFlexQuoteWindow === 'function' ? getFlexQuoteWindow() : { active: false, phase: 'eod' };
-    if (hasBook && md) {
-      note.hidden = false;
-      const rt = ledger._realtime_mark_stats;
-      note.textContent = quoteWindow.active && rt?.marked
-        ? (rt.phase === 'final'
-          ? `盯市：当日收盘报价 ${rt.latest_at || '—'}（${rt.source === 'TENCENT' ? '腾讯' : '东财'}）· 待正式EOD确认`
-          : `盯市：实时 ETF 报价 ${rt.latest_at || '—'}（${rt.source === 'TENCENT' ? '腾讯' : '东财'}）· 止损止盈仍按EOD ${md} 确认`)
-        : quoteWindow.active
-          ? `盯市：当日报价暂不可用，回退最近收盘 ${md}`
-        : `盯市：上一交易日收盘 ${md}（休市总涨跌幅）`;
-    } else {
-      note.hidden = true;
-      note.textContent = '';
+    const rt = ledger._realtime_mark_stats;
+    const parts = [strategyAsOf ? `策略信号：正式EOD ${strategyAsOf}` : null];
+    if (hasBook) {
+      parts.push(md ? `收益/风控：持仓共同EOD ${md}` : '收益/风控：共同EOD缺失');
+      if ((ledger.mark_stale_codes || []).length) parts.push(`滞后标的 ${(ledger.mark_stale_codes || []).length}只`);
+      if ((ledger.mark_missing_codes || []).length) parts.push(`缺价 ${(ledger.mark_missing_codes || []).length}只`);
+      if (quoteWindow.active && rt?.marked) {
+        const source = rt.source === 'TENCENT' ? '腾讯' : rt.source === 'EASTMONEY' ? '东财' : '实时源';
+        parts.push(`${rt.phase === 'final' ? '收盘报价' : '盘中盯市'}：${source} ${rt.latest_at || '—'}（仅展示）`);
+      } else if (quoteWindow.active) {
+        parts.push('实时盯市不可用，已回退共同EOD');
+      }
     }
+    note.hidden = parts.length === 0;
+    note.textContent = parts.join(' · ');
   }
 
   const capitalHint = document.getElementById('flexCapitalHint');
@@ -2567,11 +2755,11 @@ function renderFlexHoldings() {
   }
   positions.sort((a, b) => (Number(b.cost_basis) || 0) - (Number(a.cost_basis) || 0));
   el.innerHTML = positions.map(pos => {
-    const markValue = String(pos.mark_quality || '') === 'MISSING'
+    const markValue = flexMarkMissing(pos)
       ? Number(pos.cost_basis) || 0
       : (Number(pos.qty) || 0) * (Number(pos.last_price) || Number(pos.avg_price) || 0);
     const weight = equity > 0 ? markValue / equity : null;
-    const missingPx = String(pos.mark_quality || '') === 'MISSING';
+    const missingPx = flexMarkMissing(pos);
     const ret = flexPositionReturnPct(pos);
     const pnlCls = ret == null ? '' : ret > 0 ? 'up' : ret < 0 ? 'down' : '';
     const pnlTxt = missingPx ? '缺价' : (ret == null ? '—' : flexFormatSignedPct(ret));
@@ -2581,8 +2769,11 @@ function renderFlexHoldings() {
       ? riskStatus.label
       : [exitInfo.label, riskStatus?.label].filter(Boolean).join(' · ');
     const markDay = pos.mark_price_type === 'realtime'
-      ? `实时 ${pos.realtime_quote_at || '—'}`
+      ? `${pos.realtime_quote_date || flexDateCn(0)} ${pos.realtime_quote_at || '—'}`
       : (pos.mark_bar_date || ledger.mark_as_of || '');
+    const markSource = pos.mark_price_type === 'realtime'
+      ? (pos.realtime_quote_source === 'TENCENT' ? '腾讯实时' : pos.realtime_quote_source === 'EASTMONEY' ? '东财实时' : '实时')
+      : '正式EOD';
     const titleBits = [
       exitLabel,
       riskStatus?.rule?.ruleCn,
@@ -2596,15 +2787,17 @@ function renderFlexHoldings() {
     return `<div class="flex-row flex-row-book" data-pos-key="${escapeHtml(pos.key)}" title="${escapeHtml(titleBits)}">
       <span class="flex-row-code" data-label="代码">${escapeHtml(pos.etf_code || '—')}</span>
       <span class="flex-row-name" data-label="名称">${escapeHtml(pos.name || '—')}</span>
-      <span class="flex-row-num" data-label="成本">${formatMoney(pos.cost_basis)}</span>
-      <span class="flex-row-num" data-label="均价">${Number(pos.avg_price) > 0 ? formatPrice(pos.avg_price) : (missingPx ? '缺价' : '—')}</span>
+      <span class="flex-row-num" data-label="份额">${formatShares(pos.qty)}</span>
+      <span class="flex-row-num flex-row-stack" data-label="成本/均价"><strong>${formatMoney(pos.cost_basis)}</strong><small>@ ${Number(pos.avg_price) > 0 ? formatPrice(pos.avg_price) : (missingPx ? '缺价' : '—')}</small></span>
+      <span class="flex-row-num flex-row-stack" data-label="盯市/时点"><strong>${Number(pos.last_price) > 0 ? formatPrice(pos.last_price) : '缺价'}</strong><small>${escapeHtml(`${markSource} · ${markDay || '—'}`)}</small></span>
       <span class="flex-row-num" data-label="仓位">${weight != null ? pctLabel(weight) : '—'}</span>
       <span class="flex-row-num ${pnlCls}" data-label="涨跌幅">${pnlTxt}</span>
       <span class="flex-row-num flex-row-exit" data-label="清仓">${escapeHtml(exitLabel)}</span>
-      <span class="flex-row-acts" data-label="操作">
-        <button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">加</button>
+      <span class="flex-row-acts" data-label="操作">${isFlexSimBook()
+        ? '<span class="flex-chip ghost" title="模拟仓由策略状态机自动维护">自动管理</span>'
+        : `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(pos.key)}">加</button>
         <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(pos.key)}">减</button>
-        <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(pos.key)}">平</button>
+        <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(pos.key)}">平</button>`}
       </span>
     </div>`;
   }).join('');
@@ -2614,7 +2807,7 @@ function renderFlexJournal() {
   const el = document.getElementById('flexJournalList');
   if (!el) return;
   const ledger = loadFlexLedger();
-  const rows = (ledger.journal || []).slice(0, 50);
+  const rows = FlexExecutionCore.sortJournalNewestFirst(ledger.journal).slice(0, 50);
   if (!rows.length) {
     el.innerHTML = `<div class="flex-empty-state soft">
       <strong>暂无流水</strong>
@@ -2623,9 +2816,10 @@ function renderFlexJournal() {
     return;
   }
   el.innerHTML = rows.map(row => {
+    const tradeDay = String(row.trade_date || row.ts || '').slice(0, 10);
     const when = row.ts
       ? new Date(row.ts).toLocaleString('zh-CN', { month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false })
-      : '—';
+      : (tradeDay || '—');
     const label = row.type_cn || row.type || '—';
     const code = row.etf_code || row.name || '—';
     // Journal: prefer return % (pnl / cost). CLOSE/REDUCE: cost ≈ amount - pnl when amount is proceeds.
@@ -2635,10 +2829,10 @@ function renderFlexJournal() {
     const amtN = Number(row.amount);
     if (Number.isFinite(pnlN)) {
       const t = String(row.type || '').toUpperCase();
-      let cost = null;
+      let cost = Number(row.cost_removed);
       if ((t === 'CLOSE' || t === 'REDUCE') && Number.isFinite(amtN)) {
         const net = Number(row.net_amount);
-        cost = (Number.isFinite(net) ? net : amtN - (Number(row.fee) || 0)) - pnlN;
+        if (!(cost > 0)) cost = (Number.isFinite(net) ? net : amtN - (Number(row.fee) || 0)) - pnlN;
       } else if (Number.isFinite(amtN) && amtN > 0 && t === 'SYNC') {
         cost = amtN; // sim sync stores deployed notional in amount
       }
@@ -2657,7 +2851,7 @@ function renderFlexJournal() {
       <span class="flex-row-num" data-label="金额">${formatMoney(row.amount)}</span>
       <span class="flex-row-num" data-label="价格">${Number(row.price) > 0 ? formatPrice(row.price) : '—'}</span>
       <span class="flex-row-num ${retCls}" data-label="涨跌幅">${retTxt}</span>
-      <span class="flex-row-time" data-label="时间">${when}</span>
+      <span class="flex-row-time" data-label="成交时间">${escapeHtml(when)}</span>
     </div>`;
   }).join('');
 }
@@ -2698,11 +2892,12 @@ function updateFlexModalPreview() {
 
   if (state.mode === 'buy' || state.mode === 'add') {
     if (amount > 0 && price > 0) {
-      const qty = amount / price;
-      const w = capital > 0 ? pctLabel(amount / capital) : '—';
-      const fee = amount * FLEX_ONE_WAY_COST_RATE;
-      const afterCash = cash - amount - fee;
-      preview.textContent = `约 ${formatShares(qty)} 份 · 占全仓 ${w} · 成本1bp约 ${formatMoney(fee, 2)} · 成交后现金约 ${formatMoney(Math.max(0, afterCash))}`;
+      const order = flexBuyOrderFromBudget(amount, price, cash);
+      const w = capital > 0 ? pctLabel(order.gross / capital) : '—';
+      const afterCash = cash - order.cash_required;
+      preview.textContent = order.qty > 0
+        ? `${formatShares(order.qty)} 份（整手）· 实际成交 ${formatMoney(order.gross)} · 占全仓 ${w} · 1bp ${formatMoney(order.fee, 2)} · 余现 ${formatMoney(Math.max(0, afterCash))}`
+        : `预算不足 ${FLEX_ETF_LOT_SIZE} 份（含1bp成本）`;
     } else if (state.defaultAmount) {
       preview.textContent = `建议金额 ${formatMoney(state.defaultAmount)}（目标权重 × 全仓）；请填写成交价`;
     } else {
@@ -2719,10 +2914,10 @@ function updateFlexModalPreview() {
     let sellQty = 0;
     let sellAmt = 0;
     if (amount > 0 && price > 0) {
-      sellAmt = amount;
-      sellQty = amount / price;
+      sellQty = flexSellQuantity(pos.qty, price, { amount });
+      sellAmt = sellQty * price;
     } else if (pct > 0 && price > 0) {
-      sellQty = Number(pos.qty) * (Math.min(100, pct) / 100);
+      sellQty = flexSellQuantity(pos.qty, price, { pct });
       sellAmt = sellQty * price;
     }
     if (sellQty > 0) {
@@ -2788,7 +2983,7 @@ function openFlexTradeModal(spec) {
     if (priceField) priceField.hidden = false;
     if (pctField) pctField.hidden = true;
     if (chips) chips.hidden = false;
-    if (amountLabel) amountLabel.textContent = '金额（元）';
+    if (amountLabel) amountLabel.textContent = '预算上限（元）';
     if (amountEl) amountEl.value = spec.defaultAmount != null ? String(spec.defaultAmount) : '';
     if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
   } else if (spec.mode === 'reduce') {
@@ -3332,8 +3527,8 @@ function splitFlexSignalBuckets(flex) {
   const closeKeys = new Set(['CLOSE', 'SELL']);
   const avoidKeys = new Set(['AVOID', 'UNDERWEIGHT_RELATIVE']);
 
-  const buckets = { open: [], hold: [], close: [], avoid: [] };
-  const seen = { open: new Set(), hold: new Set(), close: new Set(), avoid: new Set() };
+  const buckets = { open: [], rebalance: [], hold: [], close: [], avoid: [] };
+  const seen = { open: new Set(), rebalance: new Set(), hold: new Set(), close: new Set(), avoid: new Set() };
   const ledger = loadFlexLedger();
 
   const pushUnique = (kind, item) => {
@@ -3358,8 +3553,8 @@ function splitFlexSignalBuckets(flex) {
   // single-sleeve 100% → dual-sleeve 60/40 requires reducing the old sleeve
   // before the new sleeve can be funded.
   const rebalance = deskLocalRebalanceActions(f, ledger);
-  for (const item of rebalance.reduces) pushUnique('close', item);
-  for (const item of rebalance.adds) pushUnique('open', item);
+  for (const item of rebalance.reduces) pushUnique('rebalance', item);
+  for (const item of rebalance.adds) pushUnique('rebalance', item);
 
   // CLOSE: ALWAYS surface engine close_list when as_of is today (guaranteed tip path).
   // - You hold it → actionable 平
@@ -3536,6 +3731,7 @@ function renderFlexSignalList(flex, options = {}) {
   // hold bucket intentionally omitted (paper HOLD is not a desk action)
   const map = [
     { kind: 'open', id: 'flexOpenList', forceKind: 'open', countId: 'flexOpenCount' },
+    { kind: 'rebalance', id: 'flexRebalanceList', forceKind: 'rebalance', countId: 'flexRebalanceCount' },
     { kind: 'close', id: 'flexCloseList', forceKind: 'close', countId: 'flexCloseCount' },
     { kind: 'avoid', id: 'flexAvoidList', forceKind: 'avoid', countId: 'flexAvoidCount' },
   ];
@@ -3690,6 +3886,10 @@ function bindFlexExecControls() {
   });
 
   document.getElementById('flexResetLedgerBtn')?.addEventListener('click', () => {
+    if (isFlexSimBook()) {
+      flexToast('模拟仓由策略自动维护，不能手动清空', 'warn', 2800);
+      return;
+    }
     const bookName = isFlexSimBook() ? '模拟仓' : '真实仓';
     if (!confirm(`确认清空【${bookName}】持仓与流水？\n全仓金额保留，现金重置为全仓。\n（另一账本不受影响）`)) return;
     const ledger = loadFlexLedger();
@@ -3787,6 +3987,10 @@ function bindFlexExecControls() {
   document.getElementById('flexTradePanel')?.addEventListener('click', (ev) => {
     const btn = ev.target.closest('[data-flex-act]');
     if (!btn) return;
+    if (isFlexSimBook()) {
+      flexToast('模拟仓为只读账本，由策略状态机自动维护', 'warn', 2800);
+      return;
+    }
     const act = btn.dataset.flexAct;
     const key = btn.dataset.posKey;
     const ledger = loadFlexLedger();
@@ -3985,7 +4189,8 @@ function renderFlexTradePanel(playbook) {
     const dq = flex.data_quality || {};
     let label = asOf ? asOf.slice(5) : '';
     if (dq.bridged) label = `${label}·桥`;
-    else if (lag != null && lag > 0) label = `${label}·滞${lag}d`;
+    else if (lag === 1) label = `${label}·EOD`;
+    else if (lag != null && lag > 1) label = `${label}·滞${lag}d`;
     asOfEl.textContent = label;
     const session = flexSessionTradeDate();
     asOfEl.title = [
@@ -3999,12 +4204,12 @@ function renderFlexTradePanel(playbook) {
     asOfEl.classList.toggle('warn', !!(lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS));
   }
   const satRule = flexSatelliteRiskRule(flex);
-  setText('flexHold', `核心${flex.hold_days || 5}日 · 卫星${satRule.ruleCn}`);
+  setText('flexHold', `核心${flex.hold_days || 5}日 · 卫星满${FLEX_SAT_MIN_HOLD_DAYS}日查 ${flexFormatSignedPct(satRule.stopLoss, 0)}/${flexFormatSignedPct(satRule.takeProfit, 0)} · 最长${flex.hold_days_sat || flex.satellite?.hold_days || 8}日`);
   // Win rate + ann return (1bp baseline when present in stats)
   const win = full.win_rate;
   const ann = full.ann_return;
   if (win != null && Number.isFinite(Number(win)) && ann != null && Number.isFinite(Number(ann))) {
-    setText('flexStatsShort', `${(Number(win) * 100).toFixed(0)}%·${(Number(ann) * 100).toFixed(0)}%`);
+    setText('flexStatsShort', `胜率${(Number(win) * 100).toFixed(0)}% · 年化${(Number(ann) * 100).toFixed(0)}%`);
   } else if (win != null && Number.isFinite(Number(win))) {
     setText('flexStatsShort', pctLabel(win));
   } else {
@@ -4194,17 +4399,23 @@ async function refreshDashboard({ forceFull = false } = {}) {
   dashboardState.refreshInFlight = true;
   try {
     if (!forceFull && dashboardState.lastUpdateTime) {
-      const latest = await loadJSON('./data/latest.json');
+      const [latest, buildInfo] = await Promise.all([
+        loadJSON('./data/latest.json'),
+        loadJSON('./data/build_info.json', { bust: true }).catch(() => null),
+      ]);
+      const buildTime = buildInfo?.build_time || null;
       if (
         latest?.update_time === dashboardState.lastUpdateTime
         && latest?.trade_date === dashboardState.lastTradeDate
+        && (!buildTime || buildTime === dashboardState.lastBuildTime)
       ) {
         updateFreshness(latest);
         updateRefreshStatus('ok', '数据未变化，跳过全量刷新');
         return;
       }
       // New data: refresh cache bust and reload critical + heavy.
-      dashboardState.cacheBust = latest?.update_time || String(Date.now());
+      dashboardState.cacheBust = buildTime || latest?.update_time || String(Date.now());
+      if (buildTime) dashboardState.lastBuildTime = buildTime;
     } else {
       await resolveCacheBust();
     }
@@ -4630,7 +4841,7 @@ async function requestDataPlaneRefresh(mode) {
       });
 
       dashboardState.cacheBust = String(Date.now());
-      await refreshDashboard(true);
+      await refreshDashboard({ forceFull: true });
       if (result) {
         paintStaticPagesPlaneMeta({
           risk_temperature: result.latest?.risk_temperature
@@ -4682,7 +4893,7 @@ async function requestDataPlaneRefresh(mode) {
       throw new Error(payload.error || payload.detail || ('refresh failed ' + res.status));
     }
     dashboardState.cacheBust = String(Date.now());
-    await refreshDashboard(true);
+    await refreshDashboard({ forceFull: true });
     await fetchDataPlaneStatus();
   } catch (err) {
     console.error(err);

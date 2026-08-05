@@ -233,7 +233,7 @@
               <div><b id="flexExposure">—</b><i>目标暴露</i></div>
               <div><b id="flexBeta">—</b><i>β</i></div>
               <div><b id="flexHold">—</b><i>持有</i></div>
-              <div><b id="flexStatsShort">—</b><i>回测</i></div>
+              <div><b id="flexStatsShort">—</b><i>全样本回测</i></div>
               <div class="flex-mode-hint"><b id="flexModeHint">—</b><i>账本</i></div>
             </div>
           </div>
@@ -260,6 +260,16 @@
                     <span>动作</span><span>代码</span><span>名称</span><span>权重</span><span>建议</span><span>说明</span><span>操作</span>
                   </div>
                   <div id="flexOpenList" class="flex-table-body"></div>
+                </div>
+              </section>
+              <section class="flex-signal-block" data-signal-kind="rebalance" hidden>
+                <h3 class="flex-signal-title rebalance">调仓 <span class="flex-signal-count" id="flexRebalanceCount"></span></h3>
+                <p class="flex-block-hint">按持仓共同可得的正式收盘价计算；T 日确认，T+1 开盘按实际成交记账。</p>
+                <div class="flex-table">
+                  <div class="flex-table-head">
+                    <span>动作</span><span>代码</span><span>名称</span><span>权重</span><span>建议</span><span>说明</span><span>操作</span>
+                  </div>
+                  <div id="flexRebalanceList" class="flex-table-body"></div>
                 </div>
               </section>
               <section class="flex-signal-block" data-signal-kind="close" hidden>
@@ -296,7 +306,7 @@
           <div class="flex-tab-panel" data-flex-panel="book" id="flexHoldingsPanel" role="tabpanel">
             <div class="flex-table">
               <div class="flex-table-head flex-table-head-book">
-                <span>代码</span><span>名称</span><span>成本</span><span>均价</span><span>仓位</span><span>涨跌幅</span><span>清仓</span><span>操作</span>
+                <span>代码</span><span>名称</span><span>份额</span><span>成本/均价</span><span>盯市/时点</span><span>仓位</span><span>涨跌幅</span><span>清仓</span><span>操作</span>
               </div>
               <div id="flexHoldingsList" class="flex-table-body">
                 <div class="flex-empty-state soft">
@@ -400,6 +410,7 @@
 
     <script src="./vendor/echarts.min.js"></script>
     <script src="./assets/charts.js?v=20260803-breadth-filtered"></script>
+    <script src="./assets/flex_execution_core.js?v=20260805-flex-ledger-v4"></script>
     <script src="./assets/app.js?v=20260803-breadth-filtered"></script>
   </body>
 </html>
