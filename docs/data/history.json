@@ -11688,7 +11688,7 @@
   },
   {
     "date": "2026-08-04",
-    "risk_temperature": 63.8,
+    "risk_temperature": 63.9,
     "regime": "HIGH_RISK",
     "avix_clean": 21.2353,
     "qvix": null,
@@ -11696,7 +11696,7 @@
     "qvix_replica_quality": "OK_REPLICA_ROLLING_MEDIAN_BASIS",
     "hs300_close": 4600.93,
     "drawdown_pressure": 82.6065,
-    "breadth_pressure": 17.3546,
-    "model_confidence": 88.0
+    "breadth_pressure": 18.0383,
+    "model_confidence": 86.5
   }
 ]
