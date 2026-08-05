@@ -14,6 +14,7 @@ Same rules as CFFEX / QVIX / index multi-source:
 from __future__ import annotations
 
 from datetime import datetime
+import math
 import re
 
 import pandas as pd
@@ -35,6 +36,7 @@ SOURCE_EM_SPOT = "PARSE_EM_A_SPOT"
 SOURCE_EM_FENBU = "PARSE_EM_ZDFENBU"
 SOURCE_SOHU_ZDT = "PARSE_SOHU_ZDT"
 SOURCE_AK_EM = "AKSHARE_EASTMONEY_A_SPOT"
+MIN_DIRECT_COMPLETENESS = 0.98
 
 _UA = {
     "User-Agent": "Mozilla/5.0 (compatible; a-share-risk-thermometer/1.0)",
@@ -94,9 +96,20 @@ def _fetch_eastmoney_a_spot_direct() -> pd.DataFrame:
                 page += 1
                 if page > 80:
                     break
-            if len(rows) < 1000:
+            unique_rows = {
+                str(row.get("f12") or "").strip(): row
+                for row in rows
+                if str(row.get("f12") or "").strip()
+            }
+            expected = int(total or 0)
+            minimum = max(1000, math.ceil(expected * MIN_DIRECT_COMPLETENESS))
+            if len(unique_rows) < minimum:
+                last_error = RuntimeError(
+                    f"incomplete Eastmoney A-share snapshot: unique={len(unique_rows)} "
+                    f"expected={expected} minimum={minimum}"
+                )
                 continue
-            out = pd.DataFrame(rows).rename(
+            out = pd.DataFrame(unique_rows.values()).rename(
                 columns={
                     "f12": "代码",
                     "f14": "名称",
@@ -107,6 +120,7 @@ def _fetch_eastmoney_a_spot_direct() -> pd.DataFrame:
                     "f10": "量比",
                 }
             )
+            out["source_total"] = expected
             out["fetch_time"] = datetime.now().isoformat(timespec="seconds")
             out["source"] = SOURCE_EM_SPOT
             return out
@@ -118,23 +132,23 @@ def _fetch_eastmoney_a_spot_direct() -> pd.DataFrame:
 
 
 def fetch_a_breadth_snapshot() -> pd.DataFrame:
-    """Stock-level A-share snapshot for true breadth (EM multi-host + AKShare)."""
-    df = pd.DataFrame()
+    """Stock-level A-share snapshot with direct parse primary and AKShare fallback."""
     try:
-        import akshare as ak
-
-        df = ak.stock_zh_a_spot_em()
-        if df is not None and not df.empty:
-            df = df.copy()
-            df["fetch_time"] = datetime.now().isoformat(timespec="seconds")
-            df["source"] = SOURCE_AK_EM
-    except Exception:  # noqa: BLE001
+        df = _fetch_eastmoney_a_spot_direct()
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN EM A-spot direct failed: {exc}")
         df = pd.DataFrame()
     if df is None or df.empty:
         try:
-            df = _fetch_eastmoney_a_spot_direct()
+            import akshare as ak
+
+            df = ak.stock_zh_a_spot_em()
+            if df is not None and not df.empty:
+                df = df.copy()
+                df["fetch_time"] = datetime.now().isoformat(timespec="seconds")
+                df["source"] = SOURCE_AK_EM
         except Exception as exc:  # noqa: BLE001
-            print(f"WARN EM A-spot direct failed: {exc}")
+            print(f"WARN AKShare A-spot fallback failed: {exc}")
             df = pd.DataFrame()
     if df is None or df.empty:
         return pd.DataFrame()

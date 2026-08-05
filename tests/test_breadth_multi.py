@@ -4,8 +4,12 @@ from __future__ import annotations
 import pandas as pd
 
 from src.data_sources.akshare_breadth import (
+    SOURCE_AK_EM,
     SOURCE_EM_FENBU,
+    SOURCE_EM_SPOT,
     SOURCE_SOHU_ZDT,
+    _fetch_eastmoney_a_spot_direct,
+    fetch_a_breadth_snapshot,
     parse_sohu_zdt_html,
     reconcile_breadth_summaries,
     summarize_breadth,
@@ -89,3 +93,47 @@ def test_reconcile_breadth_preserves_primary_and_records_agreement():
     assert row["secondary_source"] == SOURCE_EM_FENBU
     assert row["quality"] == "OK_CROSSCHECKED"
     assert float(row["source_score_delta"]) < 1.0
+
+
+def test_direct_breadth_requires_complete_unique_snapshot(monkeypatch):
+    from src.data_sources import akshare_breadth as mod
+
+    rows = [{"f12": f"{i:06d}", "f2": 10.0, "f3": 1.0} for i in range(1000)]
+
+    class Response:
+        def raise_for_status(self):
+            return None
+
+        def json(self):
+            return {"data": {"total": 1000, "diff": rows}}
+
+    class Session:
+        def get(self, *_args, **_kwargs):
+            return Response()
+
+    monkeypatch.setattr(mod, "_session", lambda: Session())
+    out = _fetch_eastmoney_a_spot_direct()
+    assert len(out) == 1000
+    assert int(out.iloc[0]["source_total"]) == 1000
+    assert out.iloc[0]["source"] == SOURCE_EM_SPOT
+
+
+def test_breadth_prefers_direct_parse(monkeypatch):
+    from src.data_sources import akshare_breadth as mod
+
+    direct = pd.DataFrame({"最新价": [10.0], "涨跌幅": [1.0], "source": [SOURCE_EM_SPOT]})
+    monkeypatch.setattr(mod, "_fetch_eastmoney_a_spot_direct", lambda: direct)
+    out = fetch_a_breadth_snapshot()
+    assert out.iloc[0]["source"] == SOURCE_EM_SPOT
+
+
+def test_breadth_uses_akshare_only_when_direct_fails(monkeypatch):
+    import sys
+    from types import SimpleNamespace
+    from src.data_sources import akshare_breadth as mod
+
+    monkeypatch.setattr(mod, "_fetch_eastmoney_a_spot_direct", lambda: (_ for _ in ()).throw(RuntimeError("down")))
+    fallback = pd.DataFrame({"最新价": [10.0], "涨跌幅": [1.0]})
+    monkeypatch.setitem(sys.modules, "akshare", SimpleNamespace(stock_zh_a_spot_em=lambda: fallback))
+    out = fetch_a_breadth_snapshot()
+    assert out.iloc[0]["source"] == SOURCE_AK_EM

@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor
+
 import pandas as pd
 
 from src.core.calendar import merged_trading_days
@@ -232,6 +234,35 @@ def _augment_qvix_for_realtime_dates(
     )
 
 
+def _fetch_realtime_factor_inputs(
+    qvix_raw: pd.DataFrame,
+    realtime_avix: pd.DataFrame,
+    rate_curve: pd.DataFrame,
+    index_history: pd.DataFrame,
+    breadth_history: pd.DataFrame,
+) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
+    """Fetch independent realtime factors concurrently without changing quality gates."""
+    trusted_breadth = drop_legacy_synthetic_breadth(breadth_history)
+    with ThreadPoolExecutor(max_workers=3, thread_name_prefix="rt-factor") as pool:
+        qvix_future = pool.submit(
+            _augment_qvix_for_realtime_dates,
+            qvix_raw,
+            realtime_avix,
+            rate_curve,
+            index_history,
+        )
+        index_future = pool.submit(
+            fetch_realtime_index_snapshot,
+            str(realtime_avix["trade_date"].max()),
+        )
+        breadth_future = pool.submit(
+            _augment_breadth_for_realtime_dates,
+            trusted_breadth,
+            realtime_avix,
+        )
+        return qvix_future.result(), index_future.result(), breadth_future.result()
+
+
 def _gap_rows(
     official_risk: pd.DataFrame,
     index_history: pd.DataFrame,
@@ -297,17 +328,18 @@ def build_nowcast_history(
         }
 
     pseudo_clean = _pseudo_avix_clean(official_clean, realtime_avix)
-    qvix_source = _augment_qvix_for_realtime_dates(qvix_raw, realtime_avix, rate_curve, index_history)
+    qvix_source, realtime_index, breadth_source = _fetch_realtime_factor_inputs(
+        qvix_raw,
+        realtime_avix,
+        rate_curve,
+        index_history,
+        breadth_history,
+    )
     qvix = validate_qvix(pseudo_clean, qvix_source)
     realtime_trade_date = str(realtime_avix["trade_date"].max())
-    realtime_index = fetch_realtime_index_snapshot(realtime_trade_date)
     factor_index_history = augment_index_history_with_realtime(index_history, realtime_index, realtime_trade_date)
     realized = compute_realized_vol(factor_index_history)
     drawdown = compute_drawdown(factor_index_history)
-    breadth_source = _augment_breadth_for_realtime_dates(
-        drop_legacy_synthetic_breadth(breadth_history),
-        realtime_avix,
-    )
     breadth = compute_breadth_pressure(breadth_source)
     estimated = compute_risk_temperature(pseudo_clean, qvix, realized, drawdown, breadth, factor_index_history)
     estimated = estimated[estimated["trade_date"].astype(str).isin(set(realtime_avix["trade_date"].astype(str)))].copy()

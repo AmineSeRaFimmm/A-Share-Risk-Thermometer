@@ -1,6 +1,9 @@
 """ETF EOD marks helpers for Flex sim book."""
 from __future__ import annotations
 
+from threading import Lock
+import time
+
 from src.core.etf_marks import bars_to_dict, build_etf_marks_payload, collect_flex_etf_codes
 import pandas as pd
 
@@ -38,3 +41,35 @@ def test_payload_reports_stale_codes_and_common_complete_date(monkeypatch):
     assert payload["complete_as_of"] == "2026-07-14"
     assert payload["quality"] == "WARN_INCOMPLETE_AS_OF"
     assert payload["by_code"]["510300"]["fresh_for_as_of"] is True
+
+
+def test_etf_marks_fetch_codes_with_bounded_parallelism(monkeypatch):
+    from src.core import etf_marks as mod
+
+    codes = ["510300", "510310", "510500", "512480"]
+    active = 0
+    max_active = 0
+    lock = Lock()
+
+    def fetch(code, **_kwargs):
+        nonlocal active, max_active
+        with lock:
+            active += 1
+            max_active = max(max_active, active)
+        time.sleep(0.03)
+        with lock:
+            active -= 1
+        return pd.DataFrame([{
+            "trade_date": "2026-07-15",
+            "open": 1.0,
+            "close": 1.1,
+            "high": 1.2,
+            "low": 0.9,
+        }])
+
+    monkeypatch.setattr(mod, "collect_flex_etf_codes", lambda _playbook: codes)
+    monkeypatch.setattr(mod, "load_or_fetch_etf_bars", fetch)
+    payload = build_etf_marks_payload(as_of="2026-07-15", max_workers=2)
+    assert max_active == 2
+    assert list(payload["by_code"]) == codes
+    assert payload["fetch_workers"] == 2

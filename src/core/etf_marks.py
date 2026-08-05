@@ -10,6 +10,7 @@ Research / paper use only — not a broker feed.
 
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -249,6 +250,7 @@ def build_etf_marks_payload(
     playbook: dict[str, Any] | None = None,
     lookback_days: int = DEFAULT_LOOKBACK_CALENDAR_DAYS,
     force_fetch: bool = False,
+    max_workers: int = 4,
 ) -> dict[str, Any]:
     """Build site JSON for Flex sim EOD marking."""
     ensure_dirs()
@@ -273,9 +275,21 @@ def build_etf_marks_payload(
     missing: list[str] = []
     stale: list[str] = []
     common_dates: set[str] | None = None
+    bars_by_code: dict[str, dict[str, dict[str, float]]] = {}
+
+    def load_one(code: str) -> tuple[str, dict[str, dict[str, float]]]:
+        frame = load_or_fetch_etf_bars(code, start=start, end=end, force_fetch=force_fetch)
+        return code, bars_to_dict(frame)
+
+    workers = max(1, min(int(max_workers), len(codes) or 1))
+    with ThreadPoolExecutor(max_workers=workers, thread_name_prefix="etf-mark") as pool:
+        futures = [pool.submit(load_one, code) for code in codes]
+        for future in as_completed(futures):
+            code, bars = future.result()
+            bars_by_code[code] = bars
+
     for code in codes:
-        df = load_or_fetch_etf_bars(code, start=start, end=end, force_fetch=force_fetch)
-        bars = bars_to_dict(df)
+        bars = bars_by_code.get(code, {})
         if not bars:
             missing.append(code)
             continue
@@ -304,6 +318,7 @@ def build_etf_marks_payload(
         "as_of": end,
         "start": start,
         "source": "AKSHARE_FUND_ETF_HIST_EM",
+        "fetch_workers": workers,
         "not_broker_feed": True,
         "code_count": len(by_code),
         "missing_codes": missing,

@@ -115,8 +115,8 @@ def _python_bin() -> str:
     return sys.executable
 
 
-def _run_script(script: str, timeout: int = 900) -> dict[str, Any]:
-    cmd = [_python_bin(), str(ROOT / "scripts" / script)]
+def _run_script(script: str, timeout: int = 900, args: list[str] | None = None) -> dict[str, Any]:
+    cmd = [_python_bin(), str(ROOT / "scripts" / script), *(args or [])]
     started = time.time()
     proc = subprocess.run(
         cmd,
@@ -169,7 +169,7 @@ def refresh_pipeline(mode: str = "realtime") -> dict[str, Any]:
                 if not (SITE / "history.json").exists() or not (DOCS / "data" / "history.json").exists():
                     steps.append(_run_script("build_site_data.py", timeout=600))
         else:  # full daily pipeline
-            steps.append(_run_script("update_daily.py", timeout=1800))
+            steps.append(_run_script("update_daily.py", timeout=1800, args=["--skip-site-build"]))
             if steps[-1].get("ok"):
                 steps.append(_run_script("build_site_data.py", timeout=600))
             else:

@@ -56,7 +56,7 @@ jobs:
           elif [ "$MODE" = "rebuild_recent" ]; then
             python scripts/bootstrap_history.py --recent-days 120
           else
-            python scripts/update_daily.py
+            python scripts/update_daily.py --skip-site-build
           fi
       - name: Build site data
         run: |

@@ -4989,7 +4989,40 @@ function bindGithubTokenDialog() {
   });
 }
 
-async function dispatchGithubActionsWorkflow(mode) {
+async function findReusableGithubActionsRun(workflow, mode, baselineTime) {
+  const pat = getGithubActionsPat();
+  const cfg = dashboardState.dataPlane.actions;
+  const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/actions/workflows/${workflow}/runs`
+    + `?branch=${encodeURIComponent(cfg.ref)}&per_page=10`;
+  try {
+    const res = await fetch(url, {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        Authorization: `Bearer ${pat}`,
+        'X-GitHub-Api-Version': '2022-11-28',
+      },
+      cache: 'no-store',
+    });
+    if (!res.ok) return null;
+    const body = await res.json();
+    const active = (body.workflow_runs || []).filter(run =>
+      ['queued', 'in_progress', 'waiting', 'pending', 'requested'].includes(String(run.status || ''))
+    );
+    const baselineMs = Date.parse(baselineTime || '');
+    return active.find(run => {
+      if (run.status !== 'in_progress') return true;
+      const startedMs = Date.parse(run.run_started_at || run.created_at || '');
+      return !Number.isFinite(baselineMs)
+        || !Number.isFinite(startedMs)
+        || baselineMs < startedMs;
+    }) || null;
+  } catch (err) {
+    console.warn(`Unable to inspect active ${mode} workflow`, err);
+    return null;
+  }
+}
+
+async function dispatchGithubActionsWorkflow(mode, { baselineTime = null } = {}) {
   const pat = getGithubActionsPat();
   if (!pat) {
     openGithubTokenDialog();
@@ -5000,6 +5033,10 @@ async function dispatchGithubActionsWorkflow(mode) {
   const inputs = mode === 'full'
     ? { mode: 'daily' }
     : { mode: 'single' };
+  const activeRun = await findReusableGithubActionsRun(workflow, mode, baselineTime);
+  if (activeRun) {
+    return { ok: true, workflow, reused: true, runId: activeRun.id };
+  }
   const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/actions/workflows/${workflow}/dispatches`;
   const res = await fetch(url, {
     method: 'POST',
@@ -5034,7 +5071,7 @@ async function dispatchGithubActionsWorkflow(mode) {
 async function waitForPagesDataRefresh({
   beforeBuildTime = null,
   beforeUpdateTime = null,
-  maxWaitMs = 8 * 60 * 1000,
+  maxWaitMs = 15 * 60 * 1000,
   intervalMs = 12000,
   onTick = null,
 } = {}) {
@@ -5107,10 +5144,14 @@ async function requestDataPlaneRefresh(mode) {
       } catch (_) { /* ignore */ }
 
       paintStaticPagesPlaneMeta(null, { busy: true, note: `触发 ${label} Actions…` });
-      await dispatchGithubActionsWorkflow(mode);
+      const dispatch = await dispatchGithubActionsWorkflow(mode, {
+        baselineTime: mode === 'full' ? beforeBuildTime : beforeUpdateTime,
+      });
       paintStaticPagesPlaneMeta(null, {
         busy: true,
-        note: `${label} 已排队 · 等待发布（约 2–8 分钟）…`,
+        note: dispatch.reused
+          ? `${label}已有任务运行 · 正在跟踪本次发布…`
+          : `${label} 已排队 · 等待发布…`,
       });
 
       const result = await waitForPagesDataRefresh({

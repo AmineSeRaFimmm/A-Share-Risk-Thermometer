@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from __future__ import annotations
+import argparse
 import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -70,7 +71,7 @@ def _merge_breadth_history(summary: pd.DataFrame) -> pd.DataFrame:
     return breadth
 
 
-def main() -> None:
+def main(*, build_site: bool = True) -> None:
     ensure_dirs()
     universe = load_yaml("universe.yml")
     frames = []
@@ -108,7 +109,8 @@ def main() -> None:
         # Still refresh breadth for the day when possible, then rebuild site.
         summary = _ensure_breadth_for_date(trade_date)
         _merge_breadth_history(summary)
-        build_site_data()
+        if build_site:
+            build_site_data()
         return
 
     print(
@@ -127,7 +129,16 @@ def main() -> None:
     if latest_done and latest_done < trade_date:
         recompute_tail = 20
     calculate_all(master, option_frames, index_history, recompute_tail_days=recompute_tail)
-    build_site_data()
+    if build_site:
+        build_site_data()
+
 
 if __name__ == "__main__":
-    main()
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--skip-site-build",
+        action="store_true",
+        help="update calculated data only; the caller owns the single site build",
+    )
+    args = parser.parse_args()
+    main(build_site=not args.skip_site_build)

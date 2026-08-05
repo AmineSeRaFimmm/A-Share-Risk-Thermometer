@@ -222,6 +222,24 @@ def save_raw_cffex_rtj_xml(trade_date: str, content: bytes) -> Path:
     return path
 
 
+def load_verified_raw_cffex_rtj_xml(trade_date: str) -> bytes | None:
+    """Reuse immutable historical exchange XML only after parsing and date checks."""
+    day = _norm_trade_date(trade_date)
+    path = RAW / "cffex_rtj" / f"{day}.xml"
+    if not path.exists():
+        return None
+    try:
+        content = path.read_bytes()
+        if not _is_xml_payload(content):
+            return None
+        parsed = parse_cffex_io_daily_xml(content, trade_date=day)
+        if parsed.empty or set(parsed["date"].astype(str)) != {day}:
+            return None
+        return content
+    except Exception:
+        return None
+
+
 def sync_cffex_io_daily_stats(
     trade_dates: str | list[str],
     *,
@@ -251,8 +269,11 @@ def sync_cffex_io_daily_stats(
     total_contracts = 0
     total_written = 0
     total_rows = 0
+    today = datetime.now().date().isoformat()
     for day in dates:
-        content = fetch_cffex_rtj_xml(day)
+        content = load_verified_raw_cffex_rtj_xml(day) if day < today else None
+        if content is None:
+            content = fetch_cffex_rtj_xml(day)
         if content is None:
             summary["missing_dates"].append(day)  # type: ignore[attr-defined]
             continue

@@ -8,7 +8,10 @@ import pandas as pd
 from src.data_sources.cffex_option_daily import (
     SOURCE,
     cffex_rtj_xml_url,
+    load_verified_raw_cffex_rtj_xml,
     parse_cffex_io_daily_xml,
+    save_raw_cffex_rtj_xml,
+    sync_cffex_io_daily_stats,
     write_cffex_io_to_option_cache,
 )
 
@@ -113,3 +116,21 @@ def test_write_cache_merges_and_prefers_cffex(tmp_path, monkeypatch):
     assert float(merged.iloc[0]["close"]) == 27.2
     assert merged.iloc[0]["source"] == SOURCE
     assert (tmp_path / "options_daily" / "io2609p5300.csv").exists()
+
+
+def test_historical_sync_reuses_verified_raw_xml(tmp_path, monkeypatch):
+    from src.data_sources import cffex_option_daily as mod
+    from src.storage import paths as path_mod
+
+    monkeypatch.setattr(mod, "RAW", tmp_path)
+    monkeypatch.setattr(path_mod, "RAW", tmp_path)
+    save_raw_cffex_rtj_xml("2026-07-16", SAMPLE_XML)
+    assert load_verified_raw_cffex_rtj_xml("2026-07-16") == SAMPLE_XML
+    monkeypatch.setattr(
+        mod,
+        "fetch_cffex_rtj_xml",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(AssertionError("network should not run")),
+    )
+    stats = sync_cffex_io_daily_stats("2026-07-16")
+    assert stats["ok_dates"] == ["2026-07-16"]
+    assert stats["contracts"] == 2

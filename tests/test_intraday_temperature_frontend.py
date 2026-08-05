@@ -62,6 +62,13 @@ def test_realtime_workflow_publishes_intraday_artifacts() -> None:
     }.issubset(set(ALLOWED_PATHS))
 
 
+def test_pages_refresh_coalesces_active_workflows_and_waits_for_slow_publish() -> None:
+    app = (ROOT / "web/assets/app.js").read_text(encoding="utf-8")
+    assert "function findReusableGithubActionsRun(" in app
+    assert "dispatch.reused" in app
+    assert "maxWaitMs = 15 * 60 * 1000" in app
+
+
 def test_flex_page_exposes_core_tail_alert_contract() -> None:
     html = (ROOT / "web/index.html").read_text(encoding="utf-8")
     app = (ROOT / "web/assets/app.js").read_text(encoding="utf-8")

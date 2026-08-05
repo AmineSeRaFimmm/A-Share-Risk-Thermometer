@@ -11,7 +11,7 @@ run_eod() {
   fi
   log "eod: start update_daily + build_site_data"
   cd "$ROOT"
-  if ! "$PY" scripts/update_daily.py >>"$LOG_DIR/eod.log" 2>&1; then
+  if ! "$PY" scripts/update_daily.py --skip-site-build >>"$LOG_DIR/eod.log" 2>&1; then
     log "eod: update_daily FAILED (see eod.log)"
     return 1
   fi
