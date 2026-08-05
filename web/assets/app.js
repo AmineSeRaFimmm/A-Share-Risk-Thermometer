@@ -898,29 +898,43 @@ function renderTemperatureCoreTailSignal(payload) {
   const count = Number(signal.consecutive_samples) || 0;
   const required = Number(signal.policy?.stable_samples) || 3;
   const executeTime = String(summary.execute_at || '').slice(11, 16);
+  const latestState = String(signal.latest_sample_state || '');
+  const degraded = !!signal.degraded || latestState === 'DEGRADED_PASS';
+  const uncertainty = signal.conditions?.uncertainty || signal.degraded_uncertainty || {};
+  const lower = Number(uncertainty.risk_temperature_lower);
+  const upper = Number(uncertainty.risk_temperature_upper);
+  const rangeLabel = Number.isFinite(lower) && Number.isFinite(upper)
+    ? `RT边界 ${lower.toFixed(1)}-${upper.toFixed(1)}`
+    : '缺失边界不可量化';
   let displayState = 'inactive';
   let status = '';
   let detail = '';
 
   if (flexCoreTailActionableNow(signal)) {
-    displayState = 'execute';
-    status = '14:50-15:00 买入 510300';
-    detail = '严格条件与质量门槛均通过；仅执行 CORE，卫星及其他信号仍为 T+1。';
+    displayState = degraded ? 'degraded_execute' : 'execute';
+    status = degraded ? '降级稳健 · 14:50-15:00 买入 510300' : '14:50-15:00 买入 510300';
+    detail = degraded
+      ? `${rangeLabel} 全部落在买入区间；仅执行 CORE，卫星及其他信号仍为 T+1。`
+      : '严格条件与质量门槛均通过；仅执行 CORE，卫星及其他信号仍为 T+1。';
   } else if (state === 'prepare') {
-    displayState = 'prepare';
-    status = 'CORE 条件已稳定';
-    detail = `连续有效采样 ${count} 次；14:50 后须用新鲜有效样本再次确认。`;
+    displayState = degraded ? 'degraded_prepare' : 'prepare';
+    status = degraded ? 'CORE 降级稳健条件已稳定' : 'CORE 条件已稳定';
+    detail = `${degraded ? `${rangeLabel}；` : ''}连续有效采样 ${count} 次；14:50 后须用新鲜有效样本再次确认。`;
   } else if (state === 'confirming' && signal.candidate) {
-    displayState = 'confirming';
-    status = `CORE 候选确认 ${count}/${required}`;
-    detail = '本次严格条件通过，但稳定性尚未满足，当前不可提前买入。';
+    displayState = degraded ? 'degraded_confirming' : 'confirming';
+    status = `CORE ${degraded ? '降级稳健' : '候选'}确认 ${count}/${required}`;
+    detail = degraded
+      ? `${rangeLabel} 全部通过，但稳定性尚未满足，当前不可提前买入。`
+      : '本次严格条件通过，但稳定性尚未满足，当前不可提前买入。';
   } else if (state === 'data_wait' && (signal.stable || count > 0)) {
     displayState = 'data_wait';
-    status = 'CORE 确认暂停，等待有效数据';
-    detail = `本次无效样本已跳过，不增加也不清零；保留连续有效采样 ${count} 次。`;
+    status = latestState === 'INDETERMINATE'
+      ? 'CORE 边界不确定，暂停确认'
+      : 'CORE 数据无法量化，暂停确认';
+    detail = `${latestState === 'INDETERMINATE' ? `${rangeLabel} 跨过买入边界；` : ''}本次样本已跳过，不增加也不清零；保留连续有效采样 ${count} 次。`;
   } else if (summary.execute_triggered) {
     displayState = 'recorded';
-    status = `当日 ${executeTime || '--:--'} 已触发买入 510300`;
+    status = `当日 ${executeTime || '--:--'} 已触发${summary.execute_degraded ? '降级稳健' : ''}买入 510300`;
     detail = '这是轨迹中的已发生信号记录，不代表当前尾盘窗口仍可下单。';
   }
 
@@ -1113,18 +1127,31 @@ function renderFlexCoreTailAlert(signal) {
   const stockBreadth = values.breadth_mode === 'STOCK_A' && String(values.breadth_quality || '').startsWith('OK');
   const sampleCount = Number(tail.consecutive_samples) || 0;
   const required = Number(tail.policy?.stable_samples) || 3;
+  const latestState = String(tail.latest_sample_state || '');
+  const sequenceDegraded = !!tail.degraded || latestState === 'DEGRADED_PASS';
+  const boundedLatest = ['DEGRADED_PASS', 'DEGRADED_FAIL', 'INDETERMINATE'].includes(latestState);
+  const degraded = ['execute', 'prepare', 'confirming'].includes(state)
+    ? sequenceDegraded
+    : boundedLatest;
+  const uncertainty = tail.conditions?.uncertainty || (degraded ? tail.degraded_uncertainty : null) || {};
+  const lower = Number(uncertainty.risk_temperature_lower);
+  const upper = Number(uncertainty.risk_temperature_upper);
+  const rangeLabel = Number.isFinite(lower) && Number.isFinite(upper)
+    ? `${lower.toFixed(1)}-${upper.toFixed(1)}`
+    : '—';
+  const fullQualityPass = !!(
+    checks.confidence_present
+    && checks.coverage
+    && checks.data_quality
+    && checks.allowed_degradations
+    && checks.intraday_mode
+  );
   const checkRows = [
-    ['RT', Number.isFinite(rt) ? rt.toFixed(1) : '—', checks.risk_temperature],
-    ['回撤', Number.isFinite(dd) ? `${(dd * 100).toFixed(1)}%` : '—', checks.hs300_drawdown_60d],
-    ['质量', qualityLabel, !!(
-      checks.confidence_present
-      && checks.coverage
-      && checks.data_quality
-      && checks.allowed_degradations
-      && checks.intraday_mode
-    )],
-    ['宽度', stockBreadth ? '全A' : '无效', checks.stock_breadth],
-    ['稳定', tail.stable ? `已稳${sampleCount}次` : `${sampleCount}/${required}`, !!tail.stable],
+    ['RT', degraded ? `边界${rangeLabel}` : (Number.isFinite(rt) ? rt.toFixed(1) : '—'), degraded ? 'warn' : (checks.risk_temperature ? 'pass' : 'fail')],
+    ['回撤', Number.isFinite(dd) ? `${(dd * 100).toFixed(1)}%` : '—', checks.hs300_drawdown_60d ? 'pass' : 'fail'],
+    ['质量', degraded ? `稳健降级·覆盖${Number.isFinite(coverage) ? coverage.toFixed(0) : '—'}` : qualityLabel, degraded ? 'warn' : (fullQualityPass ? 'pass' : 'fail')],
+    ['宽度', stockBreadth ? '全A' : (degraded ? '缺失·已计边界' : '无效'), degraded && !stockBreadth ? 'warn' : (checks.stock_breadth ? 'pass' : 'fail')],
+    ['稳定', tail.stable ? `已稳${sampleCount}次` : `${sampleCount}/${required}`, tail.stable ? 'pass' : 'fail'],
   ];
   alert.dataset.state = state;
   setText('flexCoreTailStatus', status);
@@ -1132,21 +1159,27 @@ function renderFlexCoreTailAlert(signal) {
   const detail = document.getElementById('flexCoreTailDetail');
   if (detail) {
     if (actionable) {
-      detail.textContent = '仅买入沪深300核心仓（510300）；请在15:00前按实际成交价记账。卫星及其他信号仍为T+1。';
+      detail.textContent = degraded
+        ? `缺失因子按完整极端范围复算后，RT仍在${rangeLabel}；仅买入510300并在15:00前记实际成交价。其他信号仍为T+1。`
+        : '仅买入沪深300核心仓（510300）；请在15:00前按实际成交价记账。卫星及其他信号仍为T+1。';
     } else if (state === 'prepare') {
       detail.textContent = '严格条件已连续稳定；14:50后须再次看到“尾盘执行窗口”才可买入。其他信号仍为T+1。';
     } else if (state === 'confirming') {
       detail.textContent = `正在连续确认，至少需要${required}次且覆盖15分钟；确认完成前不提前买入。`;
     } else if (state === 'data_wait') {
-      detail.textContent = `本次采样因数据质量无效而跳过，不增加也不清零；当前连续有效样本${sampleCount}次。等待新鲜有效数据。`;
+      detail.textContent = latestState === 'INDETERMINATE'
+        ? `缺失因子的RT可能范围${rangeLabel}跨过买入边界；本次跳过，不增加也不清零，保留${sampleCount}次。`
+        : `本次采样无法量化而跳过，不增加也不清零；当前连续有效样本${sampleCount}次。等待新鲜有效数据。`;
+    } else if (latestState === 'DEGRADED_FAIL') {
+      detail.textContent = `缺失因子按完整极端范围复算后仍不满足买入条件（RT边界${rangeLabel}）；连续确认已清零。`;
     } else {
       detail.textContent = tail.fallback_cn || '仅严格条件连续稳定后启用；其他信号仍按 T+1 开盘执行。';
     }
   }
   const checksEl = document.getElementById('flexCoreTailChecks');
   if (checksEl) {
-    checksEl.innerHTML = checkRows.map(([label, value, pass]) =>
-      `<span class="flex-tail-check ${pass ? 'pass' : 'fail'}">${escapeHtml(label)} ${escapeHtml(value)}</span>`
+    checksEl.innerHTML = checkRows.map(([label, value, tone]) =>
+      `<span class="flex-tail-check ${tone}">${escapeHtml(label)} ${escapeHtml(value)}</span>`
     ).join('');
   }
 

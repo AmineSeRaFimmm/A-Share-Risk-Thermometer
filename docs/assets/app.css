@@ -709,6 +709,10 @@ dd[data-freshness="stale"] { color: var(--red); }
 
 .temperature-core-tail-signal[data-state="execute"] strong { color: #1e5c42; }
 
+.temperature-core-tail-signal[data-state="degraded_confirming"] strong,
+.temperature-core-tail-signal[data-state="degraded_prepare"] strong,
+.temperature-core-tail-signal[data-state="degraded_execute"] strong { color: #7a5a12; }
+
 .temperature-core-tail-signal[data-state="data_wait"] strong { color: #8f2a2a; }
 
 .temperature-core-tail-signal[data-state="recorded"] strong { color: #31506c; }
@@ -904,6 +908,12 @@ dd[data-freshness="stale"] { color: var(--red); }
   border-color: #d8b8b2;
   background: var(--red-bg);
   color: var(--red);
+}
+
+.flex-tail-check.warn {
+  border-color: #d1b878;
+  background: #f7f0dc;
+  color: #71520f;
 }
 
 .flex-tail-alert[data-state="confirming"],

@@ -76,6 +76,21 @@ def main() -> None:
             int(row.get("core_tail_consecutive_samples", -1)) >= 0,
             "intraday core_tail_consecutive_samples invalid",
         )
+        sample_state = row.get("core_tail_sample_state")
+        require(sample_state in {
+            "PASS", "FAIL", "DEGRADED_PASS", "DEGRADED_FAIL",
+            "INDETERMINATE", "INVALID",
+        }, "intraday CORE sample state invalid")
+        if sample_state in {"DEGRADED_PASS", "DEGRADED_FAIL", "INDETERMINATE"}:
+            uncertainty = row.get("core_tail_uncertainty") or {}
+            lower = float(uncertainty.get("risk_temperature_lower", -1))
+            upper = float(uncertainty.get("risk_temperature_upper", -1))
+            require(0 <= lower <= upper <= 100, "intraday CORE uncertainty bounds invalid")
+        if row.get("core_tail_status") == "EXECUTE":
+            require(
+                sample_state in {"PASS", "DEGRADED_PASS"},
+                "intraday CORE execute row is not a pass state",
+            )
     core_tail_summary = intraday.get("core_tail_day_summary") or {}
     execute_rows = [row for row in intraday_rows if row.get("core_tail_status") == "EXECUTE"]
     require(
@@ -86,6 +101,11 @@ def main() -> None:
         require(
             core_tail_summary.get("execute_at") == execute_rows[0].get("sampled_at"),
             "intraday CORE execute timestamp mismatch",
+        )
+        require(
+            bool(core_tail_summary.get("execute_degraded"))
+            == bool(execute_rows[0].get("core_tail_degraded")),
+            "intraday CORE degraded execute summary mismatch",
         )
     if intraday_rows:
         require(

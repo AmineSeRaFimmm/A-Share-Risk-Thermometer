@@ -6,8 +6,11 @@ from typing import Any
 import pandas as pd
 
 from src.core.core_tail_policy import (
+    CORE_TAIL_FAIL_STATES,
     CORE_TAIL_MAX_SAMPLE_GAP_MINUTES,
+    CORE_TAIL_PASS_STATES,
     CORE_TAIL_SAMPLE_TTL_MINUTES,
+    CORE_TAIL_SKIP_STATES,
     CORE_TAIL_STABLE_MINUTES,
     CORE_TAIL_STABLE_SAMPLES,
     CORE_TAIL_WINDOW_END,
@@ -37,6 +40,14 @@ HISTORY_COLUMNS = [
     "breadth_source",
     "breadth_observed",
     "plot_eligible",
+    "avix_percentile_2y",
+    "avix_zscore_1y",
+    "avix_5d_change",
+    "qvix_confirmation",
+    "realized_vol",
+    "drawdown_pressure",
+    "breadth_pressure",
+    "turnover_stress",
     "source_update_time",
 ]
 
@@ -48,6 +59,14 @@ INVALID_REASON_CN = {
     "allowed_degradations": "存在关键因子缺失",
     "stock_breadth": "全A宽度无效",
     "intraday_mode": "非盘中估算",
+}
+SAMPLE_STATE_CN = {
+    "PASS": "完整数据通过",
+    "FAIL": "完整数据不通过",
+    "DEGRADED_PASS": "缺失数据下仍稳健通过",
+    "DEGRADED_FAIL": "缺失数据下仍稳健不通过",
+    "INDETERMINATE": "缺失数据导致边界不确定",
+    "INVALID": "数据结构无效",
 }
 
 
@@ -107,6 +126,13 @@ def _optional_bool(value: Any) -> bool | None:
     return None
 
 
+def _component_value(latest: dict[str, Any], key: str) -> float | None:
+    components = latest.get("components")
+    value = components.get(key) if isinstance(components, dict) else None
+    numeric = pd.to_numeric(value, errors="coerce")
+    return None if pd.isna(numeric) else float(numeric)
+
+
 def _normalized_history(history: pd.DataFrame | None) -> pd.DataFrame:
     if history is None or history.empty:
         return _empty_history()
@@ -123,6 +149,17 @@ def _normalized_history(history: pd.DataFrame | None) -> pd.DataFrame:
     frame["model_coverage_score"] = pd.to_numeric(frame["model_coverage_score"], errors="coerce")
     frame["model_data_quality_score"] = pd.to_numeric(frame["model_data_quality_score"], errors="coerce")
     frame["hs300_drawdown_60d"] = pd.to_numeric(frame["hs300_drawdown_60d"], errors="coerce")
+    for column in [
+        "avix_percentile_2y",
+        "avix_zscore_1y",
+        "avix_5d_change",
+        "qvix_confirmation",
+        "realized_vol",
+        "drawdown_pressure",
+        "breadth_pressure",
+        "turnover_stress",
+    ]:
+        frame[column] = pd.to_numeric(frame[column], errors="coerce")
     for column in [
         "model_missing_components",
         "breadth_mode",
@@ -200,6 +237,14 @@ def update_intraday_temperature_history(
         "breadth_source": _market_text(latest, "breadth_source"),
         "breadth_observed": breadth_observed,
         "plot_eligible": breadth_observed,
+        "avix_percentile_2y": _component_value(latest, "avix_percentile_2y"),
+        "avix_zscore_1y": _component_value(latest, "avix_zscore_1y"),
+        "avix_5d_change": _component_value(latest, "avix_5d_change"),
+        "qvix_confirmation": _component_value(latest, "qvix_confirmation"),
+        "realized_vol": _component_value(latest, "realized_vol"),
+        "drawdown_pressure": _component_value(latest, "drawdown_pressure"),
+        "breadth_pressure": _component_value(latest, "breadth_pressure"),
+        "turnover_stress": _component_value(latest, "turnover_stress"),
         "source_update_time": sampled_iso,
     }
 
@@ -283,9 +328,18 @@ def intraday_temperature_payload(
             "core_tail_status": tail_signal["status"],
             "core_tail_status_cn": tail_signal["status_cn"],
             "core_tail_sample_state": tail_signal.get("latest_sample_state"),
+            "core_tail_sample_state_cn": SAMPLE_STATE_CN.get(
+                str(tail_signal.get("latest_sample_state") or ""),
+                str(tail_signal.get("latest_sample_state") or ""),
+            ),
             "core_tail_consecutive_samples": tail_signal.get("consecutive_samples", 0),
             "core_tail_stable": bool(tail_signal.get("stable")),
+            "core_tail_degraded": bool(tail_signal.get("degraded")),
             "core_tail_actionable_at_sample": bool(tail_signal.get("actionable")),
+            "core_tail_uncertainty": (
+                (tail_signal.get("conditions") or {}).get("uncertainty")
+                or tail_signal.get("degraded_uncertainty")
+            ),
         })
     eligible_count = sum(item["plot_eligible"] for item in rows)
     return {
@@ -319,6 +373,7 @@ def _core_tail_day_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "stable_at": stable.get("sampled_at") if stable else None,
         "execute_triggered": executed is not None,
         "execute_at": executed.get("sampled_at") if executed else None,
+        "execute_degraded": bool(executed and executed.get("core_tail_degraded")),
     }
 
 
@@ -333,6 +388,16 @@ def _tail_sample_status(row: pd.Series) -> dict[str, Any]:
         breadth_mode=row.get("breadth_mode"),
         breadth_quality=row.get("breadth_quality"),
         temperature_mode=row.get("temperature_mode"),
+        component_scores={
+            "avix_percentile_2y": row.get("avix_percentile_2y"),
+            "avix_zscore_1y": row.get("avix_zscore_1y"),
+            "avix_5d_change": row.get("avix_5d_change"),
+            "qvix_confirmation": row.get("qvix_confirmation"),
+            "realized_vol": row.get("realized_vol"),
+            "drawdown_pressure": row.get("drawdown_pressure"),
+            "breadth_pressure": row.get("breadth_pressure"),
+            "turnover_stress": row.get("turnover_stress"),
+        },
     )
 
 
@@ -373,7 +438,7 @@ def core_tail_signal_payload(
     latest_status = _tail_sample_status(latest)
     latest_is_final = bool(latest.get("is_final"))
     latest_state = str(latest_status["state"])
-    candidate = latest_state == "PASS" and not latest_is_final
+    candidate = latest_state in CORE_TAIL_PASS_STATES and not latest_is_final
     trailing: list[pd.Series] = []
     invalid_samples_skipped = 0
     next_timestamp: pd.Timestamp | None = None
@@ -382,10 +447,10 @@ def core_tail_signal_payload(
         timestamp = row["sample_ts"]
         if bool(row.get("is_final")):
             break
-        if status["state"] == "INVALID":
+        if status["state"] in CORE_TAIL_SKIP_STATES:
             invalid_samples_skipped += 1
             continue
-        if status["state"] == "FAIL":
+        if status["state"] in CORE_TAIL_FAIL_STATES:
             break
         gap_ok = next_timestamp is None or (next_timestamp - timestamp).total_seconds() <= (
             CORE_TAIL_MAX_SAMPLE_GAP_MINUTES * 60
@@ -406,24 +471,52 @@ def core_tail_signal_payload(
             (trailing[-1]["sample_ts"] - trailing[0]["sample_ts"]).total_seconds() // 60
         )
     stable = len(trailing) >= CORE_TAIL_STABLE_SAMPLES and span_minutes >= CORE_TAIL_STABLE_MINUTES
+    trailing_statuses = [_tail_sample_status(row) for row in trailing]
+    degraded_statuses = [
+        item for item in trailing_statuses if item["state"] == "DEGRADED_PASS"
+    ]
+    degraded_samples = len(degraded_statuses)
+    degraded_uncertainty = (
+        degraded_statuses[-1].get("uncertainty") if degraded_statuses else None
+    )
 
     sampled_at = latest["sample_ts"]
     minute = sampled_at.strftime("%H:%M")
     if latest_is_final:
         status, status_cn = "FINAL", "已转正式收盘，尾盘窗口结束"
+    elif latest_state == "INDETERMINATE":
+        bounded = latest_status.get("uncertainty") or {}
+        lower = bounded.get("risk_temperature_lower")
+        upper = bounded.get("risk_temperature_upper")
+        range_cn = (
+            f"RT可能区间 {float(lower):.1f}-{float(upper):.1f}"
+            if lower is not None and upper is not None
+            else "风险边界无法确定"
+        )
+        status, status_cn = "DATA_WAIT", f"缺失数据导致条件不确定，已跳过（{range_cn}）"
     elif latest_state == "INVALID":
         reasons = "/".join(
             INVALID_REASON_CN.get(reason, reason) for reason in latest_status["invalid_reasons"]
         ) or "原因未知"
-        status, status_cn = "DATA_WAIT", f"本次数据无效，已跳过（{reasons}）"
-    elif latest_state == "FAIL":
-        status, status_cn = "INACTIVE", "严格条件未同时满足"
+        status, status_cn = "DATA_WAIT", f"本次数据无法量化，已跳过（{reasons}）"
+    elif latest_state in CORE_TAIL_FAIL_STATES:
+        status, status_cn = (
+            ("INACTIVE", "缺失数据取极端范围后仍不满足买入条件")
+            if latest_state == "DEGRADED_FAIL"
+            else ("INACTIVE", "严格条件未同时满足")
+        )
     elif not stable:
-        status, status_cn = "CONFIRMING", f"正在确认稳定性 {len(trailing)}/{CORE_TAIL_STABLE_SAMPLES}"
+        prefix = "降级稳健通过，" if latest_state == "DEGRADED_PASS" else ""
+        status, status_cn = (
+            "CONFIRMING",
+            f"{prefix}正在确认稳定性 {len(trailing)}/{CORE_TAIL_STABLE_SAMPLES}",
+        )
     elif minute < CORE_TAIL_WINDOW_START:
-        status, status_cn = "PREPARE", f"信号已稳定，{CORE_TAIL_WINDOW_START} 准备买入"
+        prefix = "降级稳健信号" if degraded_samples else "信号"
+        status, status_cn = "PREPARE", f"{prefix}已稳定，{CORE_TAIL_WINDOW_START} 准备买入"
     elif minute < CORE_TAIL_WINDOW_END:
-        status, status_cn = "EXECUTE", "尾盘执行窗口：买入核心仓"
+        prefix = "降级稳健" if degraded_samples else ""
+        status, status_cn = "EXECUTE", f"{prefix}尾盘执行窗口：买入核心仓"
     else:
         status, status_cn = "WINDOW_CLOSED", "尾盘窗口已过，回退 T+1 开盘"
 
@@ -441,7 +534,11 @@ def core_tail_signal_payload(
         "consecutive_samples": len(trailing),
         "stability_span_minutes": span_minutes,
         "invalid_samples_skipped": invalid_samples_skipped,
+        "degraded_samples_in_streak": degraded_samples,
+        "degraded": degraded_samples > 0,
+        "degraded_uncertainty": degraded_uncertainty,
         "latest_sample_state": latest_state,
+        "latest_sample_state_cn": SAMPLE_STATE_CN.get(latest_state, latest_state),
         "last_sample_at": sampled_at.isoformat(timespec="seconds"),
         "valid_until": valid_until.isoformat(timespec="seconds"),
         "conditions": {
@@ -458,7 +555,7 @@ def core_tail_signal_payload(
             "breadth_source": str(latest.get("breadth_source") or ""),
         },
         "policy": policy,
-        "execution_cn": "仅沪深300核心仓在 T 日 14:50-15:00 买入；卫星及其他信号仍为 T+1 开盘",
+        "execution_cn": "完整通过或缺失因子全范围下仍稳健通过时，仅沪深300核心仓在 T 日 14:50-15:00 买入；卫星及其他信号仍为 T+1 开盘",
         "fallback_cn": "未稳定、数据过期或错过尾盘窗口时，不追单，回退 T+1 开盘",
     }
 
@@ -494,5 +591,5 @@ def _methodology() -> dict[str, str]:
         "official_close": "Official close is stored as the single final endpoint for each trade date.",
         "stale_guard": "A rebuild is recorded only when its Beijing calendar date equals the market trade date.",
         "chart_quality": "Samples with missing A-share breadth remain in the audit history but are excluded from the connected trend line.",
-        "signal_states": "PASS increments; FAIL resets; INVALID is audited and skipped without resetting.",
+        "signal_states": "PASS/DEGRADED_PASS increment; FAIL/DEGRADED_FAIL reset; INDETERMINATE/INVALID are audited and skipped without resetting.",
     }

@@ -32,6 +32,8 @@ def test_temperature_page_loads_persisted_intraday_series() -> None:
     assert "T15:30:00+08:00" in charts
     assert "WARN_BREADTH_MISSING" in charts
     assert "A股宽度缺失，暂不绘制趋势" in charts
+    assert "!eligibleRows.length && !coreSignalRow" in charts
+    assert "未绘制缺宽度趋势，仅标记已证明的CORE信号" in charts
     assert "个A股宽度缺失点已剔除 · 有效点连续绘制" in app
     assert "data: eligibleRows.map(row => ({" in charts
 
@@ -46,6 +48,9 @@ def test_temperature_track_exposes_core_tail_signal_and_persists_day_event() -> 
     assert "payload?.core_tail_signal" in app
     assert "summary.execute_triggered" in app
     assert "CORE尾盘买" in charts
+    assert "DEGRADED_PASS" in app
+    assert "CORE降级稳健尾盘买" in charts
+    assert "core_tail_uncertainty" in charts
     assert "row.core_tail_status === 'EXECUTE'" in charts
 
 
@@ -65,5 +70,6 @@ def test_flex_page_exposes_core_tail_alert_contract() -> None:
     assert 'id="dockFlexTailBadge"' in html
     assert "renderFlexCoreTailAlert(tailSignal)" in app
     assert "state === 'data_wait'" in app
-    assert "本次采样因数据质量无效而跳过" in app
+    assert "缺失因子的RT可能范围" in app
+    assert "本次采样无法量化而跳过" in app
     assert "其他信号仍按T+1" in app

@@ -15,7 +15,10 @@
     "weights": {
       "沪深300": 1.0
     },
-    "etf_code": "510300"
+    "etf_code": "510300",
+    "execution_mode": "T_PLUS_1_OPEN",
+    "entry_price_type": "open",
+    "planned_hold_days": 5
   },
   "satellite": {
     "status": "open",
@@ -43,7 +46,10 @@
       "国防军工": 0.1099,
       "商贸零售": 0.0891
     },
-    "etf_code": null
+    "etf_code": null,
+    "execution_mode": "T_PLUS_1_OPEN",
+    "entry_price_type": "open",
+    "planned_hold_days": null
   },
   "last_actions": []
 }

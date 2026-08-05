@@ -241,7 +241,12 @@ function renderIntradayTemperatureChart(payload) {
   }
 
   const eligibleRows = rows.filter(isEligible);
-  if (!eligibleRows.length) {
+  const executeRow = rows.find(row => row.core_tail_status === 'EXECUTE');
+  const stableRow = rows.find(row => row.core_tail_status === 'PREPARE');
+  const coreSignalRow = executeRow || stableRow;
+  const coreSignalExecuted = !!executeRow;
+  const coreSignalDegraded = !!coreSignalRow?.core_tail_degraded;
+  if (!eligibleRows.length && !coreSignalRow) {
     chart.setOption({
       aria: { enabled: true, label: { description: '采样存在，但A股宽度缺失，暂无可比较温度点。' } },
       xAxis: { show: false, type: 'time' },
@@ -262,7 +267,9 @@ function renderIntradayTemperatureChart(payload) {
     return chart;
   }
 
-  const values = eligibleRows.map(row => Number(row.risk_temperature));
+  const values = eligibleRows.length
+    ? eligibleRows.map(row => Number(row.risk_temperature))
+    : [Number(coreSignalRow.risk_temperature)];
   const sessionStart = `${payload.trade_date}T08:45:00+08:00`;
   const sessionEnd = `${payload.trade_date}T15:30:00+08:00`;
   const beijingTimeLabel = value => new Intl.DateTimeFormat('zh-CN', {
@@ -278,10 +285,6 @@ function renderIntradayTemperatureChart(payload) {
   const axisMin = Math.max(0, Math.floor((center - span * 0.7) * 2) / 2);
   const axisMax = Math.min(100, Math.ceil((center + span * 0.7) * 2) / 2);
   const finalRow = rows.find(row => row.is_final && isEligible(row));
-  const executeRow = rows.find(row => row.core_tail_status === 'EXECUTE');
-  const stableRow = rows.find(row => row.core_tail_status === 'PREPARE');
-  const coreSignalRow = executeRow || stableRow;
-  const coreSignalExecuted = !!executeRow;
   const coreStatusLabel = {
     CONFIRMING: '候选确认中',
     PREPARE: '严格条件已稳定',
@@ -319,6 +322,10 @@ function renderIntradayTemperatureChart(payload) {
           Number.isFinite(Number(row.model_confidence)) ? `置信度: ${fmt(row.model_confidence, 1)}` : null,
           coreStatusLabel[row.core_tail_status]
             ? `CORE尾盘: ${coreStatusLabel[row.core_tail_status]}${Number(row.core_tail_consecutive_samples) ? ` · 连续${row.core_tail_consecutive_samples}次` : ''}`
+            : null,
+          row.core_tail_sample_state_cn ? `样本判定: ${row.core_tail_sample_state_cn}` : null,
+          row.core_tail_uncertainty?.risk_temperature_lower != null
+            ? `缺失边界: ${fmt(row.core_tail_uncertainty.risk_temperature_lower, 1)}-${fmt(row.core_tail_uncertainty.risk_temperature_upper, 1)}`
             : null,
           row.is_final ? '状态: 正式收盘终点' : '状态: 刷新采样',
         ].filter(Boolean).join('<br>');
@@ -371,20 +378,24 @@ function renderIntradayTemperatureChart(payload) {
       markPoint: finalRow || coreSignalRow ? {
         data: [
           coreSignalRow ? {
-            name: coreSignalExecuted ? 'CORE尾盘买' : 'CORE已稳定',
+            name: coreSignalExecuted
+              ? (coreSignalDegraded ? 'CORE降级稳健尾盘买' : 'CORE尾盘买')
+              : (coreSignalDegraded ? 'CORE降级稳健' : 'CORE已稳定'),
             coord: [coreSignalRow.sampled_at, Number(coreSignalRow.risk_temperature)],
             symbol: coreSignalExecuted ? 'diamond' : 'circle',
             symbolSize: coreSignalExecuted ? 15 : 13,
             itemStyle: {
-              color: coreSignalExecuted ? '#1e5c42' : '#b1842d',
+              color: coreSignalDegraded ? '#9b741f' : (coreSignalExecuted ? '#1e5c42' : '#b1842d'),
               borderColor: '#ffffff',
               borderWidth: 2,
             },
             label: {
               show: true,
-              formatter: coreSignalExecuted ? 'CORE尾盘买' : 'CORE已稳定',
+              formatter: coreSignalExecuted
+                ? (coreSignalDegraded ? 'CORE稳健尾盘买' : 'CORE尾盘买')
+                : (coreSignalDegraded ? 'CORE降级稳健' : 'CORE已稳定'),
               position: 'top',
-              color: coreSignalExecuted ? '#1e5c42' : '#8b571f',
+              color: coreSignalDegraded ? '#71520f' : (coreSignalExecuted ? '#1e5c42' : '#8b571f'),
               fontSize: 10,
               fontWeight: 700,
             },
@@ -409,7 +420,7 @@ function renderIntradayTemperatureChart(payload) {
   setChartA11y(
     chart,
     '今日温度轨迹',
-    `${payload.trade_date || '今日'}共${rows.length}个采样点，其中${eligibleRows.length}个宽度有效，最新有效温度${fmt(values[values.length - 1], 1)}。${coreSummary}`,
+    `${payload.trade_date || '今日'}共${rows.length}个采样点，其中${eligibleRows.length}个宽度有效。${eligibleRows.length ? `最新有效温度${fmt(values[values.length - 1], 1)}。` : '未绘制缺宽度趋势，仅标记已证明的CORE信号。'}${coreSummary}`,
   );
   return chart;
 }

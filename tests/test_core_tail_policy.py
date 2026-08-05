@@ -139,3 +139,117 @@ def test_live_quality_gate_includes_exact_80_score_when_hard_gates_pass() -> Non
 
     assert status["state"] == "PASS"
     assert status["checks"]["data_quality"] is True
+
+
+def _bounded_breadth_status(
+    *,
+    breadth_score: float,
+    dd60: float = -0.07,
+    data_quality: float = 100.0,
+    component_shift: float = 0.0,
+    scores: bool = True,
+):
+    other_score = (70.0 - breadth_score * 0.10) / 0.90 + component_shift
+    component_scores = {
+        "avix_percentile_2y": other_score,
+        "avix_zscore_1y": other_score,
+        "avix_5d_change": other_score,
+        "qvix_confirmation": other_score,
+        "realized_vol": other_score,
+        "drawdown_pressure": other_score,
+        "breadth_pressure": breadth_score,
+        "turnover_stress": other_score,
+    } if scores else None
+    return core_tail_condition_status(
+        risk_temperature=70.0,
+        hs300_drawdown_60d=dd60,
+        model_confidence=90.0,
+        model_coverage_score=90.0,
+        model_data_quality_score=data_quality,
+        model_missing_components="BREADTH",
+        breadth_mode="MISSING",
+        breadth_quality="WARN_BREADTH_MISSING",
+        temperature_mode="NOWCAST",
+        component_scores=component_scores,
+    )
+
+
+def test_six_state_model_bounded_degradation_decisions() -> None:
+    robust_pass = _bounded_breadth_status(breadth_score=50.0)
+    robust_fail = _bounded_breadth_status(breadth_score=50.0, dd60=-0.04)
+    indeterminate = _bounded_breadth_status(breadth_score=90.0)
+    invalid = _bounded_breadth_status(breadth_score=50.0, scores=False)
+    poor_observed_quality = _bounded_breadth_status(breadth_score=50.0, data_quality=79.9)
+    inconsistent_components = _bounded_breadth_status(breadth_score=50.0, component_shift=1.0)
+
+    assert robust_pass["state"] == "DEGRADED_PASS"
+    assert robust_pass["eligible"] is True
+    assert robust_pass["uncertainty"]["risk_temperature_lower"] == 65.0
+    assert robust_pass["uncertainty"]["risk_temperature_upper"] == 75.0
+    assert robust_fail["state"] == "DEGRADED_FAIL"
+    assert robust_fail["definitive_fail"] is True
+    assert indeterminate["state"] == "INDETERMINATE"
+    assert indeterminate["skip_without_reset"] is True
+    assert invalid["state"] == "INVALID"
+    assert invalid["decision_basis"] == "UNBOUNDED_INVALID"
+    assert poor_observed_quality["state"] == "INVALID"
+    assert inconsistent_components["state"] == "INVALID"
+
+
+def test_twelve_percent_missing_factor_cannot_fit_inside_exclusive_rt_band() -> None:
+    other_score = (70.0 - 50.0 * 0.12) / 0.88
+    status = core_tail_condition_status(
+        risk_temperature=70.0,
+        hs300_drawdown_60d=-0.07,
+        model_confidence=88.0,
+        model_coverage_score=88.0,
+        model_data_quality_score=100.0,
+        model_missing_components="QVIX",
+        breadth_mode="STOCK_A",
+        breadth_quality="OK",
+        temperature_mode="NOWCAST",
+        component_scores={
+            "avix_percentile_2y": other_score,
+            "avix_zscore_1y": other_score,
+            "avix_5d_change": other_score,
+            "qvix_confirmation": 50.0,
+            "realized_vol": other_score,
+            "drawdown_pressure": other_score,
+            "breadth_pressure": other_score,
+            "turnover_stress": other_score,
+        },
+    )
+
+    assert status["uncertainty"]["risk_temperature_lower"] == 64.0
+    assert status["uncertainty"]["risk_temperature_upper"] == 76.0
+    assert status["state"] == "INDETERMINATE"
+    assert status["eligible"] is False
+
+
+def test_realtime_index_factor_bundle_expands_to_three_known_groups() -> None:
+    other_score = (70.0 - 50.0 * 0.10) / 0.90
+    status = core_tail_condition_status(
+        risk_temperature=70.0,
+        hs300_drawdown_60d=-0.07,
+        model_confidence=72.0,
+        model_coverage_score=72.0,
+        model_data_quality_score=100.0,
+        model_missing_components="REALTIME_INDEX_FACTORS",
+        breadth_mode="STOCK_A",
+        breadth_quality="OK",
+        temperature_mode="NOWCAST",
+        component_scores={
+            "avix_percentile_2y": other_score,
+            "avix_zscore_1y": other_score,
+            "avix_5d_change": other_score,
+            "qvix_confirmation": other_score,
+            "realized_vol": other_score,
+            "drawdown_pressure": other_score,
+            "breadth_pressure": 50.0,
+            "turnover_stress": other_score,
+        },
+    )
+
+    assert status["state"] == "INDETERMINATE"
+    assert status["uncertainty"]["groups"] == ["DRAWDOWN", "REALIZED_VOL", "TURNOVER"]
+    assert status["uncertainty"]["weight"] == 0.28
