@@ -74,6 +74,7 @@ const dashboardState = {
   chartInstances: { history: null, avix: null, hs300: null },
   history: [],
   nowcastHistory: {},
+  intradayTemperature: {},
   strategy: {},
   refreshInFlight: false,
   cacheBust: null,
@@ -888,6 +889,47 @@ async function loadHeavyDashboardData() {
   return { strategy, rtTactical, stagePlaybook, etfMarks: dashboardState.etfMarks };
 }
 
+function renderTemperatureCoreTailSignal(payload) {
+  const container = document.getElementById('temperatureCoreTailSignal');
+  if (!container) return;
+  const signal = payload?.core_tail_signal || {};
+  const summary = payload?.core_tail_day_summary || {};
+  const state = flexCoreTailState(signal);
+  const count = Number(signal.consecutive_samples) || 0;
+  const required = Number(signal.policy?.stable_samples) || 3;
+  const executeTime = String(summary.execute_at || '').slice(11, 16);
+  let displayState = 'inactive';
+  let status = '';
+  let detail = '';
+
+  if (flexCoreTailActionableNow(signal)) {
+    displayState = 'execute';
+    status = '14:50-15:00 买入 510300';
+    detail = '严格条件与质量门槛均通过；仅执行 CORE，卫星及其他信号仍为 T+1。';
+  } else if (state === 'prepare') {
+    displayState = 'prepare';
+    status = 'CORE 条件已稳定';
+    detail = `连续有效采样 ${count} 次；14:50 后须用新鲜有效样本再次确认。`;
+  } else if (state === 'confirming' && signal.candidate) {
+    displayState = 'confirming';
+    status = `CORE 候选确认 ${count}/${required}`;
+    detail = '本次严格条件通过，但稳定性尚未满足，当前不可提前买入。';
+  } else if (state === 'data_wait' && (signal.stable || count > 0)) {
+    displayState = 'data_wait';
+    status = 'CORE 确认暂停，等待有效数据';
+    detail = `本次无效样本已跳过，不增加也不清零；保留连续有效采样 ${count} 次。`;
+  } else if (summary.execute_triggered) {
+    displayState = 'recorded';
+    status = `当日 ${executeTime || '--:--'} 已触发买入 510300`;
+    detail = '这是轨迹中的已发生信号记录，不代表当前尾盘窗口仍可下单。';
+  }
+
+  container.hidden = displayState === 'inactive';
+  container.dataset.state = displayState;
+  setText('temperatureCoreTailStatus', status);
+  setText('temperatureCoreTailDetail', detail);
+}
+
 function renderIntradayTemperaturePanel(payload) {
   const meta = document.getElementById('intradayTemperatureMeta');
   const note = document.getElementById('intradayTemperatureNote');
@@ -896,6 +938,7 @@ function renderIntradayTemperaturePanel(payload) {
     ? Number(payload.eligible_count)
     : rows.filter(row => row.plot_eligible !== false && !String(row.quality || '').includes('WARN_BREADTH_MISSING')).length;
   const excludedCount = Math.max(0, rows.length - eligibleCount);
+  renderTemperatureCoreTailSignal(payload);
   if (meta) {
     if (!rows.length) {
       meta.textContent = '暂无采样';
@@ -926,6 +969,7 @@ function renderCriticalDashboard({ latest, history, nowcastHistory, intradayTemp
   document.body.classList.remove('error');
   hideLoadError();
   dashboardState.latest = latest || null;
+  dashboardState.intradayTemperature = intradayTemperature || {};
   renderLatest(latest);
   renderAudit(audit);
   renderNowcastGapSummary(nowcastHistory);
@@ -951,6 +995,7 @@ function renderCriticalDashboard({ latest, history, nowcastHistory, intradayTemp
   applyDataPlaneButtonSchedule({
     baseEnabled: !dashboardState.dataPlane.refreshInFlight,
   });
+  if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
 }
 
 function renderHeavyDashboard({ strategy, rtTactical, stagePlaybook }) {
@@ -1007,6 +1052,165 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function flexCoreTailIsFresh(signal) {
+  if (!signal?.valid_until) return false;
+  const expiry = Date.parse(signal.valid_until);
+  return Number.isFinite(expiry) && Date.now() <= expiry;
+}
+
+function flexCoreTailWindowOpenNow(signal) {
+  if (!signal?.trade_date) return false;
+  const parts = Object.fromEntries(new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Shanghai',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).formatToParts(new Date()).filter(part => part.type !== 'literal').map(part => [part.type, part.value]));
+  const date = `${parts.year}-${parts.month}-${parts.day}`;
+  const minute = Number(parts.hour) * 60 + Number(parts.minute);
+  return date === String(signal.trade_date).slice(0, 10) && minute >= 14 * 60 + 50 && minute < 15 * 60;
+}
+
+function flexCoreTailActionableNow(signal) {
+  return !!signal?.actionable
+    && signal.status === 'EXECUTE'
+    && flexCoreTailIsFresh(signal)
+    && flexCoreTailWindowOpenNow(signal);
+}
+
+function flexCoreTailState(signal) {
+  if (!signal || signal.status === 'NO_SAMPLE') return 'inactive';
+  if (!flexCoreTailIsFresh(signal) && !['FINAL', 'WINDOW_CLOSED'].includes(signal.status)) return 'stale';
+  if (signal.status === 'EXECUTE' && !flexCoreTailWindowOpenNow(signal)) return 'window_closed';
+  return String(signal.status || 'INACTIVE').toLowerCase();
+}
+
+function renderFlexCoreTailAlert(signal) {
+  const alert = document.getElementById('flexCoreTailAlert');
+  if (!alert) return;
+  const tail = signal || {};
+  const state = flexCoreTailState(tail);
+  const actionable = flexCoreTailActionableNow(tail);
+  const status = state === 'stale'
+    ? '盘中信号已过期，禁止尾盘执行'
+    : state === 'window_closed'
+      ? '15:00尾盘窗口已结束，回退T+1'
+      : (tail.status_cn || '等待盘中采样');
+  const values = tail.conditions?.values || {};
+  const checks = tail.conditions?.checks || {};
+  const rt = Number(values.risk_temperature);
+  const dd = Number(values.hs300_drawdown_60d);
+  const coverage = Number(values.model_coverage_score);
+  const dataQuality = Number(values.model_data_quality_score);
+  const qualityLabel = Number.isFinite(dataQuality) && Number.isFinite(coverage)
+    ? `${dataQuality.toFixed(1)}·覆盖${coverage.toFixed(0)}`
+    : '—';
+  const stockBreadth = values.breadth_mode === 'STOCK_A' && String(values.breadth_quality || '').startsWith('OK');
+  const sampleCount = Number(tail.consecutive_samples) || 0;
+  const required = Number(tail.policy?.stable_samples) || 3;
+  const checkRows = [
+    ['RT', Number.isFinite(rt) ? rt.toFixed(1) : '—', checks.risk_temperature],
+    ['回撤', Number.isFinite(dd) ? `${(dd * 100).toFixed(1)}%` : '—', checks.hs300_drawdown_60d],
+    ['质量', qualityLabel, !!(
+      checks.confidence_present
+      && checks.coverage
+      && checks.data_quality
+      && checks.allowed_degradations
+      && checks.intraday_mode
+    )],
+    ['宽度', stockBreadth ? '全A' : '无效', checks.stock_breadth],
+    ['稳定', tail.stable ? `已稳${sampleCount}次` : `${sampleCount}/${required}`, !!tail.stable],
+  ];
+  alert.dataset.state = state;
+  setText('flexCoreTailStatus', status);
+  setText('flexCoreTailTime', tail.last_sample_at ? `采样 ${String(tail.last_sample_at).slice(11, 16)}` : '');
+  const detail = document.getElementById('flexCoreTailDetail');
+  if (detail) {
+    if (actionable) {
+      detail.textContent = '仅买入沪深300核心仓（510300）；请在15:00前按实际成交价记账。卫星及其他信号仍为T+1。';
+    } else if (state === 'prepare') {
+      detail.textContent = '严格条件已连续稳定；14:50后须再次看到“尾盘执行窗口”才可买入。其他信号仍为T+1。';
+    } else if (state === 'confirming') {
+      detail.textContent = `正在连续确认，至少需要${required}次且覆盖15分钟；确认完成前不提前买入。`;
+    } else if (state === 'data_wait') {
+      detail.textContent = `本次采样因数据质量无效而跳过，不增加也不清零；当前连续有效样本${sampleCount}次。等待新鲜有效数据。`;
+    } else {
+      detail.textContent = tail.fallback_cn || '仅严格条件连续稳定后启用；其他信号仍按 T+1 开盘执行。';
+    }
+  }
+  const checksEl = document.getElementById('flexCoreTailChecks');
+  if (checksEl) {
+    checksEl.innerHTML = checkRows.map(([label, value, pass]) =>
+      `<span class="flex-tail-check ${pass ? 'pass' : 'fail'}">${escapeHtml(label)} ${escapeHtml(value)}</span>`
+    ).join('');
+  }
+
+  const dock = document.getElementById('dockFlex');
+  const badge = document.getElementById('dockFlexTailBadge');
+  const attention = flexCoreTailIsFresh(tail) && ['confirming', 'prepare', 'execute', 'data_wait'].includes(state);
+  if (dock) dock.dataset.tailState = attention ? state : 'inactive';
+  if (badge) badge.hidden = !attention;
+  if (!document.documentElement.dataset.baseTitle) {
+    document.documentElement.dataset.baseTitle = document.title;
+  }
+  document.title = actionable
+    ? `CORE尾盘执行 | ${document.documentElement.dataset.baseTitle}`
+    : document.documentElement.dataset.baseTitle;
+}
+
+function flexWithCoreTailSignal(flex, signal) {
+  const base = flex || {};
+  const tail = signal || {};
+  const copy = { ...base, core_tail_signal: tail };
+  if (!flexCoreTailActionableNow(tail)) return copy;
+
+  const satOpen = String(base.position_state?.satellite?.status || '') === 'open'
+    || !!base.satellite?.active;
+  const target = satOpen ? 0.6 : 1.0;
+  const action = {
+    sleeve: 'core',
+    name: '沪深300',
+    action: 'OPEN',
+    action_cn: 'CORE严格尾盘买入',
+    side: 'OPEN',
+    side_cn: '买入',
+    priority: 'P0',
+    entry: 'T日14:50-15:00',
+    exit: '保持原T+1核心退出日程',
+    hold_days: 6,
+    weight_target: target,
+    weight_hint: `${Math.round(target * 100)}%`,
+    why: 'CORE严格条件连续3次盘中采样稳定通过',
+    etf_code: '510300',
+    etf_name: base.core?.etf_name || '沪深300ETF华泰柏瑞',
+    signal_as_of: tail.trade_date,
+    execution_mode: 'T_TAIL_1450',
+    entry_price_type: 'tail_realtime',
+    tail_signal_status: tail.status,
+  };
+  const withoutCoreOpen = (base.buy_list || []).filter(item => {
+    const isCore = String(item.sleeve || '') === 'core' || String(item.etf_code || '') === '510300';
+    return !(isCore && FLEX_BUY_ACTIONS.has(String(item.action || item.side || '').toUpperCase()));
+  });
+  copy.buy_list = [action, ...withoutCoreOpen];
+  copy.minimal_actions = [
+    action,
+    ...(base.minimal_actions || []).filter(item => String(item.etf_code || '') !== '510300'),
+  ];
+  copy.core = {
+    ...(base.core || {}),
+    active: true,
+    action: 'OPEN',
+    action_cn: '尾盘买入',
+    detail: tail.execution_cn,
+    execution_mode: 'T_TAIL_1450',
+  };
+  return copy;
 }
 
 function formatMoney(value, digits = 0) {
@@ -2560,6 +2764,8 @@ function flexApplyBuy(ledger, draft) {
       hold_days: holdDays,
       exit_date: exitDate,
       note: draft.note || '',
+      execution_mode: draft.execution_mode || 'MANUAL',
+      entry_price_type: draft.entry_price_type || 'manual_fill',
     };
   }
   ledger.cash = cash - cashRequired;
@@ -2576,6 +2782,7 @@ function flexApplyBuy(ledger, draft) {
     cost_rate: FLEX_ONE_WAY_COST_RATE,
     signal_as_of: draft.signal_as_of || '',
     budget_amount: amount,
+    execution_mode: draft.execution_mode || 'MANUAL',
   });
   return saveFlexLedger(ledger);
 }
@@ -3031,6 +3238,9 @@ function confirmFlexTradeModal() {
         hold_days: state.hold_days != null && Number.isFinite(Number(state.hold_days))
           ? Number(state.hold_days)
           : (dashboardState.flexActive?.hold_days ?? 5),
+        execution_mode: state.execution_mode || 'MANUAL',
+        entry_price_type: state.execution_mode === 'T_TAIL_1450' ? 'tail_realtime' : 'manual_fill',
+        note: state.execution_mode === 'T_TAIL_1450' ? 'CORE严格条件·T日尾盘执行' : '',
       });
     } else if (state.mode === 'reduce') {
       ledger = flexApplyReduce(ledger, state.key, {
@@ -3128,6 +3338,9 @@ function flexActionBadge(item, flex, options = {}) {
   if (FLEX_BUY_ACTIONS.has(action) || action === 'OPEN') {
     const asOf = options.signalAsOf || item?.signal_as_of || flex?.as_of || '';
     const lag = flexBookLagDays(asOf);
+    if (item?.execution_mode === 'T_TAIL_1450' && lag === 0) {
+      return { text: '14:50尾盘买', cls: 'buy' };
+    }
     if (lag === 1) return { text: 'T+1可确认', cls: 'buy' };
     return { text: '可买·至T+1', cls: 'buy' };
   }
@@ -3310,20 +3523,20 @@ function deskFreshOpenSignals(flex) {
   const f = flex || {};
   const openKeys = new Set(['OPEN', 'BUY', 'OVERWEIGHT', 'OVERWEIGHT_RELATIVE']);
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
-  // If as_of itself is already past T+1, these opens are stale — ignore.
-  if (!deskSignalWindowOpen(asOf)) return [];
 
   const byKey = new Map();
   const put = (item) => {
     if (!item) return;
     const action = String(item.action || item.side || '').toUpperCase();
     if (!openKeys.has(action)) return;
+    const signalDay = String(item.signal_as_of || asOf).slice(0, 10);
+    if (!deskSignalWindowOpen(signalDay)) return;
     const key = flexPositionKey(item);
     if (!key || byKey.has(key)) return;
     byKey.set(key, {
       ...item,
       action: action === 'BUY' ? 'OPEN' : item.action || 'OPEN',
-      signal_as_of: asOf,
+      signal_as_of: signalDay,
     });
   };
   for (const item of f.buy_list || []) put(item);
@@ -3423,8 +3636,22 @@ function deskCollectOpenSignals(flex) {
   // 1) Live engine OPEN on as_of (as_of is T that day).
   const fresh = deskFreshOpenSignals(f);
   if (fresh.length) {
-    saveOpenSignalCache(asOf, fresh);
-    return fresh;
+    const cache = loadOpenSignalCache();
+    const cached = cache?.as_of && Array.isArray(cache.items)
+      ? cache.items.map(item => ({
+        ...item,
+        signal_as_of: item.signal_as_of || cache.as_of,
+        action: item.action || 'OPEN',
+      })).filter(item => deskSignalWindowOpen(item.signal_as_of))
+      : [];
+    const merged = new Map();
+    for (const item of [...fresh, ...cached]) {
+      const key = flexPositionKey(item);
+      if (key && !merged.has(key)) merged.set(key, item);
+    }
+    const cacheable = fresh.filter(item => item.execution_mode !== 'T_TAIL_1450');
+    if (cacheable.length) saveOpenSignalCache(asOf, cacheable);
+    return [...merged.values()];
   }
 
   // 2) Browser cache only if its stored signal day is still T or T+1.
@@ -3432,7 +3659,7 @@ function deskCollectOpenSignals(flex) {
   if (cache?.as_of && deskSignalWindowOpen(cache.as_of) && Array.isArray(cache.items) && cache.items.length) {
     return cache.items.map(item => ({
       ...item,
-      signal_as_of: cache.as_of,
+      signal_as_of: item.signal_as_of || cache.as_of,
       action: item.action || 'OPEN',
     }));
   }
@@ -3615,6 +3842,7 @@ function renderFlexSignalRows(items, flex, options = {}) {
   return items.map(item => {
     const action = String(item.action || item.side || '').toUpperCase();
     const signalKey = item._key || flexPositionKey(item);
+    const rowSignalAsOf = item.signal_as_of || signalAsOf;
     const localMatch = flexFindLocalPosition(item, ledger);
     const held = !!localMatch;
     const key = localMatch?.key || signalKey;
@@ -3623,7 +3851,7 @@ function renderFlexSignalRows(items, flex, options = {}) {
       ? flexActionBadge({ ...item, action: 'HOLD' }, flex, { localHeld: held, signalAsOf })
       : flexActionBadge(item, flex, {
         localHeld: held,
-        signalAsOf: item.signal_as_of || signalAsOf,
+        signalAsOf: rowSignalAsOf,
       });
     const suggested = item.rebalance_amount != null
       ? Number(item.rebalance_amount)
@@ -3638,6 +3866,8 @@ function renderFlexSignalRows(items, flex, options = {}) {
     if (held) left = flexPositionExitInfo(localPos).label;
     else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
       left = item.entry && item.entry !== '—' ? String(item.entry) : '下一交易日开盘';
+    } else if (String(item.sleeve || '').toLowerCase() === 'core' && (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action))) {
+      left = item.entry || 'T+1开盘';
     } else if (String(item.sleeve || '').toLowerCase() === 'satellite' && (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action))) {
       left = item.risk_rule_cn || item.exit || flexSatelliteRiskRule(flex).ruleCn;
     }
@@ -3698,7 +3928,9 @@ function renderFlexSignalRows(items, flex, options = {}) {
           <button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
           <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`;
       } else if (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action)) {
-        acts = strictExecutionReady ? `<button type="button" class="flex-chip primary"
+        const tailEntry = item.execution_mode === 'T_TAIL_1450';
+        const executionReady = tailEntry || strictExecutionReady;
+        acts = executionReady ? `<button type="button" class="flex-chip primary"
           data-flex-act="buy"
           data-pos-key="${escapeHtml(key)}"
           data-name="${escapeHtml(item.name || '')}"
@@ -3706,9 +3938,11 @@ function renderFlexSignalRows(items, flex, options = {}) {
           data-etf-name="${escapeHtml(item.etf_name || '')}"
           data-sleeve="${escapeHtml(item.sleeve || '')}"
           data-suggested="${suggested != null ? suggested : ''}"
-          data-signal-as-of="${escapeHtml(item.signal_as_of || signalAsOf)}"
+          data-signal-as-of="${escapeHtml(rowSignalAsOf)}"
           data-hold-days="${planDays != null ? planDays : ''}"
-        >记买入</button>` : '<span class="flex-row-muted" title="T收盘确认，T+1开盘后记录实际成交">待T+1开盘</span>';
+          data-execution-mode="${escapeHtml(item.execution_mode || '')}"
+        >${tailEntry ? '记尾盘买入' : '记买入'}</button>`
+          : '<span class="flex-row-muted" title="T收盘确认，T+1开盘后记录实际成交">待T+1开盘</span>';
       }
     }
 
@@ -3751,7 +3985,9 @@ function renderFlexSignalList(flex, options = {}) {
   if (openHint) {
     openHint.innerHTML = isFlexSimBook()
       ? '模拟仓：新开由策略纸面自动同步，无需点买。下列为窗口内策略新开提示。'
-      : '真实仓：信号日 <strong>T</strong> 与 <strong>T+1</strong> 可点「记买入」；未点则 <strong>T+2</strong> 消失。';
+      : (flexCoreTailActionableNow(flex?.core_tail_signal)
+        ? '真实仓：<strong>CORE严格尾盘窗口已开启</strong>；510300请在15:00前按实际成交价记账。其他信号仍按T+1。'
+        : '真实仓：信号日 <strong>T</strong> 与 <strong>T+1</strong> 可点「记买入」；未点则 <strong>T+2</strong> 消失。');
   }
 
   let any = false;
@@ -3999,10 +4235,13 @@ function bindFlexExecControls() {
       const suggested = btn.dataset.suggested ? Number(btn.dataset.suggested) : null;
       const isAdd = ledger.positions[key] && Number(ledger.positions[key].qty) > 0;
       const codeName = `${btn.dataset.etfCode || ''} ${btn.dataset.name || ''}`.trim();
+      const executionMode = btn.dataset.executionMode || '';
+      const code = String(btn.dataset.etfCode || '').replace(/\D/g, '').padStart(6, '0');
+      const realtimePrice = Number(dashboardState.flexRealtimeQuotes?.quotes?.[code]?.price);
       openFlexTradeModal({
         mode: isAdd ? 'add' : 'buy',
         title: isAdd ? '加仓记账' : '买入记账',
-        subtitle: `${codeName}${suggested ? ` · 建议 ${formatMoney(suggested)}` : ''} · 请填实际成交价`,
+        subtitle: `${codeName}${suggested ? ` · 建议 ${formatMoney(suggested)}` : ''} · ${executionMode === 'T_TAIL_1450' ? 'T日尾盘实际成交价' : '请填实际成交价'}`,
         key,
         name: btn.dataset.name || '',
         etf_code: btn.dataset.etfCode || '',
@@ -4012,8 +4251,12 @@ function bindFlexExecControls() {
         hold_days: btn.dataset.holdDays !== '' && btn.dataset.holdDays != null
           ? Number(btn.dataset.holdDays)
           : null,
+        execution_mode: executionMode,
         defaultAmount: suggested,
-        defaultPrice: ledger.positions[key]?.last_price || ledger.positions[key]?.avg_price || null,
+        defaultPrice: (realtimePrice > 0 ? realtimePrice : null)
+          || ledger.positions[key]?.last_price
+          || ledger.positions[key]?.avg_price
+          || null,
       });
       return;
     }
@@ -4137,6 +4380,8 @@ function applyFlexModeOverlay(flex, mode) {
 function renderFlexTradePanel(playbook) {
   const panel = document.getElementById('flexTradePanel');
   if (!panel) return;
+  const tailSignal = dashboardState.intradayTemperature?.core_tail_signal || null;
+  renderFlexCoreTailAlert(tailSignal);
   let flex = playbook?.flex_panel;
   if (!flex || playbook?.status === 'missing') {
     setText('flexStatus', '—');
@@ -4157,11 +4402,15 @@ function renderFlexTradePanel(playbook) {
   }
 
   dashboardState.flexPlaybook = playbook;
+  flex = flexWithCoreTailSignal(flex, tailSignal);
   // Product lock: only aggressive Flex sizing is exposed in the app; backend is the sizing source of truth.
   const mode = flex.mode || 'aggressive';
   dashboardState.flexMode = 'aggressive';
   if (flex.mode !== 'aggressive') {
     flex = applyFlexModeOverlay(flex, mode);
+  }
+  if (flexCoreTailActionableNow(tailSignal)) {
+    flex = applyFlexModeOverlay(flex, 'aggressive');
   }
   // Promote root playbook metadata onto flex for signal filters / empty-state copy.
   flex = {
@@ -4285,7 +4534,9 @@ function renderFlexTradePanel(playbook) {
     else if (coreOpenNow) coreActionLabel = '策略可开';
   } else {
     if (coreHeld) coreActionLabel = '已持有';
-    else if (coreOpenNow) coreActionLabel = '可买·T～T+1';
+    else if (coreOpenNow) coreActionLabel = flexCoreTailActionableNow(tailSignal)
+      ? '14:50尾盘买'
+      : '可买·T～T+1';
     else if (paperCoreOpen) coreActionLabel = paperCoreClosing ? '纸面待平·未记' : '纸面持有·未记';
   }
   setText('flexCoreAction', coreActionLabel);

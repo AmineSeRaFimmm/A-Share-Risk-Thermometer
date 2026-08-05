@@ -6,9 +6,11 @@
   "hold_days_sat": "3-8",
   "satellite_stop_loss": -0.03,
   "satellite_take_profit": 0.04,
-  "execution": "T 收盘信号 → T+1 开盘",
+  "execution": "CORE严格条件 T日14:50尾盘；其余信号 T+1开盘",
   "backtest_protocol": {
     "price_path": "entry open → daily close path → exit open; no endpoint smoothing",
+    "core_tail": "strict CORE uses T close as 14:50-15:00 fill proxy; original exit date is unchanged",
+    "core_tail_quality": "live PASS/FAIL/INVALID gate is operational only; historical EOD confidence is not used as a live-quality proxy",
     "cost": "target-weight turnover × one-way bps; entries, exits and rebalances all counted",
     "proxy": "proxy gains are discounted; proxy losses are amplified by the same factor",
     "observe": "observe-only satellite sleeve uses 0.25 production scale",
@@ -16,92 +18,92 @@
     "oos": "independent simulation starts flat on 2024-01-01"
   },
   "core_only": {
-    "total_return": 0.51647525032459,
-    "ann_return": 0.0681314126421444,
-    "max_dd": -0.14233373528028948,
-    "win_rate": 0.6530612244897959,
+    "total_return": 0.539191979358115,
+    "ann_return": 0.07055664342520629,
+    "max_dd": -0.15086584868490072,
+    "win_rate": 0.6326530612244898,
     "trade_count": 49
   },
   "conservative": {
     "note": "对照口径；总暴露 capped；同一日度路径与成本模型",
     "full_sample": {
-      "total_return": 1.2612891670616873,
-      "ann_return": 0.13786710862795348,
-      "max_dd": -0.13230407193901617,
-      "win_rate": 0.5985401459854015,
-      "trade_count": 274,
-      "sharpe": 1.5294260244615356,
-      "turnover": 183.5
+      "total_return": 1.2608761569628206,
+      "ann_return": 0.1376498770506438,
+      "max_dd": -0.1365224130260384,
+      "win_rate": 0.5927272727272728,
+      "trade_count": 275,
+      "sharpe": 1.5163348769544835,
+      "turnover": 169.8
     },
     "oos": {
-      "total_return": 0.4620854676257353,
-      "ann_return": 0.16812375690624304,
-      "max_dd": -0.04604594479551205,
-      "win_rate": 0.6146788990825688,
-      "trade_count": 109,
-      "turnover": 73.7
+      "total_return": 0.45107394948624635,
+      "ann_return": 0.16394285668053143,
+      "max_dd": -0.04520033044037963,
+      "win_rate": 0.6181818181818182,
+      "trade_count": 110,
+      "turnover": 65.0
     }
   },
   "aggressive": {
     "note": "生产进取模式；单仓满仓、双仓60/40；卫星-3%止损/+4%止盈；含换仓成本",
     "full_sample": {
-      "total_return": 5.061807345418504,
-      "ann_return": 0.3300844972142787,
-      "max_dd": -0.18124620927171275,
-      "win_rate": 0.5985401459854015,
-      "trade_count": 274,
-      "sharpe": 1.5363467519369218,
-      "turnover": 526.2
+      "total_return": 5.882959958557935,
+      "ann_return": 0.35658269982718016,
+      "max_dd": -0.18781390542522935,
+      "win_rate": 0.5927272727272728,
+      "trade_count": 275,
+      "sharpe": 1.6554737760188372,
+      "turnover": 497.4
     },
     "oos": {
-      "total_return": 1.4488242941532836,
-      "ann_return": 0.44251065081394425,
-      "max_dd": -0.13385848042693038,
-      "win_rate": 0.6146788990825688,
-      "trade_count": 109,
-      "turnover": 210.6
+      "total_return": 1.5352314384499506,
+      "ann_return": 0.4613190489873613,
+      "max_dd": -0.118803874906246,
+      "win_rate": 0.6181818181818182,
+      "trade_count": 110,
+      "turnover": 193.8
     }
   },
   "cost_stress": {
     "base_bps_one_way": 1,
     "stress_15bps": {
       "conservative": {
-        "total_return": 0.7490046862221784,
-        "ann_return": 0.09252588885502644,
-        "max_dd": -0.14548472252434907,
-        "win_rate": 0.5985401459854015,
-        "trade_count": 274,
-        "sharpe": 1.0595944329268177,
-        "turnover": 183.5
+        "total_return": 0.7825324013939536,
+        "ann_return": 0.09568880098962418,
+        "max_dd": -0.14843448138811344,
+        "win_rate": 0.5927272727272728,
+        "trade_count": 275,
+        "sharpe": 1.0851225028695042,
+        "turnover": 169.8
       },
       "aggressive": {
-        "total_return": 1.9010459932098005,
-        "ann_return": 0.18363675848744654,
-        "max_dd": -0.21188519564274932,
-        "win_rate": 0.5985401459854015,
-        "trade_count": 274,
-        "sharpe": 0.9455661328130309,
-        "turnover": 526.2
+        "total_return": 2.4302606667282816,
+        "ann_return": 0.21515419260246205,
+        "max_dd": -0.21294203232856168,
+        "win_rate": 0.5927272727272728,
+        "trade_count": 275,
+        "sharpe": 1.0900697499537517,
+        "turnover": 497.4
       }
     },
     "stress_30bps": {
       "conservative": {
-        "total_return": 0.32796676221438736,
-        "ann_return": 0.04592244349533825,
-        "max_dd": -0.15939501260644273,
-        "win_rate": 0.5985401459854015,
-        "trade_count": 274,
-        "sharpe": 0.5568926154649223,
-        "turnover": 183.5
+        "total_return": 0.38153830183007864,
+        "ann_return": 0.05242310813126383,
+        "max_dd": -0.1610249748706427,
+        "win_rate": 0.5927272727272728,
+        "trade_count": 275,
+        "sharpe": 0.6237425237720976,
+        "turnover": 169.8
       },
       "aggressive": {
-        "total_return": 0.31560323145909686,
-        "ann_return": 0.04437498022522002,
-        "max_dd": -0.3739751655360495,
-        "win_rate": 0.5985401459854015,
-        "trade_count": 274,
-        "sharpe": 0.31610849994896595,
-        "turnover": 526.2
+        "total_return": 0.6247775953350534,
+        "ann_return": 0.07975447210393494,
+        "max_dd": -0.30282493320753967,
+        "win_rate": 0.5927272727272728,
+        "trade_count": 275,
+        "sharpe": 0.48640511945161485,
+        "turnover": 497.4
       }
     },
     "etf_haircut_note": "proxy 正收益折扣、负收益放大 / weak 剔除；行业指数≠ETF"
@@ -111,56 +113,56 @@
     {
       "mode": "conservative",
       "cost_label": "base_1bps",
-      "ann_return": 0.13786710862795348,
-      "max_dd": -0.13230407193901617,
-      "win_rate": 0.5985401459854015,
-      "trade_count": 274,
-      "turnover": 183.5
+      "ann_return": 0.1376498770506438,
+      "max_dd": -0.1365224130260384,
+      "win_rate": 0.5927272727272728,
+      "trade_count": 275,
+      "turnover": 169.8
     },
     {
       "mode": "conservative",
       "cost_label": "stress_15bps",
-      "ann_return": 0.09252588885502644,
-      "max_dd": -0.14548472252434907,
-      "win_rate": 0.5985401459854015,
-      "trade_count": 274,
-      "turnover": 183.5
+      "ann_return": 0.09568880098962418,
+      "max_dd": -0.14843448138811344,
+      "win_rate": 0.5927272727272728,
+      "trade_count": 275,
+      "turnover": 169.8
     },
     {
       "mode": "conservative",
       "cost_label": "stress_30bps",
-      "ann_return": 0.04592244349533825,
-      "max_dd": -0.15939501260644273,
-      "win_rate": 0.5985401459854015,
-      "trade_count": 274,
-      "turnover": 183.5
+      "ann_return": 0.05242310813126383,
+      "max_dd": -0.1610249748706427,
+      "win_rate": 0.5927272727272728,
+      "trade_count": 275,
+      "turnover": 169.8
     },
     {
       "mode": "aggressive",
       "cost_label": "base_1bps",
-      "ann_return": 0.3300844972142787,
-      "max_dd": -0.18124620927171275,
-      "win_rate": 0.5985401459854015,
-      "trade_count": 274,
-      "turnover": 526.2
+      "ann_return": 0.35658269982718016,
+      "max_dd": -0.18781390542522935,
+      "win_rate": 0.5927272727272728,
+      "trade_count": 275,
+      "turnover": 497.4
     },
     {
       "mode": "aggressive",
       "cost_label": "stress_15bps",
-      "ann_return": 0.18363675848744654,
-      "max_dd": -0.21188519564274932,
-      "win_rate": 0.5985401459854015,
-      "trade_count": 274,
-      "turnover": 526.2
+      "ann_return": 0.21515419260246205,
+      "max_dd": -0.21294203232856168,
+      "win_rate": 0.5927272727272728,
+      "trade_count": 275,
+      "turnover": 497.4
     },
     {
       "mode": "aggressive",
       "cost_label": "stress_30bps",
-      "ann_return": 0.04437498022522002,
-      "max_dd": -0.3739751655360495,
-      "win_rate": 0.5985401459854015,
-      "trade_count": 274,
-      "turnover": 526.2
+      "ann_return": 0.07975447210393494,
+      "max_dd": -0.30282493320753967,
+      "win_rate": 0.5927272727272728,
+      "trade_count": 275,
+      "turnover": 497.4
     }
   ]
 }

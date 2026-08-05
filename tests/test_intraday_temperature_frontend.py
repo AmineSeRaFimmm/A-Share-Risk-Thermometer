@@ -36,9 +36,34 @@ def test_temperature_page_loads_persisted_intraday_series() -> None:
     assert "data: eligibleRows.map(row => ({" in charts
 
 
+def test_temperature_track_exposes_core_tail_signal_and_persists_day_event() -> None:
+    html = (ROOT / "web/index.html").read_text(encoding="utf-8")
+    app = (ROOT / "web/assets/app.js").read_text(encoding="utf-8")
+    charts = (ROOT / "web/assets/charts.js").read_text(encoding="utf-8")
+
+    assert 'id="temperatureCoreTailSignal"' in html
+    assert "function renderTemperatureCoreTailSignal(payload)" in app
+    assert "payload?.core_tail_signal" in app
+    assert "summary.execute_triggered" in app
+    assert "CORE尾盘买" in charts
+    assert "row.core_tail_status === 'EXECUTE'" in charts
+
+
 def test_realtime_workflow_publishes_intraday_artifacts() -> None:
     assert {
         "data/calculated/intraday_temperature_history.csv",
         "data/site/intraday_temperature.json",
         "docs/data/intraday_temperature.json",
     }.issubset(set(ALLOWED_PATHS))
+
+
+def test_flex_page_exposes_core_tail_alert_contract() -> None:
+    html = (ROOT / "web/index.html").read_text(encoding="utf-8")
+    app = (ROOT / "web/assets/app.js").read_text(encoding="utf-8")
+
+    assert 'id="flexCoreTailAlert"' in html
+    assert 'id="dockFlexTailBadge"' in html
+    assert "renderFlexCoreTailAlert(tailSignal)" in app
+    assert "state === 'data_wait'" in app
+    assert "本次采样因数据质量无效而跳过" in app
+    assert "其他信号仍按T+1" in app

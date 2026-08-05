@@ -278,6 +278,17 @@ function renderIntradayTemperatureChart(payload) {
   const axisMin = Math.max(0, Math.floor((center - span * 0.7) * 2) / 2);
   const axisMax = Math.min(100, Math.ceil((center + span * 0.7) * 2) / 2);
   const finalRow = rows.find(row => row.is_final && isEligible(row));
+  const executeRow = rows.find(row => row.core_tail_status === 'EXECUTE');
+  const stableRow = rows.find(row => row.core_tail_status === 'PREPARE');
+  const coreSignalRow = executeRow || stableRow;
+  const coreSignalExecuted = !!executeRow;
+  const coreStatusLabel = {
+    CONFIRMING: '候选确认中',
+    PREPARE: '严格条件已稳定',
+    EXECUTE: '尾盘买入窗口',
+    DATA_WAIT: '无效样本已跳过',
+    WINDOW_CLOSED: '尾盘窗口已结束',
+  };
   const temperatureColor = value => {
     if (value >= 90) return '#5c1414';
     if (value >= 75) return '#8f2a2a';
@@ -306,11 +317,14 @@ function renderIntradayTemperatureChart(payload) {
           `${item?.marker || ''}风险温度: <strong>${fmt(row.risk_temperature, 1)}</strong>`,
           `口径: ${row.temperature_mode_cn || row.temperature_mode || '--'}`,
           Number.isFinite(Number(row.model_confidence)) ? `置信度: ${fmt(row.model_confidence, 1)}` : null,
+          coreStatusLabel[row.core_tail_status]
+            ? `CORE尾盘: ${coreStatusLabel[row.core_tail_status]}${Number(row.core_tail_consecutive_samples) ? ` · 连续${row.core_tail_consecutive_samples}次` : ''}`
+            : null,
           row.is_final ? '状态: 正式收盘终点' : '状态: 刷新采样',
         ].filter(Boolean).join('<br>');
       },
     },
-    grid: { left: isNarrow() ? 44 : 54, right: isNarrow() ? 14 : 28, top: 18, bottom: 42 },
+    grid: { left: isNarrow() ? 44 : 54, right: isNarrow() ? 14 : 28, top: coreSignalRow ? 42 : 18, bottom: 42 },
     xAxis: {
       type: 'time',
       min: sessionStart,
@@ -354,19 +368,48 @@ function renderIntradayTemperatureChart(payload) {
         label: { color: '#8b8175', fontSize: 10 },
         data: markLines,
       },
-      markPoint: finalRow ? {
-        symbol: 'diamond',
-        symbolSize: 13,
-        itemStyle: { color: '#1a1714' },
-        label: { show: true, formatter: '收盘', position: 'top', color: '#1a1714', fontSize: 10 },
-        data: [{ coord: [finalRow.sampled_at, Number(finalRow.risk_temperature)] }],
+      markPoint: finalRow || coreSignalRow ? {
+        data: [
+          coreSignalRow ? {
+            name: coreSignalExecuted ? 'CORE尾盘买' : 'CORE已稳定',
+            coord: [coreSignalRow.sampled_at, Number(coreSignalRow.risk_temperature)],
+            symbol: coreSignalExecuted ? 'diamond' : 'circle',
+            symbolSize: coreSignalExecuted ? 15 : 13,
+            itemStyle: {
+              color: coreSignalExecuted ? '#1e5c42' : '#b1842d',
+              borderColor: '#ffffff',
+              borderWidth: 2,
+            },
+            label: {
+              show: true,
+              formatter: coreSignalExecuted ? 'CORE尾盘买' : 'CORE已稳定',
+              position: 'top',
+              color: coreSignalExecuted ? '#1e5c42' : '#8b571f',
+              fontSize: 10,
+              fontWeight: 700,
+            },
+          } : null,
+          finalRow ? {
+            name: '正式收盘',
+            coord: [finalRow.sampled_at, Number(finalRow.risk_temperature)],
+            symbol: 'diamond',
+            symbolSize: 13,
+            itemStyle: { color: '#1a1714' },
+            label: { show: true, formatter: '收盘', position: 'top', color: '#1a1714', fontSize: 10 },
+          } : null,
+        ].filter(Boolean),
       } : undefined,
     }],
   });
+  const coreSummary = payload?.core_tail_day_summary?.execute_triggered
+    ? `当日${String(payload.core_tail_day_summary.execute_at || '').slice(11, 16)}触发CORE尾盘买入。`
+    : payload?.core_tail_day_summary?.ever_stable
+      ? '当日CORE严格条件曾达到稳定。'
+      : '';
   setChartA11y(
     chart,
     '今日温度轨迹',
-    `${payload.trade_date || '今日'}共${rows.length}个采样点，其中${eligibleRows.length}个宽度有效，最新有效温度${fmt(values[values.length - 1], 1)}。`,
+    `${payload.trade_date || '今日'}共${rows.length}个采样点，其中${eligibleRows.length}个宽度有效，最新有效温度${fmt(values[values.length - 1], 1)}。${coreSummary}`,
   );
   return chart;
 }

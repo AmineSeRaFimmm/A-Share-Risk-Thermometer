@@ -3,6 +3,7 @@ from __future__ import annotations
 import pandas as pd
 
 from src.core.intraday_temperature import (
+    confirmed_core_tail_dates,
     intraday_temperature_payload,
     record_intraday_temperature,
     update_intraday_temperature_history,
@@ -16,6 +17,13 @@ def _latest(
     trade_date: str = "2026-08-03",
     mode: str = "NOWCAST",
     final: bool = False,
+    confidence: float = 91.25,
+    coverage: float = 100.0,
+    data_quality: float | None = None,
+    missing_components: str = "",
+    dd60: float = -0.07,
+    breadth_mode: str = "STOCK_A",
+    breadth_quality: str = "OK",
 ) -> dict:
     return {
         "trade_date": trade_date,
@@ -25,11 +33,18 @@ def _latest(
         "temperature_mode_cn": "收盘正式" if final else "盘中估算",
         "is_final": final,
         "quality": "OK_TEST",
-        "model_confidence": {"score": 91.25},
+        "model_confidence": {
+            "score": confidence,
+            "coverage_score": coverage,
+            "data_quality_score": confidence if data_quality is None else data_quality,
+            "missing_components": missing_components,
+        },
         "market": {
-            "breadth_pressure": 54.2,
-            "breadth_quality": "OK",
-            "breadth_source": "TEST_STOCK_BREADTH",
+            "hs300_drawdown_60d": dd60,
+            "breadth_pressure": 50.0 if breadth_mode == "STOCK_A" else None,
+            "breadth_mode": breadth_mode,
+            "breadth_quality": breadth_quality,
+            "breadth_source": "TEST_A_SPOT" if breadth_mode == "STOCK_A" else "TEST_PROXY",
         },
     }
 
@@ -123,11 +138,12 @@ def test_payload_uses_one_trade_date_and_strict_values() -> None:
 def test_missing_breadth_remains_auditable_but_is_not_plot_eligible() -> None:
     latest = _latest("2026-08-03T10:26:00+08:00", 77.0)
     latest["quality"] = "OK_NOWCAST|WARN_BREADTH_MISSING"
-    latest["market"] = {
+    latest["market"].update({
         "breadth_pressure": None,
+        "breadth_mode": "MISSING",
         "breadth_quality": "MISSING",
         "breadth_source": "",
-    }
+    })
     history, changed = update_intraday_temperature_history(pd.DataFrame(), latest)
     assert changed
     payload = intraday_temperature_payload(history, "2026-08-03")
@@ -172,3 +188,196 @@ def test_record_creates_empty_history_contract_for_stale_build(tmp_path) -> None
     assert not changed
     assert payload["status"] == "no_samples"
     assert history_path.exists()
+
+
+def test_core_tail_signal_requires_three_consecutive_strict_samples() -> None:
+    history = pd.DataFrame()
+    for timestamp in [
+        "2026-08-03T14:25:00+08:00",
+        "2026-08-03T14:35:00+08:00",
+    ]:
+        history, _ = update_intraday_temperature_history(
+            history,
+            _latest(timestamp, 70.0, confidence=96.0),
+        )
+    signal = intraday_temperature_payload(history, "2026-08-03")["core_tail_signal"]
+    assert signal["status"] == "CONFIRMING"
+    assert signal["consecutive_samples"] == 2
+    assert signal["stable"] is False
+    assert signal["actionable"] is False
+
+
+def test_core_tail_signal_prepares_then_executes_at_1450() -> None:
+    history = pd.DataFrame()
+    for timestamp in [
+        "2026-08-03T14:25:00+08:00",
+        "2026-08-03T14:35:00+08:00",
+        "2026-08-03T14:45:00+08:00",
+    ]:
+        history, _ = update_intraday_temperature_history(
+            history,
+            _latest(timestamp, 70.0, confidence=96.0),
+        )
+    prepare = intraday_temperature_payload(history, "2026-08-03")["core_tail_signal"]
+    assert prepare["status"] == "PREPARE"
+    assert prepare["stable"] is True
+    assert prepare["actionable"] is False
+
+    history, _ = update_intraday_temperature_history(
+        history,
+        _latest("2026-08-03T14:50:00+08:00", 69.8, confidence=96.0),
+    )
+    execute = intraday_temperature_payload(history, "2026-08-03")["core_tail_signal"]
+    assert execute["status"] == "EXECUTE"
+    assert execute["consecutive_samples"] == 4
+    assert execute["stability_span_minutes"] == 25
+    assert execute["actionable"] is True
+    assert execute["policy"]["scope"] == "CORE_ONLY"
+    assert execute["valid_until"] == "2026-08-03T15:00:00+08:00"
+
+    history, _ = update_intraday_temperature_history(
+        history,
+        _latest(
+            "2026-08-03T15:20:00+08:00",
+            69.5,
+            mode="OFFICIAL_CLOSE",
+            final=True,
+            confidence=96.0,
+        ),
+    )
+    final_payload = intraday_temperature_payload(history, "2026-08-03")
+    assert final_payload["core_tail_signal"]["status"] == "FINAL"
+    assert final_payload["core_tail_day_summary"] == {
+        "ever_stable": True,
+        "stable_at": "2026-08-03T14:45:00+08:00",
+        "execute_triggered": True,
+        "execute_at": "2026-08-03T14:50:00+08:00",
+    }
+    assert [row["core_tail_status"] for row in final_payload["rows"]] == [
+        "CONFIRMING",
+        "CONFIRMING",
+        "PREPARE",
+        "EXECUTE",
+        "FINAL",
+    ]
+    assert confirmed_core_tail_dates(history) == {"2026-08-03"}
+
+
+def test_valid_sample_that_fails_strategy_condition_resets_streak() -> None:
+    history = pd.DataFrame()
+    for timestamp in ["2026-08-03T14:20:00+08:00", "2026-08-03T14:30:00+08:00"]:
+        history, _ = update_intraday_temperature_history(
+            history,
+            _latest(timestamp, 70.0, confidence=86.8, missing_components="QVIX_DELAYED"),
+        )
+    history, _ = update_intraday_temperature_history(
+        history,
+        _latest("2026-08-03T14:40:00+08:00", 77.0, confidence=86.8),
+    )
+    history, _ = update_intraday_temperature_history(
+        history,
+        _latest("2026-08-03T14:50:00+08:00", 70.0, confidence=86.8),
+    )
+    signal = intraday_temperature_payload(history, "2026-08-03")["core_tail_signal"]
+    assert signal["status"] == "CONFIRMING"
+    assert signal["consecutive_samples"] == 1
+    assert signal["actionable"] is False
+
+
+def test_invalid_sample_is_skipped_without_resetting_valid_streak() -> None:
+    history = pd.DataFrame()
+    samples = [
+        ("2026-08-03T14:20:00+08:00", {}),
+        (
+            "2026-08-03T14:30:00+08:00",
+            {
+                "coverage": 88.0,
+                "missing_components": "STOCK_BREADTH",
+                "breadth_mode": "INDEX_PROXY",
+                "breadth_quality": "WARN_BREADTH_PROXY",
+            },
+        ),
+        ("2026-08-03T14:40:00+08:00", {}),
+        ("2026-08-03T14:50:00+08:00", {}),
+    ]
+    for timestamp, kwargs in samples:
+        history, _ = update_intraday_temperature_history(
+            history,
+            _latest(timestamp, 70.0, confidence=86.8, **kwargs),
+        )
+
+    signal = intraday_temperature_payload(history, "2026-08-03")["core_tail_signal"]
+    assert signal["status"] == "EXECUTE"
+    assert signal["consecutive_samples"] == 3
+    assert signal["invalid_samples_skipped"] == 1
+    assert signal["actionable"] is True
+
+
+def test_latest_invalid_sample_pauses_execution_but_preserves_streak() -> None:
+    history = pd.DataFrame()
+    for timestamp in [
+        "2026-08-03T14:20:00+08:00",
+        "2026-08-03T14:30:00+08:00",
+        "2026-08-03T14:40:00+08:00",
+    ]:
+        history, _ = update_intraday_temperature_history(
+            history,
+            _latest(timestamp, 70.0, confidence=86.8),
+        )
+    history, _ = update_intraday_temperature_history(
+        history,
+        _latest(
+            "2026-08-03T14:50:00+08:00",
+            70.0,
+            confidence=70.0,
+            coverage=88.0,
+            data_quality=79.0,
+            missing_components="STOCK_BREADTH",
+            breadth_mode="INDEX_PROXY",
+            breadth_quality="WARN_BREADTH_PROXY",
+        ),
+    )
+
+    signal = intraday_temperature_payload(history, "2026-08-03")["core_tail_signal"]
+    assert signal["status"] == "DATA_WAIT"
+    assert signal["latest_sample_state"] == "INVALID"
+    assert "全A宽度无效" in signal["status_cn"]
+    assert signal["consecutive_samples"] == 3
+    assert signal["stable"] is True
+    assert signal["actionable"] is False
+
+    payload = intraday_temperature_payload(history, "2026-08-03")
+    assert payload["rows"][-1]["core_tail_status"] == "DATA_WAIT"
+    assert payload["rows"][-1]["core_tail_sample_state"] == "INVALID"
+    assert payload["core_tail_day_summary"]["execute_triggered"] is False
+
+
+def test_invalid_samples_cannot_bridge_more_than_twenty_minutes() -> None:
+    history = pd.DataFrame()
+    history, _ = update_intraday_temperature_history(
+        history,
+        _latest("2026-08-03T14:20:00+08:00", 70.0, confidence=86.8),
+    )
+    history, _ = update_intraday_temperature_history(
+        history,
+        _latest(
+            "2026-08-03T14:35:00+08:00",
+            70.0,
+            confidence=70.0,
+            coverage=88.0,
+            data_quality=79.0,
+            missing_components="STOCK_BREADTH",
+            breadth_mode="INDEX_PROXY",
+            breadth_quality="WARN_BREADTH_PROXY",
+        ),
+    )
+    for timestamp in ["2026-08-03T14:45:00+08:00", "2026-08-03T14:50:00+08:00"]:
+        history, _ = update_intraday_temperature_history(
+            history,
+            _latest(timestamp, 70.0, confidence=86.8),
+        )
+
+    signal = intraday_temperature_payload(history, "2026-08-03")["core_tail_signal"]
+    assert signal["status"] == "CONFIRMING"
+    assert signal["consecutive_samples"] == 2
+    assert signal["actionable"] is False

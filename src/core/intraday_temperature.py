@@ -5,6 +5,16 @@ from typing import Any
 
 import pandas as pd
 
+from src.core.core_tail_policy import (
+    CORE_TAIL_MAX_SAMPLE_GAP_MINUTES,
+    CORE_TAIL_SAMPLE_TTL_MINUTES,
+    CORE_TAIL_STABLE_MINUTES,
+    CORE_TAIL_STABLE_SAMPLES,
+    CORE_TAIL_WINDOW_END,
+    CORE_TAIL_WINDOW_START,
+    core_tail_condition_status,
+    core_tail_policy_payload,
+)
 from src.storage.csv_store import read_csv, write_csv
 
 
@@ -18,14 +28,27 @@ HISTORY_COLUMNS = [
     "is_final",
     "quality",
     "model_confidence",
-    "breadth_observed",
+    "model_coverage_score",
+    "model_data_quality_score",
+    "model_missing_components",
+    "hs300_drawdown_60d",
+    "breadth_mode",
     "breadth_quality",
     "breadth_source",
+    "breadth_observed",
     "plot_eligible",
     "source_update_time",
 ]
 
 VALID_MODES = {"NOWCAST", "CLOSE_PENDING", "ESTIMATED_CLOSE", "OFFICIAL_CLOSE"}
+INVALID_REASON_CN = {
+    "confidence_present": "置信度缺失",
+    "coverage": "模型覆盖不足",
+    "data_quality": "数据质量不足",
+    "allowed_degradations": "存在关键因子缺失",
+    "stock_breadth": "全A宽度无效",
+    "intraday_mode": "非盘中估算",
+}
 
 
 def _empty_history() -> pd.DataFrame:
@@ -51,29 +74,24 @@ def _confidence_score(latest: dict[str, Any]) -> float | None:
     return None if pd.isna(numeric) else round(float(numeric), 2)
 
 
-def _normalized_history(history: pd.DataFrame | None) -> pd.DataFrame:
-    if history is None or history.empty:
-        return _empty_history()
-    frame = history.copy()
-    for column in HISTORY_COLUMNS:
-        if column not in frame.columns:
-            frame[column] = None
-    frame = frame[HISTORY_COLUMNS]
-    frame["trade_date"] = frame["trade_date"].astype(str).str[:10]
-    frame["sampled_at"] = frame["sampled_at"].astype(str)
-    frame["sample_minute"] = frame["sample_minute"].astype(str)
-    frame["risk_temperature"] = pd.to_numeric(frame["risk_temperature"], errors="coerce")
-    frame["model_confidence"] = pd.to_numeric(frame["model_confidence"], errors="coerce")
-    frame["is_final"] = frame["is_final"].astype(str).str.lower().isin({"true", "1"})
-    quality = frame["quality"].fillna("").astype(str)
-    derived_breadth = ~quality.str.contains("WARN_BREADTH_MISSING", regex=False)
-    for column, fallback in [
-        ("breadth_observed", derived_breadth),
-        ("plot_eligible", derived_breadth),
-    ]:
-        values = frame[column].map(_optional_bool)
-        frame[column] = [bool(default) if value is None else value for value, default in zip(values, fallback)]
-    return frame.dropna(subset=["risk_temperature"])
+def _confidence_value(latest: dict[str, Any], key: str) -> float | None:
+    confidence = latest.get("model_confidence")
+    value = confidence.get(key) if isinstance(confidence, dict) else None
+    numeric = pd.to_numeric(value, errors="coerce")
+    return None if pd.isna(numeric) else round(float(numeric), 2)
+
+
+def _market_value(latest: dict[str, Any], key: str) -> float | None:
+    market = latest.get("market")
+    value = market.get(key) if isinstance(market, dict) else None
+    numeric = pd.to_numeric(value, errors="coerce")
+    return None if pd.isna(numeric) else float(numeric)
+
+
+def _market_text(latest: dict[str, Any], key: str) -> str:
+    market = latest.get("market")
+    value = market.get(key) if isinstance(market, dict) else None
+    return str(value or "")
 
 
 def _optional_bool(value: Any) -> bool | None:
@@ -87,6 +105,41 @@ def _optional_bool(value: Any) -> bool | None:
     if text in {"false", "0", "no"}:
         return False
     return None
+
+
+def _normalized_history(history: pd.DataFrame | None) -> pd.DataFrame:
+    if history is None or history.empty:
+        return _empty_history()
+    frame = history.copy()
+    for column in HISTORY_COLUMNS:
+        if column not in frame.columns:
+            frame[column] = None
+    frame = frame[HISTORY_COLUMNS]
+    frame["trade_date"] = frame["trade_date"].astype(str).str[:10]
+    frame["sampled_at"] = frame["sampled_at"].astype(str)
+    frame["sample_minute"] = frame["sample_minute"].astype(str)
+    frame["risk_temperature"] = pd.to_numeric(frame["risk_temperature"], errors="coerce")
+    frame["model_confidence"] = pd.to_numeric(frame["model_confidence"], errors="coerce")
+    frame["model_coverage_score"] = pd.to_numeric(frame["model_coverage_score"], errors="coerce")
+    frame["model_data_quality_score"] = pd.to_numeric(frame["model_data_quality_score"], errors="coerce")
+    frame["hs300_drawdown_60d"] = pd.to_numeric(frame["hs300_drawdown_60d"], errors="coerce")
+    for column in [
+        "model_missing_components",
+        "breadth_mode",
+        "breadth_quality",
+        "breadth_source",
+    ]:
+        frame[column] = frame[column].fillna("").astype(str).replace("nan", "")
+    quality = frame["quality"].fillna("").astype(str)
+    derived_breadth = ~quality.str.contains("WARN_BREADTH_MISSING", regex=False)
+    for column in ["breadth_observed", "plot_eligible"]:
+        values = frame[column].map(_optional_bool)
+        frame[column] = [
+            bool(default) if value is None else value
+            for value, default in zip(values, derived_breadth)
+        ]
+    frame["is_final"] = frame["is_final"].astype(str).str.lower().isin({"true", "1"})
+    return frame.dropna(subset=["risk_temperature"])
 
 
 def update_intraday_temperature_history(
@@ -116,11 +169,10 @@ def update_intraday_temperature_history(
         return frame, False
 
     is_final = bool(latest.get("is_final")) or mode == "OFFICIAL_CLOSE"
-    market = latest.get("market") if isinstance(latest.get("market"), dict) else {}
-    breadth_pressure = pd.to_numeric(market.get("breadth_pressure"), errors="coerce")
+    breadth_pressure = _market_value(latest, "breadth_pressure")
     quality_text = str(latest.get("quality") or "")
     breadth_observed = (
-        pd.notna(breadth_pressure)
+        breadth_pressure is not None
         and "WARN_BREADTH_MISSING" not in quality_text
     )
     sampled_iso = sampled_at.isoformat(timespec="seconds")
@@ -135,10 +187,19 @@ def update_intraday_temperature_history(
         "is_final": is_final,
         "quality": quality_text,
         "model_confidence": _confidence_score(latest),
-        "breadth_observed": bool(breadth_observed),
-        "breadth_quality": str(market.get("breadth_quality") or ""),
-        "breadth_source": str(market.get("breadth_source") or ""),
-        "plot_eligible": bool(breadth_observed),
+        "model_coverage_score": _confidence_value(latest, "coverage_score"),
+        "model_data_quality_score": _confidence_value(latest, "data_quality_score"),
+        "model_missing_components": str(
+            (latest.get("model_confidence") or {}).get("missing_components") or ""
+        )
+        if isinstance(latest.get("model_confidence"), dict)
+        else "",
+        "hs300_drawdown_60d": _market_value(latest, "hs300_drawdown_60d"),
+        "breadth_mode": _market_text(latest, "breadth_mode"),
+        "breadth_quality": _market_text(latest, "breadth_quality"),
+        "breadth_source": _market_text(latest, "breadth_source"),
+        "breadth_observed": breadth_observed,
+        "plot_eligible": breadth_observed,
         "source_update_time": sampled_iso,
     }
 
@@ -179,6 +240,8 @@ def intraday_temperature_payload(
             "has_final": False,
             "rows": [],
             "available_dates": [],
+            "core_tail_signal": core_tail_signal_payload(frame, preferred_trade_date),
+            "core_tail_day_summary": _core_tail_day_summary([]),
             "methodology": _methodology(),
         }
 
@@ -186,8 +249,13 @@ def intraday_temperature_payload(
     requested = str(preferred_trade_date or "")[:10]
     trade_date = requested if requested in available_dates else available_dates[-1]
     day = frame[frame["trade_date"].eq(trade_date)].sort_values("sampled_at")
+    signal_timeline = [
+        core_tail_signal_payload(day.iloc[: end + 1], trade_date)
+        for end in range(len(day))
+    ]
     rows = []
-    for row in day.itertuples(index=False):
+    for index, row in enumerate(day.itertuples(index=False)):
+        tail_signal = signal_timeline[index]
         rows.append({
             "sampled_at": row.sampled_at,
             "time": str(row.sampled_at)[11:16],
@@ -197,10 +265,27 @@ def intraday_temperature_payload(
             "is_final": bool(row.is_final),
             "quality": row.quality,
             "model_confidence": None if pd.isna(row.model_confidence) else float(row.model_confidence),
-            "breadth_observed": bool(row.breadth_observed),
+            "model_coverage_score": None
+            if pd.isna(row.model_coverage_score)
+            else float(row.model_coverage_score),
+            "model_data_quality_score": None
+            if pd.isna(row.model_data_quality_score)
+            else float(row.model_data_quality_score),
+            "model_missing_components": row.model_missing_components,
+            "hs300_drawdown_60d": None
+            if pd.isna(row.hs300_drawdown_60d)
+            else float(row.hs300_drawdown_60d),
+            "breadth_mode": row.breadth_mode,
             "breadth_quality": row.breadth_quality,
             "breadth_source": row.breadth_source,
+            "breadth_observed": bool(row.breadth_observed),
             "plot_eligible": bool(row.plot_eligible),
+            "core_tail_status": tail_signal["status"],
+            "core_tail_status_cn": tail_signal["status_cn"],
+            "core_tail_sample_state": tail_signal.get("latest_sample_state"),
+            "core_tail_consecutive_samples": tail_signal.get("consecutive_samples", 0),
+            "core_tail_stable": bool(tail_signal.get("stable")),
+            "core_tail_actionable_at_sample": bool(tail_signal.get("actionable")),
         })
     eligible_count = sum(item["plot_eligible"] for item in rows)
     return {
@@ -214,8 +299,182 @@ def intraday_temperature_payload(
         "last_sample_at": rows[-1]["sampled_at"],
         "rows": rows,
         "available_dates": available_dates,
+        "core_tail_signal": signal_timeline[-1],
+        "core_tail_day_summary": _core_tail_day_summary(rows),
         "methodology": _methodology(),
     }
+
+
+def _core_tail_day_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
+    stable = next(
+        (row for row in rows if row.get("core_tail_status") in {"PREPARE", "EXECUTE"}),
+        None,
+    )
+    executed = next(
+        (row for row in rows if row.get("core_tail_status") == "EXECUTE"),
+        None,
+    )
+    return {
+        "ever_stable": stable is not None,
+        "stable_at": stable.get("sampled_at") if stable else None,
+        "execute_triggered": executed is not None,
+        "execute_at": executed.get("sampled_at") if executed else None,
+    }
+
+
+def _tail_sample_status(row: pd.Series) -> dict[str, Any]:
+    return core_tail_condition_status(
+        risk_temperature=row.get("risk_temperature"),
+        hs300_drawdown_60d=row.get("hs300_drawdown_60d"),
+        model_confidence=row.get("model_confidence"),
+        model_coverage_score=row.get("model_coverage_score"),
+        model_data_quality_score=row.get("model_data_quality_score"),
+        model_missing_components=row.get("model_missing_components"),
+        breadth_mode=row.get("breadth_mode"),
+        breadth_quality=row.get("breadth_quality"),
+        temperature_mode=row.get("temperature_mode"),
+    )
+
+
+def core_tail_signal_payload(
+    history: pd.DataFrame | None,
+    preferred_trade_date: str | None = None,
+) -> dict[str, Any]:
+    frame = _normalized_history(history)
+    policy = core_tail_policy_payload()
+    empty = {
+        "status": "NO_SAMPLE",
+        "status_cn": "等待盘中采样",
+        "trade_date": str(preferred_trade_date or "")[:10] or None,
+        "candidate": False,
+        "stable": False,
+        "actionable": False,
+        "consecutive_samples": 0,
+        "stability_span_minutes": 0,
+        "conditions": {},
+        "policy": policy,
+    }
+    if frame.empty:
+        return empty
+
+    available_dates = sorted(frame["trade_date"].dropna().astype(str).unique().tolist())
+    requested = str(preferred_trade_date or "")[:10]
+    trade_date = requested if requested in available_dates else available_dates[-1]
+    day = frame[frame["trade_date"].eq(trade_date)].sort_values("sampled_at").copy()
+    if day.empty:
+        return {**empty, "trade_date": trade_date}
+
+    day["sample_ts"] = day["sampled_at"].map(_shanghai_timestamp)
+    day = day[day["sample_ts"].notna()].copy()
+    if day.empty:
+        return {**empty, "trade_date": trade_date}
+
+    latest = day.iloc[-1]
+    latest_status = _tail_sample_status(latest)
+    latest_is_final = bool(latest.get("is_final"))
+    latest_state = str(latest_status["state"])
+    candidate = latest_state == "PASS" and not latest_is_final
+    trailing: list[pd.Series] = []
+    invalid_samples_skipped = 0
+    next_timestamp: pd.Timestamp | None = None
+    for _, row in day.iloc[::-1].iterrows():
+        status = _tail_sample_status(row)
+        timestamp = row["sample_ts"]
+        if bool(row.get("is_final")):
+            break
+        if status["state"] == "INVALID":
+            invalid_samples_skipped += 1
+            continue
+        if status["state"] == "FAIL":
+            break
+        gap_ok = next_timestamp is None or (next_timestamp - timestamp).total_seconds() <= (
+            CORE_TAIL_MAX_SAMPLE_GAP_MINUTES * 60
+        )
+        if not gap_ok:
+            break
+        trailing.append(row)
+        next_timestamp = timestamp
+
+    trailing.reverse()
+    if trailing and latest["sample_ts"] - trailing[-1]["sample_ts"] > pd.Timedelta(
+        minutes=CORE_TAIL_MAX_SAMPLE_GAP_MINUTES
+    ):
+        trailing = []
+    span_minutes = 0
+    if len(trailing) >= 2:
+        span_minutes = int(
+            (trailing[-1]["sample_ts"] - trailing[0]["sample_ts"]).total_seconds() // 60
+        )
+    stable = len(trailing) >= CORE_TAIL_STABLE_SAMPLES and span_minutes >= CORE_TAIL_STABLE_MINUTES
+
+    sampled_at = latest["sample_ts"]
+    minute = sampled_at.strftime("%H:%M")
+    if latest_is_final:
+        status, status_cn = "FINAL", "已转正式收盘，尾盘窗口结束"
+    elif latest_state == "INVALID":
+        reasons = "/".join(
+            INVALID_REASON_CN.get(reason, reason) for reason in latest_status["invalid_reasons"]
+        ) or "原因未知"
+        status, status_cn = "DATA_WAIT", f"本次数据无效，已跳过（{reasons}）"
+    elif latest_state == "FAIL":
+        status, status_cn = "INACTIVE", "严格条件未同时满足"
+    elif not stable:
+        status, status_cn = "CONFIRMING", f"正在确认稳定性 {len(trailing)}/{CORE_TAIL_STABLE_SAMPLES}"
+    elif minute < CORE_TAIL_WINDOW_START:
+        status, status_cn = "PREPARE", f"信号已稳定，{CORE_TAIL_WINDOW_START} 准备买入"
+    elif minute < CORE_TAIL_WINDOW_END:
+        status, status_cn = "EXECUTE", "尾盘执行窗口：买入核心仓"
+    else:
+        status, status_cn = "WINDOW_CLOSED", "尾盘窗口已过，回退 T+1 开盘"
+
+    valid_until = sampled_at + pd.Timedelta(minutes=CORE_TAIL_SAMPLE_TTL_MINUTES)
+    if status == "EXECUTE":
+        window_end = sampled_at.normalize() + pd.Timedelta(hours=15)
+        valid_until = min(valid_until, window_end)
+    return {
+        "status": status,
+        "status_cn": status_cn,
+        "trade_date": trade_date,
+        "candidate": candidate,
+        "stable": stable,
+        "actionable": status == "EXECUTE",
+        "consecutive_samples": len(trailing),
+        "stability_span_minutes": span_minutes,
+        "invalid_samples_skipped": invalid_samples_skipped,
+        "latest_sample_state": latest_state,
+        "last_sample_at": sampled_at.isoformat(timespec="seconds"),
+        "valid_until": valid_until.isoformat(timespec="seconds"),
+        "conditions": {
+            **latest_status,
+            "model_coverage_score": None
+            if pd.isna(latest.get("model_coverage_score"))
+            else float(latest.get("model_coverage_score")),
+            "model_data_quality_score": None
+            if pd.isna(latest.get("model_data_quality_score"))
+            else float(latest.get("model_data_quality_score")),
+            "model_missing_components": str(latest.get("model_missing_components") or ""),
+            "breadth_mode": str(latest.get("breadth_mode") or ""),
+            "breadth_quality": str(latest.get("breadth_quality") or ""),
+            "breadth_source": str(latest.get("breadth_source") or ""),
+        },
+        "policy": policy,
+        "execution_cn": "仅沪深300核心仓在 T 日 14:50-15:00 买入；卫星及其他信号仍为 T+1 开盘",
+        "fallback_cn": "未稳定、数据过期或错过尾盘窗口时，不追单，回退 T+1 开盘",
+    }
+
+
+def confirmed_core_tail_dates(history: pd.DataFrame | None) -> set[str]:
+    """Return dates where the recorded samples actually opened the tail window."""
+    frame = _normalized_history(history)
+    confirmed: set[str] = set()
+    for trade_date in sorted(frame["trade_date"].dropna().astype(str).unique()):
+        day = frame[frame["trade_date"].eq(trade_date)].sort_values("sampled_at")
+        for end in range(1, len(day) + 1):
+            signal = core_tail_signal_payload(day.iloc[:end], trade_date)
+            if signal["status"] == "EXECUTE" and signal["actionable"]:
+                confirmed.add(trade_date)
+                break
+    return confirmed
 
 
 def record_intraday_temperature(
@@ -235,4 +494,5 @@ def _methodology() -> dict[str, str]:
         "official_close": "Official close is stored as the single final endpoint for each trade date.",
         "stale_guard": "A rebuild is recorded only when its Beijing calendar date equals the market trade date.",
         "chart_quality": "Samples with missing A-share breadth remain in the audit history but are excluded from the connected trend line.",
+        "signal_states": "PASS increments; FAIL resets; INVALID is audited and skipped without resetting.",
     }

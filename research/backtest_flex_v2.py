@@ -3,7 +3,7 @@
 
 This is the source for data/calculated/flex_backtest_stats.json.
 The production contract is:
-  - signal at T close, execute at T+1 open
+  - strict CORE enters in the T-day tail (T close proxy); all other signals use T+1 open
   - daily mark path uses the real open/close path, not endpoint smoothing
   - portfolio costs are charged from target-weight turnover, including rebalances
   - observe-only satellite sleeves use the same 0.25 size scale as production
@@ -49,6 +49,10 @@ from src.core.flex_engine import (  # noqa: E402
     SIZING,
     merge_satellite_targets,
     quality_adjusted_return,
+)
+from src.core.core_tail_policy import (  # noqa: E402
+    core_tail_policy_payload,
+    core_tail_strict_values_eligible,
 )
 from src.core.sector_etf_map import map_sector  # noqa: E402
 from src.storage.paths import CALCULATED  # noqa: E402
@@ -102,6 +106,25 @@ def instrument_path_returns(
     if apply_proxy_adjustment and name:
         q = quality_of(name)
         path = {j: quality_adjusted_return(r, q) for j, r in path.items()}
+    return path
+
+
+def instrument_tail_close_path_returns(
+    opens: np.ndarray,
+    closes: np.ndarray,
+    signal_i: int,
+    exit_i: int,
+) -> dict[int, float] | None:
+    """Enter at T close while preserving the original T+1 strategy exit date."""
+    if signal_i < 0 or exit_i >= len(opens) or exit_i <= signal_i + 1:
+        return None
+    entry = float(closes[signal_i])
+    if not np.isfinite(entry) or entry <= 0:
+        return None
+    path: dict[int, float] = {signal_i: 0.0}
+    for j in range(signal_i + 1, exit_i):
+        path[j] = _safe_ret(float(closes[j - 1]), float(closes[j]))
+    path[exit_i] = _safe_ret(float(closes[exit_i - 1]), float(opens[exit_i]))
     return path
 
 
@@ -212,14 +235,32 @@ def _simulate(
             continue
         entry_i = i + 1
         exit_i = min(entry_i + CORE_HOLD_DAYS, n - 1)
-        path = instrument_path_returns(csi_open, csi_close, entry_i, exit_i)
+        row = df.iloc[i]
+        tail_entry = core_tail_strict_values_eligible(
+            risk_temperature=row.get("rt"),
+            hs300_drawdown_60d=row.get("dd60"),
+            model_confidence=row.get("model_confidence"),
+        )
+        actual_entry_i = i if tail_entry else entry_i
+        path = (
+            instrument_tail_close_path_returns(csi_open, csi_close, i, exit_i)
+            if tail_entry
+            else instrument_path_returns(csi_open, csi_close, entry_i, exit_i)
+        )
         if not path:
             continue
         for j, r in path.items():
             core_daily[j] = r
             core_active[j] = True
         core_trades.append(
-            Trade("core", entry_i, exit_i, pd.Timestamp(dates.iloc[entry_i]), pd.Timestamp(dates.iloc[exit_i]), _path_total(path))
+            Trade(
+                "core",
+                actual_entry_i,
+                exit_i,
+                pd.Timestamp(dates.iloc[actual_entry_i]),
+                pd.Timestamp(dates.iloc[exit_i]),
+                _path_total(path),
+            )
         )
         next_free = exit_i + 1
 
@@ -364,6 +405,8 @@ def backtest_v2(
             "apply_proxy_adjustment": apply_haircut,
             "event_exit": event_exit,
             "path_model": "daily_open_close_path",
+            "core_tail_policy": core_tail_policy_payload(),
+            "core_tail_price_proxy": "T close proxies the executable 14:50-15:00 fill",
             "oos_protocol": f"fresh simulation from {OOS_SPLIT.date()}",
         },
     }
@@ -448,9 +491,11 @@ def main() -> None:
         "hold_days_sat": f"{SAT_MIN_HOLD}-{SAT_MAX_HOLD}",
         "satellite_stop_loss": SAT_STOP_LOSS,
         "satellite_take_profit": SAT_TAKE_PROFIT,
-        "execution": "T 收盘信号 → T+1 开盘",
+        "execution": "CORE严格条件 T日14:50尾盘；其余信号 T+1开盘",
         "backtest_protocol": {
             "price_path": "entry open → daily close path → exit open; no endpoint smoothing",
+            "core_tail": "strict CORE uses T close as 14:50-15:00 fill proxy; original exit date is unchanged",
+            "core_tail_quality": "live PASS/FAIL/INVALID gate is operational only; historical EOD confidence is not used as a live-quality proxy",
             "cost": "target-weight turnover × one-way bps; entries, exits and rebalances all counted",
             "proxy": "proxy gains are discounted; proxy losses are amplified by the same factor",
             "observe": "observe-only satellite sleeve uses 0.25 production scale",

@@ -670,6 +670,49 @@ dd[data-freshness="stale"] { color: var(--red); }
   line-height: 1.5;
 }
 
+.temperature-core-tail-signal {
+  display: grid;
+  grid-template-columns: auto minmax(0, auto) minmax(180px, 1fr);
+  align-items: center;
+  gap: 8px 14px;
+  min-height: 40px;
+  margin-top: 12px;
+  padding: 8px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink);
+}
+
+.temperature-core-tail-signal[hidden] { display: none; }
+
+.temperature-core-tail-kicker {
+  color: var(--mute);
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.temperature-core-tail-signal strong {
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.temperature-core-tail-signal > span:last-child {
+  min-width: 0;
+  color: var(--mute);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.temperature-core-tail-signal[data-state="confirming"] strong,
+.temperature-core-tail-signal[data-state="prepare"] strong { color: #9b5d1f; }
+
+.temperature-core-tail-signal[data-state="execute"] strong { color: #1e5c42; }
+
+.temperature-core-tail-signal[data-state="data_wait"] strong { color: #8f2a2a; }
+
+.temperature-core-tail-signal[data-state="recorded"] strong { color: #31506c; }
+
 .chart-row {
   margin-top: 28px;
 }
@@ -784,6 +827,109 @@ dd[data-freshness="stale"] { color: var(--red); }
   background: var(--sheet);
   border: 1px solid var(--rule);
   padding: 0 4px;
+}
+
+.flex-tail-alert {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 16px;
+  padding: 12px 22px;
+  border-bottom: 1px solid var(--rule);
+  border-left: 4px solid var(--rule-strong);
+  background: var(--paper-2);
+  color: var(--ink-2);
+}
+
+.flex-tail-alert-main {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  min-width: 0;
+}
+
+.flex-tail-kicker {
+  color: var(--mute);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.flex-tail-alert strong {
+  color: var(--ink);
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.flex-tail-alert time {
+  color: var(--mute);
+  font-family: var(--mono);
+  font-size: 11px;
+}
+
+.flex-tail-alert p {
+  grid-column: 1;
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.45;
+}
+
+.flex-tail-checks {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 430px;
+}
+
+.flex-tail-check {
+  padding: 3px 6px;
+  border: 1px solid var(--rule-strong);
+  color: var(--mute);
+  font-family: var(--mono);
+  font-size: 10px;
+  white-space: nowrap;
+}
+
+.flex-tail-check.pass {
+  border-color: #9ab6a5;
+  background: var(--green-bg);
+  color: var(--green);
+}
+
+.flex-tail-check.fail {
+  border-color: #d8b8b2;
+  background: var(--red-bg);
+  color: var(--red);
+}
+
+.flex-tail-alert[data-state="confirming"],
+.flex-tail-alert[data-state="prepare"],
+.flex-tail-alert[data-state="data_wait"] {
+  border-left-color: var(--amber);
+  background: var(--amber-bg);
+}
+
+.flex-tail-alert[data-state="execute"] {
+  border-left-color: var(--red);
+  background: var(--red-bg);
+  box-shadow: inset 0 0 0 1px #d8b8b2;
+}
+
+.flex-tail-alert[data-state="execute"] strong {
+  color: var(--deep-red);
+}
+
+.flex-tail-alert[data-state="stale"] {
+  border-left-color: var(--orange);
+}
+
+.flex-tail-alert[data-state="window_closed"] {
+  border-left-color: var(--rule-strong);
+  background: var(--paper-2);
 }
 
 .flex-controls {
@@ -2014,6 +2160,43 @@ body.is-loading .temperature-readout span::after {
   color: inherit;
 }
 
+.dock-alert-dot {
+  position: absolute;
+  top: 7px;
+  left: calc(50% + 10px);
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--sheet);
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+.app-dock-item[data-tail-state="execute"] .dock-alert-dot {
+  width: 10px;
+  height: 10px;
+  background: var(--red);
+}
+
+.app-dock-item { position: relative; }
+
+@media (max-width: 760px) {
+  .flex-tail-alert {
+    grid-template-columns: 1fr;
+    padding: 12px 14px;
+  }
+
+  .flex-tail-alert p,
+  .flex-tail-checks {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
+  .flex-tail-checks {
+    justify-content: flex-start;
+    max-width: none;
+  }
+}
+
 .app-dock-item.active,
 .app-dock-item:hover,
 .app-dock a.active,
@@ -2353,6 +2536,14 @@ body.in-app-webview.app-tabs-mode .topbar-minimal {
   #avixQvixChart,
   #hs300Chart { height: 340px; }
   #intradayTemperatureChart { height: 290px; }
+  .temperature-core-tail-signal {
+    grid-template-columns: auto 1fr;
+    gap: 4px 10px;
+  }
+
+  .temperature-core-tail-signal > span:last-child {
+    grid-column: 1 / -1;
+  }
 
   .content-page {
     width: calc(100% - 24px);

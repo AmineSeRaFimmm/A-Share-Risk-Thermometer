@@ -13,7 +13,7 @@ from src.core.strategy_s3_s4 import build_s3_s4_strategy
 from src.core.sector_correlation import analyze_sector_correlation
 from src.core.low_position_sector_study import analyze_low_position_sector_study
 from src.core.nowcast_history import build_nowcast_history_from_files, nowcast_rows_csv
-from src.core.intraday_temperature import record_intraday_temperature
+from src.core.intraday_temperature import confirmed_core_tail_dates, record_intraday_temperature
 from src.core.rt_tactical import build_rt_tactical_payload
 from src.core.stage_trade_playbook import build_playbook_payload, extend_risk_for_playbook
 import pandas as pd
@@ -131,7 +131,13 @@ def main() -> None:
             f"Playbook bridge: official={bridge_meta.get('official_as_of')} "
             f"+ {bridge_meta.get('bridged_dates')} via {bridge_meta.get('bridge_source')}"
         )
-    playbook_payload = build_playbook_payload(risk_playbook, index_history, bridge_meta=bridge_meta)
+    tail_dates = confirmed_core_tail_dates(read_csv(CALCULATED / "intraday_temperature_history.csv"))
+    playbook_payload = build_playbook_payload(
+        risk_playbook,
+        index_history,
+        bridge_meta=bridge_meta,
+        confirmed_core_tail_dates=tail_dates,
+    )
     write_json(playbook_payload, SITE / "stage_playbook.json")
     # EOD ETF marks for Flex simulation book (entry=open, mark=close)
     try:

@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon-180.png?v=20260720-mag-icon">
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png?v=20260720-mag-icon">
     <link rel="icon" type="image/png" sizes="512x512" href="./assets/icon-512.png?v=20260720-mag-icon">
-    <link rel="stylesheet" href="./assets/app.css?v=20260720-fund-row">
+    <link rel="stylesheet" href="./assets/app.css?v=20260805-core-tail">
   </head>
   <body class="app-shell app-tabs-mode">
     <header class="topbar topbar-minimal">
@@ -106,6 +106,11 @@
               <span id="intradayTemperatureMeta">等待采样</span>
             </div>
             <p class="chart-note" id="intradayTemperatureNote">刷新采样 · 非逐笔实时</p>
+            <div class="temperature-core-tail-signal" id="temperatureCoreTailSignal" data-state="inactive" aria-live="polite" hidden>
+              <span class="temperature-core-tail-kicker">CORE 尾盘</span>
+              <strong id="temperatureCoreTailStatus">等待严格条件</strong>
+              <span id="temperatureCoreTailDetail"></span>
+            </div>
             <div id="intradayTemperatureChart" class="chart intraday"></div>
           </article>
         </section>
@@ -194,6 +199,16 @@
           </div>
 
           <p class="flex-trust" id="flexTrustLine" hidden></p>
+
+          <section class="flex-tail-alert" id="flexCoreTailAlert" data-state="inactive" aria-live="assertive">
+            <div class="flex-tail-alert-main">
+              <span class="flex-tail-kicker">CORE 尾盘</span>
+              <strong id="flexCoreTailStatus">等待盘中采样</strong>
+              <time id="flexCoreTailTime"></time>
+            </div>
+            <p id="flexCoreTailDetail">仅严格条件连续稳定后启用；其他信号仍按 T+1 开盘执行。</p>
+            <div class="flex-tail-checks" id="flexCoreTailChecks" aria-label="CORE尾盘条件"></div>
+          </section>
 
           <div class="flex-strip" id="flexExecDesk">
             <div class="flex-strip-fund">
@@ -405,12 +420,13 @@
           </svg>
         </span>
         <span class="dock-label">Flex</span>
+        <span class="dock-alert-dot" id="dockFlexTailBadge" hidden aria-label="CORE尾盘信号"></span>
       </button>
     </nav>
 
     <script src="./vendor/echarts.min.js"></script>
-    <script src="./assets/charts.js?v=20260803-breadth-filtered"></script>
+    <script src="./assets/charts.js?v=20260805-core-tail"></script>
     <script src="./assets/flex_execution_core.js?v=20260805-flex-ledger-v4"></script>
-    <script src="./assets/app.js?v=20260803-breadth-filtered"></script>
+    <script src="./assets/app.js?v=20260805-core-tail"></script>
   </body>
 </html>

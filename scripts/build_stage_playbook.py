@@ -9,6 +9,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
+from src.core.intraday_temperature import confirmed_core_tail_dates
 from src.core.sector_etf_map import all_sector_mappings
 from src.core.stage_trade_playbook import build_playbook_payload
 from src.storage.csv_store import read_csv
@@ -23,7 +24,12 @@ def main() -> None:
     index_history = read_csv(NORMALIZED / "index_history.csv")
     if risk.empty:
         raise SystemExit("risk_components.csv missing")
-    payload = build_playbook_payload(risk, index_history)
+    tail_dates = confirmed_core_tail_dates(read_csv(CALCULATED / "intraday_temperature_history.csv"))
+    payload = build_playbook_payload(
+        risk,
+        index_history,
+        confirmed_core_tail_dates=tail_dates,
+    )
     write_json(payload, SITE / "stage_playbook.json")
     research_out = Path("research/output/playbook")
     research_out.mkdir(parents=True, exist_ok=True)
@@ -194,7 +200,7 @@ def _to_markdown(p: dict, mapping_rows: list | None = None) -> str:
         "|------|------|",
         "| 买入 | 60 ≤ RT < 80 且 沪深300 60日回撤 ≤ -5% |",
         "| 卖出 | 持有 5 个交易日 |",
-        "| 执行 | T 收盘信号 → T+1 开盘 |",
+        "| 执行 | CORE严格条件盘中连续确认 → T日14:50尾盘；否则T+1开盘 |",
         "| 样本 | n=49，胜率63.3%，年化~10.3%，OOS胜率63.6% |",
         "",
         "## 重要限制",

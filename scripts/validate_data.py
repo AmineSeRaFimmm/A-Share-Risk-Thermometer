@@ -49,6 +49,8 @@ def main() -> None:
     require(intraday_path.exists(), "intraday_temperature.json missing")
     intraday = json.loads(intraday_path.read_text(encoding="utf-8"))
     require("rows" in intraday and "sample_count" in intraday, "intraday_temperature missing rows/sample_count")
+    require("core_tail_signal" in intraday, "intraday_temperature missing core_tail_signal")
+    require("core_tail_day_summary" in intraday, "intraday_temperature missing core_tail_day_summary")
     intraday_rows = intraday.get("rows", [])
     require(int(intraday.get("sample_count", -1)) == len(intraday_rows), "intraday sample_count mismatch")
     require(
@@ -66,6 +68,25 @@ def main() -> None:
         require(row.get("temperature_mode") in {
             "NOWCAST", "CLOSE_PENDING", "ESTIMATED_CLOSE", "OFFICIAL_CLOSE",
         }, "intraday temperature mode mismatch")
+        require(row.get("core_tail_status") in {
+            "NO_SAMPLE", "INACTIVE", "CONFIRMING", "PREPARE", "EXECUTE",
+            "DATA_WAIT", "WINDOW_CLOSED", "FINAL",
+        }, "intraday core_tail_status invalid")
+        require(
+            int(row.get("core_tail_consecutive_samples", -1)) >= 0,
+            "intraday core_tail_consecutive_samples invalid",
+        )
+    core_tail_summary = intraday.get("core_tail_day_summary") or {}
+    execute_rows = [row for row in intraday_rows if row.get("core_tail_status") == "EXECUTE"]
+    require(
+        bool(core_tail_summary.get("execute_triggered")) == bool(execute_rows),
+        "intraday CORE execute summary mismatch",
+    )
+    if execute_rows:
+        require(
+            core_tail_summary.get("execute_at") == execute_rows[0].get("sampled_at"),
+            "intraday CORE execute timestamp mismatch",
+        )
     if intraday_rows:
         require(
             (CALCULATED / "intraday_temperature_history.csv").exists(),

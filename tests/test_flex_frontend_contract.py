@@ -85,6 +85,15 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("Named strategy intents must not fall through to code-only matching", self.web)
         self.assertIn("if (name) return null;", self.web)
 
+    def test_core_tail_signal_is_backend_gated_and_core_only(self) -> None:
+        self.assertIn("function flexCoreTailIsFresh(signal)", self.web)
+        self.assertIn("function flexCoreTailActionableNow(signal)", self.web)
+        self.assertIn("function flexWithCoreTailSignal(flex, signal)", self.web)
+        self.assertIn("flexCoreTailWindowOpenNow(signal)", self.web)
+        self.assertIn("execution_mode: 'T_TAIL_1450'", self.web)
+        self.assertIn("etf_code: '510300'", self.web)
+        self.assertIn("记尾盘买入", self.web)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -27,8 +27,8 @@ CSI300_RULE = {
         "rt_high": 80.0,
         "hs300_dd60_max": -0.05,  # close/rolling_max_60 - 1 <= -5%
     },
-    "sell": {"hold_trading_days": 5, "execution": "T+1 open after hold complete"},
-    "execution": "signal_close_T_exec_open_T1",
+    "sell": {"hold_trading_days": 5, "execution": "original T+1 exit schedule"},
+    "execution": "strict_confirmed_core_tail_else_T1_open",
     "stats": {
         "n": 49,
         "win_rate": 0.6327,
@@ -289,6 +289,11 @@ def classify_features(risk_components: pd.DataFrame, index_history: pd.DataFrame
         "regime": str(latest.get("regime", "")),
         "regime_cn": str(latest.get("regime_cn", "")),
         "quality": str(latest.get("quality", "")),
+        "model_confidence": (
+            float(pd.to_numeric(latest.get("model_confidence"), errors="coerce"))
+            if pd.notna(pd.to_numeric(latest.get("model_confidence"), errors="coerce"))
+            else None
+        ),
     }
 
 
@@ -447,6 +452,7 @@ def build_playbook_payload(
     index_history: pd.DataFrame | None = None,
     *,
     bridge_meta: dict[str, Any] | None = None,
+    confirmed_core_tail_dates: set[str] | None = None,
 ) -> dict[str, Any]:
     feat = classify_features(risk_components, index_history)
     stages = active_stages(feat)
@@ -487,7 +493,7 @@ def build_playbook_payload(
                     "name": "沪深300",
                     "instrument": "沪深300",
                     "trigger": "60≤RT<80 且 沪深300 60日回撤≤-5%",
-                    "entry": "T+1 开盘",
+                    "entry": "CORE严格条件盘中稳定则T日14:50尾盘；否则T+1开盘",
                     "exit": "持有5个交易日后 T+1 开盘卖出",
                     "priority": "P0",
                     "win_rate": CSI300_RULE["stats"]["win_rate"],
@@ -557,6 +563,7 @@ def build_playbook_payload(
         index_history=index_history,
         mode=MODE_AGGRESSIVE,
         backtest_stats=load_backtest_stats_file(),
+        confirmed_core_tail_dates=confirmed_core_tail_dates,
     )
 
     data_quality: dict[str, Any] = {

@@ -14,6 +14,11 @@ from typing import Any
 import numpy as np
 import pandas as pd
 
+from src.core.core_tail_policy import (
+    CORE_TAIL_EXECUTION_MODE,
+    core_tail_policy_payload,
+    core_tail_strict_values_eligible,
+)
 from src.core.sector_etf_map import attach_etf_fields, map_csi300, map_sector
 from src.storage.paths import CALCULATED
 
@@ -185,34 +190,46 @@ DEFAULT_BACKTEST_STATS: dict[str, Any] = {
     "hold_days_sat": f"{SAT_MIN_HOLD}-{SAT_MAX_HOLD}",
     "satellite_stop_loss": SAT_STOP_LOSS,
     "satellite_take_profit": SAT_TAKE_PROFIT,
-    "execution": "T 收盘信号 → T+1 开盘",
+    "execution": "CORE严格条件 T日14:50尾盘；其余信号 T+1 开盘",
     "core_only": {
-        "total_return": 0.8523,
-        "ann_return": 0.1030,
-        "max_dd": -0.1065,
-        "win_rate": 0.6531,
+        "total_return": 0.5392,
+        "ann_return": 0.0706,
+        "max_dd": -0.1509,
+        "win_rate": 0.6327,
         "trade_count": 49,
     },
     "conservative": {
-        "note": "默认推荐；总暴露 capped",
-        "full_sample": {},
-        "oos": {},
+        "note": "对照口径；总暴露 capped；同一日度路径与成本模型",
+        "full_sample": {
+            "total_return": 1.2609,
+            "ann_return": 0.1376,
+            "max_dd": -0.1365,
+            "win_rate": 0.5927,
+            "trade_count": 275,
+        },
+        "oos": {
+            "total_return": 0.4511,
+            "ann_return": 0.1639,
+            "max_dd": -0.0452,
+            "win_rate": 0.6182,
+            "trade_count": 110,
+        },
     },
     "aggressive": {
         "note": "生产进取模式；单仓满仓、双仓60/40；卫星-3%止损/+4%止盈；日度路径与换仓成本口径",
         "full_sample": {
-            "total_return": 6.1101,
-            "ann_return": 0.3660,
-            "max_dd": -0.1391,
-            "win_rate": 0.6285,
-            "trade_count": 253,
+            "total_return": 5.8830,
+            "ann_return": 0.3566,
+            "max_dd": -0.1878,
+            "win_rate": 0.5927,
+            "trade_count": 275,
         },
         "oos": {
-            "total_return": 2.0078,
-            "ann_return": 0.5772,
-            "max_dd": -0.1275,
-            "win_rate": 0.6373,
-            "trade_count": 102,
+            "total_return": 1.5352,
+            "ann_return": 0.4613,
+            "max_dd": -0.1188,
+            "win_rate": 0.6182,
+            "trade_count": 110,
         },
     },
     "cost_stress": {
@@ -237,6 +254,9 @@ class SleevePos:
     names: list[str] = field(default_factory=list)
     weights: dict[str, float] = field(default_factory=dict)
     etf_code: str | None = None
+    execution_mode: str = "T_PLUS_1_OPEN"
+    entry_price_type: str = "open"
+    planned_hold_days: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -285,6 +305,13 @@ def load_position_state(path: Path | None = None) -> FlexState:
                 names=list(d.get("names") or []),
                 weights=dict(d.get("weights") or {}),
                 etf_code=d.get("etf_code"),
+                execution_mode=d.get("execution_mode") or "T_PLUS_1_OPEN",
+                entry_price_type=d.get("entry_price_type") or "open",
+                planned_hold_days=(
+                    int(d["planned_hold_days"])
+                    if d.get("planned_hold_days") is not None
+                    else None
+                ),
             ),
         )
     st.last_actions = list(raw.get("last_actions") or [])
@@ -512,6 +539,11 @@ def _precompute_feature_rows(
                 "rt_d5": float(d5.iloc[i]) if pd.notna(d5.iloc[i]) else None,
                 "rt_rollmax_10": float(roll.iloc[i]) if pd.notna(roll.iloc[i]) else float(rt.iloc[i]),
                 "hs300_dd60": None if dd is None or (isinstance(dd, float) and math.isnan(dd)) else float(dd),
+                "model_confidence": (
+                    float(pd.to_numeric(df.iloc[i].get("model_confidence"), errors="coerce"))
+                    if pd.notna(pd.to_numeric(df.iloc[i].get("model_confidence"), errors="coerce"))
+                    else None
+                ),
             }
         )
     return rows
@@ -524,6 +556,7 @@ def simulate_positions(
     mode: str = MODE_CONSERVATIVE,
     classify_fn=None,
     active_stages_fn=None,
+    confirmed_core_tail_dates: set[str] | None = None,
 ) -> FlexState:
     """Walk-forward simulate Flex positions to as_of so OPEN/HOLD/CLOSE is consistent."""
     from src.core.stage_trade_playbook import active_stages
@@ -546,19 +579,29 @@ def simulate_positions(
             and float(feat["hs300_dd60"]) <= -0.05
         )
         d = dates[i]
+        core_tail_sig = (
+            core_sig
+            and d in (confirmed_core_tail_dates or set())
+            and core_tail_strict_values_eligible(
+            risk_temperature=feat.get("rt"),
+            hs300_drawdown_60d=feat.get("hs300_dd60"),
+            model_confidence=feat.get("model_confidence"),
+            )
+        )
         rising = "RISING_HARD" in stages
         is_last = i == len(feat_rows) - 1
 
         # --- advance day counters (held days counted from entry_date, not signal day) ---
         if state.core.status == "open" and state.core.entry_date:
+            core_hold_days = _core_planned_hold_days(state)
             try:
                 ei = dates.index(str(state.core.entry_date)[:10])
                 if i >= ei:
                     state.core.days_held = i - ei
-                    state.core.days_remaining = max(0, CORE_HOLD_DAYS - state.core.days_held)
+                    state.core.days_remaining = max(0, core_hold_days - state.core.days_held)
                 else:
                     state.core.days_held = 0
-                    state.core.days_remaining = CORE_HOLD_DAYS
+                    state.core.days_remaining = core_hold_days
             except ValueError:
                 pass
 
@@ -576,7 +619,7 @@ def simulate_positions(
 
         # --- exits: apply on historical days only; keep open on last bar for panel CLOSE ---
         if not is_last:
-            if state.core.status == "open" and state.core.days_held >= CORE_HOLD_DAYS:
+            if state.core.status == "open" and state.core.days_held >= _core_planned_hold_days(state):
                 state.core = SleevePos(status="flat")
 
             if state.satellite.status == "open":
@@ -595,18 +638,26 @@ def simulate_positions(
                     state.satellite = SleevePos(status="flat")
 
         # --- core open (signal day = i; entry next session) ---
-        if core_sig and state.core.status != "open" and i + 1 < len(dates):
-            entry_date = dates[i + 1]
+        if (
+            core_sig
+            and state.core.status != "open"
+            and (core_tail_sig or i + 1 < len(dates))
+        ):
+            entry_date = d if core_tail_sig else dates[i + 1]
+            planned_hold_days = CORE_HOLD_DAYS + 1 if core_tail_sig else CORE_HOLD_DAYS
             state.core = SleevePos(
                 status="open",
                 entry_signal_date=d,
                 entry_date=entry_date,
                 days_held=0,
-                days_remaining=CORE_HOLD_DAYS,
+                days_remaining=planned_hold_days,
                 stage_id="CSI300_CORE_BUY",
                 names=["沪深300"],
                 weights={"沪深300": 1.0},
                 etf_code=csi.get("etf_code"),
+                execution_mode=CORE_TAIL_EXECUTION_MODE if core_tail_sig else "T_PLUS_1_OPEN",
+                entry_price_type="tail_1450" if core_tail_sig else "open",
+                planned_hold_days=planned_hold_days,
             )
 
         # --- satellite open ---
@@ -702,6 +753,7 @@ def build_flex_panel_v2(
     index_history: pd.DataFrame | None = None,
     mode: str = MODE_CONSERVATIVE,
     backtest_stats: dict[str, Any] | None = None,
+    confirmed_core_tail_dates: set[str] | None = None,
 ) -> dict[str, Any]:
     """Full Flex panel with state machine, sizing, merge, minimal actions."""
     mode = mode if mode in SIZING else MODE_CONSERVATIVE
@@ -709,7 +761,12 @@ def build_flex_panel_v2(
 
     # Simulated state as of latest
     if risk_components is not None and not risk_components.empty:
-        state = simulate_positions(risk_components, index_history, mode=mode)
+        state = simulate_positions(
+            risk_components,
+            index_history,
+            mode=mode,
+            confirmed_core_tail_dates=confirmed_core_tail_dates,
+        )
         save_position_state(state)
     else:
         state = load_position_state()
@@ -766,7 +823,7 @@ def build_flex_panel_v2(
     # Target: signal-based desired exposure
     want_core = core_buy_signal or (core_open and state.core.days_remaining > 0)
     # If holding core past signal still want until exit
-    if core_open and state.core.days_held < CORE_HOLD_DAYS:
+    if core_open and state.core.days_held < _core_planned_hold_days(state):
         want_core = True
 
     want_sat = sat_signal or (sat_open and state.satellite.days_remaining > 0)
@@ -776,7 +833,7 @@ def build_flex_panel_v2(
 
     # For allocation weights shown as target portfolio after T+1 actions
     core_for_alloc = bool(core_buy_signal) or (
-        core_open and state.core.days_held < CORE_HOLD_DAYS and not _core_should_close(state)
+        core_open and state.core.days_held < _core_planned_hold_days(state) and not _core_should_close(state)
     )
     sat_for_alloc = bool(sat_signal) or (
         sat_open and not _sat_should_close(state, stages) and state.satellite.days_held < SAT_MAX_HOLD
@@ -834,7 +891,10 @@ def build_flex_panel_v2(
                     "exit": "平仓",
                     "weight_target": 0.0,
                     "weight_hint": "0%",
-                    "why": f"核心持有满 {CORE_HOLD_DAYS} 日，按规则卖出（CORE_MAX_HOLD 确定性路径）",
+                    "why": (
+                        f"核心持有满 {_core_planned_hold_days(state)} 日，"
+                        "按对应入场路径卖出（CORE_MAX_HOLD 确定性路径）"
+                    ),
                     "close_code": "CORE_MAX_HOLD",
                     "guaranteed": True,
                     "days_held": state.core.days_held,
@@ -1079,7 +1139,7 @@ def build_flex_panel_v2(
         core_active_flag = False
     elif any(a.get("action") == "OPEN" and a.get("sleeve") == "core" for a in actions):
         core_action, core_action_cn, core_tone = "OPEN", "新开买入", "buy"
-        core_detail = f"T 日收盘满足条件 → T+1 开盘买入；持有 {CORE_HOLD_DAYS} 日。"
+        core_detail = "CORE严格条件在T日14:50尾盘执行；其余核心信号T+1开盘执行。"
         core_active_flag = True
     elif any(a.get("action") == "HOLD" and a.get("sleeve") == "core" for a in actions):
         core_action, core_action_cn, core_tone = "HOLD", "持有中", "buy"
@@ -1172,7 +1232,8 @@ def build_flex_panel_v2(
         "status_code": alloc["allocation_mode"],
         "headline": headline,
         "as_of": feat.get("trade_date"),
-        "execution_cn": "信号日 T 收盘确认 → 下一交易日开盘执行",
+        "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
+        "core_tail_policy": core_tail_policy_payload(),
         "transaction_cost_bps_one_way": 1,
         "hold_days": CORE_HOLD_DAYS,
         "hold_days_sat_cn": f"卫星 {SAT_MIN_HOLD}–{SAT_MAX_HOLD} 日（最短{SAT_MIN_HOLD}，事件可提前，最长{SAT_MAX_HOLD}）",
@@ -1192,6 +1253,7 @@ def build_flex_panel_v2(
             "rt_d1": feat.get("rt_d1"),
             "rt_d5": feat.get("rt_d5"),
             "hs300_dd60": feat.get("hs300_dd60"),
+            "model_confidence": feat.get("model_confidence"),
             "regime_cn": feat.get("regime_cn"),
         },
         "active_stages": stages,
@@ -1217,6 +1279,7 @@ def build_flex_panel_v2(
             "etf_label": csi["etf_label"],
             "weight_target": alloc["w_core"],
             "position": state.core.to_dict(),
+            "execution_mode": state.core.execution_mode,
         },
         "satellite": {
             "sleeve": "satellite",
@@ -1283,8 +1346,13 @@ def build_flex_panel_v2(
     }
 
 
+def _core_planned_hold_days(state: FlexState) -> int:
+    planned = state.core.planned_hold_days
+    return int(planned) if planned is not None and int(planned) > 0 else CORE_HOLD_DAYS
+
+
 def _core_should_close(state: FlexState) -> bool:
-    return state.core.status == "open" and state.core.days_held >= CORE_HOLD_DAYS
+    return state.core.status == "open" and state.core.days_held >= _core_planned_hold_days(state)
 
 
 def _sat_close_meta(state: FlexState, stages: list[str]) -> dict[str, Any] | None:
@@ -1415,11 +1483,15 @@ def build_sleeve_exit_plan(
         "entry_signal_date": core.entry_signal_date,
         "entry_date": core.entry_date,
         "days_held": core.days_held,
-        "hold_days": CORE_HOLD_DAYS,
+        "hold_days": _core_planned_hold_days(state),
+        "execution_mode": core.execution_mode,
+        "entry_price_type": core.entry_price_type,
         "triggered_close": (
             {
                 "close_code": "CORE_MAX_HOLD",
-                "why": f"核心已持有 {core.days_held} 日 ≥ {CORE_HOLD_DAYS} 日，必须平仓",
+                "why": (
+                    f"核心已持有 {core.days_held} 日 ≥ {_core_planned_hold_days(state)} 日，必须平仓"
+                ),
                 "guaranteed": True,
             }
             if _core_should_close(state)
@@ -1427,11 +1499,12 @@ def build_sleeve_exit_plan(
         ),
     }
     if core.status == "open" and core.entry_date:
-        core_plan["max_signal_date"] = _nth_trade_date(dates, core.entry_date, CORE_HOLD_DAYS)
-        core_plan["max_exec_next_open"] = _nth_trade_date(dates, core.entry_date, CORE_HOLD_DAYS + 1)
+        hold_days = _core_planned_hold_days(state)
+        core_plan["max_signal_date"] = _nth_trade_date(dates, core.entry_date, hold_days)
+        core_plan["max_exec_next_open"] = _nth_trade_date(dates, core.entry_date, hold_days + 1)
         core.exit_due_date = core_plan.get("max_signal_date")
         core_plan["exit_due_date"] = core.exit_due_date
-        core_plan["days_to_max"] = max(0, CORE_HOLD_DAYS - int(core.days_held or 0))
+        core_plan["days_to_max"] = max(0, hold_days - int(core.days_held or 0))
 
     return {
         "as_of": state.as_of,
