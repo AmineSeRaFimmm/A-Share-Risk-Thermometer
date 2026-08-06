@@ -77,7 +77,10 @@ const dashboardState = {
   intradayTemperature: {},
   strategy: {},
   refreshInFlight: false,
+  refreshPromise: null,
+  forceRefreshQueued: false,
   cacheBust: null,
+  freshRequestSequence: 0,
   lastUpdateTime: null,
   lastTradeDate: null,
   lastBuildTime: null,
@@ -292,23 +295,38 @@ function getFlexQuoteWindow(date = new Date()) {
   return { active: false, phase: 'eod', parts: p };
 }
 
-async function loadJSON(path, { bust = true } = {}) {
+function dashboardDataRevision({ buildTime = null, updateTime = null, tradeDate = null } = {}) {
+  return [updateTime, buildTime, tradeDate].filter(Boolean).join('|') || String(Date.now());
+}
+
+async function loadJSON(path, { bust = true, fresh = false } = {}) {
   let url = path;
   if (bust) {
-    const token = dashboardState.cacheBust || String(Date.now());
+    const token = fresh
+      ? `${Date.now()}-${++dashboardState.freshRequestSequence}`
+      : (dashboardState.cacheBust || String(Date.now()));
     url = path + (path.includes('?') ? '&' : '?') + 'v=' + encodeURIComponent(token);
   }
-  const res = await fetch(url);
+  const res = await fetch(url, fresh ? { cache: 'no-store' } : undefined);
   if (!res.ok) throw new Error('Failed to load ' + path);
   return await res.json();
 }
 
 async function resolveCacheBust() {
   try {
-    const info = await loadJSON('./data/build_info.json', { bust: true });
-    if (info?.build_time) {
-      dashboardState.cacheBust = info.build_time;
-      dashboardState.lastBuildTime = info.build_time;
+    const [info, latest] = await Promise.all([
+      loadJSON('./data/build_info.json', { fresh: true }).catch(() => null),
+      loadJSON('./data/latest.json', { fresh: true }).catch(() => null),
+    ]);
+    const buildTime = info?.build_time || null;
+    const updateTime = latest?.update_time || latest?.as_of || null;
+    if (buildTime || updateTime) {
+      dashboardState.cacheBust = dashboardDataRevision({
+        buildTime,
+        updateTime,
+        tradeDate: latest?.trade_date || null,
+      });
+      if (buildTime) dashboardState.lastBuildTime = buildTime;
       return;
     }
   } catch (_) {
@@ -860,27 +878,27 @@ function flexSwitchTab(tabId) {
   });
 }
 
-async function loadCriticalDashboardData() {
+async function loadCriticalDashboardData({ fresh = false } = {}) {
   if (!dashboardState.cacheBust) {
     await resolveCacheBust();
   }
   const [latest, history, nowcastHistory, intradayTemperature, components, audit] = await Promise.all([
-    loadJSON('./data/latest.json'),
-    loadJSON('./data/history.json'),
-    loadJSON('./data/nowcast_history.json').catch(() => ({ status: 'missing', rows: [], gaps: [] })),
-    loadJSON('./data/intraday_temperature.json').catch(() => ({ status: 'no_samples', rows: [] })),
-    loadJSON('./data/components.json'),
-    loadJSON('./data/audit.json'),
+    loadJSON('./data/latest.json', { fresh }),
+    loadJSON('./data/history.json', { fresh }),
+    loadJSON('./data/nowcast_history.json', { fresh }).catch(() => ({ status: 'missing', rows: [], gaps: [] })),
+    loadJSON('./data/intraday_temperature.json', { fresh }).catch(() => ({ status: 'no_samples', rows: [] })),
+    loadJSON('./data/components.json', { fresh }),
+    loadJSON('./data/audit.json', { fresh }),
   ]);
   return { latest, history, nowcastHistory, intradayTemperature, components, audit };
 }
 
-async function loadHeavyDashboardData() {
+async function loadHeavyDashboardData({ fresh = false } = {}) {
   const [strategy, rtTactical, stagePlaybook, etfMarks] = await Promise.all([
-    loadJSON('./data/strategy.json').catch(() => ({ status: 'missing' })),
-    loadJSON('./data/rt_tactical.json').catch(() => ({ status: 'missing' })),
-    loadJSON('./data/stage_playbook.json').catch(() => ({ status: 'missing' })),
-    loadJSON('./data/etf_daily_marks.json').catch(() => ({ status: 'missing', by_code: {} })),
+    loadJSON('./data/strategy.json', { fresh }).catch(() => ({ status: 'missing' })),
+    loadJSON('./data/rt_tactical.json', { fresh }).catch(() => ({ status: 'missing' })),
+    loadJSON('./data/stage_playbook.json', { fresh }).catch(() => ({ status: 'missing' })),
+    loadJSON('./data/etf_daily_marks.json', { fresh }).catch(() => ({ status: 'missing', by_code: {} })),
   ]);
   dashboardState.heavyLoaded = true;
   dashboardState.etfMarks = etfMarks && etfMarks.status !== 'missing'
@@ -4678,14 +4696,13 @@ function renderRtTactical(payload) {
   setText('rtTacticalDetail', detail);
 }
 
-async function refreshDashboard({ forceFull = false } = {}) {
-  if (dashboardState.refreshInFlight) return;
-  dashboardState.refreshInFlight = true;
+async function refreshDashboardOnce({ forceFull = false } = {}) {
+  let dataChanged = false;
   try {
     if (!forceFull && dashboardState.lastUpdateTime) {
       const [latest, buildInfo] = await Promise.all([
-        loadJSON('./data/latest.json'),
-        loadJSON('./data/build_info.json', { bust: true }).catch(() => null),
+        loadJSON('./data/latest.json', { fresh: true }),
+        loadJSON('./data/build_info.json', { fresh: true }).catch(() => null),
       ]);
       const buildTime = buildInfo?.build_time || null;
       if (
@@ -4698,24 +4715,52 @@ async function refreshDashboard({ forceFull = false } = {}) {
         return;
       }
       // New data: refresh cache bust and reload critical + heavy.
-      dashboardState.cacheBust = buildTime || latest?.update_time || String(Date.now());
+      dashboardState.cacheBust = dashboardDataRevision({
+        buildTime,
+        updateTime: latest?.update_time || latest?.as_of || null,
+        tradeDate: latest?.trade_date || null,
+      });
       if (buildTime) dashboardState.lastBuildTime = buildTime;
+      dataChanged = true;
     } else {
       await resolveCacheBust();
     }
 
-    const critical = await loadCriticalDashboardData();
+    const fresh = forceFull || dataChanged;
+    const critical = await loadCriticalDashboardData({ fresh });
     renderCriticalDashboard(critical);
-    const heavy = await loadHeavyDashboardData();
+    const heavy = await loadHeavyDashboardData({ fresh });
     renderHeavyDashboard(heavy);
     updateRefreshStatus('ok');
   } catch (err) {
     console.error(err);
     updateRefreshStatus('error', err.message || String(err));
     showLoadError(err.message || String(err));
-  } finally {
-    dashboardState.refreshInFlight = false;
   }
+}
+
+function refreshDashboard({ forceFull = false } = {}) {
+  if (dashboardState.refreshPromise) {
+    if (forceFull) dashboardState.forceRefreshQueued = true;
+    return dashboardState.refreshPromise;
+  }
+
+  dashboardState.forceRefreshQueued = Boolean(forceFull);
+  dashboardState.refreshInFlight = true;
+  const operation = (async () => {
+    try {
+      do {
+        const runForced = dashboardState.forceRefreshQueued;
+        dashboardState.forceRefreshQueued = false;
+        await refreshDashboardOnce({ forceFull: runForced });
+      } while (dashboardState.forceRefreshQueued);
+    } finally {
+      dashboardState.refreshInFlight = false;
+      dashboardState.refreshPromise = null;
+    }
+  })();
+  dashboardState.refreshPromise = operation;
+  return operation;
 }
 
 const APP_VIEW_KEY = 'ashare_app_view_v1';
@@ -5081,11 +5126,10 @@ async function waitForPagesDataRefresh({
     attempt += 1;
     if (onTick) onTick(attempt, Math.round((Date.now() - started) / 1000));
     await new Promise(r => setTimeout(r, intervalMs));
-    dashboardState.cacheBust = String(Date.now());
     try {
       const [info, latest] = await Promise.all([
-        loadJSON('./data/build_info.json', { bust: true }).catch(() => null),
-        loadJSON('./data/latest.json', { bust: true }).catch(() => null),
+        loadJSON('./data/build_info.json', { fresh: true }).catch(() => null),
+        loadJSON('./data/latest.json', { fresh: true }).catch(() => null),
       ]);
       const buildTime = info?.build_time || null;
       const updateTime = latest?.update_time || latest?.as_of || null;
@@ -5101,6 +5145,23 @@ async function waitForPagesDataRefresh({
     }
   }
   return null;
+}
+
+function dashboardMatchesPublishedRevision(result) {
+  if (!result) return true;
+  if (result.updateTime && dashboardState.lastUpdateTime !== result.updateTime) return false;
+  if (!result.updateTime && result.buildTime && dashboardState.lastBuildTime !== result.buildTime) return false;
+  return true;
+}
+
+async function syncDashboardToPublishedRevision(result, { maxAttempts = 4, intervalMs = 1500 } = {}) {
+  const attempts = result ? maxAttempts : 1;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    await refreshDashboard({ forceFull: true });
+    if (dashboardMatchesPublishedRevision(result)) return true;
+    if (attempt < attempts) await new Promise(resolve => setTimeout(resolve, intervalMs));
+  }
+  return false;
 }
 
 async function requestDataPlaneRefresh(mode) {
@@ -5135,11 +5196,11 @@ async function requestDataPlaneRefresh(mode) {
       let beforeBuildTime = null;
       let beforeUpdateTime = null;
       try {
-        const info = await loadJSON('./data/build_info.json', { bust: true });
+        const info = await loadJSON('./data/build_info.json', { fresh: true });
         beforeBuildTime = info?.build_time || null;
       } catch (_) { /* ignore */ }
       try {
-        const latest = await loadJSON('./data/latest.json', { bust: true });
+        const latest = await loadJSON('./data/latest.json', { fresh: true });
         beforeUpdateTime = latest?.update_time || null;
       } catch (_) { /* ignore */ }
 
@@ -5165,18 +5226,22 @@ async function requestDataPlaneRefresh(mode) {
         },
       });
 
-      dashboardState.cacheBust = String(Date.now());
-      await refreshDashboard({ forceFull: true });
+      const synced = await syncDashboardToPublishedRevision(result);
       if (result) {
+        const renderedLatest = dashboardState.latest || result.latest || {};
         paintStaticPagesPlaneMeta({
-          risk_temperature: result.latest?.risk_temperature
+          risk_temperature: renderedLatest.risk_temperature
             ?? document.getElementById('riskTemperature')?.textContent,
-          trade_date: result.latest?.trade_date
+          trade_date: renderedLatest.trade_date
             ?? document.getElementById('tradeDate')?.textContent,
-          temperature_mode_cn: result.latest?.temperature_mode_cn
-            || result.latest?.temperature_mode
+          temperature_mode_cn: renderedLatest.temperature_mode_cn
+            || renderedLatest.temperature_mode
             || document.getElementById('quality')?.textContent,
-        }, { note: `${label} 完成 · 已重载` });
+        }, {
+          note: synced
+            ? `${label} 完成 · 页面已同步最新数据`
+            : `${label} 已发布 · 页面数据仍在同步，请稍候`,
+        });
       } else {
         paintStaticPagesPlaneMeta(null, {
           note: `${label} 已触发，数据可能仍在发布 · 可稍后再点页面刷新`,
@@ -5208,18 +5273,25 @@ async function requestDataPlaneRefresh(mode) {
       body: JSON.stringify({ mode }),
     });
     const payload = await res.json().catch(() => ({}));
+    let refreshStatus = payload?.status || null;
     if (mode === 'full' && res.status === 202) {
       for (let i = 0; i < 90; i++) {
         await new Promise(r => setTimeout(r, 2000));
-        const st = await fetchDataPlaneStatus();
-        if (st && !st.refresh_running) break;
+        refreshStatus = await fetchDataPlaneStatus();
+        if (refreshStatus && !refreshStatus.refresh_running) break;
       }
+      if (refreshStatus?.refresh_running) throw new Error('日更任务超时，仍在后台运行');
     } else if (!res.ok && !payload.ok) {
       throw new Error(payload.error || payload.detail || ('refresh failed ' + res.status));
     }
-    dashboardState.cacheBust = String(Date.now());
-    await refreshDashboard({ forceFull: true });
-    await fetchDataPlaneStatus();
+    const targetRevision = {
+      updateTime: refreshStatus?.latest?.update_time || null,
+      buildTime: refreshStatus?.build_info?.build_time || null,
+    };
+    const synced = await syncDashboardToPublishedRevision(targetRevision);
+    const finalStatus = await fetchDataPlaneStatus();
+    if (!synced && metaEl) metaEl.textContent = '刷新完成，但页面数据同步超时';
+    if (finalStatus?.last_error) throw new Error(finalStatus.last_error);
   } catch (err) {
     console.error(err);
     const bar = document.getElementById('dataPlaneBar');
