@@ -348,6 +348,122 @@ def complete_payload_with_final_quotes(
     return out
 
 
+def merge_published_etf_marks(
+    candidate: dict[str, Any],
+    published: dict[str, Any] | None,
+) -> dict[str, Any]:
+    """Keep a newer published close when a routine rebuild source is lagging.
+
+    Candidate bars always win on matching dates, so a later official daily bar
+    replaces the provisional final quote. Published-only dates are carried
+    forward only through the candidate as_of boundary.
+    """
+    if not published:
+        return candidate
+    target = str(candidate.get("as_of") or "")[:10]
+    if not target:
+        return candidate
+
+    out = json.loads(json.dumps(candidate))
+    candidate_by = candidate.get("by_code") or {}
+    published_by = published.get("by_code") or {}
+    expected = sorted(set(candidate_by) | set(candidate.get("missing_codes") or []))
+    if not expected:
+        return candidate
+
+    merged_by: dict[str, Any] = {}
+    carried_dates: dict[str, list[str]] = {}
+    has_provisional_target = False
+    for code in expected:
+        fresh_item = candidate_by.get(code) or {}
+        old_item = published_by.get(code) or {}
+        old_bars = {
+            day: bar for day, bar in (old_item.get("bars") or {}).items()
+            if day <= target
+        }
+        fresh_bars = {
+            day: bar for day, bar in (fresh_item.get("bars") or {}).items()
+            if day <= target
+        }
+        bars = {**old_bars, **fresh_bars}
+        if not bars:
+            continue
+
+        old_sources = dict(old_item.get("bar_sources") or {})
+        fresh_sources = dict(fresh_item.get("bar_sources") or {})
+        sources = {day: source for day, source in old_sources.items() if day in bars}
+        for day in fresh_bars:
+            if day in fresh_sources:
+                sources[day] = fresh_sources[day]
+            else:
+                sources.pop(day, None)
+
+        carried = sorted(set(old_bars) - set(fresh_bars))
+        if carried:
+            carried_dates[code] = carried
+        has_provisional_target = has_provisional_target or (
+            "FINAL_QUOTE" in str(sources.get(target) or "")
+        )
+        dates = sorted(bars)
+        item = {
+            **old_item,
+            **fresh_item,
+            "etf_code": code,
+            "bars": bars,
+            "bar_count": len(dates),
+            "first": dates[0],
+            "last": dates[-1],
+            "fresh_for_as_of": dates[-1] >= target,
+        }
+        if sources:
+            item["bar_sources"] = sources
+        else:
+            item.pop("bar_sources", None)
+        merged_by[code] = item
+
+    missing = [code for code in expected if not merged_by.get(code, {}).get("bars")]
+    stale = [
+        code for code in expected
+        if merged_by.get(code, {}).get("bars") and max(merged_by[code]["bars"]) < target
+    ]
+    common_dates: set[str] | None = None
+    for code in expected:
+        dates = set((merged_by.get(code, {}).get("bars") or {}).keys())
+        if not dates:
+            continue
+        common_dates = dates if common_dates is None else common_dates & dates
+    complete_as_of = max(common_dates) if common_dates and not missing else None
+    complete = complete_as_of == target and not missing and not stale
+    quality = (
+        FINAL_QUOTE_QUALITY if complete and has_provisional_target
+        else "OK" if complete
+        else "WARN_INCOMPLETE_AS_OF"
+    )
+    out.update({
+        "by_code": merged_by,
+        "code_count": len(merged_by),
+        "missing_codes": missing,
+        "stale_codes": stale,
+        "complete_as_of": complete_as_of,
+        "quality": quality,
+        "published_bar_preservation": {
+            "status": "used" if carried_dates else "not_needed",
+            "candidate_as_of": target,
+            "codes": sorted(carried_dates),
+            "dates_by_code": carried_dates,
+        },
+        "updated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+    })
+    if has_provisional_target:
+        if carried_dates:
+            out["eod_completion_source"] = "PRESERVED_POST_CLOSE_FINAL_QUOTE"
+        else:
+            out.setdefault("eod_completion_source", "POST_CLOSE_FINAL_QUOTE")
+        if published.get("final_quote_fallback"):
+            out["final_quote_fallback"] = published["final_quote_fallback"]
+    return out
+
+
 def load_or_fetch_etf_bars(
     code: str,
     *,
@@ -502,5 +618,13 @@ def build_etf_marks_payload(
 
 def write_etf_marks_site(payload: dict[str, Any] | None = None, **kwargs: Any) -> dict[str, Any]:
     payload = payload or build_etf_marks_payload(**kwargs)
+    published = None
+    path = SITE / "etf_daily_marks.json"
+    if path.exists():
+        try:
+            published = json.loads(path.read_text(encoding="utf-8"))
+        except Exception:
+            published = None
+    payload = merge_published_etf_marks(payload, published)
     write_json(payload, SITE / "etf_daily_marks.json")
     return payload

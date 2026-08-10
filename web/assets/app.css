@@ -1483,7 +1483,7 @@ dd[data-freshness="stale"] { color: var(--red); }
 }
 
 .flex-table-head-log {
-  grid-template-columns: 56px 72px 80px 64px 72px 1fr;
+  grid-template-columns: 64px 72px 80px 64px 72px minmax(220px, 1fr) 90px;
 }
 
 .flex-table-body { display: grid; }
@@ -1516,7 +1516,15 @@ dd[data-freshness="stale"] { color: var(--red); }
 }
 
 .flex-row-log {
-  grid-template-columns: 56px 72px 80px 64px 72px 1fr;
+  grid-template-columns: 64px 72px 80px 64px 72px minmax(220px, 1fr) 90px;
+}
+
+.flex-row-note {
+  min-width: 0;
+  color: var(--mute-2);
+  font-size: 11px;
+  line-height: 1.35;
+  white-space: normal;
 }
 
 .flex-row .badge {

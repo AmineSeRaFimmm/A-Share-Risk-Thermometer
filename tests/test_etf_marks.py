@@ -12,6 +12,7 @@ from src.core.etf_marks import (
     build_etf_marks_payload,
     collect_flex_etf_codes,
     complete_payload_with_final_quotes,
+    merge_published_etf_marks,
 )
 import pandas as pd
 
@@ -125,3 +126,71 @@ def test_final_quotes_complete_lagging_daily_payload_with_provisional_quality() 
     assert completed["stale_codes"] == []
     assert completed["by_code"]["510300"]["bars"]["2026-08-10"]["open"] == 4.755
     assert completed["final_quote_fallback"]["code_count"] == 2
+
+
+def test_routine_rebuild_preserves_newer_published_final_quotes() -> None:
+    candidate = {
+        "as_of": "2026-08-10",
+        "quality": "WARN_INCOMPLETE_AS_OF",
+        "missing_codes": [],
+        "by_code": {
+            code: {
+                "etf_code": code,
+                "bars": {"2026-08-07": {"open": 1.0, "close": 1.1, "high": 1.2, "low": 0.9}},
+            }
+            for code in ("510300", "515880")
+        },
+    }
+    published = complete_payload_with_final_quotes(
+        candidate,
+        codes=["510300", "515880"],
+        target="2026-08-10",
+        quotes={
+            code: {
+                "open": 1.1, "close": 1.2, "high": 1.3, "low": 1.0,
+                "source": "TENCENT_ETF_FINAL_QUOTE", "quote_time": "2026-08-10T15:33:00+08:00",
+            }
+            for code in ("510300", "515880")
+        },
+    )
+
+    merged = merge_published_etf_marks(candidate, published)
+
+    assert merged["complete_as_of"] == "2026-08-10"
+    assert merged["quality"] == FINAL_QUOTE_QUALITY
+    assert merged["stale_codes"] == []
+    assert merged["by_code"]["510300"]["bars"]["2026-08-10"]["close"] == 1.2
+    assert merged["by_code"]["510300"]["bars"]["2026-08-07"]["close"] == 1.1
+    assert merged["published_bar_preservation"]["status"] == "used"
+
+
+def test_official_candidate_replaces_preserved_quote_and_quality() -> None:
+    published = {
+        "as_of": "2026-08-10",
+        "quality": FINAL_QUOTE_QUALITY,
+        "by_code": {
+            "510300": {
+                "etf_code": "510300",
+                "bars": {"2026-08-10": {"open": 4.75, "close": 4.76, "high": 4.77, "low": 4.72}},
+                "bar_sources": {"2026-08-10": "TENCENT_ETF_FINAL_QUOTE"},
+            },
+        },
+    }
+    candidate = {
+        "as_of": "2026-08-10",
+        "quality": "OK",
+        "missing_codes": [],
+        "by_code": {
+            "510300": {
+                "etf_code": "510300",
+                "bars": {"2026-08-10": {"open": 4.751, "close": 4.759, "high": 4.772, "low": 4.72}},
+            },
+        },
+    }
+
+    merged = merge_published_etf_marks(candidate, published)
+
+    assert merged["quality"] == "OK"
+    assert merged["by_code"]["510300"]["bars"]["2026-08-10"]["open"] == 4.751
+    assert "bar_sources" not in merged["by_code"]["510300"]
+    assert merged["published_bar_preservation"]["status"] == "not_needed"

@@ -72,7 +72,7 @@ def test_pages_refresh_coalesces_active_workflows_and_waits_for_slow_publish() -
 def test_refresh_renders_the_published_revision_without_stale_cache_or_lost_force_reload() -> None:
     html = (ROOT / "web/index.html").read_text(encoding="utf-8")
     app = (ROOT / "web/assets/app.js").read_text(encoding="utf-8")
-    assert "./assets/app.js?v=20260806-refresh-sync" in html
+    assert "./assets/app.js?v=20260810-flex-book-state-v2" in html
     assert "function dashboardDataRevision(" in app
     assert "return [updateTime, buildTime, tradeDate]" in app
     assert "fetch(url, fresh ? { cache: 'no-store' } : undefined)" in app

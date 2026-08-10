@@ -67,6 +67,15 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("ledger.risk_exits[satSignalId]", self.web)
         self.assertIn("status: 'PENDING'", self.web)
         self.assertIn("下一交易日开盘整篮平仓", self.web)
+        rebuild = self.web.split("function rebuildSimLedgerFromStrategy(flex) {", 1)[1].split(
+            "function flexPositionKey(item)", 1
+        )[0]
+        self.assertLess(
+            rebuild.index("flexSimEnsurePaperPositions(ledger, targets, asOf)"),
+            rebuild.index("flexSatelliteBasketFirstRiskTrigger(ledger, f)"),
+        )
+        self.assertIn("function flexSimExecuteSatelliteRisk", self.web)
+        self.assertIn("function flexSimCloseRemovedPositions", self.web)
 
     def test_simulation_is_incremental_and_read_only(self) -> None:
         self.assertIn("Incremental, read-only simulation ledger", self.web)
@@ -96,10 +105,27 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("const mode = 'aggressive';", self.web)
         self.assertIn("flex = applyFlexModeOverlay(flex, 'aggressive');", self.web)
 
-    def test_sim_avoid_is_advisory_and_badge_counts_clickable_rows(self) -> None:
+    def test_sim_avoid_is_advisory_and_badge_counts_visible_signals(self) -> None:
         self.assertIn("策略回避提示·等待状态机确认", self.web)
         self.assertNotIn("回避·模拟自动归零", self.web)
-        self.assertIn("row.querySelector('[data-flex-act]')", self.web)
+        self.assertIn("signalCount += items.length", self.web)
+        self.assertIn("setFlexTabBadge('flexTabBadgeSignal', signalCount)", self.web)
+
+    def test_execution_view_uses_effective_risk_target_and_auditable_returns(self) -> None:
+        index = (ROOT / "web/index.html").read_text(encoding="utf-8")
+        self.assertIn("function flexDeskViewState", self.web)
+        self.assertIn("const effectiveSat = satelliteRisk ? 0 : baseSat", self.web)
+        self.assertIn("止盈已执行", self.web)
+        self.assertIn('id="flexExecTotalReturn"', index)
+        self.assertIn("const totalRet = capital > 0 ? (equity - capital) / capital : null", self.web)
+        self.assertIn("row.note || '—'", self.web)
+        self.assertIn("历史EOD首次越线补记", self.web)
+
+    def test_pending_exit_rows_use_execution_date_and_block_holding_add(self) -> None:
+        self.assertIn("execution_date: executionDate", self.web)
+        self.assertIn("if (item.execution_date)", self.web)
+        self.assertIn("pendingCloseKeys.has(positionKey)", self.web)
+        self.assertIn(": pendingClose", self.web)
 
     def test_holding_audit_fields_and_time_context_are_visible(self) -> None:
         index = (ROOT / "web/index.html").read_text(encoding="utf-8")
