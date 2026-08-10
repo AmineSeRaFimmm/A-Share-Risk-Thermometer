@@ -20,6 +20,9 @@ def _official_risk() -> pd.DataFrame:
         "avix_zscore_1y": 87.4,
         "avix_5d_change": 73.9,
         "qvix_confirmation": 100.0,
+        "qvix_close": 19.59,
+        "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
+        "qvix_quote_time": "2026-07-29",
         "realized_vol_percentile": 94.4,
         "drawdown_pressure": 82.2,
         "market_breadth_pressure": 14.6,
@@ -91,6 +94,9 @@ def test_latest_and_components_preserve_state_and_quality_audit():
     assert latest["model_confidence"]["data_quality_score"] == 84.9
     assert latest["market"]["advancing_ratio"] == 0.315
     assert latest["market"]["breadth_secondary_source"] == "PARSE_EM_ZDFENBU"
+    assert latest["official_close"]["qvix_close"] == 19.59
+    assert latest["official_close"]["qvix_source"] == "OPTBBS_PARSE_300ETF_QVIX_PROXY"
+    assert latest["official_close"]["qvix_quote_time"] == "2026-07-29"
 
     qvix = next(item for item in components["components"] if item["key"] == "qvix_confirmation")
     assert qvix["raw_value"] == 24.84

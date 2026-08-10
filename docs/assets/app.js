@@ -468,8 +468,9 @@ function renderQvixFallback(latest) {
   ensureRealtimeMeta();
   appendMetaItem('QVIX来源', 'qvixSource');
   const nowcast = latest?.nowcast || {};
-  const source = String(nowcast.qvix_source || '');
-  const delay = Number(nowcast.qvix_delay_minutes);
+  const qvix = nowcast.active ? nowcast : (latest?.official_close || {});
+  const source = String(qvix.qvix_source || '');
+  const delay = Number(qvix.qvix_delay_minutes);
   let label = '--';
   if (source.includes('EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED')) {
     label = `东财300股指期权复刻 · 延迟约${Number.isFinite(delay) ? delay : 15}分`;
@@ -481,8 +482,8 @@ function renderQvixFallback(latest) {
   if (el) {
     el.title = [
       source || null,
-      nowcast.qvix_quote_time ? `盘口时间: ${nowcast.qvix_quote_time}` : null,
-      nowcast.qvix_close != null ? `QVIX: ${formatRealtimeAvix(nowcast.qvix_close)}` : null,
+      qvix.qvix_quote_time ? `盘口时间: ${qvix.qvix_quote_time}` : null,
+      qvix.qvix_close != null ? `QVIX: ${formatRealtimeAvix(qvix.qvix_close)}` : null,
     ].filter(Boolean).join(' | ') || '无盘中 QVIX 备用数据';
   }
 }

@@ -67,6 +67,9 @@
     "regime_cn": "警戒",
     "quality": "WARN_QVIX_REALTIME_PROXY",
     "avix_clean": 19.4657,
+    "qvix_close": 19.59,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
+    "qvix_quote_time": null,
     "model_confidence": {
       "score": 93.7,
       "coverage_score": 100.0,

@@ -303,6 +303,9 @@ def latest_payload(
             "regime_cn": row.regime_cn,
             "quality": row.quality,
             "avix_clean": finite(row.get("avix_clean")),
+            "qvix_close": finite(row.get("qvix_close")),
+            "qvix_source": row.get("qvix_source"),
+            "qvix_quote_time": row.get("qvix_quote_time"),
             "model_confidence": _model_confidence_summary(row, row.quality),
         },
         "nowcast": {
