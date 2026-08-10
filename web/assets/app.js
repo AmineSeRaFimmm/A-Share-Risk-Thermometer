@@ -2041,21 +2041,22 @@ function rebuildSimLedgerFromStrategy(flex) {
   ledger = flexApplyEodMarksToLedger(ledger);
   let satRisk = satSignalId ? ledger.risk_exits[satSignalId] : null;
   if (satSignalId && !satRisk && ledger.mark_as_of && Number(ledger._eod_mark_stats?.missing) === 0) {
-    const basket = flexSatelliteBasketRiskStatus(ledger, f);
+    const basket = flexSatelliteBasketFirstRiskTrigger(ledger, f);
     if (basket?.triggered) {
-      const executionDate = flexAddTradingDays(ledger.mark_as_of, 1);
+      const signalDate = basket.triggerDate || ledger.mark_as_of;
+      const executionDate = flexAddTradingDays(signalDate, 1);
       satRisk = {
         status: 'PENDING',
         close_code: basket.close_code,
-        signal_date: ledger.mark_as_of,
+        signal_date: signalDate,
         execution_date: executionDate,
         return_pct: basket.ret,
       };
       ledger.risk_exits[satSignalId] = satRisk;
       ledger.journal = flexSimJournal(ledger.journal, {
         type: 'SIGNAL', type_cn: basket.action_cn, name: '卫星组合', amount: 0,
-        price: 0, qty: 0, trade_date: ledger.mark_as_of,
-        ts: flexSimTradeTimestamp(ledger.mark_as_of, 'close'),
+        price: 0, qty: 0, trade_date: signalDate,
+        ts: flexSimTradeTimestamp(signalDate, 'close'),
         note: `${basket.rule.ruleCn} · 下一交易日 ${executionDate} 开盘执行`,
       });
     }
@@ -2452,7 +2453,7 @@ function flexEodDecisionGate(marked, flex) {
   return { ok: gate.ok, reason: '', markDate, requiredDate };
 }
 
-function flexSatelliteBasketRiskStatus(ledger, flex) {
+function flexSatelliteBasketRiskStatus(ledger, flex, { skipDecisionGate = false } = {}) {
   const satellites = flexOpenPositions(ledger).filter(
     pos => String(pos?.sleeve || '').toLowerCase() === 'satellite'
   );
@@ -2467,7 +2468,9 @@ function flexSatelliteBasketRiskStatus(ledger, flex) {
     flexMarkMissing(pos) || !(Number(pos.eod_last_price) > 0)
   );
   const rule = flexSatelliteRiskRule(flex);
-  const decisionGate = flexEodDecisionGate(ledger, flex);
+  const decisionGate = skipDecisionGate
+    ? { ok: true, markDate: ledger?.mark_as_of || null, requiredDate: null }
+    : flexEodDecisionGate(ledger, flex);
   if (!decisionGate.ok) {
     return {
       triggered: false,
@@ -2509,6 +2512,67 @@ function flexSatelliteBasketRiskStatus(ledger, flex) {
     ret,
     daysHeld,
   };
+}
+
+function flexApplyExactEodDate(ledger, markDate) {
+  const marked = normalizeFlexLedger(JSON.parse(JSON.stringify(ledger || {})));
+  let count = 0;
+  let missing = 0;
+  for (const pos of flexOpenPositions(marked)) {
+    const bar = flexEtfBarLookup(pos.etf_code, markDate, { prefer: 'exact' });
+    if (!bar || bar.trade_date !== markDate || !(Number(bar.close) > 0)) {
+      pos.mark_quality = 'MISSING';
+      missing += 1;
+      continue;
+    }
+    pos.last_price = Number(bar.close);
+    pos.eod_last_price = Number(bar.close);
+    pos.eod_mark_bar_date = markDate;
+    pos.mark_bar_date = markDate;
+    pos.mark_price_type = 'close';
+    pos.mark_quality = 'OK';
+    count += 1;
+  }
+  marked.mark_as_of = markDate;
+  marked.mark_stale_codes = [];
+  marked.mark_missing_codes = [];
+  marked._eod_mark_stats = { marked: count, missing, mark_date: markDate };
+  return marked;
+}
+
+/** Recover the first EOD threshold crossing even when the page was not opened that day. */
+function flexSatelliteBasketFirstRiskTrigger(ledger, flex) {
+  const latest = flexApplyEodMarksToLedger(ledger);
+  const latestStatus = flexSatelliteBasketRiskStatus(latest, flex);
+  if (!latestStatus || latestStatus.blocked || !latest.mark_as_of) return latestStatus;
+  const satellites = flexOpenPositions(latest).filter(
+    pos => String(pos?.sleeve || '').toLowerCase() === 'satellite'
+  );
+  if (!satellites.length) return latestStatus;
+
+  let commonDates = null;
+  let latestEntryDate = '';
+  for (const pos of satellites) {
+    const code = String(pos.etf_code || '').replace(/\D/g, '').padStart(6, '0');
+    const bars = dashboardState.etfMarks?.by_code?.[code]?.bars || {};
+    const dates = new Set(Object.keys(bars).filter(day => day <= latest.mark_as_of));
+    commonDates = commonDates == null
+      ? dates
+      : new Set([...commonDates].filter(day => dates.has(day)));
+    const entryDate = String(pos.entry_bar_date || pos.buy_date || '').slice(0, 10);
+    if (entryDate > latestEntryDate) latestEntryDate = entryDate;
+  }
+
+  for (const day of [...(commonDates || [])].sort()) {
+    if (latestEntryDate && day < latestEntryDate) continue;
+    const exact = flexApplyExactEodDate(ledger, day);
+    if (Number(exact._eod_mark_stats?.missing) > 0) continue;
+    const status = flexSatelliteBasketRiskStatus(exact, flex, { skipDecisionGate: true });
+    if (status?.triggered) {
+      return { ...status, triggerDate: day, markDate: day };
+    }
+  }
+  return latestStatus;
 }
 
 function flexSuggestedAmount(item, capital, ledger = null, localPosition = null) {
@@ -3055,6 +3119,9 @@ function renderFlexAccountBar() {
     const parts = [strategyAsOf ? `策略信号：正式EOD ${strategyAsOf}` : null];
     if (hasBook) {
       parts.push(md ? `收益/风控：持仓共同EOD ${md}` : '收益/风控：共同EOD缺失');
+      if (dashboardState.etfMarks?.quality === 'OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION') {
+        parts.push('当日收盘快照已冻结·待历史日线复核');
+      }
       if ((ledger.mark_stale_codes || []).length) parts.push(`滞后标的 ${(ledger.mark_stale_codes || []).length}只`);
       if ((ledger.mark_missing_codes || []).length) parts.push(`缺价 ${(ledger.mark_missing_codes || []).length}只`);
       if (quoteWindow.active && rt?.marked) {
@@ -3084,7 +3151,7 @@ function renderFlexHoldings() {
   const ledger = flexApplyDisplayMarksToLedger(loadFlexLedger());
   const positions = flexOpenPositions(ledger);
   const equity = flexEquity(ledger);
-  const basketRisk = flexSatelliteBasketRiskStatus(ledger, dashboardState.flexActive);
+  const basketRisk = flexSatelliteBasketFirstRiskTrigger(ledger, dashboardState.flexActive);
   if (!positions.length) {
     el.innerHTML = `<div class="flex-empty-state soft">
       <strong>${isFlexSimBook() ? '模拟仓暂无持仓' : '真实仓暂无持仓'}</strong>
@@ -3880,7 +3947,7 @@ function deskLocalDueCloses(ledger = loadFlexLedger()) {
 /** Satellite stop-loss / take-profit closes from local EOD marks. */
 function deskLocalRiskCloses(flex, ledger = loadFlexLedger()) {
   const marked = flexApplyEodMarksToLedger(ledger);
-  const basket = flexSatelliteBasketRiskStatus(marked, flex);
+  const basket = flexSatelliteBasketFirstRiskTrigger(ledger, flex);
   if (!basket?.triggered) return [];
   const rows = [];
   for (const pos of flexOpenPositions(marked)) {
@@ -3903,7 +3970,7 @@ function deskLocalRiskCloses(flex, ledger = loadFlexLedger()) {
       weight_target: 0,
       weight_hint: '0%',
       return_pct: basket.ret,
-      signal_as_of: marked.mark_as_of || flex?.as_of || flexSessionTradeDate(),
+      signal_as_of: basket.triggerDate || marked.mark_as_of || flex?.as_of || flexSessionTradeDate(),
       _key: pos.key || flexPositionKey(pos),
       _deskLocalRisk: true,
     });

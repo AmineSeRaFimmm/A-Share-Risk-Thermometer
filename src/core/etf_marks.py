@@ -12,6 +12,7 @@ from __future__ import annotations
 
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import json
+import re
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -24,6 +25,7 @@ from src.storage.json_store import write_json
 
 CACHE_DIR = CALCULATED / "etf_daily_cache"
 DEFAULT_LOOKBACK_CALENDAR_DAYS = 120
+FINAL_QUOTE_QUALITY = "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION"
 
 
 def _today_cn() -> str:
@@ -176,6 +178,174 @@ def _fetch_etf_hist_em(code: str, start: str, end: str) -> pd.DataFrame:
     if last_exc:
         raise last_exc
     return pd.DataFrame()
+
+
+def _parse_tencent_final_quotes(text: str, codes: list[str], target: str) -> dict[str, dict[str, Any]]:
+    expected = set(codes)
+    target_compact = target.replace("-", "")
+    quotes: dict[str, dict[str, Any]] = {}
+    for match in re.finditer(r'v_(?:sh|sz)(\d{6})="([^"]*)"', text or ""):
+        code, raw = match.groups()
+        if code not in expected:
+            continue
+        fields = raw.split("~")
+        try:
+            stamp = fields[30]
+            if stamp[:8] != target_compact or stamp[8:12] < "1500":
+                continue
+            values = {
+                "open": float(fields[5]),
+                "close": float(fields[3]),
+                "high": float(fields[33]),
+                "low": float(fields[34]),
+            }
+            if not all(value > 0 for value in values.values()):
+                continue
+        except (IndexError, TypeError, ValueError):
+            continue
+        quotes[code] = {
+            **values,
+            "source": "TENCENT_ETF_FINAL_QUOTE",
+            "quote_time": f"{target}T{stamp[8:10]}:{stamp[10:12]}:{stamp[12:14]}+08:00",
+        }
+    return quotes
+
+
+def _parse_sina_final_quotes(text: str, codes: list[str], target: str) -> dict[str, dict[str, Any]]:
+    expected = set(codes)
+    quotes: dict[str, dict[str, Any]] = {}
+    for match in re.finditer(r'var hq_str_(?:sh|sz)(\d{6})="([^"]*)"', text or ""):
+        code, raw = match.groups()
+        if code not in expected:
+            continue
+        fields = raw.split(",")
+        try:
+            quote_date = fields[30]
+            quote_clock = fields[31]
+            if quote_date != target or quote_clock[:5] < "15:00":
+                continue
+            values = {
+                "open": float(fields[1]),
+                "close": float(fields[3]),
+                "high": float(fields[4]),
+                "low": float(fields[5]),
+            }
+            if not all(value > 0 for value in values.values()):
+                continue
+        except (IndexError, TypeError, ValueError):
+            continue
+        quotes[code] = {
+            **values,
+            "source": "SINA_ETF_FINAL_QUOTE",
+            "quote_time": f"{quote_date}T{quote_clock}+08:00",
+        }
+    return quotes
+
+
+def fetch_etf_final_quotes(codes: list[str], target: str) -> dict[str, dict[str, Any]]:
+    """Fetch same-day post-close OHLC snapshots, Tencent then Sina."""
+    import requests
+
+    _disable_proxies()
+    normalized = sorted(set(str(code).zfill(6) for code in codes))
+    symbols = [
+        ("sz" if code.startswith(("15", "16", "18")) else "sh") + code
+        for code in normalized
+    ]
+    quotes: dict[str, dict[str, Any]] = {}
+    try:
+        response = requests.get(
+            "https://qt.gtimg.cn/q=" + ",".join(symbols),
+            timeout=15,
+        )
+        response.raise_for_status()
+        quotes.update(_parse_tencent_final_quotes(response.content.decode("gb18030", "replace"), normalized, target))
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN ETF final quote Tencent failed: {exc}")
+
+    missing = [code for code in normalized if code not in quotes]
+    if missing:
+        missing_symbols = [
+            ("sz" if code.startswith(("15", "16", "18")) else "sh") + code
+            for code in missing
+        ]
+        try:
+            response = requests.get(
+                "https://hq.sinajs.cn/list=" + ",".join(missing_symbols),
+                headers={"Referer": "https://finance.sina.com.cn/"},
+                timeout=15,
+            )
+            response.raise_for_status()
+            quotes.update(_parse_sina_final_quotes(response.content.decode("gb18030", "replace"), missing, target))
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN ETF final quote Sina failed: {exc}")
+    return quotes
+
+
+def complete_payload_with_final_quotes(
+    payload: dict[str, Any],
+    *,
+    codes: list[str],
+    target: str,
+    quotes: dict[str, dict[str, Any]],
+) -> dict[str, Any]:
+    """Complete a lagging daily payload with timestamped post-close OHLC."""
+    out = json.loads(json.dumps(payload))
+    by_code = out.setdefault("by_code", {})
+    normalized = sorted(set(str(code).zfill(6) for code in codes))
+    used: dict[str, dict[str, str]] = {}
+    for code in normalized:
+        quote = quotes.get(code)
+        if not quote:
+            continue
+        item = by_code.setdefault(code, {"etf_code": code, "bars": {}})
+        bars = item.setdefault("bars", {})
+        bars[target] = {
+            key: round(float(quote[key]), 4)
+            for key in ("open", "close", "high", "low")
+        }
+        dates = sorted(bars)
+        item.update({
+            "bar_count": len(dates),
+            "first": dates[0],
+            "last": dates[-1],
+            "fresh_for_as_of": dates[-1] >= target,
+        })
+        item.setdefault("bar_sources", {})[target] = str(quote.get("source") or "FINAL_QUOTE")
+        used[code] = {
+            "source": str(quote.get("source") or "FINAL_QUOTE"),
+            "quote_time": str(quote.get("quote_time") or ""),
+        }
+
+    missing = [code for code in normalized if not by_code.get(code, {}).get("bars")]
+    stale = [
+        code for code in normalized
+        if by_code.get(code, {}).get("bars") and max(by_code[code]["bars"]) < target
+    ]
+    common_dates: set[str] | None = None
+    for code in normalized:
+        dates = set((by_code.get(code, {}).get("bars") or {}).keys())
+        if not dates:
+            continue
+        common_dates = dates if common_dates is None else common_dates & dates
+    complete_as_of = max(common_dates) if common_dates and not missing else None
+    complete = complete_as_of == target and not missing and not stale
+    out.update({
+        "code_count": len(by_code),
+        "missing_codes": missing,
+        "stale_codes": stale,
+        "complete_as_of": complete_as_of,
+        "quality": FINAL_QUOTE_QUALITY if complete else "WARN_INCOMPLETE_AS_OF",
+        "eod_completion_source": "POST_CLOSE_FINAL_QUOTE" if used else None,
+        "final_quote_fallback": {
+            "trade_date": target,
+            "status": "complete" if complete else "incomplete",
+            "code_count": len(used),
+            "quotes": used,
+        },
+        "updated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
+    })
+    return out
 
 
 def load_or_fetch_etf_bars(

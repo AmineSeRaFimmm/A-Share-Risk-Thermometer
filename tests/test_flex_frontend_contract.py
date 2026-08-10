@@ -91,6 +91,8 @@ class FlexFrontendContractTests(unittest.TestCase):
     def test_stale_eod_decisions_and_non_aggressive_payloads_are_gated(self) -> None:
         self.assertIn("function flexEodDecisionGate", self.web)
         self.assertIn("if (!flexEodDecisionGate(marked, flex).ok)", self.web)
+        self.assertIn("function flexSatelliteBasketFirstRiskTrigger", self.web)
+        self.assertIn("const signalDate = basket.triggerDate || ledger.mark_as_of;", self.web)
         self.assertIn("const mode = 'aggressive';", self.web)
         self.assertIn("flex = applyFlexModeOverlay(flex, 'aggressive');", self.web)
 

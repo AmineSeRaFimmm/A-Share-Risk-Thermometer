@@ -4,7 +4,15 @@ from __future__ import annotations
 from threading import Lock
 import time
 
-from src.core.etf_marks import bars_to_dict, build_etf_marks_payload, collect_flex_etf_codes
+from src.core.etf_marks import (
+    FINAL_QUOTE_QUALITY,
+    _parse_sina_final_quotes,
+    _parse_tencent_final_quotes,
+    bars_to_dict,
+    build_etf_marks_payload,
+    collect_flex_etf_codes,
+    complete_payload_with_final_quotes,
+)
 import pandas as pd
 
 
@@ -73,3 +81,47 @@ def test_etf_marks_fetch_codes_with_bounded_parallelism(monkeypatch):
     assert max_active == 2
     assert list(payload["by_code"]) == codes
     assert payload["fetch_workers"] == 2
+
+
+def test_post_close_quote_parsers_require_same_day_final_timestamp() -> None:
+    tencent = (
+        'v_sh510300="1~name~510300~4.759~4.751~4.755~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~0~'
+        '20260810153311~0~0~4.772~4.720";'
+    )
+    sina = (
+        'var hq_str_sh515880="name,0.661,0.660,0.644,0.665,0.628,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,'
+        '2026-08-10,15:33:33,00";'
+    )
+    tq = _parse_tencent_final_quotes(tencent, ["510300"], "2026-08-10")
+    sq = _parse_sina_final_quotes(sina, ["515880"], "2026-08-10")
+    assert tq["510300"]["open"] == 4.755
+    assert tq["510300"]["close"] == 4.759
+    assert sq["515880"]["open"] == 0.661
+    assert sq["515880"]["close"] == 0.644
+    assert _parse_tencent_final_quotes(tencent, ["510300"], "2026-08-07") == {}
+
+
+def test_final_quotes_complete_lagging_daily_payload_with_provisional_quality() -> None:
+    payload = {
+        "as_of": "2026-08-10",
+        "quality": "WARN_INCOMPLETE_AS_OF",
+        "by_code": {
+            "510300": {"etf_code": "510300", "bars": {"2026-08-07": {"open": 4.7, "close": 4.75, "high": 4.8, "low": 4.7}}},
+            "515880": {"etf_code": "515880", "bars": {"2026-08-07": {"open": 0.65, "close": 0.66, "high": 0.67, "low": 0.64}}},
+        },
+    }
+    quotes = {
+        "510300": {"open": 4.755, "close": 4.759, "high": 4.772, "low": 4.72, "source": "TENCENT_ETF_FINAL_QUOTE", "quote_time": "2026-08-10T15:33:11+08:00"},
+        "515880": {"open": 0.661, "close": 0.644, "high": 0.665, "low": 0.628, "source": "TENCENT_ETF_FINAL_QUOTE", "quote_time": "2026-08-10T15:33:19+08:00"},
+    }
+    completed = complete_payload_with_final_quotes(
+        payload,
+        codes=["510300", "515880"],
+        target="2026-08-10",
+        quotes=quotes,
+    )
+    assert completed["complete_as_of"] == "2026-08-10"
+    assert completed["quality"] == FINAL_QUOTE_QUALITY
+    assert completed["stale_codes"] == []
+    assert completed["by_code"]["510300"]["bars"]["2026-08-10"]["open"] == 4.755
+    assert completed["final_quote_fallback"]["code_count"] == 2
