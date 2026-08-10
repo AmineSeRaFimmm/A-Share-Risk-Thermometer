@@ -41,7 +41,7 @@ def test_workflow_starts_at_1530_and_retries() -> None:
     workflow = (ROOT / ".github/workflows/update-etf-eod-marks.yml").read_text(encoding="utf-8")
     assert 'cron: "30,45 7 * * 1-5"' in workflow
     assert "a later tick will retry" in workflow
-    assert "data/site/etf_daily_marks.json docs/data/etf_daily_marks.json" in workflow
+    assert "data/site/etf_daily_marks.json docs/data/etf_daily_marks.json docs/data/build_info.json" in workflow
 
 
 def test_recovery_fetch_is_serial_to_avoid_embedded_v8_crashes() -> None:

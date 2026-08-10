@@ -14,8 +14,9 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.core.etf_marks import build_etf_marks_payload, write_etf_marks_site
+from src.storage.json_store import write_json
 from src.storage.paths import DOCS, SITE
-from src.utils.dates import today_cn
+from src.utils.dates import now_cn, today_cn
 
 
 INCOMPLETE_EXIT = 2
@@ -69,12 +70,35 @@ def _read_json(path: Path) -> dict[str, Any]:
         return {}
 
 
+def _publish_build_revision(target: str) -> None:
+    path = DOCS / "data" / "build_info.json"
+    current = _read_json(path)
+    if str(current.get("etf_marks_as_of") or "") >= target:
+        return
+    write_json(
+        {
+            **current,
+            "build_time": now_cn().isoformat(timespec="seconds"),
+            "etf_marks_as_of": target,
+            "revision_reason": "ETF_EOD_MARKS",
+        },
+        path,
+    )
+
+
 def refresh_etf_eod_marks(*, trade_date: str | None = None) -> dict[str, Any] | None:
     calendar = _read_json(SITE / "trade_calendar.json")
     target = resolve_target_trade_date(calendar, explicit=trade_date)
     if target is None:
         print("ETF EOD refresh skipped: today is not an A-share trading day.")
         return None
+
+    published = _read_json(SITE / "etf_daily_marks.json")
+    published_through = str(published.get("complete_as_of") or "")[:10]
+    if payload_is_complete(published, published_through) and published_through >= target:
+        _publish_build_revision(published_through)
+        print(f"ETF EOD marks already complete through {published_through}.")
+        return published
 
     playbook = _read_json(SITE / "stage_playbook.json")
     payload = build_etf_marks_payload(
@@ -99,6 +123,7 @@ def refresh_etf_eod_marks(*, trade_date: str | None = None) -> dict[str, Any] | 
     docs_data = DOCS / "data"
     docs_data.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SITE / "etf_daily_marks.json", docs_data / "etf_daily_marks.json")
+    _publish_build_revision(target)
     print(
         "ETF EOD refresh complete: "
         f"target={target} codes={payload.get('code_count')} "
