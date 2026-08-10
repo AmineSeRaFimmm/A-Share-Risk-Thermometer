@@ -359,6 +359,10 @@
         </div>
         <p class="flex-modal-sub" id="flexModalSub"></p>
         <div class="flex-modal-body">
+          <div class="flex-modal-reduce-mode" id="flexModalReduceMode" hidden role="group" aria-label="减仓计算方式">
+            <button type="button" data-flex-reduce-mode="amount">按金额</button>
+            <button type="button" data-flex-reduce-mode="pct">按比例</button>
+          </div>
           <label class="flex-modal-field" id="flexModalAmountField">
             <span id="flexModalAmountLabel">金额（元）</span>
             <input type="number" id="flexModalAmount" min="0" step="100" inputmode="decimal" />

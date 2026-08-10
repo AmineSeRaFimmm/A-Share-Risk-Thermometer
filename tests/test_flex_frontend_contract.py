@@ -74,6 +74,31 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("reset.disabled = sim", self.web)
         self.assertNotIn("version: 3,\n      book: 'sim'", self.web)
 
+    def test_real_orders_are_durable_and_exit_actions_take_priority(self) -> None:
+        self.assertIn("pending_orders: {}", self.web)
+        self.assertIn("function flexSyncRealPendingOrders", self.web)
+        self.assertIn("delete orders[`rebalance:${positionKey}`]", self.web)
+        self.assertIn("pendingCloseKeys.has(order.position_key)", self.web)
+        self.assertIn("function flexClearPendingOrder", self.web)
+
+    def test_trade_modal_uses_display_mark_and_single_reduction_mode(self) -> None:
+        index = (ROOT / "web/index.html").read_text(encoding="utf-8")
+        self.assertIn("function flexExecutionReferencePrice", self.web)
+        self.assertIn("const referencePrice = flexExecutionReferencePrice(ledger, key);", self.web)
+        self.assertIn("id=\"flexModalReduceMode\"", index)
+        self.assertIn("FlexExecutionCore.reductionInstruction", self.web)
+
+    def test_stale_eod_decisions_and_non_aggressive_payloads_are_gated(self) -> None:
+        self.assertIn("function flexEodDecisionGate", self.web)
+        self.assertIn("if (!flexEodDecisionGate(marked, flex).ok)", self.web)
+        self.assertIn("const mode = 'aggressive';", self.web)
+        self.assertIn("flex = applyFlexModeOverlay(flex, 'aggressive');", self.web)
+
+    def test_sim_avoid_is_advisory_and_badge_counts_clickable_rows(self) -> None:
+        self.assertIn("策略回避提示·等待状态机确认", self.web)
+        self.assertNotIn("回避·模拟自动归零", self.web)
+        self.assertIn("row.querySelector('[data-flex-act]')", self.web)
+
     def test_holding_audit_fields_and_time_context_are_visible(self) -> None:
         index = (ROOT / "web/index.html").read_text(encoding="utf-8")
         self.assertIn("份额</span><span>成本/均价</span><span>盯市/时点", index)

@@ -22,6 +22,14 @@ def finite(v):
         return v
 
 
+def boolean(v) -> bool:
+    if v is None or pd.isna(v):
+        return False
+    if isinstance(v, str):
+        return v.strip().lower() in {"1", "true", "yes"}
+    return bool(v)
+
+
 def _latest_realtime(realtime: pd.DataFrame | None):
     if realtime is None or realtime.empty:
         return None
@@ -374,6 +382,9 @@ def history_payload(risk: pd.DataFrame, max_points: int = 900) -> list[dict]:
         "regime": r.regime,
         "avix_clean": finite(getattr(r, "avix_clean", None)),
         "qvix": finite(getattr(r, "qvix_close", None)),
+        "qvix_source": getattr(r, "qvix_source", None),
+        "qvix_quality": getattr(r, "qvix_quality", None),
+        "qvix_is_proxy": boolean(getattr(r, "is_proxy", False)),
         "qvix_replica": finite(getattr(r, "qvix_replica", None)),
         "qvix_replica_quality": getattr(r, "qvix_replica_quality", None),
         "hs300_close": finite(getattr(r, "sh000300_close", None)),

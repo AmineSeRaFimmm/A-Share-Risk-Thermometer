@@ -73,6 +73,7 @@ const dashboardState = {
   timeCharts: [],
   chartInstances: { history: null, avix: null, hs300: null },
   history: [],
+  tradeCalendar: {},
   nowcastHistory: {},
   intradayTemperature: {},
   strategy: {},
@@ -213,9 +214,15 @@ function getShanghaiDateParts(date = new Date()) {
 
 function isAshareTradingDayCandidate(parts) {
   if (!parts || !parts.ymd) return false;
-  // Prefer known sessions from loaded history / latest (only for "was a session").
-  // For *today*, history often has not caught up yet — so weekday proxy is primary.
   try {
+    const calendar = dashboardState.tradeCalendar || {};
+    const from = String(calendar.coverage_from || '').slice(0, 10);
+    const through = String(calendar.coverage_through || '').slice(0, 10);
+    if (calendar.authoritative && from && through && parts.ymd >= from && parts.ymd <= through) {
+      const dates = calendar._dateSet || new Set(calendar.dates || []);
+      calendar._dateSet = dates;
+      return dates.has(parts.ymd);
+    }
     const wd = parts.weekday || '';
     if (wd === 'Sat' || wd === 'Sun') return false;
     return true;
@@ -487,9 +494,13 @@ function renderRealtimeIndexFactors(latest) {
   const source = String(nowcast.realtime_index_source || '');
   const quoteTime = nowcast.realtime_index_quote_time;
   const fetchTime = nowcast.realtime_index_fetch_time;
-  const label = source.includes('EASTMONEY_INDEX_QUOTE_RT') || source.includes('TENCENT_INDEX_QUOTE_RT')
-    ? `沪深300/上证实时 · 因子已盘中重算 · ${source.includes('TENCENT') ? '腾讯备用' : '东财'}`
-    : '上一正式收盘 · 因子未盘中重算';
+  const realtimeSource = source.includes('EASTMONEY_INDEX_QUOTE_RT') || source.includes('TENCENT_INDEX_QUOTE_RT');
+  const provider = source.includes('TENCENT') ? '腾讯备用' : '东财';
+  const label = realtimeSource && quoteTime
+    ? `沪深300/上证实时 · 因子已盘中重算 · ${provider}`
+    : realtimeSource
+      ? `指数因子已盘中重算 · 行情时点未核验 · ${provider}`
+      : '上一正式收盘 · 因子未盘中重算';
   setText('realtimeIndexFactors', label);
   const el = document.getElementById('realtimeIndexFactors');
   if (el) {
@@ -882,15 +893,16 @@ async function loadCriticalDashboardData({ fresh = false } = {}) {
   if (!dashboardState.cacheBust) {
     await resolveCacheBust();
   }
-  const [latest, history, nowcastHistory, intradayTemperature, components, audit] = await Promise.all([
+  const [latest, history, tradeCalendar, nowcastHistory, intradayTemperature, components, audit] = await Promise.all([
     loadJSON('./data/latest.json', { fresh }),
     loadJSON('./data/history.json', { fresh }),
+    loadJSON('./data/trade_calendar.json', { fresh }).catch(() => ({ status: 'missing', dates: [] })),
     loadJSON('./data/nowcast_history.json', { fresh }).catch(() => ({ status: 'missing', rows: [], gaps: [] })),
     loadJSON('./data/intraday_temperature.json', { fresh }).catch(() => ({ status: 'no_samples', rows: [] })),
     loadJSON('./data/components.json', { fresh }),
     loadJSON('./data/audit.json', { fresh }),
   ]);
-  return { latest, history, nowcastHistory, intradayTemperature, components, audit };
+  return { latest, history, tradeCalendar, nowcastHistory, intradayTemperature, components, audit };
 }
 
 async function loadHeavyDashboardData({ fresh = false } = {}) {
@@ -997,10 +1009,11 @@ function renderIntradayTemperaturePanel(payload) {
   dashboardState.intradayTemperatureChart = renderIntradayTemperatureChart(payload || { rows: [] });
 }
 
-function renderCriticalDashboard({ latest, history, nowcastHistory, intradayTemperature, components, audit }) {
+function renderCriticalDashboard({ latest, history, tradeCalendar, nowcastHistory, intradayTemperature, components, audit }) {
   document.body.classList.remove('error');
   hideLoadError();
   dashboardState.latest = latest || null;
+  dashboardState.tradeCalendar = tradeCalendar || { status: 'missing', dates: [] };
   dashboardState.intradayTemperature = intradayTemperature || {};
   renderLatest(latest);
   renderAudit(audit);
@@ -1301,6 +1314,7 @@ function defaultFlexLedger(book = dashboardState.flexBook) {
     strategy_as_of: null,
     risk_exits: {},
     pending_rebalance: null,
+    pending_orders: {},
   };
 }
 
@@ -1347,6 +1361,9 @@ function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
     pending_rebalance: raw?.pending_rebalance && typeof raw.pending_rebalance === 'object'
       ? JSON.parse(JSON.stringify(raw.pending_rebalance))
       : null,
+    pending_orders: raw?.pending_orders && typeof raw.pending_orders === 'object'
+      ? JSON.parse(JSON.stringify(raw.pending_orders))
+      : {},
   };
   if (ledger.cash == null || !Number.isFinite(Number(ledger.cash))) {
     // Best-effort migration for pre-v2 books.
@@ -1805,6 +1822,19 @@ function flexApplyRealtimeMarksToLedger(ledger) {
 
 function flexApplyDisplayMarksToLedger(ledger) {
   return flexApplyRealtimeMarksToLedger(flexApplyEodMarksToLedger(ledger));
+}
+
+function flexExecutionReferencePrice(ledger, key) {
+  const marked = flexApplyDisplayMarksToLedger(ledger);
+  const displayPos = marked.positions?.[key];
+  const rawPos = ledger?.positions?.[key];
+  const candidates = [
+    displayPos?.last_price,
+    displayPos?.eod_last_price,
+    rawPos?.last_price,
+    rawPos?.avg_price,
+  ];
+  return FlexExecutionCore.firstPositivePrice(candidates);
 }
 
 /** Stable sim key: prefer sleeve+name so code lookup jitter never rewrites journal. */
@@ -2390,6 +2420,38 @@ function flexSatelliteRiskStatus(pos, flex) {
   };
 }
 
+function flexEodDecisionGate(marked, flex) {
+  const markDate = String(marked?.mark_as_of || '').slice(0, 10);
+  const requiredDates = [
+    flex?.as_of,
+    flex?.market_state?.trade_date,
+    dashboardState.latest?.official_close?.trade_date,
+  ]
+    .map(value => String(value || '').slice(0, 10))
+    .filter(value => /^\d{4}-\d{2}-\d{2}$/.test(value));
+  const requiredDate = requiredDates.sort().at(-1) || null;
+  const missing = Number(marked?._eod_mark_stats?.missing) || 0;
+  const staleCodes = marked?.mark_stale_codes || [];
+  const gate = FlexExecutionCore.eodDecisionGate({
+    markDate,
+    requiredDate,
+    missing,
+    staleCount: staleCodes.length,
+  });
+  if (gate.code === 'MISSING') {
+    return { ok: false, reason: '共同EOD缺价', markDate, requiredDate };
+  }
+  if (gate.code === 'STALE') {
+    return {
+      ok: false,
+      reason: `共同EOD仅到 ${markDate}${requiredDate ? `，要求 ${requiredDate}` : ''}`,
+      markDate,
+      requiredDate,
+    };
+  }
+  return { ok: gate.ok, reason: '', markDate, requiredDate };
+}
+
 function flexSatelliteBasketRiskStatus(ledger, flex) {
   const satellites = flexOpenPositions(ledger).filter(
     pos => String(pos?.sleeve || '').toLowerCase() === 'satellite'
@@ -2405,6 +2467,17 @@ function flexSatelliteBasketRiskStatus(ledger, flex) {
     flexMarkMissing(pos) || !(Number(pos.eod_last_price) > 0)
   );
   const rule = flexSatelliteRiskRule(flex);
+  const decisionGate = flexEodDecisionGate(ledger, flex);
+  if (!decisionGate.ok) {
+    return {
+      triggered: false,
+      blocked: true,
+      label: `卫星风控暂停 · ${decisionGate.reason}`,
+      rule,
+      markDate: decisionGate.markDate,
+      requiredDate: decisionGate.requiredDate,
+    };
+  }
   const markDay = satellites.map(pos => pos.eod_mark_bar_date || pos.mark_bar_date || '').filter(Boolean).sort().at(-1)
     || flex?.as_of || flexSessionTradeDate();
   const daysHeld = Math.min(...satellites.map(pos => flexPositionDaysHeld(pos, markDay)));
@@ -2461,15 +2534,15 @@ function flexSuggestedAmount(item, capital, ledger = null, localPosition = null)
 }
 
 function deskLocalRebalanceActions(flex, ledger = loadFlexLedger()) {
-  if (isFlexSimBook()) return { adds: [], reduces: [] };
+  if (isFlexSimBook()) return { adds: [], reduces: [], fresh: false, signalAsOf: null };
   // Rebalance instructions are decisions, not display marks. Use one common
   // official EOD session so an intraday quote cannot continuously move orders.
   const marked = flexApplyEodMarksToLedger(ledger);
-  if (!marked.mark_as_of || Number(marked._eod_mark_stats?.missing) > 0) {
-    return { adds: [], reduces: [] };
+  if (!flexEodDecisionGate(marked, flex).ok) {
+    return { adds: [], reduces: [], fresh: false, signalAsOf: marked.mark_as_of || null };
   }
   const equity = flexEquity(marked);
-  if (!(equity > 0)) return { adds: [], reduces: [] };
+  if (!(equity > 0)) return { adds: [], reduces: [], fresh: false, signalAsOf: marked.mark_as_of || null };
   const allocation = flex?.allocation || {};
   const satWeights = flex?.position_state?.satellite?.weights || flex?.satellite?.weights || {};
   const satWeightSum = Object.values(satWeights).reduce((sum, value) => sum + (Number(value) || 0), 0) || 1;
@@ -2512,7 +2585,7 @@ function deskLocalRebalanceActions(flex, ledger = loadFlexLedger()) {
       reduces.push({ ...base, action: 'REBALANCE_REDUCE', action_cn: '目标减仓', side: 'SELL' });
     }
   }
-  return { adds, reduces };
+  return { adds, reduces, fresh: true, signalAsOf: marked.mark_as_of };
 }
 
 function setFlexTabBadge(id, count) {
@@ -2599,6 +2672,7 @@ function flexGenerateWeekdayRange(fromStr, toStr) {
 function flexEnsureTradeCalendar() {
   const set = new Set();
   const observed = new Set();
+  const official = dashboardState.tradeCalendar || {};
   const add = (v) => {
     const s = String(v || '').slice(0, 10);
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) set.add(s);
@@ -2614,6 +2688,7 @@ function flexEnsureTradeCalendar() {
   const nh = dashboardState.nowcastHistory;
   const nhRows = Array.isArray(nh) ? nh : (nh?.rows || []);
   for (const row of nhRows) addObserved(row.date || row.trade_date);
+  for (const day of official.dates || []) add(day);
   addObserved(dashboardState.lastTradeDate);
   const flex = dashboardState.flexActive || dashboardState.flexPlaybook?.flex_panel;
   addObserved(flex?.as_of);
@@ -2628,8 +2703,16 @@ function flexEnsureTradeCalendar() {
   add(flex?.position_state?.satellite?.entry_date);
 
   let list = Array.from(set).sort();
-  // Fallback if history not loaded yet: Mon–Fri skeleton (A-share proxy; no holiday table).
-  if (observed.size < 30) {
+  const officialThrough = String(official.coverage_through || '').slice(0, 10);
+  const hasOfficialCoverage = Boolean(official.authoritative && officialThrough && (official.dates || []).length);
+  if (hasOfficialCoverage) {
+    const horizon = flexAddCalendarDays(flexDateCn(0), 200);
+    if (horizon > officialThrough) {
+      const fallback = flexGenerateWeekdayRange(flexAddCalendarDays(officialThrough, 1), horizon);
+      list = Array.from(new Set([...list, ...fallback])).sort();
+    }
+  // Fallback if history/calendar is unavailable: Mon-Fri skeleton only beyond known evidence.
+  } else if (observed.size < 30) {
     const today = flexDateCn(0);
     const skeleton = flexGenerateWeekdayRange('2020-01-01', flexAddCalendarDays(today, 200));
     list = Array.from(new Set([...skeleton, ...list])).sort();
@@ -3131,6 +3214,23 @@ function closeFlexTradeModal() {
   }
 }
 
+function setFlexReduceMode(mode, { refresh = true } = {}) {
+  const state = dashboardState.flexModal;
+  if (!state || state.mode !== 'reduce') return;
+  const next = mode === 'amount' ? 'amount' : 'pct';
+  state.reduceMode = next;
+  const amountField = document.getElementById('flexModalAmountField');
+  const pctField = document.getElementById('flexModalPctField');
+  if (amountField) amountField.hidden = next !== 'amount';
+  if (pctField) pctField.hidden = next !== 'pct';
+  document.querySelectorAll('#flexModalReduceMode [data-flex-reduce-mode]').forEach(btn => {
+    const active = btn.dataset.flexReduceMode === next;
+    btn.classList.toggle('active', active);
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  if (refresh) updateFlexModalPreview();
+}
+
 function updateFlexModalPreview() {
   const state = dashboardState.flexModal;
   if (!state) return;
@@ -3171,11 +3271,12 @@ function updateFlexModalPreview() {
     }
     let sellQty = 0;
     let sellAmt = 0;
-    if (amount > 0 && price > 0) {
-      sellQty = flexSellQuantity(pos.qty, price, { amount });
+    const reduction = FlexExecutionCore.reductionInstruction(state.reduceMode, amount, pct);
+    if (reduction.amount && price > 0) {
+      sellQty = flexSellQuantity(pos.qty, price, reduction);
       sellAmt = sellQty * price;
-    } else if (pct > 0 && price > 0) {
-      sellQty = flexSellQuantity(pos.qty, price, { pct });
+    } else if (reduction.pct && price > 0) {
+      sellQty = flexSellQuantity(pos.qty, price, reduction);
       sellAmt = sellQty * price;
     }
     if (sellQty > 0) {
@@ -3225,6 +3326,7 @@ function openFlexTradeModal(spec) {
   const amountField = document.getElementById('flexModalAmountField');
   const priceField = document.getElementById('flexModalPriceField');
   const pctField = document.getElementById('flexModalPctField');
+  const reduceMode = document.getElementById('flexModalReduceMode');
   const amountEl = document.getElementById('flexModalAmount');
   const priceEl = document.getElementById('flexModalPrice');
   const pctEl = document.getElementById('flexModalPct');
@@ -3240,23 +3342,26 @@ function openFlexTradeModal(spec) {
     if (amountField) amountField.hidden = false;
     if (priceField) priceField.hidden = false;
     if (pctField) pctField.hidden = true;
+    if (reduceMode) reduceMode.hidden = true;
     if (chips) chips.hidden = false;
     if (amountLabel) amountLabel.textContent = '预算上限（元）';
     if (amountEl) amountEl.value = spec.defaultAmount != null ? String(spec.defaultAmount) : '';
     if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
   } else if (spec.mode === 'reduce') {
-    if (amountField) amountField.hidden = false;
     if (priceField) priceField.hidden = false;
-    if (pctField) pctField.hidden = false;
+    if (reduceMode) reduceMode.hidden = false;
     if (chips) chips.hidden = true;
     if (amountLabel) amountLabel.textContent = '金额（元）';
     if (amountEl) amountEl.value = spec.defaultAmount != null ? String(spec.defaultAmount) : '';
     if (pctEl) pctEl.value = '50';
     if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
+    dashboardState.flexModal.reduceMode = Number(spec.defaultAmount) > 0 ? 'amount' : 'pct';
+    setFlexReduceMode(dashboardState.flexModal.reduceMode, { refresh: false });
   } else if (spec.mode === 'close') {
     if (amountField) amountField.hidden = true;
     if (priceField) priceField.hidden = false;
     if (pctField) pctField.hidden = true;
+    if (reduceMode) reduceMode.hidden = true;
     if (chips) chips.hidden = true;
     if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
   }
@@ -3275,6 +3380,7 @@ function confirmFlexTradeModal() {
   const pct = Number(document.getElementById('flexModalPct')?.value);
   try {
     let ledger = loadFlexLedger();
+    const pendingOrder = state.pendingOrderId ? ledger.pending_orders?.[state.pendingOrderId] : null;
     if (state.mode === 'buy' || state.mode === 'add') {
       ledger = flexApplyBuy(ledger, {
         key: state.key,
@@ -3294,13 +3400,19 @@ function confirmFlexTradeModal() {
         note: state.execution_mode === 'T_TAIL_1450' ? 'CORE严格条件·T日尾盘执行' : '',
       });
     } else if (state.mode === 'reduce') {
+      const reduction = FlexExecutionCore.reductionInstruction(state.reduceMode, amount, pct);
       ledger = flexApplyReduce(ledger, state.key, {
-        amount: amount > 0 ? amount : null,
         price,
-        pct: pct > 0 ? pct : null,
+        ...reduction,
       });
     } else if (state.mode === 'close') {
       ledger = flexApplyClose(ledger, state.key, price);
+    }
+    if (
+      state.pendingOrderId
+      && (pendingOrder?.kind === 'rebalance' || !ledger.positions?.[state.key])
+    ) {
+      flexClearPendingOrder(state.pendingOrderId);
     }
     closeFlexTradeModal();
     const labels = { buy: '买入已记账', add: '加仓已记账', reduce: '减仓已记账', close: '平仓已记账' };
@@ -3311,7 +3423,7 @@ function confirmFlexTradeModal() {
       renderFlexExecUi();
     }
     // After fill, take user to holdings to see the result.
-    if (state.mode === 'buy' || state.mode === 'add' || state.mode === 'close') {
+    if (state.mode === 'buy' || state.mode === 'add' || state.mode === 'reduce' || state.mode === 'close') {
       flexSwitchTab('book');
     }
   } catch (e) {
@@ -3400,7 +3512,7 @@ function flexActionBadge(item, flex, options = {}) {
       return { text: '策略平仓', cls: 'sell' };
     }
     const code = item?.close_code || '';
-    if (code === 'MAX_HOLD' || code === 'CORE_MAX_HOLD') return { text: '到期平仓', cls: 'sell' };
+    if (code === 'MAX_HOLD' || code === 'CORE_MAX_HOLD' || code === 'LOCAL_MAX_HOLD') return { text: '到期平仓', cls: 'sell' };
     if (code === 'EVENT_FLIP') return { text: '事件平仓', cls: 'sell' };
     if (code === 'DEFAULT_NO_STAGE') return { text: '默认平仓', cls: 'sell' };
     if (code === 'LOCAL_STOP_LOSS') return { text: '止损平仓', cls: 'sell' };
@@ -3799,6 +3911,122 @@ function deskLocalRiskCloses(flex, ledger = loadFlexLedger()) {
   return rows;
 }
 
+function flexSignalLocalKey(item, ledger) {
+  return flexFindLocalPosition(item, ledger)?.key || item?._key || flexPositionKey(item);
+}
+
+function flexPendingOrderItem(order) {
+  return {
+    ...(order.item || {}),
+    _key: order.position_key,
+    _pendingOrderId: order.id,
+    _pendingOrder: true,
+    signal_as_of: order.signal_as_of,
+    execution_date: order.execution_date,
+  };
+}
+
+function flexSyncRealPendingOrders(
+  ledger,
+  closeCandidates,
+  rebalanceCandidates,
+  blockedRebalanceKeys = new Set(),
+  rebalanceSnapshot = null,
+) {
+  if (isFlexSimBook()) {
+    const closeKeys = new Set(closeCandidates.map(item => flexSignalLocalKey(item, ledger)));
+    return {
+      ledger,
+      closes: closeCandidates,
+      rebalances: rebalanceCandidates.filter(item => !closeKeys.has(flexSignalLocalKey(item, ledger))),
+    };
+  }
+
+  const next = normalizeFlexLedger(ledger, 'real');
+  const before = JSON.stringify(next.pending_orders || {});
+  const orders = { ...(next.pending_orders || {}) };
+  const openKeys = new Set(flexOpenPositions(next).map(pos => pos.key || flexPositionKey(pos)));
+
+  for (const [id, order] of Object.entries(orders)) {
+    if (!order || !openKeys.has(order.position_key)) delete orders[id];
+  }
+
+  for (const item of closeCandidates) {
+    const positionKey = flexSignalLocalKey(item, next);
+    if (!openKeys.has(positionKey)) continue;
+    const id = `close:${positionKey}`;
+    if (orders[id]) continue;
+    const signalAsOf = String(item.signal_as_of || next.mark_as_of || flexSessionTradeDate()).slice(0, 10);
+    orders[id] = {
+      id,
+      kind: 'close',
+      position_key: positionKey,
+      signal_as_of: signalAsOf,
+      execution_date: flexAddTradingDays(signalAsOf, 1),
+      created_at: new Date().toISOString(),
+      status: 'PENDING',
+      item: { ...item, _key: positionKey },
+    };
+    delete orders[`rebalance:${positionKey}`];
+  }
+
+  const pendingCloseKeys = new Set(Object.values(orders)
+    .filter(order => order?.kind === 'close')
+    .map(order => order.position_key));
+  for (const key of blockedRebalanceKeys) pendingCloseKeys.add(key);
+  if (rebalanceSnapshot?.fresh && rebalanceSnapshot.signalAsOf) {
+    const currentKeys = new Set(rebalanceCandidates.map(item => flexSignalLocalKey(item, next)));
+    for (const [id, order] of Object.entries(orders)) {
+      if (
+        order?.kind === 'rebalance'
+        && !currentKeys.has(order.position_key)
+        && String(order.signal_as_of || '') <= String(rebalanceSnapshot.signalAsOf)
+      ) {
+        delete orders[id];
+      }
+    }
+  }
+  for (const item of rebalanceCandidates) {
+    const positionKey = flexSignalLocalKey(item, next);
+    if (!openKeys.has(positionKey) || pendingCloseKeys.has(positionKey)) continue;
+    const id = `rebalance:${positionKey}`;
+    const signalAsOf = String(item.signal_as_of || next.mark_as_of || flexSessionTradeDate()).slice(0, 10);
+    const existing = orders[id];
+    if (existing && String(existing.signal_as_of || '') > signalAsOf) continue;
+    orders[id] = {
+      id,
+      kind: 'rebalance',
+      position_key: positionKey,
+      signal_as_of: signalAsOf,
+      execution_date: flexAddTradingDays(signalAsOf, 1),
+      created_at: existing?.created_at || new Date().toISOString(),
+      status: 'PENDING',
+      item: { ...item, _key: positionKey },
+    };
+  }
+
+  for (const [id, order] of Object.entries(orders)) {
+    if (order?.kind === 'rebalance' && pendingCloseKeys.has(order.position_key)) delete orders[id];
+  }
+  next.pending_orders = orders;
+  const changed = before !== JSON.stringify(orders);
+  const saved = changed ? saveFlexLedger(next) : next;
+  const values = Object.values(saved.pending_orders || {});
+  return {
+    ledger: saved,
+    closes: values.filter(order => order.kind === 'close').map(flexPendingOrderItem),
+    rebalances: values.filter(order => order.kind === 'rebalance').map(flexPendingOrderItem),
+  };
+}
+
+function flexClearPendingOrder(orderId) {
+  if (!orderId || isFlexSimBook()) return;
+  const ledger = loadFlexLedger();
+  if (!ledger.pending_orders?.[orderId]) return;
+  delete ledger.pending_orders[orderId];
+  saveFlexLedger(ledger);
+}
+
 /** Split engine lists into desk buckets — personal book only. */
 function splitFlexSignalBuckets(flex) {
   const f = flex || {};
@@ -3824,15 +4052,16 @@ function splitFlexSignalBuckets(flex) {
     pushUnique('open', item);
   }
 
+  const closeCandidates = [];
+  const paperCloseRows = [];
   // Local satellite risk exits have the clearest user-facing reason; show before paper exits.
-  for (const item of deskLocalRiskCloses(f, ledger)) pushUnique('close', item);
+  closeCandidates.push(...deskLocalRiskCloses(f, ledger));
 
   // Target-weight transitions must be executable as a pair. In aggressive mode,
   // single-sleeve 100% → dual-sleeve 60/40 requires reducing the old sleeve
   // before the new sleeve can be funded.
   const rebalance = deskLocalRebalanceActions(f, ledger);
-  for (const item of rebalance.reduces) pushUnique('rebalance', item);
-  for (const item of rebalance.adds) pushUnique('rebalance', item);
+  const rebalanceCandidates = [...rebalance.reduces, ...rebalance.adds];
 
   // CLOSE: ALWAYS surface engine close_list when as_of is today (guaranteed tip path).
   // - You hold it → actionable 平
@@ -3844,7 +4073,7 @@ function splitFlexSignalBuckets(flex) {
       const action = String(item.action || item.side || '').toUpperCase();
       if (!closeKeys.has(action)) continue;
       const held = flexIsLocallyHeld(item, ledger);
-      pushUnique('close', {
+      const row = {
         ...item,
         signal_as_of: item.signal_as_of || asOf,
         _strategyPaper: !held,
@@ -3853,25 +4082,45 @@ function splitFlexSignalBuckets(flex) {
           ? (item.action_cn || '平仓')
           : `策略纸面·${item.action_cn || item.close_code || '平仓'}`,
         why: item.why || item.close_code || '策略退出',
-      });
+      };
+      if (held) closeCandidates.push(row);
+      else paperCloseRows.push(row);
     }
   }
   // Personal hold-days expired (from the day user clicked 买) — always.
-  for (const item of deskLocalDueCloses(ledger)) pushUnique('close', item);
+  closeCandidates.push(...deskLocalDueCloses(ledger));
 
-  // AVOID: only tip names the user actually holds (real: manual cut; sim: auto-zero on rebuild).
+  const avoidRows = [];
   for (const item of f.avoid_list || []) {
     const action = String(item.action || item.side || '').toUpperCase();
     if (!avoidKeys.has(action) && action !== 'FLAT') continue;
     if (!flexIsLocallyHeld(item, ledger)) continue;
-    pushUnique('avoid', {
+    avoidRows.push({
       ...item,
-      _simAuto: isFlexSimBook(),
+      _simAuto: false,
       action_cn: isFlexSimBook()
-        ? '回避·模拟自动归零'
+        ? '策略回避提示·等待状态机确认'
         : (item.action_cn || '回避/条件减配'),
     });
   }
+  const avoidLocalKeys = new Set(avoidRows.map(item => flexSignalLocalKey(item, ledger)));
+  const compatibleRebalances = isFlexSimBook()
+    ? rebalanceCandidates
+    : rebalanceCandidates.filter(item => !avoidLocalKeys.has(flexSignalLocalKey(item, ledger)));
+  const synced = flexSyncRealPendingOrders(
+    ledger,
+    closeCandidates,
+    compatibleRebalances,
+    avoidLocalKeys,
+    { fresh: rebalance.fresh, signalAsOf: rebalance.signalAsOf },
+  );
+  const syncedCloseKeys = new Set(synced.closes.map(item => flexSignalLocalKey(item, synced.ledger)));
+  const visibleAvoidRows = avoidRows.filter(item => !syncedCloseKeys.has(flexSignalLocalKey(item, synced.ledger)));
+  for (const item of synced.rebalances) pushUnique('rebalance', item);
+  for (const item of [...synced.closes, ...paperCloseRows]) pushUnique('close', item);
+
+  // AVOID: real book can act; sim book only explains the advisory until position_state exits.
+  for (const item of visibleAvoidRows) pushUnique('avoid', item);
 
   buckets.hold = []; // never list paper HOLD; real holds live under 持仓 tab
 
@@ -3914,7 +4163,14 @@ function renderFlexSignalRows(items, flex, options = {}) {
     // 清仓列：本机持仓用个人 exit 计划；策略平仓提示用「下一交易日开盘」
     const localPos = localMatch?.position || null;
     let left = '—';
-    if (held) left = flexPositionExitInfo(localPos).label;
+    if (item._pendingOrder && item.execution_date) {
+      const executionDate = String(item.execution_date).slice(0, 10);
+      const sessionDate = flexSessionTradeDate();
+      const shanghai = getShanghaiDateParts();
+      if (sessionDate > executionDate) left = `逾期待执行 · ${executionDate.slice(5)}`;
+      else if (sessionDate === executionDate && shanghai.minutes >= 9 * 60 + 30) left = '今日开盘指令 · 待记账';
+      else left = `待${executionDate.slice(5)}开盘`;
+    } else if (held) left = flexPositionExitInfo(localPos).label;
     else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
       left = item.entry && item.entry !== '—' ? String(item.entry) : '下一交易日开盘';
     } else if (String(item.sleeve || '').toLowerCase() === 'core' && (forceKind === 'open' || FLEX_BUY_ACTIONS.has(action))) {
@@ -3925,6 +4181,9 @@ function renderFlexSignalRows(items, flex, options = {}) {
     const isAvoid = forceKind === 'avoid' || action === 'AVOID' || action === 'UNDERWEIGHT_RELATIVE' || action === 'FLAT';
     const isRebalanceAdd = action === 'REBALANCE_ADD';
     const isRebalanceReduce = action === 'REBALANCE_REDUCE';
+    const pendingOrderAttr = item._pendingOrderId
+      ? ` data-pending-order-id="${escapeHtml(item._pendingOrderId)}"`
+      : '';
     const executionSignalDay = String(item.signal_as_of || signalAsOf || flex?.as_of || '').slice(0, 10);
     const executionLag = flexBookLagDays(executionSignalDay);
     const strictExecutionReady = executionLag != null && executionLag >= 1;
@@ -3939,10 +4198,10 @@ function renderFlexSignalRows(items, flex, options = {}) {
     let acts = '';
     if (interactive) {
       if (isFlexSimBook()) {
-        // Sim book is fully automatic: open / size / avoid-cut / close via rebuildSimLedgerFromStrategy.
+        // Sim book follows authoritative position_state; advisory AVOID stays a visible warning.
         if (isAvoid) {
           acts = held
-            ? '<span class="flex-chip ghost" title="模拟仓：回避名单自动归零">自动回避</span>'
+            ? '<span class="flex-chip ghost" title="模拟仓等待策略状态机确认退出，不提前改写纸面持仓">策略提示</span>'
             : '<span class="flex-row-muted">—</span>';
         } else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
           acts = held
@@ -3961,18 +4220,18 @@ function renderFlexSignalRows(items, flex, options = {}) {
           : '<span class="flex-row-muted">—</span>';
       } else if (isRebalanceReduce) {
         acts = held && strictExecutionReady
-          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}" data-suggested="${suggested || ''}">按目标减</button>`
+          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}" data-suggested="${suggested || ''}"${pendingOrderAttr}>按目标减</button>`
           : '<span class="flex-row-muted" title="T收盘确认，下一交易日开盘执行">待下个开盘</span>';
       } else if (forceKind === 'close' || FLEX_CLOSE_ACTIONS.has(action)) {
         acts = held && strictExecutionReady
-          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}">减</button>
-             <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}">平</button>`
+          ? `<button type="button" class="flex-chip" data-flex-act="reduce" data-pos-key="${escapeHtml(key)}"${pendingOrderAttr}>减</button>
+             <button type="button" class="flex-chip danger" data-flex-act="close" data-pos-key="${escapeHtml(key)}"${pendingOrderAttr}>平</button>`
           : held
             ? '<span class="flex-row-muted" title="T收盘确认，下一交易日开盘执行">待下个开盘</span>'
             : '<span class="flex-row-muted" title="未点买，仅策略提示">仅提示</span>';
       } else if (isRebalanceAdd) {
         acts = held && strictExecutionReady
-          ? `<button type="button" class="flex-chip primary" data-flex-act="add" data-pos-key="${escapeHtml(key)}" data-suggested="${suggested || ''}">按目标加</button>`
+          ? `<button type="button" class="flex-chip primary" data-flex-act="add" data-pos-key="${escapeHtml(key)}" data-suggested="${suggested || ''}"${pendingOrderAttr}>按目标加</button>`
           : '<span class="flex-row-muted" title="T收盘确认，下一交易日开盘执行">待T+1开盘</span>';
       } else if (held) {
         acts = `<button type="button" class="flex-chip" data-flex-act="add" data-pos-key="${escapeHtml(key)}">加</button>
@@ -4011,7 +4270,7 @@ function renderFlexSignalRows(items, flex, options = {}) {
 }
 
 function renderFlexSignalList(flex, options = {}) {
-  const buckets = splitFlexSignalBuckets(flex || {});
+  const buckets = options.buckets || splitFlexSignalBuckets(flex || {});
   const defaultHoldDays = flex?.hold_days != null ? Number(flex.hold_days) : 5;
   // hold bucket intentionally omitted (paper HOLD is not a desk action)
   const map = [
@@ -4050,7 +4309,6 @@ function renderFlexSignalList(flex, options = {}) {
     const countEl = document.getElementById(countId);
     if (countEl) countEl.textContent = items.length ? `(${items.length})` : '';
     if (block) block.hidden = items.length === 0;
-    if (kind !== 'avoid') actionable += items.length;
     if (!el) continue;
     if (!items.length) {
       el.innerHTML = '';
@@ -4062,6 +4320,8 @@ function renderFlexSignalList(flex, options = {}) {
       forceKind,
       defaultHoldDays,
     });
+    actionable += [...el.querySelectorAll('.flex-row')]
+      .filter(row => row.querySelector('[data-flex-act]')).length;
   }
 
   const empty = document.getElementById('flexSignalEmpty');
@@ -4263,6 +4523,13 @@ function bindFlexExecControls() {
       updateFlexModalPreview();
     }
   });
+  document.getElementById('flexModalReduceMode')?.addEventListener('click', (ev) => {
+    const btn = ev.target.closest('[data-flex-reduce-mode]');
+    if (!btn) return;
+    setFlexReduceMode(btn.dataset.flexReduceMode);
+    const focusId = btn.dataset.flexReduceMode === 'amount' ? 'flexModalAmount' : 'flexModalPct';
+    document.getElementById(focusId)?.focus();
+  });
   document.addEventListener('keydown', (ev) => {
     const modal = document.getElementById('flexTradeModal');
     if (ev.key === 'Escape' && modal && !modal.hidden) {
@@ -4316,6 +4583,7 @@ function bindFlexExecControls() {
       const pos = ledger.positions[key];
       if (!pos || !(Number(pos.qty) > 0)) return;
       const sub = `${pos.etf_code || pos.name || ''} · 成本 ${formatMoney(pos.cost_basis)}`;
+      const referencePrice = flexExecutionReferencePrice(ledger, key);
       if (act === 'add') {
         const suggested = btn.dataset.suggested ? Number(btn.dataset.suggested) : null;
         openFlexTradeModal({
@@ -4327,8 +4595,9 @@ function bindFlexExecControls() {
           etf_code: pos.etf_code,
           etf_name: pos.etf_name,
           sleeve: pos.sleeve,
+          pendingOrderId: btn.dataset.pendingOrderId || '',
           defaultAmount: suggested,
-          defaultPrice: pos.last_price || pos.avg_price,
+          defaultPrice: referencePrice,
         });
       } else if (act === 'reduce') {
         const suggested = btn.dataset.suggested ? Number(btn.dataset.suggested) : null;
@@ -4337,8 +4606,9 @@ function bindFlexExecControls() {
           title: '减仓记账',
           subtitle: sub,
           key,
+          pendingOrderId: btn.dataset.pendingOrderId || '',
           defaultAmount: suggested,
-          defaultPrice: pos.last_price || pos.avg_price,
+          defaultPrice: referencePrice,
         });
       } else {
         openFlexTradeModal({
@@ -4346,7 +4616,8 @@ function bindFlexExecControls() {
           title: '平仓记账',
           subtitle: sub,
           key,
-          defaultPrice: pos.last_price || pos.avg_price,
+          pendingOrderId: btn.dataset.pendingOrderId || '',
+          defaultPrice: referencePrice,
         });
       }
     }
@@ -4455,10 +4726,10 @@ function renderFlexTradePanel(playbook) {
   dashboardState.flexPlaybook = playbook;
   flex = flexWithCoreTailSignal(flex, tailSignal);
   // Product lock: only aggressive Flex sizing is exposed in the app; backend is the sizing source of truth.
-  const mode = flex.mode || 'aggressive';
+  const mode = 'aggressive';
   dashboardState.flexMode = 'aggressive';
   if (flex.mode !== 'aggressive') {
-    flex = applyFlexModeOverlay(flex, mode);
+    flex = applyFlexModeOverlay(flex, 'aggressive');
   }
   if (flexCoreTailActionableNow(tailSignal)) {
     flex = applyFlexModeOverlay(flex, 'aggressive');
@@ -4539,7 +4810,8 @@ function renderFlexTradePanel(playbook) {
   const core = flex.core || {};
   const sat = flex.satellite || {};
   const ledgerNow = loadFlexLedger();
-  const openNow = deskCollectOpenSignals(flex);
+  const signalBuckets = splitFlexSignalBuckets(flex);
+  const openNow = signalBuckets.open || [];
   const coreOpenNow = openNow.some(x =>
     String(x.sleeve || '') === 'core'
     || String(x.name || '').includes('沪深300')
@@ -4557,6 +4829,21 @@ function renderFlexTradePanel(playbook) {
   const markedLedger = flexApplyDisplayMarksToLedger(ledgerNow);
   const ledgerEquity = flexEquity(markedLedger);
   const coreLocal = flexFindLocalPosition({ sleeve: 'core', name: '沪深300', etf_code: core.etf_code || '510300' }, markedLedger);
+  const coreLocalKey = coreLocal?.key || null;
+  const satLocalKeys = new Set(flexOpenPositions(ledgerNow)
+    .filter(pos => String(pos.sleeve || '') === 'satellite')
+    .map(pos => pos.key || flexPositionKey(pos)));
+  const rowLocalKey = row => flexSignalLocalKey(row, ledgerNow);
+  const coreClosingLocal = (signalBuckets.close || []).some(row => (
+    (coreLocalKey && rowLocalKey(row) === coreLocalKey)
+    || String(row.sleeve || '') === 'core'
+  ));
+  const satClosingLocal = (signalBuckets.close || []).some(row => (
+    satLocalKeys.has(rowLocalKey(row))
+    || String(row.sleeve || '') === 'satellite'
+  ));
+  const coreAvoidLocal = (signalBuckets.avoid || []).some(row => coreLocalKey && rowLocalKey(row) === coreLocalKey);
+  const satAvoidLocal = (signalBuckets.avoid || []).some(row => satLocalKeys.has(rowLocalKey(row)));
   const currentWeight = pos => {
     if (!pos || !(ledgerEquity > 0)) return null;
     const px = Number(pos.last_price) > 0 ? Number(pos.last_price) : Number(pos.avg_price);
@@ -4581,10 +4868,14 @@ function renderFlexTradePanel(playbook) {
   const paperSatClosing = (flex.close_list || []).some(item => String(item.sleeve || '') === 'satellite');
   let coreActionLabel = '观望';
   if (isFlexSimBook()) {
-    if (coreHeld || paperCoreOpen) coreActionLabel = paperCoreOpen && String(core.action || '').toUpperCase() === 'CLOSE' ? '策略待平' : '策略持有';
+    if (coreClosingLocal || (paperCoreOpen && String(core.action || '').toUpperCase() === 'CLOSE')) coreActionLabel = '策略待平';
+    else if (coreAvoidLocal) coreActionLabel = '持有·回避提示';
+    else if (coreHeld || paperCoreOpen) coreActionLabel = '策略持有';
     else if (coreOpenNow) coreActionLabel = '策略可开';
   } else {
-    if (coreHeld) coreActionLabel = '已持有';
+    if (coreHeld && coreClosingLocal) coreActionLabel = '待平仓';
+    else if (coreHeld && coreAvoidLocal) coreActionLabel = '待回避';
+    else if (coreHeld) coreActionLabel = '已持有';
     else if (coreOpenNow) coreActionLabel = flexCoreTailActionableNow(tailSignal)
       ? '14:50尾盘买'
       : '可买·T～T+1';
@@ -4600,10 +4891,14 @@ function renderFlexTradePanel(playbook) {
   );
   let satActionLabel = '空仓';
   if (isFlexSimBook()) {
-    if (satHeld || paperSatOpen) satActionLabel = '策略持有';
+    if (satClosingLocal || paperSatClosing) satActionLabel = '策略待平';
+    else if (satAvoidLocal) satActionLabel = '持有·回避提示';
+    else if (satHeld || paperSatOpen) satActionLabel = '策略持有';
     else if (satOpenNow) satActionLabel = '策略可开';
   } else {
-    if (satHeld) satActionLabel = '已持有';
+    if (satHeld && satClosingLocal) satActionLabel = '待平仓';
+    else if (satHeld && satAvoidLocal) satActionLabel = '待回避';
+    else if (satHeld) satActionLabel = '已持有';
     else if (satOpenNow) satActionLabel = '可买·T～T+1';
     else if (paperSatOpen) satActionLabel = paperSatClosing ? '纸面待平·未记' : '纸面持有·未记';
   }
@@ -4649,7 +4944,7 @@ function renderFlexTradePanel(playbook) {
     trust.textContent = '';
   }
 
-  renderFlexSignalList(flex, { signalAsOf: asOf });
+  renderFlexSignalList(flex, { signalAsOf: asOf, buckets: signalBuckets });
   renderFlexExecUi();
   flexEnsureRealtimeQuotePolling();
 }

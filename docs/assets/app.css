@@ -1678,6 +1678,9 @@ dd[data-freshness="stale"] { color: var(--red); }
   letter-spacing: 0.04em;
 }
 
+.flex-modal-field[hidden],
+.flex-modal-chips[hidden] { display: none !important; }
+
 .flex-modal-field input {
   height: 38px;
   border: 1px solid var(--rule-strong);
@@ -1701,6 +1704,32 @@ dd[data-freshness="stale"] { color: var(--red); }
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.flex-modal-reduce-mode {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border: 1px solid var(--rule-strong);
+}
+
+.flex-modal-reduce-mode[hidden] { display: none !important; }
+
+.flex-modal-reduce-mode button {
+  min-height: 34px;
+  border: 0;
+  border-right: 1px solid var(--rule-strong);
+  border-radius: 0;
+  background: var(--sheet);
+  color: var(--mute);
+  font: 600 12px/1 var(--sans);
+  cursor: pointer;
+}
+
+.flex-modal-reduce-mode button:last-child { border-right: 0; }
+
+.flex-modal-reduce-mode button.active {
+  background: var(--ink);
+  color: var(--paper);
 }
 
 .flex-chip {

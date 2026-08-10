@@ -43,6 +43,33 @@
     );
   }
 
+  function firstPositivePrice(values) {
+    for (const value of values || []) {
+      const price = Number(value);
+      if (Number.isFinite(price) && price > 0) return price;
+    }
+    return null;
+  }
+
+  function reductionInstruction(mode, amount, pct) {
+    if (mode === 'amount') {
+      const value = Number(amount);
+      return { amount: value > 0 ? value : null, pct: null };
+    }
+    const value = Number(pct);
+    return { amount: null, pct: value > 0 ? Math.min(100, value) : null };
+  }
+
+  function eodDecisionGate({ markDate, requiredDate, missing = 0, staleCount = 0 } = {}) {
+    const mark = String(markDate || '').slice(0, 10);
+    const required = String(requiredDate || '').slice(0, 10);
+    if (!mark || Number(missing) > 0) return { ok: false, code: 'MISSING' };
+    if (Number(staleCount) > 0 || (required && mark < required)) {
+      return { ok: false, code: 'STALE' };
+    }
+    return { ok: true, code: 'OK' };
+  }
+
   return {
     ONE_WAY_COST_RATE,
     ETF_LOT_SIZE,
@@ -50,5 +77,8 @@
     sellQuantity,
     quoteTimestampIsUsable,
     sortJournalNewestFirst,
+    firstPositivePrice,
+    reductionInstruction,
+    eodDecisionGate,
   };
 }));

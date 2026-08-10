@@ -2,9 +2,21 @@ function axisText() {
   return { color: '#6e655a', fontSize: 11, fontFamily: 'Source Sans 3, Noto Sans SC, sans-serif' };
 }
 
+function timeAxisText() {
+  return {
+    ...axisText(),
+    interval: 'auto',
+    hideOverlap: true,
+    showMinLabel: false,
+    showMaxLabel: true,
+    formatter: value => isNarrow() ? String(value || '').slice(5) : value,
+  };
+}
+
 const SERIES_LABELS = {
   avixClean: 'AVIX收盘复刻',
   qvixReal: '真实QVIX',
+  qvixProxy: '300ETF QVIX代理',
   qvixReplica: 'QVIX模型复刻',
   hs300: '沪深300收盘',
   riskTemperature: '风险温度',
@@ -89,7 +101,7 @@ function qvixMissingAreas(history) {
       const end = missing && isLast ? row.date : history[index - 1]?.date;
       if (end) {
         areas.push([
-          { name: '真实QVIX缺失', xAxis: start },
+          { name: 'QVIX缺失', xAxis: start },
           { xAxis: end },
         ]);
       }
@@ -483,8 +495,8 @@ function renderHistoryChart(history, strategy) {
       },
     },
     legend: hasEstimated ? legendOption() : { show: false },
-    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: isNarrow() ? 28 : 24, bottom: 34 },
-    xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false },
+    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 24 : 24, top: isNarrow() ? 28 : 24, bottom: 34 },
+    xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: timeAxisText(), boundaryGap: false },
     yAxis: { type: 'value', min: 0, max: 100, axisLabel: axisText(), splitLine: { lineStyle: { color: '#ebe4d7' } } },
     visualMap: {
       show: false,
@@ -510,17 +522,18 @@ function renderHistoryChart(history, strategy) {
 function renderAvixQvixChart(history, strategy) {
   const chart = echarts.init(document.getElementById('avixQvixChart'));
   const missingAreas = qvixMissingAreas(history);
-  const realCount = history.filter(d => positiveOrNull(d.qvix) !== null).length;
+  const realCount = history.filter(d => positiveOrNull(d.qvix) !== null && !d.qvix_is_proxy).length;
+  const proxyCount = history.filter(d => positiveOrNull(d.qvix) !== null && d.qvix_is_proxy).length;
   // No S3/S4 buy/sell marks here — keep pure vol comparison
   chart.setOption({
     aria: {
       enabled: true,
-      label: { description: 'AVIX 与 QVIX 对比。真实 QVIX 缺失保留断点，灰区为缺失，虚线为模型复刻。' },
+      label: { description: 'AVIX 与 QVIX 对比。真实 QVIX 与代理 QVIX 分线显示，缺失保留断点，灰区为缺失，虚线为模型复刻。' },
     },
     tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'line' }, formatter: sharedTooltip },
     legend: legendOption(),
-    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 12 : 24, top: isNarrow() ? 44 : 36, bottom: 34 },
-    xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: axisText(), boundaryGap: false },
+    grid: { left: isNarrow() ? 36 : 46, right: isNarrow() ? 24 : 24, top: isNarrow() ? 44 : 36, bottom: 34 },
+    xAxis: { type: 'category', data: history.map(d => d.date), axisLabel: timeAxisText(), boundaryGap: false },
     yAxis: { type: 'value', axisLabel: axisText(), splitLine: { lineStyle: { color: '#ebe4d7' } } },
     series: [
       {
@@ -539,7 +552,7 @@ function renderAvixQvixChart(history, strategy) {
         symbol: 'none',
         smooth: false,
         connectNulls: false,
-        data: history.map(d => positiveOrNull(d.qvix)),
+        data: history.map(d => d.qvix_is_proxy ? null : positiveOrNull(d.qvix)),
         lineStyle: { color: '#2a4058', width: 2.2 },
         itemStyle: { color: '#2a4058' },
         markArea: {
@@ -548,6 +561,16 @@ function renderAvixQvixChart(history, strategy) {
           label: { show: false },
           data: missingAreas,
         },
+      },
+      {
+        name: SERIES_LABELS.qvixProxy,
+        type: 'line',
+        symbol: 'none',
+        smooth: false,
+        connectNulls: false,
+        data: history.map(d => d.qvix_is_proxy ? positiveOrNull(d.qvix) : null),
+        lineStyle: { color: '#9a4f24', width: 2, type: 'dashed' },
+        itemStyle: { color: '#9a4f24' },
       },
       {
         name: SERIES_LABELS.qvixReplica,
@@ -564,7 +587,7 @@ function renderAvixQvixChart(history, strategy) {
   setChartA11y(
     chart,
     'AVIX与QVIX',
-    `共${history.length}日，真实QVIX ${realCount} 点，缺失 ${history.length - realCount} 点`
+    `共${history.length}日，真实QVIX ${realCount} 点，代理QVIX ${proxyCount} 点，缺失 ${history.length - realCount - proxyCount} 点`
   );
   return chart;
 }
@@ -583,12 +606,12 @@ function renderHs300Chart(history) {
     tooltip: { confine: true, trigger: 'axis', axisPointer: { type: 'line' }, formatter: sharedTooltip },
     legend: legendOption(),
     grid: [
-      { left: narrow ? 42 : 54, right: narrow ? 12 : 24, top: narrow ? 44 : 36, height: narrow ? 82 : 96 },
-      { left: narrow ? 42 : 54, right: narrow ? 12 : 24, top: narrow ? 160 : 168, bottom: 34 },
+      { left: narrow ? 42 : 54, right: narrow ? 24 : 24, top: narrow ? 44 : 36, height: narrow ? 82 : 96 },
+      { left: narrow ? 42 : 54, right: narrow ? 24 : 24, top: narrow ? 160 : 168, bottom: 34 },
     ],
     xAxis: [
       { type: 'category', gridIndex: 0, data: dates, axisLabel: { show: false }, axisTick: { show: false }, boundaryGap: false },
-      { type: 'category', gridIndex: 1, data: dates, axisLabel: axisText(), boundaryGap: false },
+      { type: 'category', gridIndex: 1, data: dates, axisLabel: timeAxisText(), boundaryGap: false },
     ],
     yAxis: [
       { type: 'value', gridIndex: 0, name: '沪深300', min: hs300Axis.min, max: hs300Axis.max, scale: true, axisLabel: axisText(), splitLine: { lineStyle: { color: '#ebe4d7' } } },

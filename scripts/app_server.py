@@ -183,7 +183,13 @@ def refresh_pipeline(mode: str = "realtime") -> dict[str, Any]:
         if mode == "rebuild":
             ok = bool(steps and steps[-1].get("ok"))
         elif mode == "realtime":
-            ok = any(s.get("ok") for s in steps)
+            # A cached site rebuild restores renderability but is not a successful
+            # realtime refresh. Report failure unless the realtime updater itself ran.
+            realtime_step = next(
+                (s for s in steps if s.get("script") == "update_realtime_avix.py"),
+                None,
+            )
+            ok = bool(realtime_step and realtime_step.get("ok"))
         result = {
             "ok": ok,
             "mode": mode,
@@ -200,6 +206,8 @@ def refresh_pipeline(mode: str = "realtime") -> dict[str, Any]:
             ],
             "status": build_status(),
         }
+        if mode == "realtime" and not ok:
+            result["error"] = "实时数据更新失败；缓存页面已重建，但未获得新的实时结果"
         with STATE_LOCK:
             STATE["last_refresh"] = result
             if not ok:

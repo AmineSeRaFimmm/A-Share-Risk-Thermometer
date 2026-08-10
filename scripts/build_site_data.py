@@ -16,6 +16,7 @@ from src.core.nowcast_history import build_nowcast_history_from_files, nowcast_r
 from src.core.intraday_temperature import confirmed_core_tail_dates, record_intraday_temperature
 from src.core.rt_tactical import build_rt_tactical_payload
 from src.core.stage_trade_playbook import build_playbook_payload, extend_risk_for_playbook
+from src.core.calendar import trading_calendar_payload
 import pandas as pd
 
 
@@ -90,6 +91,7 @@ def main() -> None:
     if not strategy.empty:
         strategy.to_csv(CALCULATED / "strategy_s3_s4.csv", index=False)
     write_json(history_payload(risk), SITE / "history.json")
+    write_json(trading_calendar_payload(index_history), SITE / "trade_calendar.json")
     nowcast_history = build_nowcast_history_from_files()
     write_json(nowcast_history, SITE / "nowcast_history.json")
     nowcast_csv = nowcast_rows_csv(nowcast_history)

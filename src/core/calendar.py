@@ -1,5 +1,5 @@
 from __future__ import annotations
-from datetime import date
+from datetime import date, timedelta
 import pandas as pd
 from src.utils.dates import third_friday
 from src.utils.dates import today_cn
@@ -23,6 +23,27 @@ def trading_days_from_akshare() -> list[date]:
 
 def merged_trading_days(index_df: pd.DataFrame) -> list[date]:
     return sorted(set(trading_days_from_index(index_df)) | set(trading_days_from_akshare()))
+
+
+def trading_calendar_payload(index_df: pd.DataFrame, current: date | None = None) -> dict:
+    """Publish browser-safe sessions with explicit authoritative coverage."""
+    current = current or today_cn()
+    observed = trading_days_from_index(index_df)
+    provider = trading_days_from_akshare()
+    dates = sorted(set(observed) | set(provider))
+    lower = current - timedelta(days=3650)
+    upper = current + timedelta(days=550)
+    bounded = [day for day in dates if lower <= day <= upper]
+    coverage = provider or observed
+    return {
+        "status": "ok" if bounded else "missing",
+        "source": "AKSHARE_SINA_TRADE_DATE" if provider else "INDEX_HISTORY_ONLY",
+        "authoritative": bool(provider),
+        "coverage_from": min(coverage).isoformat() if coverage else None,
+        "coverage_through": max(coverage).isoformat() if coverage else None,
+        "generated_for": current.isoformat(),
+        "dates": [day.isoformat() for day in bounded],
+    }
 
 def current_realtime_trade_date(index_df: pd.DataFrame, current: date | None = None) -> str:
     current = current or today_cn()

@@ -68,3 +68,28 @@ def test_quote_timestamp_and_journal_order_are_behavioral() -> None:
         "wrongDay": False,
         "rows": ["new", "mid", "old"],
     }
+
+
+def test_execution_price_reduction_mode_and_eod_gate_are_behavioral() -> None:
+    result = _run_core(
+        """
+        const c = require('./web/assets/flex_execution_core.js');
+        const price = c.firstPositivePrice([null, 0, 4.709, 4.1]);
+        const byAmount = c.reductionInstruction('amount', 12000, 50);
+        const byPct = c.reductionInstruction('pct', 12000, 35);
+        const fresh = c.eodDecisionGate({markDate: '2026-08-07', requiredDate: '2026-08-07'});
+        const staleDate = c.eodDecisionGate({markDate: '2026-08-06', requiredDate: '2026-08-07'});
+        const staleCode = c.eodDecisionGate({markDate: '2026-08-07', requiredDate: '2026-08-07', staleCount: 1});
+        const missing = c.eodDecisionGate({markDate: '2026-08-07', requiredDate: '2026-08-07', missing: 1});
+        process.stdout.write(JSON.stringify({price, byAmount, byPct, fresh, staleDate, staleCode, missing}));
+        """
+    )
+    assert result == {
+        "price": 4.709,
+        "byAmount": {"amount": 12000, "pct": None},
+        "byPct": {"amount": None, "pct": 35},
+        "fresh": {"ok": True, "code": "OK"},
+        "staleDate": {"ok": False, "code": "STALE"},
+        "staleCode": {"ok": False, "code": "STALE"},
+        "missing": {"ok": False, "code": "MISSING"},
+    }
