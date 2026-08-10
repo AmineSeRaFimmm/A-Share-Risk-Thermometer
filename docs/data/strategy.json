@@ -1,16 +1,16 @@
 {
   "status": "ready",
   "latest": {
-    "trade_date": "2026-08-07",
+    "trade_date": "2026-08-10",
     "execution_trade_date": null,
     "execution_sse_open": null,
-    "avix": 19.463,
-    "sse_open": 3896.485,
-    "sse_close": 3940.037,
-    "sse_ret1": 0.0102,
-    "sse_ret10": 0.033,
-    "sse_ma5": 3870.1534,
-    "sse_ma10": 3848.7751,
+    "avix": 18.9934,
+    "sse_open": 3943.816,
+    "sse_close": 3966.594,
+    "sse_ret1": 0.0067,
+    "sse_ret10": 0.0281,
+    "sse_ma5": 3901.5396,
+    "sse_ma10": 3859.61,
     "s3_signal": false,
     "s4_signal": false,
     "s3_s4_signal": false,
@@ -23,7 +23,7 @@
     "s3_sell_reason": "",
     "s4_sell_reason": "",
     "s3_s4_sell_reason": "",
-    "signal_quality": "OK"
+    "signal_quality": "WARN_NOT_BRACKET_30D"
   },
   "recent_buy": [
     {
@@ -877,12 +877,37 @@
       "s4_sell_reason": "AVIX<20",
       "s3_s4_sell_reason": "AVIX<20",
       "signal_quality": "OK"
+    },
+    {
+      "trade_date": "2026-08-07",
+      "execution_trade_date": "2026-08-10",
+      "execution_sse_open": 3943.816,
+      "avix": 19.463,
+      "sse_open": 3896.485,
+      "sse_close": 3940.037,
+      "sse_ret1": 0.0102,
+      "sse_ret10": 0.033,
+      "sse_ma5": 3870.1534,
+      "sse_ma10": 3848.7751,
+      "s3_signal": false,
+      "s4_signal": false,
+      "s3_s4_signal": false,
+      "s3_buy": false,
+      "s3_sell": false,
+      "s4_buy": false,
+      "s4_sell": true,
+      "s3_s4_buy": false,
+      "s3_s4_sell": true,
+      "s3_sell_reason": "",
+      "s4_sell_reason": "AVIX<20",
+      "s3_s4_sell_reason": "AVIX<20",
+      "signal_quality": "OK"
     }
   ],
   "position": {
     "s3": "flat",
-    "s4": "holding",
-    "s3_s4": "holding",
+    "s4": "flat",
+    "s3_s4": "flat",
     "last_action": {
       "s3": {
         "action": "sell",
@@ -890,12 +915,14 @@
         "reason": "AVIX<20"
       },
       "s4": {
-        "action": "buy",
-        "trade_date": "2026-07-31"
+        "action": "sell",
+        "trade_date": "2026-08-07",
+        "reason": "AVIX<20"
       },
       "s3_s4": {
-        "action": "buy",
-        "trade_date": "2026-07-31"
+        "action": "sell",
+        "trade_date": "2026-08-07",
+        "reason": "AVIX<20"
       }
     }
   },

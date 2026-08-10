@@ -1,58 +1,58 @@
 {
   "trade_date": "2026-08-10",
-  "temperature_mode": "CLOSE_PENDING",
+  "temperature_mode": "OFFICIAL_CLOSE",
   "components": [
     {
       "key": "avix_percentile_2y",
       "name": "AVIX两年分位",
-      "score": 63.0219,
+      "score": 54.672,
       "weight": 0.28,
-      "contribution": 17.6461,
+      "contribution": 15.3082,
       "observed": true,
-      "raw_value": 19.4774,
-      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-10T15:04:48+08:00",
+      "raw_value": 18.9934,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "TIME_UNVERIFIED"
+      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 51.9494,
+      "score": 47.5966,
       "weight": 0.14,
-      "contribution": 7.2729,
+      "contribution": 6.6635,
       "observed": true,
-      "raw_value": 19.4774,
-      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-10T15:04:48+08:00",
+      "raw_value": 18.9934,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "TIME_UNVERIFIED"
+      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_5d_change",
       "name": "AVIX 5日变化",
-      "score": 15.6764,
+      "score": 11.5595,
       "weight": 0.08,
-      "contribution": 1.2541,
+      "contribution": 0.9248,
       "observed": true,
-      "raw_value": 19.4774,
-      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-10T15:04:48+08:00",
+      "raw_value": 18.9934,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "TIME_UNVERIFIED"
+      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "qvix_confirmation",
       "name": "QVIX确认",
-      "score": 100.0,
+      "score": 60.0,
       "weight": 0.12,
-      "contribution": 12.0,
+      "contribution": 7.2,
       "observed": true,
-      "raw_value": 19.59,
-      "source": "OPTBBS_CSV_300ETF_MIN_QVIX_PROXY",
-      "quote_time": "2026-08-10T14:56:25+08:00",
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "CROSSCHECKED|PROXY"
+      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "realized_vol_percentile",
@@ -61,24 +61,24 @@
       "weight": 0.12,
       "contribution": 10.3571,
       "observed": true,
-      "raw_value": 26.4931,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
-      "quote_time": null,
-      "fetch_time": "2026-08-10T15:04:52+08:00",
-      "quality": "REALTIME_INDEX"
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-08-10",
+      "fetch_time": null,
+      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "drawdown_pressure",
       "name": "回撤压力",
-      "score": 55.8347,
+      "score": 55.8338,
       "weight": 0.12,
-      "contribution": 6.7002,
+      "contribution": 6.7001,
       "observed": true,
-      "raw_value": -0.0707,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
-      "quote_time": null,
-      "fetch_time": "2026-08-10T15:04:52+08:00",
-      "quality": "REALTIME_INDEX"
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-08-10",
+      "fetch_time": null,
+      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "market_breadth_pressure",
@@ -87,11 +87,11 @@
       "weight": 0.1,
       "contribution": 2.5122,
       "observed": true,
-      "raw_value": 0.7391,
-      "source": "PARSE_EM_ZDFENBU",
-      "quote_time": null,
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "SINGLE_SOURCE"
+      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "turnover_stress",
@@ -100,11 +100,11 @@
       "weight": 0.04,
       "contribution": 0.0536,
       "observed": true,
-      "raw_value": 0.8161,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
-      "quote_time": null,
-      "fetch_time": "2026-08-10T15:04:52+08:00",
-      "quality": "SESSION_NORMALIZED"
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-08-10",
+      "fetch_time": null,
+      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
     }
   ]
 }
