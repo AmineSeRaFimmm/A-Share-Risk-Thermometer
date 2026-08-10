@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-08-10",
-  "temperature_mode": "NOWCAST",
+  "temperature_mode": "CLOSE_PENDING",
   "components": [
     {
       "key": "avix_percentile_2y",
@@ -11,7 +11,7 @@
       "observed": true,
       "raw_value": 19.4623,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-10T14:58:05+08:00",
+      "quote_time": "2026-08-10T15:00:23+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -24,7 +24,7 @@
       "observed": true,
       "raw_value": 19.4623,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-10T14:58:05+08:00",
+      "quote_time": "2026-08-10T15:00:23+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -37,7 +37,7 @@
       "observed": true,
       "raw_value": 19.4623,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-10T14:58:05+08:00",
+      "quote_time": "2026-08-10T15:00:23+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -61,33 +61,33 @@
       "weight": 0.12,
       "contribution": 10.3571,
       "observed": true,
-      "raw_value": 26.494,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "raw_value": 26.4931,
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-10T14:58:22+08:00",
+      "fetch_time": "2026-08-10T15:00:28+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
       "key": "drawdown_pressure",
       "name": "回撤压力",
-      "score": 55.7051,
+      "score": 55.8347,
       "weight": 0.12,
-      "contribution": 6.6846,
+      "contribution": 6.7002,
       "observed": true,
-      "raw_value": -0.0706,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "raw_value": -0.0707,
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-10T14:58:22+08:00",
+      "fetch_time": "2026-08-10T15:00:28+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
       "key": "market_breadth_pressure",
       "name": "市场宽度",
-      "score": 25.3799,
+      "score": 25.1219,
       "weight": 0.1,
-      "contribution": 2.538,
+      "contribution": 2.5122,
       "observed": true,
-      "raw_value": 0.7381,
+      "raw_value": 0.7391,
       "source": "PARSE_EM_ZDFENBU",
       "quote_time": null,
       "fetch_time": null,
@@ -96,14 +96,14 @@
     {
       "key": "turnover_stress",
       "name": "成交压力",
-      "score": 1.0684,
+      "score": 1.3396,
       "weight": 0.04,
-      "contribution": 0.0427,
+      "contribution": 0.0536,
       "observed": true,
-      "raw_value": 0.8128,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "raw_value": 0.8161,
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-10T14:58:22+08:00",
+      "fetch_time": "2026-08-10T15:00:28+08:00",
       "quality": "SESSION_NORMALIZED"
     }
   ]
