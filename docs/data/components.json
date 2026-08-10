@@ -5,54 +5,54 @@
     {
       "key": "avix_percentile_2y",
       "name": "AVIX两年分位",
-      "score": 54.672,
+      "score": 63.0219,
       "weight": 0.28,
-      "contribution": 15.3082,
+      "contribution": 17.6461,
       "observed": true,
-      "raw_value": 18.9934,
+      "raw_value": 19.4657,
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 47.5966,
+      "score": 51.844,
       "weight": 0.14,
-      "contribution": 6.6635,
+      "contribution": 7.2582,
       "observed": true,
-      "raw_value": 18.9934,
+      "raw_value": 19.4657,
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_5d_change",
       "name": "AVIX 5日变化",
-      "score": 11.5595,
+      "score": 15.5768,
       "weight": 0.08,
-      "contribution": 0.9248,
+      "contribution": 1.2461,
       "observed": true,
-      "raw_value": 18.9934,
+      "raw_value": 19.4657,
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "qvix_confirmation",
       "name": "QVIX确认",
-      "score": 60.0,
+      "score": 100.0,
       "weight": 0.12,
-      "contribution": 7.2,
+      "contribution": 12.0,
       "observed": true,
       "raw_value": null,
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "realized_vol_percentile",
@@ -65,7 +65,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "drawdown_pressure",
@@ -78,7 +78,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "market_breadth_pressure",
@@ -91,7 +91,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "turnover_stress",
@@ -104,7 +104,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-08-10",
       "fetch_time": null,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     }
   ]
 }

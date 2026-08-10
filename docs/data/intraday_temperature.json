@@ -6,7 +6,7 @@
   "excluded_count": 0,
   "has_final": true,
   "first_sample_at": "2026-08-10T09:28:34+08:00",
-  "last_sample_at": "2026-08-10T16:12:18+08:00",
+  "last_sample_at": "2026-08-10T18:30:25+08:00",
   "rows": [
     {
       "sampled_at": "2026-08-10T09:28:34+08:00",
@@ -1080,13 +1080,13 @@
       "core_tail_uncertainty": null
     },
     {
-      "sampled_at": "2026-08-10T16:12:18+08:00",
-      "time": "16:12",
-      "risk_temperature": 49.7,
+      "sampled_at": "2026-08-10T18:30:25+08:00",
+      "time": "18:30",
+      "risk_temperature": 57.8,
       "temperature_mode": "OFFICIAL_CLOSE",
       "temperature_mode_cn": "收盘正式",
       "is_final": true,
-      "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY",
+      "quality": "WARN_QVIX_REALTIME_PROXY",
       "model_confidence": 93.7,
       "model_coverage_score": 100.0,
       "model_data_quality_score": 93.7,
@@ -1131,8 +1131,8 @@
     "degraded_uncertainty": null,
     "latest_sample_state": "INVALID",
     "latest_sample_state_cn": "数据结构无效",
-    "last_sample_at": "2026-08-10T16:12:18+08:00",
-    "valid_until": "2026-08-10T16:27:18+08:00",
+    "last_sample_at": "2026-08-10T18:30:25+08:00",
+    "valid_until": "2026-08-10T18:45:25+08:00",
     "conditions": {
       "state": "INVALID",
       "eligible": false,
@@ -1169,7 +1169,7 @@
         "intraday_mode"
       ],
       "values": {
-        "risk_temperature": 49.7,
+        "risk_temperature": 57.8,
         "hs300_drawdown_60d": -0.0707,
         "model_confidence": 93.7,
         "model_coverage_score": 100.0,

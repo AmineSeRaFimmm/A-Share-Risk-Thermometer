@@ -7,6 +7,8 @@ import argparse
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import pandas as pd
+
+from src.core.official_avix_quality import assess_official_avix
 from src.storage.paths import CALCULATED, SITE
 
 def require(condition: bool, message: str) -> None:
@@ -128,17 +130,9 @@ def main() -> None:
     avix = pd.read_csv(CALCULATED / "avix_clean_close.csv")
     if not avix.empty:
         require((avix["avix_clean"].dropna() > 0).all(), "avix_clean must be positive")
-        # Official tip may be WARN_NOT_BRACKET_30D around expiry weeks (single-tenor
-        # 30D). That is allowed; only reject unusable BAD/LOW tip or non-positive AVIX.
         tip = avix.sort_values("trade_date").iloc[-1]
-        tip_avix = pd.to_numeric(tip.get("avix_clean"), errors="coerce")
-        require(pd.notna(tip_avix) and float(tip_avix) > 0, "latest avix_clean must be positive")
-        tip_quality = str(tip.get("quality", "") or "")
-        tip_flags = [f.strip() for f in tip_quality.replace(",", "|").split("|") if f.strip()]
-        require(
-            not any(f.startswith("BAD") or f.startswith("LOW") for f in tip_flags),
-            f"latest AVIX unusable quality: {tip_quality}",
-        )
+        assessment = assess_official_avix(tip)
+        require(assessment.ready, f"latest AVIX not official-ready: {'|'.join(assessment.reasons)}")
     qvix = pd.read_csv(CALCULATED / "qvix_validation.csv")
     required_qvix = {
         "trade_date", "avix_clean", "qvix_close", "qvix_replica", "qvix_replica_quality",

@@ -23,6 +23,7 @@ from scripts.bootstrap_history import (
     option_cache_max_date,
 )
 from src.core.contracts import build_contract_master
+from src.core.official_avix_quality import official_avix_ready
 from scripts.build_site_data import main as build_site_data
 import pandas as pd
 
@@ -71,6 +72,15 @@ def _merge_breadth_history(summary: pd.DataFrame) -> pd.DataFrame:
     return breadth
 
 
+def _official_avix_is_current(latest_clean: pd.DataFrame, trade_date: str) -> bool:
+    if latest_clean.empty or "trade_date" not in latest_clean.columns:
+        return False
+    rows = latest_clean[latest_clean["trade_date"].astype(str) == str(trade_date)]
+    if rows.empty:
+        return False
+    return official_avix_ready(rows.sort_values("trade_date").iloc[-1])
+
+
 def main(*, build_site: bool = True) -> None:
     ensure_dirs()
     universe = load_yaml("universe.yml")
@@ -101,7 +111,7 @@ def main(*, build_site: bool = True) -> None:
     chain = read_csv(NORMALIZED / "daily_option_chain.csv")
     chain_max = None if chain.empty else str(pd.to_datetime(chain["trade_date"]).max().date())
 
-    official_current = latest_done is not None and latest_done >= trade_date
+    official_current = _official_avix_is_current(latest_clean, trade_date)
     options_current = (option_max is not None and option_max >= trade_date) or (
         chain_max is not None and chain_max >= trade_date
     )

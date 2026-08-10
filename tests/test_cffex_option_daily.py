@@ -8,6 +8,8 @@ import pandas as pd
 from src.data_sources.cffex_option_daily import (
     SOURCE,
     cffex_rtj_xml_url,
+    cffex_rtj_xml_urls,
+    fetch_cffex_rtj_xml,
     load_verified_raw_cffex_rtj_xml,
     parse_cffex_io_daily_xml,
     save_raw_cffex_rtj_xml,
@@ -59,6 +61,34 @@ def test_cffex_rtj_url_shape():
     assert cffex_rtj_xml_url("2026-07-16") == (
         "http://www.cffex.com.cn/sj/hqsj/rtj/202607/16/index.xml"
     )
+    assert cffex_rtj_xml_urls("2026-07-16") == (
+        "http://www.cffex.com.cn/sj/hqsj/rtj/202607/16/index.xml",
+        "https://www.cffex.com.cn/sj/hqsj/rtj/202607/16/index.xml",
+    )
+
+
+def test_cffex_fetch_falls_back_to_alternate_transport(monkeypatch):
+    from src.data_sources import cffex_option_daily as mod
+
+    calls = []
+
+    class Response:
+        content = SAMPLE_XML
+
+        @staticmethod
+        def raise_for_status():
+            return None
+
+    def fake_get(url, **_kwargs):
+        calls.append(url)
+        if url.startswith("http://"):
+            raise ConnectionError("port 80 unavailable")
+        return Response()
+
+    monkeypatch.setattr(mod.requests, "get", fake_get)
+    monkeypatch.setattr(mod, "retry_call", lambda fn, **_kwargs: fn())
+    assert fetch_cffex_rtj_xml("2026-07-16") == SAMPLE_XML
+    assert calls == list(cffex_rtj_xml_urls("2026-07-16"))
 
 
 def test_parse_io_only_and_fill_blank_ohlc():

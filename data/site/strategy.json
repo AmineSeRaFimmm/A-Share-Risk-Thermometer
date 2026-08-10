@@ -4,7 +4,7 @@
     "trade_date": "2026-08-10",
     "execution_trade_date": null,
     "execution_sse_open": null,
-    "avix": 18.9934,
+    "avix": 19.4657,
     "sse_open": 3943.816,
     "sse_close": 3966.594,
     "sse_ret1": 0.0067,
@@ -23,7 +23,7 @@
     "s3_sell_reason": "",
     "s4_sell_reason": "",
     "s3_s4_sell_reason": "",
-    "signal_quality": "WARN_NOT_BRACKET_30D"
+    "signal_quality": "OK"
   },
   "recent_buy": [
     {

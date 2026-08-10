@@ -23,6 +23,7 @@ from src.storage.paths import RAW, ensure_dirs
 from src.utils.retry import retry_call
 
 CFFEX_RTJ_XML = "http://www.cffex.com.cn/sj/hqsj/rtj/{yyyymm}/{dd}/index.xml"
+CFFEX_RTJ_XML_FALLBACK = "https://www.cffex.com.cn/sj/hqsj/rtj/{yyyymm}/{dd}/index.xml"
 IO_INSTRUMENT_RE = re.compile(
     r"^IO(?P<yy>\d{2})(?P<mm>\d{2})-(?P<cp>[CP])-(?P<strike>\d+)$",
     re.IGNORECASE,
@@ -53,6 +54,15 @@ def cffex_rtj_xml_url(trade_date: str) -> str:
     return CFFEX_RTJ_XML.format(yyyymm=d.strftime("%Y%m"), dd=d.strftime("%d"))
 
 
+def cffex_rtj_xml_urls(trade_date: str) -> tuple[str, ...]:
+    d = pd.to_datetime(trade_date)
+    values = (
+        CFFEX_RTJ_XML.format(yyyymm=d.strftime("%Y%m"), dd=d.strftime("%d")),
+        CFFEX_RTJ_XML_FALLBACK.format(yyyymm=d.strftime("%Y%m"), dd=d.strftime("%d")),
+    )
+    return tuple(dict.fromkeys(values))
+
+
 def _is_xml_payload(content: bytes) -> bool:
     head = content.lstrip()[:80].lower()
     return head.startswith(b"<?xml") or head.startswith(b"<dailydatas")
@@ -60,9 +70,7 @@ def _is_xml_payload(content: bytes) -> bool:
 
 def fetch_cffex_rtj_xml(trade_date: str, *, timeout: int = 30) -> bytes | None:
     """Download CFFEX daily-stats XML for ``trade_date``. None if missing/holiday."""
-    url = cffex_rtj_xml_url(trade_date)
-
-    def _get() -> bytes:
+    def _get(url: str) -> bytes:
         resp = requests.get(
             url,
             headers={
@@ -74,14 +82,18 @@ def fetch_cffex_rtj_xml(trade_date: str, *, timeout: int = 30) -> bytes | None:
         resp.raise_for_status()
         return resp.content
 
-    try:
-        content = retry_call(_get, times=3, sleep_seconds=1.5)
-    except Exception as exc:  # noqa: BLE001
-        print(f"WARN CFFEX RTJ fetch failed {trade_date}: {exc}")
-        return None
-    if not content or not _is_xml_payload(content):
-        return None
-    return content
+    errors: list[str] = []
+    for url in cffex_rtj_xml_urls(trade_date):
+        try:
+            content = retry_call(lambda: _get(url), times=2, sleep_seconds=1.5)
+        except Exception as exc:  # noqa: BLE001
+            errors.append(f"{url}: {exc}")
+            continue
+        if content and _is_xml_payload(content):
+            return content
+        errors.append(f"{url}: invalid XML payload")
+    print(f"WARN CFFEX RTJ fetch failed {trade_date}: {'; '.join(errors)}")
+    return None
 
 
 def parse_cffex_io_daily_xml(content: bytes, trade_date: str | None = None) -> pd.DataFrame:

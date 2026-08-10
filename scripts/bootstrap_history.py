@@ -29,6 +29,7 @@ from src.core.contracts import build_contract_master
 from src.core.option_chain import build_daily_option_chain
 from src.core.avix_formula import calculate_avix_for_date
 from src.core.clean_surface import clean_option_surface
+from src.core.official_avix_quality import official_avix_ready
 from src.core.qvix_validation import validate_qvix
 from src.core.realized_vol import compute_realized_vol
 from src.core.drawdown import compute_drawdown
@@ -175,6 +176,28 @@ def fetch_options(index_history: pd.DataFrame, recent_days: int | None, full: bo
     if not hs.empty:
         target_date = str(pd.to_datetime(hs["date"]).max().date())
 
+    # Exchange EOD is authoritative and arrives as one complete board. Try it
+    # before contract-by-contract Sina refreshes so a later retry self-heals
+    # quickly once CFFEX publishes the session file.
+    try:
+        from src.data_sources.cffex_option_daily import sync_cffex_io_for_index_gap
+
+        existing_clean = read_csv(CALCULATED / "avix_clean_close.csv")
+        avix_max = None if existing_clean.empty else str(existing_clean["trade_date"].max())[:10]
+        cffex_stats = sync_cffex_io_for_index_gap(
+            index_history,
+            lookback_trading_days=15,
+            avix_clean_max=avix_max,
+        )
+        ok_n = len(cffex_stats.get("ok_dates") or [])
+        miss_n = len(cffex_stats.get("missing_dates") or [])
+        print(
+            f"CFFEX RTJ IO cache sync: ok_dates={ok_n} missing={miss_n} "
+            f"rows={cffex_stats.get('rows', 0)} files_touched={cffex_stats.get('files_written', 0)}"
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN CFFEX RTJ IO cache sync failed: {exc}")
+
     def fetch_one(contract: str) -> tuple[str, pd.DataFrame, str, str]:
         try:
             df = fetch_option_daily(contract)
@@ -244,28 +267,6 @@ def fetch_options(index_history: pd.DataFrame, recent_days: int | None, full: bo
     if not manifest.empty:
         write_option_manifest(manifest)
 
-    # Exchange EOD fallback: CFFEX 日统计·期权 XML → options_daily cache.
-    # Sina is contract-scraped and often fails bulk refresh; CFFEX publishes the
-    # full IO board for each session as one XML file (no private API).
-    try:
-        from src.data_sources.cffex_option_daily import sync_cffex_io_for_index_gap
-
-        existing_clean = read_csv(CALCULATED / "avix_clean_close.csv")
-        avix_max = None if existing_clean.empty else str(existing_clean["trade_date"].max())[:10]
-        cffex_stats = sync_cffex_io_for_index_gap(
-            index_history,
-            lookback_trading_days=15,
-            avix_clean_max=avix_max,
-        )
-        ok_n = len(cffex_stats.get("ok_dates") or [])
-        miss_n = len(cffex_stats.get("missing_dates") or [])
-        print(
-            f"CFFEX RTJ IO cache sync: ok_dates={ok_n} missing={miss_n} "
-            f"rows={cffex_stats.get('rows', 0)} files_touched={cffex_stats.get('files_written', 0)}"
-        )
-    except Exception as exc:  # noqa: BLE001
-        print(f"WARN CFFEX RTJ IO cache sync failed: {exc}")
-
     # Always rebuild from the full on-disk cache so daily refresh of a candidate
     # subset cannot shrink the historical option chain to recent months only.
     frames = load_cached_option_frames()
@@ -291,25 +292,12 @@ def _merge_avix_series(existing: pd.DataFrame, new: pd.DataFrame, key: str = "tr
 
 
 def _official_avix_tip_unusable(row: pd.Series) -> bool:
-    """True only when the tip day has no usable AVIX close.
-
-    WARN_NOT_BRACKET_30D means single-tenor 30D estimate (common around expiry
-    weeks). That is degraded quality, not a missing close — stripping it freezes
-    official RT at the last dual-tenor day and undoes backfills on every CI run.
-    """
-    avix = pd.to_numeric(row.get("avix_clean", row.get("avix_raw")), errors="coerce")
-    if not (pd.notna(avix) and float(avix) > 0):
-        return True
-    quality = str(row.get("quality", "") or "")
-    for flag in quality.replace(",", "|").split("|"):
-        f = flag.strip()
-        if f.startswith("BAD") or f.startswith("LOW"):
-            return True
-    return False
+    """True when the tip cannot support a complete official 30-day AVIX."""
+    return not official_avix_ready(row)
 
 
 def _trim_unusable_official_avix_tip(clean: pd.DataFrame) -> pd.DataFrame:
-    """Drop trailing days with no usable AVIX; keep WARN_NOT_BRACKET_30D tips."""
+    """Keep incomplete tips out of the official series until a source backfill."""
     if clean is None or clean.empty:
         return clean
     out = clean.sort_values("trade_date").reset_index(drop=True)
@@ -382,7 +370,7 @@ def calculate_all(
     write_csv(raw, CALCULATED / "avix_raw_close.csv")
     if len(chain) > 100_000 and not raw_new.empty:
         clean_new = raw_new.rename(columns={"avix_raw": "avix_clean"}).copy()
-        # Keep single-tenor WARN_NOT_BRACKET_30D tips; only drop unusable AVIX.
+        # A partial single-tenor tip remains raw/auditable but is not official.
         clean_new = _trim_unusable_official_avix_tip(clean_new)
         clean_new["avix_raw"] = clean_new["avix_clean"]
         clean_new["raw_clean_diff"] = 0.0
@@ -417,7 +405,7 @@ def calculate_all(
             clean_new.loc[clean_new["raw_clean_diff"] > 2.0, "quality"] = clean_new["quality"].astype(str) + "|WARN_CLEAN_IMPACT_HIGH"
             clean_new.loc[clean_new["raw_clean_diff"] > 4.0, "quality"] = clean_new["quality"].astype(str) + "|LOW_CLEAN_IMPACT_TOO_HIGH"
         clean = _merge_avix_series(existing_clean, clean_new) if not full_recompute else clean_new
-    # Official tip: drop only unusable AVIX (BAD/LOW/NaN). Keep WARN_NOT_BRACKET_30D.
+    # Official publication requires a complete 30-day term structure.
     clean = _trim_unusable_official_avix_tip(clean)
     write_csv(clean, CALCULATED / "avix_clean_close.csv")
     try:

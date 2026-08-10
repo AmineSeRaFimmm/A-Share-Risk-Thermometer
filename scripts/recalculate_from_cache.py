@@ -23,8 +23,7 @@ from src.utils.dates import now_cn
 
 def calculate_clean(chain: pd.DataFrame, rates: pd.DataFrame, raw: pd.DataFrame) -> pd.DataFrame:
     if len(chain) > 100_000:
-        # Same official-tip policy as bootstrap_history.calculate_all:
-        # WARN_NOT_BRACKET_30D is kept; only unusable AVIX tips are dropped.
+        # Same strict official-tip policy as bootstrap_history.calculate_all.
         from scripts.bootstrap_history import _trim_unusable_official_avix_tip
 
         clean = raw.rename(columns={"avix_raw": "avix_clean"}).copy()

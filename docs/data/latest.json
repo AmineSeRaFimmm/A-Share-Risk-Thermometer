@@ -1,10 +1,10 @@
 {
   "trade_date": "2026-08-10",
-  "update_time": "2026-08-10T17:52:39+08:00",
-  "risk_temperature": 49.7,
+  "update_time": "2026-08-10T18:33:48+08:00",
+  "risk_temperature": 57.8,
   "regime": "CAUTION",
   "regime_cn": "警戒",
-  "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY",
+  "quality": "WARN_QVIX_REALTIME_PROXY",
   "model_confidence": {
     "score": 93.7,
     "coverage_score": 100.0,
@@ -17,10 +17,10 @@
   "temperature_mode_cn": "收盘正式",
   "is_final": true,
   "components": {
-    "avix_percentile_2y": 54.672,
-    "avix_zscore_1y": 47.5966,
-    "avix_5d_change": 11.5595,
-    "qvix_confirmation": 60.0,
+    "avix_percentile_2y": 63.0219,
+    "avix_zscore_1y": 51.844,
+    "avix_5d_change": 15.5768,
+    "qvix_confirmation": 100.0,
     "realized_vol": 86.3095,
     "drawdown_pressure": 55.8338,
     "breadth_pressure": 25.1219,
@@ -45,8 +45,8 @@
     "breadth_quality": "OK"
   },
   "avix": {
-    "avix_clean_close": 18.9934,
-    "avix_raw_close": 18.9934,
+    "avix_clean_close": 19.4657,
+    "avix_raw_close": 19.4657,
     "avix_realtime_mid": 19.4774,
     "avix_realtime_quality": "OK",
     "avix_realtime_note": "normal two-term interpolation",
@@ -57,16 +57,16 @@
     "avix_realtime_source_quote_time": null,
     "avix_realtime_fetch_time": "2026-08-10T16:51:09+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
-    "avix_percentile_2y": 0.5467,
-    "quality": "WARN_NOT_BRACKET_30D"
+    "avix_percentile_2y": 0.6302,
+    "quality": "OK"
   },
   "official_close": {
     "trade_date": "2026-08-10",
-    "risk_temperature": 49.7,
+    "risk_temperature": 57.8,
     "regime": "CAUTION",
     "regime_cn": "警戒",
-    "quality": "WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY",
-    "avix_clean": 18.9934,
+    "quality": "WARN_QVIX_REALTIME_PROXY",
+    "avix_clean": 19.4657,
     "model_confidence": {
       "score": 93.7,
       "coverage_score": 100.0,
@@ -77,12 +77,12 @@
   },
   "nowcast": {
     "active": false,
-    "official_risk_temperature": 49.7,
+    "official_risk_temperature": 57.8,
     "reason_cn": "已有正式收盘，优先官方 AVIX"
   },
   "interpretation": {
-    "headline": "市场风险温度 49.7，处于警戒",
-    "summary": "实现波动率、QVIX确认、回撤压力是当前风险温度的主要驱动；多因子合成后给出 49.7/100。",
+    "headline": "市场风险温度 57.8，处于警戒",
+    "summary": "QVIX确认、实现波动率、AVIX两年分位是当前风险温度的主要驱动；多因子合成后给出 57.8/100。",
     "posture": "降低追高倾向",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
