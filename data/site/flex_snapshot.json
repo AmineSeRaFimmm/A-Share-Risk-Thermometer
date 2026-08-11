@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "revision": "3325a2fc2ab711489a26774bf80b42f85e1750ef88d143a6620cd1355720a95f",
-  "built_at": "2026-08-11T19:52:25+08:00",
+  "revision": "09df76f1590e8f7fa9bb0e07a1112c563335ca035da80aef565e1db66cbcd393",
+  "built_at": "2026-08-11T20:05:39+08:00",
   "strategy_as_of": "2026-08-11",
-  "marks_as_of": "2026-08-11",
-  "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
+  "marks_as_of": "2026-08-10",
+  "marks_quality": "WARN_INCOMPLETE_AS_OF",
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -54,186 +54,107 @@
     },
     "market_state": {
       "trade_date": "2026-08-11",
-      "rt": 55.4,
+      "rt": 61.4,
       "prev_rt": 57.8,
-      "rt_d1": -2.3999999999999986,
-      "rt_d5": -10.100000000000001,
+      "rt_d1": 3.6000000000000014,
+      "rt_d5": -4.100000000000001,
       "rt_rollmax_10": 90.1,
       "hs300_dd60": -0.0782402684133988,
-      "regime": "CAUTION",
-      "regime_cn": "警戒",
-      "quality": "WARN_QVIX_MISSING",
-      "model_confidence": 86.5
+      "regime": "HIGH_RISK",
+      "regime_cn": "高风险",
+      "quality": "WARN_QVIX_REALTIME_PROXY",
+      "model_confidence": 92.2
     },
     "active_stage_ids": [
-      "FALLING_HARD",
-      "HIGH_COOLING"
+      "CSI300_CORE_BUY"
     ],
     "primary_stage": {
-      "stage_id": "HIGH_COOLING",
-      "name_cn": "高位降温 / 避险轮动",
+      "stage_id": "CSI300_CORE_BUY",
+      "name_cn": "主策略做多窗口（高胜率高收益核心）",
       "csi300": {
-        "action": "STAND_DOWN_OR_HOLD_EXISTING",
-        "action_cn": "主策略若已到期则不新开；已持有按规则卖",
-        "detail": "高位回落阶段指数边沿不清晰；以板块相对避险与规则卖出为主。",
-        "confidence": "MEDIUM"
+        "action": "BUY",
+        "action_cn": "买入沪深300（或等价ETF）",
+        "detail": "T日收盘满足条件 → T+1开盘买入；持有5个交易日 → 到期后下一开盘卖出。",
+        "confidence": "HIGH",
+        "rule_id": "s006676",
+        "stats_summary": "全样本 n=49 胜率63% 年化~10% 总收益~86%；OOS n=22 胜率64% 总收益~47%"
       },
       "notes": [
-        "这是「避险/相对抗跌」指令，不是追涨科技。",
-        "事件样本 n≈40，置信度低于升温大样本结论；仓位宜保守。"
+        "这是全体系最高优先级的指数级指令。",
+        "同一时间最多1笔主策略；持仓中忽略新信号。",
+        "建议仓位研究区间 1/3~1/2，非回测满仓假设。"
       ]
     },
     "active_stages": [
       {
-        "stage_id": "HIGH_COOLING",
-        "name_cn": "高位降温 / 避险轮动",
-        "priority": 90,
+        "stage_id": "CSI300_CORE_BUY",
+        "name_cn": "主策略做多窗口（高胜率高收益核心）",
+        "priority": 100,
         "csi300": {
-          "action": "STAND_DOWN_OR_HOLD_EXISTING",
-          "action_cn": "主策略若已到期则不新开；已持有按规则卖",
-          "detail": "高位回落阶段指数边沿不清晰；以板块相对避险与规则卖出为主。",
-          "confidence": "MEDIUM"
+          "action": "BUY",
+          "action_cn": "买入沪深300（或等价ETF）",
+          "detail": "T日收盘满足条件 → T+1开盘买入；持有5个交易日 → 到期后下一开盘卖出。",
+          "confidence": "HIGH",
+          "rule_id": "s006676",
+          "stats_summary": "全样本 n=49 胜率63% 年化~10% 总收益~86%；OOS n=22 胜率64% 总收益~47%"
         },
         "sectors_long": [
           {
-            "name": "石油石化",
-            "why": "高位回落5日超额+1.5%，胜率76%，显著（最高胜率组）",
-            "win_rate": 0.76,
-            "n": 37,
+            "name": "建筑材料",
+            "why": "高风险区间[60,75) 未来5日超额显著、胜率~58%",
+            "win_rate": 0.58,
+            "n": 184,
             "horizon": "5D",
-            "mean_excess": 0.0149
+            "mean_excess": 0.005
           },
           {
-            "name": "综合",
-            "why": "高位回落超额+1.6%，胜率69%，显著",
-            "win_rate": 0.69,
-            "n": 39,
-            "horizon": "5D",
-            "mean_excess": 0.015661
-          },
-          {
-            "name": "轻工制造",
-            "why": "高位回落超额+1.5%，胜率69%，显著",
-            "win_rate": 0.69,
-            "n": 39,
-            "horizon": "5D",
-            "mean_excess": 0.014524
-          },
-          {
-            "name": "煤炭",
-            "why": "高位回落超额+1.5%，胜率59%，显著",
+            "name": "商贸零售",
+            "why": "高风险区间超额显著",
             "win_rate": 0.59,
-            "n": 37,
+            "n": 184,
             "horizon": "5D",
-            "mean_excess": 0.01494
+            "mean_excess": 0.005
           },
           {
             "name": "传媒",
-            "why": "高位回落超额+1.5%，胜率64%，显著",
-            "win_rate": 0.64,
-            "n": 39,
+            "why": "高风险区间超额显著",
+            "win_rate": 0.58,
+            "n": 184,
             "horizon": "5D",
-            "mean_excess": 0.014803
+            "mean_excess": 0.005
+          },
+          {
+            "name": "恒生科技",
+            "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+            "win_rate": 0.58,
+            "n": 165,
+            "horizon": "5D",
+            "mean_excess": 0.008
           }
         ],
         "sectors_short": [
           {
-            "name": "电子",
-            "why": "高位回落阶段相对偏弱（均值负）",
+            "name": "公用事业",
+            "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+            "win_rate": 0.44,
+            "n": 184,
+            "horizon": "5D",
+            "mean_excess": -0.003
+          },
+          {
+            "name": "银行",
+            "why": "高风险区间相对不占优",
             "win_rate": 0.49,
-            "n": 39,
+            "n": 184,
             "horizon": "5D",
-            "mean_excess": -0.002096
-          },
-          {
-            "name": "计算机",
-            "why": "高位回落阶段相对偏弱",
-            "win_rate": 0.44,
-            "n": 39,
-            "horizon": "5D",
-            "mean_excess": -0.001737
+            "mean_excess": -0.001
           }
         ],
         "hold_days": 5,
         "notes": [
-          "这是「避险/相对抗跌」指令，不是追涨科技。",
-          "事件样本 n≈40，置信度低于升温大样本结论；仓位宜保守。"
-        ],
-        "same_day_note": null
-      },
-      {
-        "stage_id": "FALLING_HARD",
-        "name_cn": "降温（ΔRT_5≤-5）",
-        "priority": 50,
-        "csi300": {
-          "action": "NO_NEW_LONG_UNLESS_CORE",
-          "action_cn": "除非仍满足主策略持仓中，否则不新开指数多单",
-          "detail": "降温阶段指数边沿取决于是否仍在60-80且回撤条件；默认观望。",
-          "confidence": "MEDIUM"
-        },
-        "sectors_long": [
-          {
-            "name": "有色金属",
-            "why": "降温后5日超额显著为正",
-            "win_rate": 0.53,
-            "n": 477,
-            "horizon": "5D",
-            "mean_excess": 0.0063
-          },
-          {
-            "name": "煤炭",
-            "why": "降温后5日超额显著为正",
-            "win_rate": 0.52,
-            "n": 339,
-            "horizon": "5D",
-            "mean_excess": 0.0061
-          },
-          {
-            "name": "基础化工",
-            "why": "降温后5日超额显著、胜率57%",
-            "win_rate": 0.57,
-            "n": 477,
-            "horizon": "5D",
-            "mean_excess": 0.002979
-          },
-          {
-            "name": "电力设备",
-            "why": "降温后5日超额显著",
-            "win_rate": 0.53,
-            "n": 477,
-            "horizon": "5D",
-            "mean_excess": 0.003273
-          }
-        ],
-        "sectors_short": [
-          {
-            "name": "计算机",
-            "why": "降温后显著跑输",
-            "win_rate": 0.43,
-            "n": 477,
-            "horizon": "5D",
-            "mean_excess": -0.003997
-          },
-          {
-            "name": "传媒",
-            "why": "降温后显著跑输",
-            "win_rate": 0.44,
-            "n": 477,
-            "horizon": "5D",
-            "mean_excess": -0.003221
-          },
-          {
-            "name": "美容护理",
-            "why": "降温后显著跑输",
-            "win_rate": 0.42,
-            "n": 339,
-            "horizon": "5D",
-            "mean_excess": -0.003069
-          }
-        ],
-        "hold_days": 5,
-        "notes": [
-          "降温≠全面做多；偏资源/中游相对强，TMT相对弱。"
+          "这是全体系最高优先级的指数级指令。",
+          "同一时间最多1笔主策略；持仓中忽略新信号。",
+          "建议仓位研究区间 1/3~1/2，非回测满仓假设。"
         ],
         "same_day_note": null
       }
@@ -243,13 +164,13 @@
         "sleeve": "core",
         "name": "沪深300",
         "action": "HOLD",
-        "action_cn": "持有至到期",
+        "action_cn": "持有（忽略重复信号）",
         "side": "HOLD",
         "side_cn": "持有",
         "priority": "P0",
         "weight_target": 0.6,
         "weight_hint": "60%",
-        "why": "未触发新信号；按回测规则持有满期，不因阶段切换强平",
+        "why": "主策略持仓中，忽略新开仓信号",
         "days_held": 4,
         "days_remaining": 1,
         "entry": "—",
@@ -515,39 +436,29 @@
         "instrument_display": "轻工制造（512430 家居家电ETF华泰柏瑞）"
       },
       {
-        "name": "计算机",
+        "name": "公用事业",
         "side": "AVOID",
         "side_cn": "回避（若持有则减配）",
         "stages": [
-          "FALLING_HARD",
-          "HIGH_COOLING"
+          "CSI300_CORE_BUY"
         ],
         "stage_evidence": [
           {
-            "stage_id": "FALLING_HARD",
-            "score": 0.026276,
-            "why": "降温后显著跑输",
-            "win_rate": 0.43,
-            "n": 477,
-            "mean_excess": -0.003997,
-            "horizon": "5D"
-          },
-          {
-            "stage_id": "HIGH_COOLING",
-            "score": 0.001014,
-            "why": "高位回落阶段相对偏弱",
+            "stage_id": "CSI300_CORE_BUY",
+            "score": 0.017905,
+            "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
             "win_rate": 0.44,
-            "n": 39,
-            "mean_excess": -0.001737,
+            "n": 184,
+            "mean_excess": -0.003,
             "horizon": "5D"
           }
         ],
-        "why": "降温后显著跑输",
-        "win_rate": 0.43,
-        "n": 477,
-        "mean_excess": -0.003997,
+        "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+        "win_rate": 0.44,
+        "n": 184,
+        "mean_excess": -0.003,
         "conditional": true,
-        "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
+        "condition_cn": "仅当已持有「公用事业」映射 ETF 时减至 0；无持仓则无需操作",
         "conflict_resolution": null,
         "action": "AVOID",
         "action_cn": "回避/条件减配",
@@ -556,40 +467,40 @@
         "weight_hint": "0%（若持有）",
         "entry": "—",
         "exit": "—",
-        "sector": "计算机",
-        "etf_code": "159998",
-        "etf_name": "计算机ETF天弘",
-        "etf_label": "159998 计算机ETF天弘",
+        "sector": "公用事业",
+        "etf_code": "560620",
+        "etf_name": "公用事业ETF万家",
+        "etf_label": "560620 公用事业ETF万家",
         "etf_quality": "good",
         "etf_quality_cn": "贴合",
         "etf_note": "",
-        "etf_display": "计算机 → 159998 计算机ETF天弘",
-        "instrument_display": "计算机（159998 计算机ETF天弘）"
+        "etf_display": "公用事业 → 560620 公用事业ETF万家",
+        "instrument_display": "公用事业（560620 公用事业ETF万家）"
       },
       {
-        "name": "电子",
+        "name": "银行",
         "side": "AVOID",
         "side_cn": "回避（若持有则减配）",
         "stages": [
-          "HIGH_COOLING"
+          "CSI300_CORE_BUY"
         ],
         "stage_evidence": [
           {
-            "stage_id": "HIGH_COOLING",
-            "score": 0.000954,
-            "why": "高位回落阶段相对偏弱（均值负）",
+            "stage_id": "CSI300_CORE_BUY",
+            "score": 0.006647,
+            "why": "高风险区间相对不占优",
             "win_rate": 0.49,
-            "n": 39,
-            "mean_excess": -0.002096,
+            "n": 184,
+            "mean_excess": -0.001,
             "horizon": "5D"
           }
         ],
-        "why": "高位回落阶段相对偏弱（均值负）",
+        "why": "高风险区间相对不占优",
         "win_rate": 0.49,
-        "n": 39,
-        "mean_excess": -0.002096,
+        "n": 184,
+        "mean_excess": -0.001,
         "conditional": true,
-        "condition_cn": "仅当已持有「电子」映射 ETF 时减至 0；无持仓则无需操作",
+        "condition_cn": "仅当已持有「银行」映射 ETF 时减至 0；无持仓则无需操作",
         "conflict_resolution": null,
         "action": "AVOID",
         "action_cn": "回避/条件减配",
@@ -598,136 +509,119 @@
         "weight_hint": "0%（若持有）",
         "entry": "—",
         "exit": "—",
-        "sector": "电子",
-        "etf_code": "159995",
-        "etf_name": "芯片ETF华夏",
-        "etf_label": "159995 芯片ETF华夏",
-        "etf_quality": "proxy",
-        "etf_quality_cn": "主题代理",
-        "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
-        "etf_display": "电子 → 159995 芯片ETF华夏",
-        "instrument_display": "电子（159995 芯片ETF华夏）"
+        "sector": "银行",
+        "etf_code": "512800",
+        "etf_name": "银行ETF华宝",
+        "etf_label": "512800 银行ETF华宝",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "银行 → 512800 银行ETF华宝",
+        "instrument_display": "银行（512800 银行ETF华宝）"
       }
     ],
     "stage_observations": [
       {
+        "rank": 1,
+        "market": "CSI300",
+        "side": "BUY",
+        "name": "沪深300",
+        "instrument": "沪深300",
+        "trigger": "60≤RT<80 且 沪深300 60日回撤≤-5%",
+        "entry": "CORE严格条件盘中稳定则T日14:50尾盘；否则T+1开盘",
+        "exit": "持有5个交易日后 T+1 开盘卖出",
+        "priority": "P0",
+        "win_rate": 0.6327,
+        "n": 49,
+        "evidence": {
+          "n": 49,
+          "win_rate": 0.6327,
+          "ann_return": 0.1035,
+          "total_return": 0.8574,
+          "max_dd": -0.1842,
+          "avg_trade": 0.0107,
+          "oos_n": 22,
+          "oos_win_rate": 0.6364,
+          "oos_total_return": 0.4702
+        },
+        "why": "严格回测最优：n=49 胜率63% 年化~10% OOS胜率64%",
+        "disclaimer": "研究指令，非投资建议",
+        "sector": "沪深300",
+        "etf_code": "510300",
+        "etf_name": "沪深300ETF华泰柏瑞",
+        "etf_label": "510300 沪深300ETF华泰柏瑞",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "核心指数仓默认标的；备选 510310/159919",
+        "etf_display": "沪深300 → 510300 沪深300ETF华泰柏瑞",
+        "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
+      },
+      {
         "rank": 10,
         "market": "SECTOR",
         "side": "OVERWEIGHT_RELATIVE",
-        "name": "石油石化",
-        "instrument": "石油石化",
-        "stage": "高位降温 / 避险轮动",
-        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "name": "建筑材料",
+        "instrument": "建筑材料",
+        "stage": "主策略做多窗口（高胜率高收益核心）",
+        "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
         "entry": "事件确认后 T+1",
         "exit": "持有约5个交易日",
-        "priority": "P2",
-        "win_rate": 0.76,
-        "n": 37,
-        "why": "高位回落5日超额+1.5%，胜率76%，显著（最高胜率组）",
+        "priority": "P1",
+        "win_rate": 0.58,
+        "n": 184,
+        "why": "高风险区间[60,75) 未来5日超额显著、胜率~58%",
         "size_note": "相对收益指令，按映射 ETF 交易",
         "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "石油石化",
-        "etf_code": "159697",
-        "etf_name": "石油ETF鹏华",
-        "etf_label": "159697 石油ETF鹏华",
-        "etf_quality": "proxy",
-        "etf_quality_cn": "主题代理",
-        "etf_note": "油气主题代理石化",
-        "etf_display": "石油石化 → 159697 石油ETF鹏华",
-        "instrument_display": "石油石化（159697 石油ETF鹏华）"
+        "sector": "建筑材料",
+        "etf_code": "159745",
+        "etf_name": "建材ETF国泰",
+        "etf_label": "159745 建材ETF国泰",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "建筑材料 → 159745 建材ETF国泰",
+        "instrument_display": "建筑材料（159745 建材ETF国泰）"
       },
       {
         "rank": 11,
         "market": "SECTOR",
         "side": "OVERWEIGHT_RELATIVE",
-        "name": "综合",
-        "instrument": "综合",
-        "stage": "高位降温 / 避险轮动",
-        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "name": "商贸零售",
+        "instrument": "商贸零售",
+        "stage": "主策略做多窗口（高胜率高收益核心）",
+        "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
         "entry": "事件确认后 T+1",
         "exit": "持有约5个交易日",
-        "priority": "P2",
-        "win_rate": 0.69,
-        "n": 39,
-        "why": "高位回落超额+1.6%，胜率69%，显著",
+        "priority": "P1",
+        "win_rate": 0.59,
+        "n": 184,
+        "why": "高风险区间超额显著",
         "size_note": "相对收益指令，按映射 ETF 交易",
         "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "综合",
-        "etf_code": "510300",
-        "etf_name": "沪深300ETF华泰柏瑞",
-        "etf_label": "510300 沪深300ETF华泰柏瑞",
-        "etf_quality": "weak",
-        "etf_quality_cn": "弱代理",
-        "etf_note": "综合行业无干净映射，回退沪深300",
-        "etf_display": "综合 → 510300 沪深300ETF华泰柏瑞",
-        "instrument_display": "综合（510300 沪深300ETF华泰柏瑞）"
+        "sector": "商贸零售",
+        "etf_code": "159928",
+        "etf_name": "消费ETF汇添富",
+        "etf_label": "159928 消费ETF汇添富",
+        "etf_quality": "proxy",
+        "etf_quality_cn": "主题代理",
+        "etf_note": "零售宽基稀缺，用主要消费ETF",
+        "etf_display": "商贸零售 → 159928 消费ETF汇添富",
+        "instrument_display": "商贸零售（159928 消费ETF汇添富）"
       },
       {
         "rank": 12,
         "market": "SECTOR",
         "side": "OVERWEIGHT_RELATIVE",
-        "name": "轻工制造",
-        "instrument": "轻工制造",
-        "stage": "高位降温 / 避险轮动",
-        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
-        "entry": "事件确认后 T+1",
-        "exit": "持有约5个交易日",
-        "priority": "P2",
-        "win_rate": 0.69,
-        "n": 39,
-        "why": "高位回落超额+1.5%，胜率69%，显著",
-        "size_note": "相对收益指令，按映射 ETF 交易",
-        "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "轻工制造",
-        "etf_code": "512430",
-        "etf_name": "家居家电ETF华泰柏瑞",
-        "etf_label": "512430 家居家电ETF华泰柏瑞",
-        "etf_quality": "proxy",
-        "etf_quality_cn": "主题代理",
-        "etf_note": "无纯正轻工ETF，用家居主题近似",
-        "etf_display": "轻工制造 → 512430 家居家电ETF华泰柏瑞",
-        "instrument_display": "轻工制造（512430 家居家电ETF华泰柏瑞）"
-      },
-      {
-        "rank": 13,
-        "market": "SECTOR",
-        "side": "OVERWEIGHT_RELATIVE",
-        "name": "煤炭",
-        "instrument": "煤炭",
-        "stage": "高位降温 / 避险轮动",
-        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
-        "entry": "事件确认后 T+1",
-        "exit": "持有约5个交易日",
-        "priority": "P2",
-        "win_rate": 0.59,
-        "n": 37,
-        "why": "高位回落超额+1.5%，胜率59%，显著",
-        "size_note": "相对收益指令，按映射 ETF 交易",
-        "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "煤炭",
-        "etf_code": "515220",
-        "etf_name": "煤炭ETF国泰",
-        "etf_label": "515220 煤炭ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "煤炭 → 515220 煤炭ETF国泰",
-        "instrument_display": "煤炭（515220 煤炭ETF国泰）"
-      },
-      {
-        "rank": 14,
-        "market": "SECTOR",
-        "side": "OVERWEIGHT_RELATIVE",
         "name": "传媒",
         "instrument": "传媒",
-        "stage": "高位降温 / 避险轮动",
-        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "stage": "主策略做多窗口（高胜率高收益核心）",
+        "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
         "entry": "事件确认后 T+1",
         "exit": "持有约5个交易日",
-        "priority": "P2",
-        "win_rate": 0.64,
-        "n": 39,
-        "why": "高位回落超额+1.5%，胜率64%，显著",
+        "priority": "P1",
+        "win_rate": 0.58,
+        "n": 184,
+        "why": "高风险区间超额显著",
         "size_note": "相对收益指令，按映射 ETF 交易",
         "disclaimer": "超额收益代理资金偏好，非官方资金流",
         "sector": "传媒",
@@ -741,233 +635,80 @@
         "instrument_display": "传媒（512980 传媒ETF广发）"
       },
       {
+        "rank": 13,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "恒生科技",
+        "instrument": "恒生科技",
+        "stage": "主策略做多窗口（高胜率高收益核心）",
+        "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P1",
+        "win_rate": 0.58,
+        "n": 165,
+        "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "恒生科技",
+        "etf_code": "513180",
+        "etf_name": "恒生科技ETF华夏",
+        "etf_label": "513180 恒生科技ETF华夏",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "备选 513130/513010",
+        "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
+        "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
+      },
+      {
         "rank": 50,
         "market": "SECTOR",
         "side": "UNDERWEIGHT_RELATIVE",
-        "name": "电子",
-        "instrument": "电子",
-        "stage": "高位降温 / 避险轮动",
-        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "name": "公用事业",
+        "instrument": "公用事业",
+        "stage": "主策略做多窗口（高胜率高收益核心）",
+        "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
+        "entry": "事件确认后减配/回避",
+        "exit": "约5个交易日窗口",
+        "priority": "P1",
+        "win_rate": 0.44,
+        "n": 184,
+        "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+        "disclaimer": "相对减配，不是裸空指令",
+        "sector": "公用事业",
+        "etf_code": "560620",
+        "etf_name": "公用事业ETF万家",
+        "etf_label": "560620 公用事业ETF万家",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "公用事业 → 560620 公用事业ETF万家",
+        "instrument_display": "公用事业（560620 公用事业ETF万家）"
+      },
+      {
+        "rank": 51,
+        "market": "SECTOR",
+        "side": "UNDERWEIGHT_RELATIVE",
+        "name": "银行",
+        "instrument": "银行",
+        "stage": "主策略做多窗口（高胜率高收益核心）",
+        "trigger": "60 <= rt < 80 and hs300_dd60 <= -0.05",
         "entry": "事件确认后减配/回避",
         "exit": "约5个交易日窗口",
         "priority": "P1",
         "win_rate": 0.49,
-        "n": 39,
-        "why": "高位回落阶段相对偏弱（均值负）",
+        "n": 184,
+        "why": "高风险区间相对不占优",
         "disclaimer": "相对减配，不是裸空指令",
-        "sector": "电子",
-        "etf_code": "159995",
-        "etf_name": "芯片ETF华夏",
-        "etf_label": "159995 芯片ETF华夏",
-        "etf_quality": "proxy",
-        "etf_quality_cn": "主题代理",
-        "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
-        "etf_display": "电子 → 159995 芯片ETF华夏",
-        "instrument_display": "电子（159995 芯片ETF华夏）"
-      },
-      {
-        "rank": 51,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "计算机",
-        "instrument": "计算机",
-        "stage": "高位降温 / 避险轮动",
-        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.44,
-        "n": 39,
-        "why": "高位回落阶段相对偏弱",
-        "disclaimer": "相对减配，不是裸空指令",
-        "sector": "计算机",
-        "etf_code": "159998",
-        "etf_name": "计算机ETF天弘",
-        "etf_label": "159998 计算机ETF天弘",
+        "sector": "银行",
+        "etf_code": "512800",
+        "etf_name": "银行ETF华宝",
+        "etf_label": "512800 银行ETF华宝",
         "etf_quality": "good",
         "etf_quality_cn": "贴合",
         "etf_note": "",
-        "etf_display": "计算机 → 159998 计算机ETF天弘",
-        "instrument_display": "计算机（159998 计算机ETF天弘）"
-      },
-      {
-        "rank": 10,
-        "market": "SECTOR",
-        "side": "OVERWEIGHT_RELATIVE",
-        "name": "有色金属",
-        "instrument": "有色金属",
-        "stage": "降温（ΔRT_5≤-5）",
-        "trigger": "rt_d5 <= -5",
-        "entry": "事件确认后 T+1",
-        "exit": "持有约5个交易日",
-        "priority": "P1",
-        "win_rate": 0.53,
-        "n": 477,
-        "why": "降温后5日超额显著为正",
-        "size_note": "相对收益指令，按映射 ETF 交易",
-        "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "有色金属",
-        "etf_code": "512400",
-        "etf_name": "有色金属ETF南方",
-        "etf_label": "512400 有色金属ETF南方",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "有色金属 → 512400 有色金属ETF南方",
-        "instrument_display": "有色金属（512400 有色金属ETF南方）"
-      },
-      {
-        "rank": 11,
-        "market": "SECTOR",
-        "side": "OVERWEIGHT_RELATIVE",
-        "name": "煤炭",
-        "instrument": "煤炭",
-        "stage": "降温（ΔRT_5≤-5）",
-        "trigger": "rt_d5 <= -5",
-        "entry": "事件确认后 T+1",
-        "exit": "持有约5个交易日",
-        "priority": "P1",
-        "win_rate": 0.52,
-        "n": 339,
-        "why": "降温后5日超额显著为正",
-        "size_note": "相对收益指令，按映射 ETF 交易",
-        "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "煤炭",
-        "etf_code": "515220",
-        "etf_name": "煤炭ETF国泰",
-        "etf_label": "515220 煤炭ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "煤炭 → 515220 煤炭ETF国泰",
-        "instrument_display": "煤炭（515220 煤炭ETF国泰）"
-      },
-      {
-        "rank": 12,
-        "market": "SECTOR",
-        "side": "OVERWEIGHT_RELATIVE",
-        "name": "基础化工",
-        "instrument": "基础化工",
-        "stage": "降温（ΔRT_5≤-5）",
-        "trigger": "rt_d5 <= -5",
-        "entry": "事件确认后 T+1",
-        "exit": "持有约5个交易日",
-        "priority": "P1",
-        "win_rate": 0.57,
-        "n": 477,
-        "why": "降温后5日超额显著、胜率57%",
-        "size_note": "相对收益指令，按映射 ETF 交易",
-        "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "基础化工",
-        "etf_code": "516020",
-        "etf_name": "化工ETF华宝",
-        "etf_label": "516020 化工ETF华宝",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "基础化工 → 516020 化工ETF华宝",
-        "instrument_display": "基础化工（516020 化工ETF华宝）"
-      },
-      {
-        "rank": 13,
-        "market": "SECTOR",
-        "side": "OVERWEIGHT_RELATIVE",
-        "name": "电力设备",
-        "instrument": "电力设备",
-        "stage": "降温（ΔRT_5≤-5）",
-        "trigger": "rt_d5 <= -5",
-        "entry": "事件确认后 T+1",
-        "exit": "持有约5个交易日",
-        "priority": "P1",
-        "win_rate": 0.53,
-        "n": 477,
-        "why": "降温后5日超额显著",
-        "size_note": "相对收益指令，按映射 ETF 交易",
-        "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "电力设备",
-        "etf_code": "516850",
-        "etf_name": "新能源ETF华夏",
-        "etf_label": "516850 新能源ETF华夏",
-        "etf_quality": "proxy",
-        "etf_quality_cn": "主题代理",
-        "etf_note": "电力设备≈新能源主题",
-        "etf_display": "电力设备 → 516850 新能源ETF华夏",
-        "instrument_display": "电力设备（516850 新能源ETF华夏）"
-      },
-      {
-        "rank": 50,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "计算机",
-        "instrument": "计算机",
-        "stage": "降温（ΔRT_5≤-5）",
-        "trigger": "rt_d5 <= -5",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.43,
-        "n": 477,
-        "why": "降温后显著跑输",
-        "disclaimer": "相对减配，不是裸空指令",
-        "sector": "计算机",
-        "etf_code": "159998",
-        "etf_name": "计算机ETF天弘",
-        "etf_label": "159998 计算机ETF天弘",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "计算机 → 159998 计算机ETF天弘",
-        "instrument_display": "计算机（159998 计算机ETF天弘）"
-      },
-      {
-        "rank": 51,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "传媒",
-        "instrument": "传媒",
-        "stage": "降温（ΔRT_5≤-5）",
-        "trigger": "rt_d5 <= -5",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.44,
-        "n": 477,
-        "why": "降温后显著跑输",
-        "disclaimer": "相对减配，不是裸空指令",
-        "sector": "传媒",
-        "etf_code": "512980",
-        "etf_name": "传媒ETF广发",
-        "etf_label": "512980 传媒ETF广发",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "传媒 → 512980 传媒ETF广发",
-        "instrument_display": "传媒（512980 传媒ETF广发）"
-      },
-      {
-        "rank": 52,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "美容护理",
-        "instrument": "美容护理",
-        "stage": "降温（ΔRT_5≤-5）",
-        "trigger": "rt_d5 <= -5",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.42,
-        "n": 339,
-        "why": "降温后显著跑输",
-        "disclaimer": "相对减配，不是裸空指令",
-        "sector": "美容护理",
-        "etf_code": "159928",
-        "etf_name": "消费ETF汇添富",
-        "etf_label": "159928 消费ETF汇添富",
-        "etf_quality": "weak",
-        "etf_quality_cn": "弱代理",
-        "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
-        "etf_display": "美容护理 → 159928 消费ETF汇添富",
-        "instrument_display": "美容护理（159928 消费ETF汇添富）"
+        "etf_display": "银行 → 512800 银行ETF华宝",
+        "instrument_display": "银行（512800 银行ETF华宝）"
       }
     ],
     "flex_panel": {
@@ -1260,31 +1001,19 @@
         }
       },
       "market_state": {
-        "rt": 55.4,
-        "rt_d1": -2.3999999999999986,
-        "rt_d5": -10.100000000000001,
+        "rt": 61.4,
+        "rt_d1": 3.6000000000000014,
+        "rt_d5": -4.100000000000001,
         "hs300_dd60": -0.0782402684133988,
-        "model_confidence": 86.5,
-        "regime_cn": "警戒"
+        "model_confidence": 92.2,
+        "regime_cn": "高风险"
       },
       "active_stages": [
-        "FALLING_HARD",
-        "HIGH_COOLING"
+        "CSI300_CORE_BUY"
       ],
       "suppressed_stages": [],
-      "suppressed_avoid_conflicts": [
-        {
-          "name": "传媒",
-          "etf_code": "512980",
-          "reason": "策略持仓退出规则优先，禁止同时发布 AVOID/清零指令"
-        },
-        {
-          "name": "美容护理",
-          "etf_code": "159928",
-          "reason": "策略持仓退出规则优先，禁止同时发布 AVOID/清零指令"
-        }
-      ],
-      "merge_note_cn": "多阶段合并：FALLING_HARD, HIGH_COOLING；被门控压制：无",
+      "suppressed_avoid_conflicts": [],
+      "merge_note_cn": "多阶段合并：CSI300_CORE_BUY；被门控压制：无",
       "position_state": {
         "as_of": "2026-08-11",
         "mode": "aggressive",
@@ -1430,274 +1159,181 @@
         "status_cn": "持有中",
         "tone": "buy",
         "stage_id": "CSI300_CORE_BUY",
-        "stage_cn": "降温（ΔRT_5≤-5） + 高位降温 / 避险轮动",
+        "stage_cn": "主策略做多窗口（高胜率高收益核心）",
         "stage_ids": [
-          "FALLING_HARD",
-          "HIGH_COOLING"
+          "CSI300_CORE_BUY"
         ],
         "buy": [
           {
-            "name": "煤炭",
-            "score": 0.052276,
-            "weight_in_sat": 0.3123,
+            "name": "恒生科技",
+            "score": 0.059602,
+            "weight_in_sat": 0.3584,
             "quality": "good",
             "quality_weight": 1.0,
-            "win_rate": 0.52,
-            "n": 339,
-            "mean_excess": 0.0061,
+            "win_rate": 0.58,
+            "n": 165,
+            "mean_excess": 0.008,
             "stages": [
-              "FALLING_HARD",
-              "HIGH_COOLING"
+              "CSI300_CORE_BUY"
             ],
             "stage_evidence": [
               {
-                "stage_id": "FALLING_HARD",
-                "score": 0.040882,
-                "why": "降温后5日超额显著为正",
-                "win_rate": 0.52,
-                "n": 339,
-                "mean_excess": 0.0061,
+                "stage_id": "CSI300_CORE_BUY",
+                "score": 0.059602,
+                "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+                "win_rate": 0.58,
+                "n": 165,
+                "mean_excess": 0.008,
                 "horizon": "5D"
-              },
+              }
+            ],
+            "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+            "tier": "high",
+            "conflict_resolution": null,
+            "sector": "恒生科技",
+            "etf_code": "513180",
+            "etf_name": "恒生科技ETF华夏",
+            "etf_label": "513180 恒生科技ETF华夏",
+            "etf_quality": "good",
+            "etf_quality_cn": "贴合",
+            "etf_note": "备选 513130/513010",
+            "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
+            "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
+          },
+          {
+            "name": "建筑材料",
+            "score": 0.039338,
+            "weight_in_sat": 0.2366,
+            "quality": "good",
+            "quality_weight": 1.0,
+            "win_rate": 0.58,
+            "n": 184,
+            "mean_excess": 0.005,
+            "stages": [
+              "CSI300_CORE_BUY"
+            ],
+            "stage_evidence": [
               {
-                "stage_id": "HIGH_COOLING",
-                "score": 0.011394,
-                "why": "高位回落超额+1.5%，胜率59%，显著",
+                "stage_id": "CSI300_CORE_BUY",
+                "score": 0.039338,
+                "why": "高风险区间[60,75) 未来5日超额显著、胜率~58%",
+                "win_rate": 0.58,
+                "n": 184,
+                "mean_excess": 0.005,
+                "horizon": "5D"
+              }
+            ],
+            "why": "高风险区间[60,75) 未来5日超额显著、胜率~58%",
+            "tier": "high",
+            "conflict_resolution": null,
+            "sector": "建筑材料",
+            "etf_code": "159745",
+            "etf_name": "建材ETF国泰",
+            "etf_label": "159745 建材ETF国泰",
+            "etf_quality": "good",
+            "etf_quality_cn": "贴合",
+            "etf_note": "",
+            "etf_display": "建筑材料 → 159745 建材ETF国泰",
+            "instrument_display": "建筑材料（159745 建材ETF国泰）"
+          },
+          {
+            "name": "传媒",
+            "score": 0.039338,
+            "weight_in_sat": 0.2366,
+            "quality": "good",
+            "quality_weight": 1.0,
+            "win_rate": 0.58,
+            "n": 184,
+            "mean_excess": 0.005,
+            "stages": [
+              "CSI300_CORE_BUY"
+            ],
+            "stage_evidence": [
+              {
+                "stage_id": "CSI300_CORE_BUY",
+                "score": 0.039338,
+                "why": "高风险区间超额显著",
+                "win_rate": 0.58,
+                "n": 184,
+                "mean_excess": 0.005,
+                "horizon": "5D"
+              }
+            ],
+            "why": "高风险区间超额显著",
+            "tier": "high",
+            "conflict_resolution": null,
+            "sector": "传媒",
+            "etf_code": "512980",
+            "etf_name": "传媒ETF广发",
+            "etf_label": "512980 传媒ETF广发",
+            "etf_quality": "good",
+            "etf_quality_cn": "贴合",
+            "etf_note": "",
+            "etf_display": "传媒 → 512980 传媒ETF广发",
+            "instrument_display": "传媒（512980 传媒ETF广发）"
+          },
+          {
+            "name": "商贸零售",
+            "score": 0.028011,
+            "weight_in_sat": 0.1684,
+            "quality": "proxy",
+            "quality_weight": 0.7,
+            "win_rate": 0.59,
+            "n": 184,
+            "mean_excess": 0.005,
+            "stages": [
+              "CSI300_CORE_BUY"
+            ],
+            "stage_evidence": [
+              {
+                "stage_id": "CSI300_CORE_BUY",
+                "score": 0.028011,
+                "why": "高风险区间超额显著",
                 "win_rate": 0.59,
-                "n": 37,
-                "mean_excess": 0.01494,
+                "n": 184,
+                "mean_excess": 0.005,
                 "horizon": "5D"
               }
             ],
-            "why": "阶段FALLING_HARD+HIGH_COOLING证据合并",
+            "why": "高风险区间超额显著",
             "tier": "high",
             "conflict_resolution": null,
-            "sector": "煤炭",
-            "etf_code": "515220",
-            "etf_name": "煤炭ETF国泰",
-            "etf_label": "515220 煤炭ETF国泰",
-            "etf_quality": "good",
-            "etf_quality_cn": "贴合",
-            "etf_note": "",
-            "etf_display": "煤炭 → 515220 煤炭ETF国泰",
-            "instrument_display": "煤炭（515220 煤炭ETF国泰）"
-          },
-          {
-            "name": "有色金属",
-            "score": 0.051047,
-            "weight_in_sat": 0.3049,
-            "quality": "good",
-            "quality_weight": 1.0,
-            "win_rate": 0.53,
-            "n": 477,
-            "mean_excess": 0.0063,
-            "stages": [
-              "FALLING_HARD"
-            ],
-            "stage_evidence": [
-              {
-                "stage_id": "FALLING_HARD",
-                "score": 0.051047,
-                "why": "降温后5日超额显著为正",
-                "win_rate": 0.53,
-                "n": 477,
-                "mean_excess": 0.0063,
-                "horizon": "5D"
-              }
-            ],
-            "why": "降温后5日超额显著为正",
-            "tier": "high",
-            "conflict_resolution": null,
-            "sector": "有色金属",
-            "etf_code": "512400",
-            "etf_name": "有色金属ETF南方",
-            "etf_label": "512400 有色金属ETF南方",
-            "etf_quality": "good",
-            "etf_quality_cn": "贴合",
-            "etf_note": "",
-            "etf_display": "有色金属 → 512400 有色金属ETF南方",
-            "instrument_display": "有色金属（512400 有色金属ETF南方）"
-          },
-          {
-            "name": "基础化工",
-            "score": 0.02596,
-            "weight_in_sat": 0.1551,
-            "quality": "good",
-            "quality_weight": 1.0,
-            "win_rate": 0.57,
-            "n": 477,
-            "mean_excess": 0.002979,
-            "stages": [
-              "FALLING_HARD"
-            ],
-            "stage_evidence": [
-              {
-                "stage_id": "FALLING_HARD",
-                "score": 0.02596,
-                "why": "降温后5日超额显著、胜率57%",
-                "win_rate": 0.57,
-                "n": 477,
-                "mean_excess": 0.002979,
-                "horizon": "5D"
-              }
-            ],
-            "why": "降温后5日超额显著、胜率57%",
-            "tier": "high",
-            "conflict_resolution": null,
-            "sector": "基础化工",
-            "etf_code": "516020",
-            "etf_name": "化工ETF华宝",
-            "etf_label": "516020 化工ETF华宝",
-            "etf_quality": "good",
-            "etf_quality_cn": "贴合",
-            "etf_note": "",
-            "etf_display": "基础化工 → 516020 化工ETF华宝",
-            "instrument_display": "基础化工（516020 化工ETF华宝）"
-          },
-          {
-            "name": "电力设备",
-            "score": 0.018564,
-            "weight_in_sat": 0.1109,
-            "quality": "proxy",
-            "quality_weight": 0.7,
-            "win_rate": 0.53,
-            "n": 477,
-            "mean_excess": 0.003273,
-            "stages": [
-              "FALLING_HARD"
-            ],
-            "stage_evidence": [
-              {
-                "stage_id": "FALLING_HARD",
-                "score": 0.018564,
-                "why": "降温后5日超额显著",
-                "win_rate": 0.53,
-                "n": 477,
-                "mean_excess": 0.003273,
-                "horizon": "5D"
-              }
-            ],
-            "why": "降温后5日超额显著",
-            "tier": "high",
-            "conflict_resolution": null,
-            "sector": "电力设备",
-            "etf_code": "516850",
-            "etf_name": "新能源ETF华夏",
-            "etf_label": "516850 新能源ETF华夏",
+            "sector": "商贸零售",
+            "etf_code": "159928",
+            "etf_name": "消费ETF汇添富",
+            "etf_label": "159928 消费ETF汇添富",
             "etf_quality": "proxy",
             "etf_quality_cn": "主题代理",
-            "etf_note": "电力设备≈新能源主题",
-            "etf_display": "电力设备 → 516850 新能源ETF华夏",
-            "instrument_display": "电力设备（516850 新能源ETF华夏）"
-          },
-          {
-            "name": "石油石化",
-            "score": 0.010246,
-            "weight_in_sat": 0.0612,
-            "quality": "proxy",
-            "quality_weight": 0.7,
-            "win_rate": 0.76,
-            "n": 37,
-            "mean_excess": 0.0149,
-            "stages": [
-              "HIGH_COOLING"
-            ],
-            "stage_evidence": [
-              {
-                "stage_id": "HIGH_COOLING",
-                "score": 0.010246,
-                "why": "高位回落5日超额+1.5%，胜率76%，显著（最高胜率组）",
-                "win_rate": 0.76,
-                "n": 37,
-                "mean_excess": 0.0149,
-                "horizon": "5D"
-              }
-            ],
-            "why": "高位回落5日超额+1.5%，胜率76%，显著（最高胜率组）",
-            "tier": "observe",
-            "conflict_resolution": null,
-            "sector": "石油石化",
-            "etf_code": "159697",
-            "etf_name": "石油ETF鹏华",
-            "etf_label": "159697 石油ETF鹏华",
-            "etf_quality": "proxy",
-            "etf_quality_cn": "主题代理",
-            "etf_note": "油气主题代理石化",
-            "etf_display": "石油石化 → 159697 石油ETF鹏华",
-            "instrument_display": "石油石化（159697 石油ETF鹏华）"
-          },
-          {
-            "name": "轻工制造",
-            "score": 0.009309,
-            "weight_in_sat": 0.0556,
-            "quality": "proxy",
-            "quality_weight": 0.7,
-            "win_rate": 0.69,
-            "n": 39,
-            "mean_excess": 0.014524,
-            "stages": [
-              "HIGH_COOLING"
-            ],
-            "stage_evidence": [
-              {
-                "stage_id": "HIGH_COOLING",
-                "score": 0.009309,
-                "why": "高位回落超额+1.5%，胜率69%，显著",
-                "win_rate": 0.69,
-                "n": 39,
-                "mean_excess": 0.014524,
-                "horizon": "5D"
-              }
-            ],
-            "why": "高位回落超额+1.5%，胜率69%，显著",
-            "tier": "observe",
-            "conflict_resolution": null,
-            "sector": "轻工制造",
-            "etf_code": "512430",
-            "etf_name": "家居家电ETF华泰柏瑞",
-            "etf_label": "512430 家居家电ETF华泰柏瑞",
-            "etf_quality": "proxy",
-            "etf_quality_cn": "主题代理",
-            "etf_note": "无纯正轻工ETF，用家居主题近似",
-            "etf_display": "轻工制造 → 512430 家居家电ETF华泰柏瑞",
-            "instrument_display": "轻工制造（512430 家居家电ETF华泰柏瑞）"
+            "etf_note": "零售宽基稀缺，用主要消费ETF",
+            "etf_display": "商贸零售 → 159928 消费ETF汇添富",
+            "instrument_display": "商贸零售（159928 消费ETF汇添富）"
           }
         ],
         "avoid": [
           {
-            "name": "计算机",
+            "name": "公用事业",
             "side": "AVOID",
             "side_cn": "回避（若持有则减配）",
             "stages": [
-              "FALLING_HARD",
-              "HIGH_COOLING"
+              "CSI300_CORE_BUY"
             ],
             "stage_evidence": [
               {
-                "stage_id": "FALLING_HARD",
-                "score": 0.026276,
-                "why": "降温后显著跑输",
-                "win_rate": 0.43,
-                "n": 477,
-                "mean_excess": -0.003997,
-                "horizon": "5D"
-              },
-              {
-                "stage_id": "HIGH_COOLING",
-                "score": 0.001014,
-                "why": "高位回落阶段相对偏弱",
+                "stage_id": "CSI300_CORE_BUY",
+                "score": 0.017905,
+                "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
                 "win_rate": 0.44,
-                "n": 39,
-                "mean_excess": -0.001737,
+                "n": 184,
+                "mean_excess": -0.003,
                 "horizon": "5D"
               }
             ],
-            "why": "降温后显著跑输",
-            "win_rate": 0.43,
-            "n": 477,
-            "mean_excess": -0.003997,
+            "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+            "win_rate": 0.44,
+            "n": 184,
+            "mean_excess": -0.003,
             "conditional": true,
-            "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
+            "condition_cn": "仅当已持有「公用事业」映射 ETF 时减至 0；无持仓则无需操作",
             "conflict_resolution": null,
             "action": "AVOID",
             "action_cn": "回避/条件减配",
@@ -1706,40 +1342,40 @@
             "weight_hint": "0%（若持有）",
             "entry": "—",
             "exit": "—",
-            "sector": "计算机",
-            "etf_code": "159998",
-            "etf_name": "计算机ETF天弘",
-            "etf_label": "159998 计算机ETF天弘",
+            "sector": "公用事业",
+            "etf_code": "560620",
+            "etf_name": "公用事业ETF万家",
+            "etf_label": "560620 公用事业ETF万家",
             "etf_quality": "good",
             "etf_quality_cn": "贴合",
             "etf_note": "",
-            "etf_display": "计算机 → 159998 计算机ETF天弘",
-            "instrument_display": "计算机（159998 计算机ETF天弘）"
+            "etf_display": "公用事业 → 560620 公用事业ETF万家",
+            "instrument_display": "公用事业（560620 公用事业ETF万家）"
           },
           {
-            "name": "电子",
+            "name": "银行",
             "side": "AVOID",
             "side_cn": "回避（若持有则减配）",
             "stages": [
-              "HIGH_COOLING"
+              "CSI300_CORE_BUY"
             ],
             "stage_evidence": [
               {
-                "stage_id": "HIGH_COOLING",
-                "score": 0.000954,
-                "why": "高位回落阶段相对偏弱（均值负）",
+                "stage_id": "CSI300_CORE_BUY",
+                "score": 0.006647,
+                "why": "高风险区间相对不占优",
                 "win_rate": 0.49,
-                "n": 39,
-                "mean_excess": -0.002096,
+                "n": 184,
+                "mean_excess": -0.001,
                 "horizon": "5D"
               }
             ],
-            "why": "高位回落阶段相对偏弱（均值负）",
+            "why": "高风险区间相对不占优",
             "win_rate": 0.49,
-            "n": 39,
-            "mean_excess": -0.002096,
+            "n": 184,
+            "mean_excess": -0.001,
             "conditional": true,
-            "condition_cn": "仅当已持有「电子」映射 ETF 时减至 0；无持仓则无需操作",
+            "condition_cn": "仅当已持有「银行」映射 ETF 时减至 0；无持仓则无需操作",
             "conflict_resolution": null,
             "action": "AVOID",
             "action_cn": "回避/条件减配",
@@ -1748,25 +1384,23 @@
             "weight_hint": "0%（若持有）",
             "entry": "—",
             "exit": "—",
-            "sector": "电子",
-            "etf_code": "159995",
-            "etf_name": "芯片ETF华夏",
-            "etf_label": "159995 芯片ETF华夏",
-            "etf_quality": "proxy",
-            "etf_quality_cn": "主题代理",
-            "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
-            "etf_display": "电子 → 159995 芯片ETF华夏",
-            "instrument_display": "电子（159995 芯片ETF华夏）"
+            "sector": "银行",
+            "etf_code": "512800",
+            "etf_name": "银行ETF华宝",
+            "etf_label": "512800 银行ETF华宝",
+            "etf_quality": "good",
+            "etf_quality_cn": "贴合",
+            "etf_note": "",
+            "etf_display": "银行 → 512800 银行ETF华宝",
+            "instrument_display": "银行（512800 银行ETF华宝）"
           }
         ],
         "detail": "高置信阶段全量；小样本为观察仓；按得分×映射质量加权；弱代理不进默认篮子；收益≤-3%止损，≥4%止盈；long-only 不做空。",
         "weights": {
-          "煤炭": 0.3123,
-          "有色金属": 0.3049,
-          "基础化工": 0.1551,
-          "电力设备": 0.1109,
-          "石油石化": 0.0612,
-          "轻工制造": 0.0556
+          "恒生科技": 0.3584,
+          "建筑材料": 0.2366,
+          "传媒": 0.2366,
+          "商贸零售": 0.1684
         },
         "weight_target": 0.4,
         "observe_only": false,
@@ -1815,13 +1449,13 @@
           "sleeve": "core",
           "name": "沪深300",
           "action": "HOLD",
-          "action_cn": "持有至到期",
+          "action_cn": "持有（忽略重复信号）",
           "side": "HOLD",
           "side_cn": "持有",
           "priority": "P0",
           "weight_target": 0.6,
           "weight_hint": "60%",
-          "why": "未触发新信号；按回测规则持有满期，不因阶段切换强平",
+          "why": "主策略持仓中，忽略新开仓信号",
           "days_held": 4,
           "days_remaining": 1,
           "entry": "—",
@@ -2089,39 +1723,29 @@
       ],
       "avoid_list": [
         {
-          "name": "计算机",
+          "name": "公用事业",
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "FALLING_HARD",
-            "HIGH_COOLING"
+            "CSI300_CORE_BUY"
           ],
           "stage_evidence": [
             {
-              "stage_id": "FALLING_HARD",
-              "score": 0.026276,
-              "why": "降温后显著跑输",
-              "win_rate": 0.43,
-              "n": 477,
-              "mean_excess": -0.003997,
-              "horizon": "5D"
-            },
-            {
-              "stage_id": "HIGH_COOLING",
-              "score": 0.001014,
-              "why": "高位回落阶段相对偏弱",
+              "stage_id": "CSI300_CORE_BUY",
+              "score": 0.017905,
+              "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
               "win_rate": 0.44,
-              "n": 39,
-              "mean_excess": -0.001737,
+              "n": 184,
+              "mean_excess": -0.003,
               "horizon": "5D"
             }
           ],
-          "why": "降温后显著跑输",
-          "win_rate": 0.43,
-          "n": 477,
-          "mean_excess": -0.003997,
+          "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+          "win_rate": 0.44,
+          "n": 184,
+          "mean_excess": -0.003,
           "conditional": true,
-          "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
+          "condition_cn": "仅当已持有「公用事业」映射 ETF 时减至 0；无持仓则无需操作",
           "conflict_resolution": null,
           "action": "AVOID",
           "action_cn": "回避/条件减配",
@@ -2130,40 +1754,40 @@
           "weight_hint": "0%（若持有）",
           "entry": "—",
           "exit": "—",
-          "sector": "计算机",
-          "etf_code": "159998",
-          "etf_name": "计算机ETF天弘",
-          "etf_label": "159998 计算机ETF天弘",
+          "sector": "公用事业",
+          "etf_code": "560620",
+          "etf_name": "公用事业ETF万家",
+          "etf_label": "560620 公用事业ETF万家",
           "etf_quality": "good",
           "etf_quality_cn": "贴合",
           "etf_note": "",
-          "etf_display": "计算机 → 159998 计算机ETF天弘",
-          "instrument_display": "计算机（159998 计算机ETF天弘）"
+          "etf_display": "公用事业 → 560620 公用事业ETF万家",
+          "instrument_display": "公用事业（560620 公用事业ETF万家）"
         },
         {
-          "name": "电子",
+          "name": "银行",
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "HIGH_COOLING"
+            "CSI300_CORE_BUY"
           ],
           "stage_evidence": [
             {
-              "stage_id": "HIGH_COOLING",
-              "score": 0.000954,
-              "why": "高位回落阶段相对偏弱（均值负）",
+              "stage_id": "CSI300_CORE_BUY",
+              "score": 0.006647,
+              "why": "高风险区间相对不占优",
               "win_rate": 0.49,
-              "n": 39,
-              "mean_excess": -0.002096,
+              "n": 184,
+              "mean_excess": -0.001,
               "horizon": "5D"
             }
           ],
-          "why": "高位回落阶段相对偏弱（均值负）",
+          "why": "高风险区间相对不占优",
           "win_rate": 0.49,
-          "n": 39,
-          "mean_excess": -0.002096,
+          "n": 184,
+          "mean_excess": -0.001,
           "conditional": true,
-          "condition_cn": "仅当已持有「电子」映射 ETF 时减至 0；无持仓则无需操作",
+          "condition_cn": "仅当已持有「银行」映射 ETF 时减至 0；无持仓则无需操作",
           "conflict_resolution": null,
           "action": "AVOID",
           "action_cn": "回避/条件减配",
@@ -2172,15 +1796,15 @@
           "weight_hint": "0%（若持有）",
           "entry": "—",
           "exit": "—",
-          "sector": "电子",
-          "etf_code": "159995",
-          "etf_name": "芯片ETF华夏",
-          "etf_label": "159995 芯片ETF华夏",
-          "etf_quality": "proxy",
-          "etf_quality_cn": "主题代理",
-          "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
-          "etf_display": "电子 → 159995 芯片ETF华夏",
-          "instrument_display": "电子（159995 芯片ETF华夏）"
+          "sector": "银行",
+          "etf_code": "512800",
+          "etf_name": "银行ETF华宝",
+          "etf_label": "512800 银行ETF华宝",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "银行 → 512800 银行ETF华宝",
+          "instrument_display": "银行（512800 银行ETF华宝）"
         }
       ],
       "close_list": [],
@@ -2189,13 +1813,13 @@
           "sleeve": "core",
           "name": "沪深300",
           "action": "HOLD",
-          "action_cn": "持有至到期",
+          "action_cn": "持有（忽略重复信号）",
           "side": "HOLD",
           "side_cn": "持有",
           "priority": "P0",
           "weight_target": 0.6,
           "weight_hint": "60%",
-          "why": "未触发新信号；按回测规则持有满期，不因阶段切换强平",
+          "why": "主策略持仓中，忽略新开仓信号",
           "days_held": 4,
           "days_remaining": 1,
           "entry": "—",
@@ -2216,13 +1840,13 @@
           "sleeve": "core",
           "name": "沪深300",
           "action": "HOLD",
-          "action_cn": "持有至到期",
+          "action_cn": "持有（忽略重复信号）",
           "side": "HOLD",
           "side_cn": "持有",
           "priority": "P0",
           "weight_target": 0.6,
           "weight_hint": "60%",
-          "why": "未触发新信号；按回测规则持有满期，不因阶段切换强平",
+          "why": "主策略持仓中，忽略新开仓信号",
           "days_held": 4,
           "days_remaining": 1,
           "entry": "—",
@@ -2488,39 +2112,29 @@
           "instrument_display": "轻工制造（512430 家居家电ETF华泰柏瑞）"
         },
         {
-          "name": "计算机",
+          "name": "公用事业",
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "FALLING_HARD",
-            "HIGH_COOLING"
+            "CSI300_CORE_BUY"
           ],
           "stage_evidence": [
             {
-              "stage_id": "FALLING_HARD",
-              "score": 0.026276,
-              "why": "降温后显著跑输",
-              "win_rate": 0.43,
-              "n": 477,
-              "mean_excess": -0.003997,
-              "horizon": "5D"
-            },
-            {
-              "stage_id": "HIGH_COOLING",
-              "score": 0.001014,
-              "why": "高位回落阶段相对偏弱",
+              "stage_id": "CSI300_CORE_BUY",
+              "score": 0.017905,
+              "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
               "win_rate": 0.44,
-              "n": 39,
-              "mean_excess": -0.001737,
+              "n": 184,
+              "mean_excess": -0.003,
               "horizon": "5D"
             }
           ],
-          "why": "降温后显著跑输",
-          "win_rate": 0.43,
-          "n": 477,
-          "mean_excess": -0.003997,
+          "why": "高风险区间相对偏弱（防御在升温冲击日才强）",
+          "win_rate": 0.44,
+          "n": 184,
+          "mean_excess": -0.003,
           "conditional": true,
-          "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
+          "condition_cn": "仅当已持有「公用事业」映射 ETF 时减至 0；无持仓则无需操作",
           "conflict_resolution": null,
           "action": "AVOID",
           "action_cn": "回避/条件减配",
@@ -2529,40 +2143,40 @@
           "weight_hint": "0%（若持有）",
           "entry": "—",
           "exit": "—",
-          "sector": "计算机",
-          "etf_code": "159998",
-          "etf_name": "计算机ETF天弘",
-          "etf_label": "159998 计算机ETF天弘",
+          "sector": "公用事业",
+          "etf_code": "560620",
+          "etf_name": "公用事业ETF万家",
+          "etf_label": "560620 公用事业ETF万家",
           "etf_quality": "good",
           "etf_quality_cn": "贴合",
           "etf_note": "",
-          "etf_display": "计算机 → 159998 计算机ETF天弘",
-          "instrument_display": "计算机（159998 计算机ETF天弘）"
+          "etf_display": "公用事业 → 560620 公用事业ETF万家",
+          "instrument_display": "公用事业（560620 公用事业ETF万家）"
         },
         {
-          "name": "电子",
+          "name": "银行",
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "HIGH_COOLING"
+            "CSI300_CORE_BUY"
           ],
           "stage_evidence": [
             {
-              "stage_id": "HIGH_COOLING",
-              "score": 0.000954,
-              "why": "高位回落阶段相对偏弱（均值负）",
+              "stage_id": "CSI300_CORE_BUY",
+              "score": 0.006647,
+              "why": "高风险区间相对不占优",
               "win_rate": 0.49,
-              "n": 39,
-              "mean_excess": -0.002096,
+              "n": 184,
+              "mean_excess": -0.001,
               "horizon": "5D"
             }
           ],
-          "why": "高位回落阶段相对偏弱（均值负）",
+          "why": "高风险区间相对不占优",
           "win_rate": 0.49,
-          "n": 39,
-          "mean_excess": -0.002096,
+          "n": 184,
+          "mean_excess": -0.001,
           "conditional": true,
-          "condition_cn": "仅当已持有「电子」映射 ETF 时减至 0；无持仓则无需操作",
+          "condition_cn": "仅当已持有「银行」映射 ETF 时减至 0；无持仓则无需操作",
           "conflict_resolution": null,
           "action": "AVOID",
           "action_cn": "回避/条件减配",
@@ -2571,24 +2185,24 @@
           "weight_hint": "0%（若持有）",
           "entry": "—",
           "exit": "—",
-          "sector": "电子",
-          "etf_code": "159995",
-          "etf_name": "芯片ETF华夏",
-          "etf_label": "159995 芯片ETF华夏",
-          "etf_quality": "proxy",
-          "etf_quality_cn": "主题代理",
-          "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
-          "etf_display": "电子 → 159995 芯片ETF华夏",
-          "instrument_display": "电子（159995 芯片ETF华夏）"
+          "sector": "银行",
+          "etf_code": "512800",
+          "etf_name": "银行ETF华宝",
+          "etf_label": "512800 银行ETF华宝",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "银行 → 512800 银行ETF华宝",
+          "instrument_display": "银行（512800 银行ETF华宝）"
         }
       ],
       "risk_dashboard": {
-        "estimated_beta": 1.043,
-        "estimated_daily_vol": 0.0104,
-        "estimated_daily_vol_cn": "约 1.0%（固定beta启发式）",
+        "estimated_beta": 1.082,
+        "estimated_daily_vol": 0.0108,
+        "estimated_daily_vol_cn": "约 1.1%（固定beta启发式）",
         "total_exposure": 1.0,
         "cash": 0.0,
-        "growth_sat_share": 0.0,
+        "growth_sat_share": 0.595,
         "correlation_warning": false,
         "correlation_note": "相关风险中性",
         "max_single_name_weight": 0.6,
@@ -3011,7 +2625,7 @@
         "FLAT": "空仓观望"
       },
       "disclaimer": "研究回测指令，非投资建议。默认展示进取仓位；弱代理已剔除；超额≠绝对收益；ETF 映射见 config/sector_etf_map.yml。",
-      "primary_stage_cn": "高位降温 / 避险轮动"
+      "primary_stage_cn": "主策略做多窗口（高胜率高收益核心）"
     },
     "all_stage_catalog": [
       {
@@ -3137,9 +2751,12 @@
     "not_broker_feed": true,
     "code_count": 13,
     "missing_codes": [],
-    "stale_codes": [],
-    "complete_as_of": "2026-08-11",
-    "quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
+    "stale_codes": [
+      "512800",
+      "560620"
+    ],
+    "complete_as_of": "2026-08-10",
+    "quality": "WARN_INCOMPLETE_AS_OF",
     "by_code": {
       "159697": {
         "etf_code": "159697",
@@ -4671,1026 +4288,6 @@
           "2026-08-11": "TENCENT_ETF_FINAL_QUOTE"
         }
       },
-      "159995": {
-        "etf_code": "159995",
-        "bars": {
-          "2026-04-13": {
-            "open": 1.762,
-            "close": 1.786,
-            "high": 1.824,
-            "low": 1.762
-          },
-          "2026-04-14": {
-            "open": 1.815,
-            "close": 1.825,
-            "high": 1.834,
-            "low": 1.804
-          },
-          "2026-04-15": {
-            "open": 1.839,
-            "close": 1.815,
-            "high": 1.857,
-            "low": 1.807
-          },
-          "2026-04-16": {
-            "open": 1.823,
-            "close": 1.836,
-            "high": 1.838,
-            "low": 1.804
-          },
-          "2026-04-17": {
-            "open": 1.834,
-            "close": 1.848,
-            "high": 1.868,
-            "low": 1.829
-          },
-          "2026-04-20": {
-            "open": 1.844,
-            "close": 1.881,
-            "high": 1.887,
-            "low": 1.844
-          },
-          "2026-04-21": {
-            "open": 1.879,
-            "close": 1.854,
-            "high": 1.879,
-            "low": 1.828
-          },
-          "2026-04-22": {
-            "open": 1.849,
-            "close": 1.904,
-            "high": 1.906,
-            "low": 1.84
-          },
-          "2026-04-23": {
-            "open": 1.934,
-            "close": 1.879,
-            "high": 1.938,
-            "low": 1.862
-          },
-          "2026-04-24": {
-            "open": 1.887,
-            "close": 1.912,
-            "high": 1.936,
-            "low": 1.865
-          },
-          "2026-04-27": {
-            "open": 1.951,
-            "close": 2.006,
-            "high": 2.014,
-            "low": 1.938
-          },
-          "2026-04-28": {
-            "open": 1.989,
-            "close": 1.98,
-            "high": 2.038,
-            "low": 1.967
-          },
-          "2026-04-29": {
-            "open": 1.96,
-            "close": 1.97,
-            "high": 1.973,
-            "low": 1.915
-          },
-          "2026-04-30": {
-            "open": 2.005,
-            "close": 2.073,
-            "high": 2.084,
-            "low": 1.998
-          },
-          "2026-05-06": {
-            "open": 2.175,
-            "close": 2.204,
-            "high": 2.28,
-            "low": 2.17
-          },
-          "2026-05-07": {
-            "open": 2.213,
-            "close": 2.237,
-            "high": 2.249,
-            "low": 2.187
-          },
-          "2026-05-08": {
-            "open": 2.196,
-            "close": 2.173,
-            "high": 2.199,
-            "low": 2.147
-          },
-          "2026-05-11": {
-            "open": 2.248,
-            "close": 2.311,
-            "high": 2.328,
-            "low": 2.237
-          },
-          "2026-05-12": {
-            "open": 2.309,
-            "close": 2.326,
-            "high": 2.353,
-            "low": 2.262
-          },
-          "2026-05-13": {
-            "open": 2.259,
-            "close": 2.384,
-            "high": 2.391,
-            "low": 2.241
-          },
-          "2026-05-14": {
-            "open": 2.409,
-            "close": 2.321,
-            "high": 2.43,
-            "low": 2.32
-          },
-          "2026-05-15": {
-            "open": 2.305,
-            "close": 2.315,
-            "high": 2.427,
-            "low": 2.248
-          },
-          "2026-05-18": {
-            "open": 2.322,
-            "close": 2.344,
-            "high": 2.409,
-            "low": 2.316
-          },
-          "2026-05-19": {
-            "open": 2.307,
-            "close": 2.43,
-            "high": 2.432,
-            "low": 2.27
-          },
-          "2026-05-20": {
-            "open": 2.413,
-            "close": 2.547,
-            "high": 2.548,
-            "low": 2.401
-          },
-          "2026-05-21": {
-            "open": 2.61,
-            "close": 2.477,
-            "high": 2.659,
-            "low": 2.459
-          },
-          "2026-05-22": {
-            "open": 2.495,
-            "close": 2.536,
-            "high": 2.54,
-            "low": 2.446
-          },
-          "2026-05-25": {
-            "open": 2.537,
-            "close": 2.727,
-            "high": 2.727,
-            "low": 2.498
-          },
-          "2026-05-26": {
-            "open": 2.728,
-            "close": 2.707,
-            "high": 2.728,
-            "low": 2.614
-          },
-          "2026-05-27": {
-            "open": 2.73,
-            "close": 2.631,
-            "high": 2.773,
-            "low": 2.622
-          },
-          "2026-05-28": {
-            "open": 2.579,
-            "close": 2.637,
-            "high": 2.657,
-            "low": 2.579
-          },
-          "2026-05-29": {
-            "open": 2.651,
-            "close": 2.491,
-            "high": 2.66,
-            "low": 2.463
-          },
-          "2026-06-01": {
-            "open": 2.485,
-            "close": 2.357,
-            "high": 2.499,
-            "low": 2.351
-          },
-          "2026-06-02": {
-            "open": 2.358,
-            "close": 2.396,
-            "high": 2.435,
-            "low": 2.322
-          },
-          "2026-06-03": {
-            "open": 2.408,
-            "close": 2.483,
-            "high": 2.55,
-            "low": 2.408
-          },
-          "2026-06-04": {
-            "open": 2.435,
-            "close": 2.53,
-            "high": 2.547,
-            "low": 2.435
-          },
-          "2026-06-05": {
-            "open": 2.471,
-            "close": 2.403,
-            "high": 2.506,
-            "low": 2.386
-          },
-          "2026-06-08": {
-            "open": 2.256,
-            "close": 2.293,
-            "high": 2.356,
-            "low": 2.256
-          },
-          "2026-06-09": {
-            "open": 2.361,
-            "close": 2.41,
-            "high": 2.419,
-            "low": 2.315
-          },
-          "2026-06-10": {
-            "open": 2.391,
-            "close": 2.387,
-            "high": 2.485,
-            "low": 2.357
-          },
-          "2026-06-11": {
-            "open": 2.362,
-            "close": 2.399,
-            "high": 2.429,
-            "low": 2.356
-          },
-          "2026-06-12": {
-            "open": 2.492,
-            "close": 2.383,
-            "high": 2.515,
-            "low": 2.371
-          },
-          "2026-06-15": {
-            "open": 2.414,
-            "close": 2.514,
-            "high": 2.516,
-            "low": 2.352
-          },
-          "2026-06-16": {
-            "open": 2.525,
-            "close": 2.536,
-            "high": 2.55,
-            "low": 2.491
-          },
-          "2026-06-17": {
-            "open": 2.502,
-            "close": 2.69,
-            "high": 2.696,
-            "low": 2.49
-          },
-          "2026-06-18": {
-            "open": 2.69,
-            "close": 2.816,
-            "high": 2.85,
-            "low": 2.67
-          },
-          "2026-06-22": {
-            "open": 2.858,
-            "close": 2.92,
-            "high": 2.928,
-            "low": 2.801
-          },
-          "2026-06-23": {
-            "open": 2.898,
-            "close": 2.853,
-            "high": 2.956,
-            "low": 2.81
-          },
-          "2026-06-24": {
-            "open": 2.81,
-            "close": 3.012,
-            "high": 3.015,
-            "low": 2.804
-          },
-          "2026-06-25": {
-            "open": 3.052,
-            "close": 3.175,
-            "high": 3.176,
-            "low": 3.052
-          },
-          "2026-06-26": {
-            "open": 3.12,
-            "close": 3.127,
-            "high": 3.196,
-            "low": 3.035
-          },
-          "2026-06-29": {
-            "open": 3.136,
-            "close": 3.298,
-            "high": 3.3,
-            "low": 3.069
-          },
-          "2026-06-30": {
-            "open": 3.299,
-            "close": 3.39,
-            "high": 3.408,
-            "low": 3.221
-          },
-          "2026-07-01": {
-            "open": 3.391,
-            "close": 3.321,
-            "high": 3.499,
-            "low": 3.255
-          },
-          "2026-07-02": {
-            "open": 3.125,
-            "close": 3.019,
-            "high": 3.208,
-            "low": 2.996
-          },
-          "2026-07-03": {
-            "open": 2.934,
-            "close": 3.0,
-            "high": 3.106,
-            "low": 2.934
-          },
-          "2026-07-06": {
-            "open": 3.06,
-            "close": 3.009,
-            "high": 3.067,
-            "low": 2.878
-          },
-          "2026-07-07": {
-            "open": 1.474,
-            "close": 1.501,
-            "high": 1.53,
-            "low": 1.464
-          },
-          "2026-07-08": {
-            "open": 1.504,
-            "close": 1.493,
-            "high": 1.55,
-            "low": 1.446
-          },
-          "2026-07-09": {
-            "open": 1.518,
-            "close": 1.642,
-            "high": 1.642,
-            "low": 1.501
-          },
-          "2026-07-10": {
-            "open": 1.669,
-            "close": 1.535,
-            "high": 1.698,
-            "low": 1.532
-          },
-          "2026-07-13": {
-            "open": 1.5,
-            "close": 1.458,
-            "high": 1.546,
-            "low": 1.438
-          },
-          "2026-07-14": {
-            "open": 1.453,
-            "close": 1.481,
-            "high": 1.486,
-            "low": 1.377
-          },
-          "2026-07-15": {
-            "open": 1.502,
-            "close": 1.397,
-            "high": 1.502,
-            "low": 1.39
-          },
-          "2026-07-16": {
-            "open": 1.351,
-            "close": 1.317,
-            "high": 1.401,
-            "low": 1.302
-          },
-          "2026-07-17": {
-            "open": 1.28,
-            "close": 1.22,
-            "high": 1.312,
-            "low": 1.203
-          },
-          "2026-07-20": {
-            "open": 1.256,
-            "close": 1.197,
-            "high": 1.271,
-            "low": 1.15
-          },
-          "2026-07-21": {
-            "open": 1.209,
-            "close": 1.317,
-            "high": 1.317,
-            "low": 1.14
-          },
-          "2026-07-22": {
-            "open": 1.3,
-            "close": 1.312,
-            "high": 1.375,
-            "low": 1.295
-          },
-          "2026-07-23": {
-            "open": 1.32,
-            "close": 1.262,
-            "high": 1.33,
-            "low": 1.245
-          },
-          "2026-07-24": {
-            "open": 1.235,
-            "close": 1.27,
-            "high": 1.297,
-            "low": 1.228
-          },
-          "2026-07-27": {
-            "open": 1.26,
-            "close": 1.278,
-            "high": 1.288,
-            "low": 1.208
-          },
-          "2026-07-28": {
-            "open": 1.229,
-            "close": 1.176,
-            "high": 1.262,
-            "low": 1.165
-          },
-          "2026-07-29": {
-            "open": 1.171,
-            "close": 1.152,
-            "high": 1.184,
-            "low": 1.095
-          },
-          "2026-07-30": {
-            "open": 1.126,
-            "close": 1.08,
-            "high": 1.146,
-            "low": 1.058
-          },
-          "2026-07-31": {
-            "open": 1.185,
-            "close": 1.118,
-            "high": 1.188,
-            "low": 1.117
-          },
-          "2026-08-03": {
-            "open": 1.089,
-            "close": 1.039,
-            "high": 1.106,
-            "low": 1.036
-          },
-          "2026-08-04": {
-            "open": 1.045,
-            "close": 1.095,
-            "high": 1.106,
-            "low": 1.04
-          },
-          "2026-08-05": {
-            "open": 1.097,
-            "close": 1.165,
-            "high": 1.18,
-            "low": 1.085
-          },
-          "2026-08-06": {
-            "open": 1.128,
-            "close": 1.177,
-            "high": 1.199,
-            "low": 1.125
-          },
-          "2026-08-07": {
-            "open": 1.166,
-            "close": 1.212,
-            "high": 1.218,
-            "low": 1.166
-          },
-          "2026-08-10": {
-            "open": 1.213,
-            "close": 1.205,
-            "high": 1.223,
-            "low": 1.179
-          },
-          "2026-08-11": {
-            "open": 1.196,
-            "close": 1.187,
-            "high": 1.218,
-            "low": 1.178
-          }
-        },
-        "bar_count": 83,
-        "first": "2026-04-13",
-        "last": "2026-08-11",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-08-11": "TENCENT_ETF_FINAL_QUOTE"
-        }
-      },
-      "159998": {
-        "etf_code": "159998",
-        "bars": {
-          "2026-04-13": {
-            "open": 0.997,
-            "close": 1.014,
-            "high": 1.021,
-            "low": 0.991
-          },
-          "2026-04-14": {
-            "open": 1.034,
-            "close": 1.039,
-            "high": 1.044,
-            "low": 1.028
-          },
-          "2026-04-15": {
-            "open": 1.049,
-            "close": 1.035,
-            "high": 1.051,
-            "low": 1.03
-          },
-          "2026-04-16": {
-            "open": 1.033,
-            "close": 1.058,
-            "high": 1.059,
-            "low": 1.033
-          },
-          "2026-04-17": {
-            "open": 1.048,
-            "close": 1.06,
-            "high": 1.061,
-            "low": 1.048
-          },
-          "2026-04-20": {
-            "open": 1.06,
-            "close": 1.073,
-            "high": 1.081,
-            "low": 1.059
-          },
-          "2026-04-21": {
-            "open": 1.071,
-            "close": 1.053,
-            "high": 1.071,
-            "low": 1.042
-          },
-          "2026-04-22": {
-            "open": 1.052,
-            "close": 1.081,
-            "high": 1.084,
-            "low": 1.048
-          },
-          "2026-04-23": {
-            "open": 1.086,
-            "close": 1.077,
-            "high": 1.092,
-            "low": 1.065
-          },
-          "2026-04-24": {
-            "open": 1.068,
-            "close": 1.075,
-            "high": 1.087,
-            "low": 1.049
-          },
-          "2026-04-27": {
-            "open": 1.076,
-            "close": 1.078,
-            "high": 1.083,
-            "low": 1.063
-          },
-          "2026-04-28": {
-            "open": 1.071,
-            "close": 1.055,
-            "high": 1.076,
-            "low": 1.05
-          },
-          "2026-04-29": {
-            "open": 1.047,
-            "close": 1.067,
-            "high": 1.07,
-            "low": 1.047
-          },
-          "2026-04-30": {
-            "open": 1.059,
-            "close": 1.077,
-            "high": 1.079,
-            "low": 1.059
-          },
-          "2026-05-06": {
-            "open": 1.093,
-            "close": 1.123,
-            "high": 1.141,
-            "low": 1.092
-          },
-          "2026-05-07": {
-            "open": 1.126,
-            "close": 1.137,
-            "high": 1.14,
-            "low": 1.12
-          },
-          "2026-05-08": {
-            "open": 1.128,
-            "close": 1.143,
-            "high": 1.154,
-            "low": 1.121
-          },
-          "2026-05-11": {
-            "open": 1.15,
-            "close": 1.159,
-            "high": 1.163,
-            "low": 1.14
-          },
-          "2026-05-12": {
-            "open": 1.16,
-            "close": 1.127,
-            "high": 1.161,
-            "low": 1.124
-          },
-          "2026-05-13": {
-            "open": 1.122,
-            "close": 1.166,
-            "high": 1.168,
-            "low": 1.114
-          },
-          "2026-05-14": {
-            "open": 1.179,
-            "close": 1.122,
-            "high": 1.183,
-            "low": 1.122
-          },
-          "2026-05-15": {
-            "open": 1.113,
-            "close": 1.106,
-            "high": 1.141,
-            "low": 1.096
-          },
-          "2026-05-18": {
-            "open": 1.095,
-            "close": 1.114,
-            "high": 1.128,
-            "low": 1.095
-          },
-          "2026-05-19": {
-            "open": 1.111,
-            "close": 1.125,
-            "high": 1.127,
-            "low": 1.097
-          },
-          "2026-05-20": {
-            "open": 1.122,
-            "close": 1.109,
-            "high": 1.128,
-            "low": 1.106
-          },
-          "2026-05-21": {
-            "open": 1.12,
-            "close": 1.069,
-            "high": 1.131,
-            "low": 1.064
-          },
-          "2026-05-22": {
-            "open": 1.078,
-            "close": 1.083,
-            "high": 1.086,
-            "low": 1.06
-          },
-          "2026-05-25": {
-            "open": 1.088,
-            "close": 1.097,
-            "high": 1.1,
-            "low": 1.075
-          },
-          "2026-05-26": {
-            "open": 1.09,
-            "close": 1.081,
-            "high": 1.09,
-            "low": 1.056
-          },
-          "2026-05-27": {
-            "open": 1.076,
-            "close": 1.054,
-            "high": 1.088,
-            "low": 1.049
-          },
-          "2026-05-28": {
-            "open": 1.052,
-            "close": 1.054,
-            "high": 1.056,
-            "low": 1.024
-          },
-          "2026-05-29": {
-            "open": 1.066,
-            "close": 1.014,
-            "high": 1.069,
-            "low": 1.008
-          },
-          "2026-06-01": {
-            "open": 1.017,
-            "close": 1.027,
-            "high": 1.054,
-            "low": 1.017
-          },
-          "2026-06-02": {
-            "open": 1.037,
-            "close": 1.026,
-            "high": 1.037,
-            "low": 1.007
-          },
-          "2026-06-03": {
-            "open": 1.019,
-            "close": 1.022,
-            "high": 1.044,
-            "low": 1.012
-          },
-          "2026-06-04": {
-            "open": 1.008,
-            "close": 1.01,
-            "high": 1.02,
-            "low": 1.003
-          },
-          "2026-06-05": {
-            "open": 1.005,
-            "close": 0.986,
-            "high": 1.01,
-            "low": 0.986
-          },
-          "2026-06-08": {
-            "open": 0.95,
-            "close": 0.948,
-            "high": 0.978,
-            "low": 0.938
-          },
-          "2026-06-09": {
-            "open": 0.955,
-            "close": 0.968,
-            "high": 0.968,
-            "low": 0.948
-          },
-          "2026-06-10": {
-            "open": 0.959,
-            "close": 0.957,
-            "high": 0.984,
-            "low": 0.948
-          },
-          "2026-06-11": {
-            "open": 0.948,
-            "close": 0.931,
-            "high": 0.949,
-            "low": 0.923
-          },
-          "2026-06-12": {
-            "open": 0.94,
-            "close": 0.94,
-            "high": 0.954,
-            "low": 0.937
-          },
-          "2026-06-15": {
-            "open": 0.955,
-            "close": 0.975,
-            "high": 0.975,
-            "low": 0.95
-          },
-          "2026-06-16": {
-            "open": 0.973,
-            "close": 0.979,
-            "high": 0.979,
-            "low": 0.962
-          },
-          "2026-06-17": {
-            "open": 0.973,
-            "close": 0.997,
-            "high": 0.997,
-            "low": 0.965
-          },
-          "2026-06-18": {
-            "open": 0.997,
-            "close": 1.011,
-            "high": 1.015,
-            "low": 0.99
-          },
-          "2026-06-22": {
-            "open": 1.007,
-            "close": 1.045,
-            "high": 1.045,
-            "low": 1.0
-          },
-          "2026-06-23": {
-            "open": 1.043,
-            "close": 1.014,
-            "high": 1.045,
-            "low": 1.007
-          },
-          "2026-06-24": {
-            "open": 1.0,
-            "close": 1.034,
-            "high": 1.035,
-            "low": 0.998
-          },
-          "2026-06-25": {
-            "open": 1.037,
-            "close": 1.053,
-            "high": 1.058,
-            "low": 1.031
-          },
-          "2026-06-26": {
-            "open": 1.047,
-            "close": 1.011,
-            "high": 1.049,
-            "low": 1.008
-          },
-          "2026-06-29": {
-            "open": 1.005,
-            "close": 1.019,
-            "high": 1.038,
-            "low": 1.003
-          },
-          "2026-06-30": {
-            "open": 1.019,
-            "close": 1.065,
-            "high": 1.065,
-            "low": 1.017
-          },
-          "2026-07-01": {
-            "open": 1.067,
-            "close": 1.065,
-            "high": 1.088,
-            "low": 1.053
-          },
-          "2026-07-02": {
-            "open": 1.04,
-            "close": 1.014,
-            "high": 1.054,
-            "low": 1.013
-          },
-          "2026-07-03": {
-            "open": 1.005,
-            "close": 1.02,
-            "high": 1.037,
-            "low": 1.005
-          },
-          "2026-07-06": {
-            "open": 1.039,
-            "close": 1.026,
-            "high": 1.04,
-            "low": 1.002
-          },
-          "2026-07-07": {
-            "open": 1.01,
-            "close": 0.996,
-            "high": 1.024,
-            "low": 0.994
-          },
-          "2026-07-08": {
-            "open": 1.008,
-            "close": 1.033,
-            "high": 1.045,
-            "low": 1.008
-          },
-          "2026-07-09": {
-            "open": 1.032,
-            "close": 1.069,
-            "high": 1.072,
-            "low": 1.025
-          },
-          "2026-07-10": {
-            "open": 1.069,
-            "close": 1.075,
-            "high": 1.115,
-            "low": 1.063
-          },
-          "2026-07-13": {
-            "open": 1.063,
-            "close": 1.028,
-            "high": 1.083,
-            "low": 1.023
-          },
-          "2026-07-14": {
-            "open": 1.033,
-            "close": 1.013,
-            "high": 1.042,
-            "low": 0.97
-          },
-          "2026-07-15": {
-            "open": 1.011,
-            "close": 0.999,
-            "high": 1.022,
-            "low": 0.991
-          },
-          "2026-07-16": {
-            "open": 0.978,
-            "close": 0.998,
-            "high": 1.024,
-            "low": 0.977
-          },
-          "2026-07-17": {
-            "open": 0.988,
-            "close": 0.929,
-            "high": 0.992,
-            "low": 0.926
-          },
-          "2026-07-20": {
-            "open": 0.944,
-            "close": 0.956,
-            "high": 0.979,
-            "low": 0.933
-          },
-          "2026-07-21": {
-            "open": 0.956,
-            "close": 1.004,
-            "high": 1.005,
-            "low": 0.926
-          },
-          "2026-07-22": {
-            "open": 0.998,
-            "close": 1.013,
-            "high": 1.034,
-            "low": 0.992
-          },
-          "2026-07-23": {
-            "open": 1.014,
-            "close": 0.994,
-            "high": 1.02,
-            "low": 0.984
-          },
-          "2026-07-24": {
-            "open": 0.976,
-            "close": 0.957,
-            "high": 0.982,
-            "low": 0.957
-          },
-          "2026-07-27": {
-            "open": 0.953,
-            "close": 0.984,
-            "high": 0.985,
-            "low": 0.946
-          },
-          "2026-07-28": {
-            "open": 0.968,
-            "close": 0.951,
-            "high": 0.975,
-            "low": 0.949
-          },
-          "2026-07-29": {
-            "open": 0.95,
-            "close": 0.944,
-            "high": 0.959,
-            "low": 0.912
-          },
-          "2026-07-30": {
-            "open": 0.931,
-            "close": 0.917,
-            "high": 0.948,
-            "low": 0.913
-          },
-          "2026-07-31": {
-            "open": 0.944,
-            "close": 0.971,
-            "high": 0.99,
-            "low": 0.944
-          },
-          "2026-08-03": {
-            "open": 0.97,
-            "close": 0.96,
-            "high": 0.984,
-            "low": 0.956
-          },
-          "2026-08-04": {
-            "open": 0.966,
-            "close": 0.993,
-            "high": 0.996,
-            "low": 0.966
-          },
-          "2026-08-05": {
-            "open": 0.994,
-            "close": 1.021,
-            "high": 1.034,
-            "low": 0.991
-          },
-          "2026-08-06": {
-            "open": 1.009,
-            "close": 1.018,
-            "high": 1.028,
-            "low": 1.004
-          },
-          "2026-08-07": {
-            "open": 1.015,
-            "close": 1.023,
-            "high": 1.023,
-            "low": 0.994
-          },
-          "2026-08-10": {
-            "open": 1.021,
-            "close": 1.015,
-            "high": 1.024,
-            "low": 1.003
-          },
-          "2026-08-11": {
-            "open": 1.015,
-            "close": 1.012,
-            "high": 1.028,
-            "low": 1.005
-          }
-        },
-        "bar_count": 83,
-        "first": "2026-04-13",
-        "last": "2026-08-11",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-08-11": "TENCENT_ETF_FINAL_QUOTE"
-        }
-      },
       "510300": {
         "etf_code": "510300",
         "bars": {
@@ -7142,6 +5739,507 @@
         "bar_sources": {
           "2026-08-11": "TENCENT_ETF_FINAL_QUOTE"
         }
+      },
+      "512800": {
+        "etf_code": "512800",
+        "bars": {
+          "2026-04-13": {
+            "open": 0.787,
+            "close": 0.789,
+            "high": 0.789,
+            "low": 0.782
+          },
+          "2026-04-14": {
+            "open": 0.787,
+            "close": 0.794,
+            "high": 0.795,
+            "low": 0.786
+          },
+          "2026-04-15": {
+            "open": 0.794,
+            "close": 0.802,
+            "high": 0.804,
+            "low": 0.793
+          },
+          "2026-04-16": {
+            "open": 0.802,
+            "close": 0.801,
+            "high": 0.808,
+            "low": 0.798
+          },
+          "2026-04-17": {
+            "open": 0.799,
+            "close": 0.796,
+            "high": 0.802,
+            "low": 0.795
+          },
+          "2026-04-20": {
+            "open": 0.796,
+            "close": 0.805,
+            "high": 0.805,
+            "low": 0.794
+          },
+          "2026-04-21": {
+            "open": 0.805,
+            "close": 0.808,
+            "high": 0.814,
+            "low": 0.803
+          },
+          "2026-04-22": {
+            "open": 0.808,
+            "close": 0.802,
+            "high": 0.809,
+            "low": 0.8
+          },
+          "2026-04-23": {
+            "open": 0.802,
+            "close": 0.804,
+            "high": 0.808,
+            "low": 0.799
+          },
+          "2026-04-24": {
+            "open": 0.804,
+            "close": 0.803,
+            "high": 0.807,
+            "low": 0.8
+          },
+          "2026-04-27": {
+            "open": 0.802,
+            "close": 0.8,
+            "high": 0.811,
+            "low": 0.798
+          },
+          "2026-04-28": {
+            "open": 0.798,
+            "close": 0.803,
+            "high": 0.803,
+            "low": 0.797
+          },
+          "2026-04-29": {
+            "open": 0.8,
+            "close": 0.8,
+            "high": 0.803,
+            "low": 0.794
+          },
+          "2026-04-30": {
+            "open": 0.798,
+            "close": 0.795,
+            "high": 0.8,
+            "low": 0.792
+          },
+          "2026-05-06": {
+            "open": 0.793,
+            "close": 0.788,
+            "high": 0.794,
+            "low": 0.783
+          },
+          "2026-05-07": {
+            "open": 0.787,
+            "close": 0.784,
+            "high": 0.789,
+            "low": 0.784
+          },
+          "2026-05-08": {
+            "open": 0.785,
+            "close": 0.785,
+            "high": 0.79,
+            "low": 0.783
+          },
+          "2026-05-11": {
+            "open": 0.784,
+            "close": 0.785,
+            "high": 0.785,
+            "low": 0.779
+          },
+          "2026-05-12": {
+            "open": 0.784,
+            "close": 0.782,
+            "high": 0.787,
+            "low": 0.781
+          },
+          "2026-05-13": {
+            "open": 0.782,
+            "close": 0.78,
+            "high": 0.785,
+            "low": 0.779
+          },
+          "2026-05-14": {
+            "open": 0.78,
+            "close": 0.784,
+            "high": 0.786,
+            "low": 0.778
+          },
+          "2026-05-15": {
+            "open": 0.782,
+            "close": 0.779,
+            "high": 0.786,
+            "low": 0.777
+          },
+          "2026-05-18": {
+            "open": 0.777,
+            "close": 0.771,
+            "high": 0.778,
+            "low": 0.769
+          },
+          "2026-05-19": {
+            "open": 0.771,
+            "close": 0.775,
+            "high": 0.781,
+            "low": 0.77
+          },
+          "2026-05-20": {
+            "open": 0.775,
+            "close": 0.768,
+            "high": 0.776,
+            "low": 0.767
+          },
+          "2026-05-21": {
+            "open": 0.768,
+            "close": 0.771,
+            "high": 0.774,
+            "low": 0.765
+          },
+          "2026-05-22": {
+            "open": 0.769,
+            "close": 0.769,
+            "high": 0.772,
+            "low": 0.764
+          },
+          "2026-05-25": {
+            "open": 0.767,
+            "close": 0.767,
+            "high": 0.773,
+            "low": 0.765
+          },
+          "2026-05-26": {
+            "open": 0.767,
+            "close": 0.771,
+            "high": 0.774,
+            "low": 0.767
+          },
+          "2026-05-27": {
+            "open": 0.77,
+            "close": 0.767,
+            "high": 0.773,
+            "low": 0.766
+          },
+          "2026-05-28": {
+            "open": 0.766,
+            "close": 0.761,
+            "high": 0.77,
+            "low": 0.76
+          },
+          "2026-05-29": {
+            "open": 0.76,
+            "close": 0.776,
+            "high": 0.779,
+            "low": 0.757
+          },
+          "2026-06-01": {
+            "open": 0.775,
+            "close": 0.785,
+            "high": 0.785,
+            "low": 0.772
+          },
+          "2026-06-02": {
+            "open": 0.784,
+            "close": 0.79,
+            "high": 0.795,
+            "low": 0.783
+          },
+          "2026-06-03": {
+            "open": 0.788,
+            "close": 0.783,
+            "high": 0.789,
+            "low": 0.778
+          },
+          "2026-06-04": {
+            "open": 0.782,
+            "close": 0.774,
+            "high": 0.786,
+            "low": 0.772
+          },
+          "2026-06-05": {
+            "open": 0.775,
+            "close": 0.784,
+            "high": 0.786,
+            "low": 0.774
+          },
+          "2026-06-08": {
+            "open": 0.786,
+            "close": 0.789,
+            "high": 0.793,
+            "low": 0.78
+          },
+          "2026-06-09": {
+            "open": 0.785,
+            "close": 0.792,
+            "high": 0.798,
+            "low": 0.784
+          },
+          "2026-06-10": {
+            "open": 0.792,
+            "close": 0.806,
+            "high": 0.807,
+            "low": 0.792
+          },
+          "2026-06-11": {
+            "open": 0.808,
+            "close": 0.802,
+            "high": 0.809,
+            "low": 0.797
+          },
+          "2026-06-12": {
+            "open": 0.797,
+            "close": 0.814,
+            "high": 0.816,
+            "low": 0.794
+          },
+          "2026-06-15": {
+            "open": 0.812,
+            "close": 0.802,
+            "high": 0.815,
+            "low": 0.8
+          },
+          "2026-06-16": {
+            "open": 0.8,
+            "close": 0.792,
+            "high": 0.802,
+            "low": 0.79
+          },
+          "2026-06-17": {
+            "open": 0.794,
+            "close": 0.785,
+            "high": 0.798,
+            "low": 0.783
+          },
+          "2026-06-18": {
+            "open": 0.785,
+            "close": 0.766,
+            "high": 0.785,
+            "low": 0.764
+          },
+          "2026-06-22": {
+            "open": 0.763,
+            "close": 0.771,
+            "high": 0.776,
+            "low": 0.757
+          },
+          "2026-06-23": {
+            "open": 0.769,
+            "close": 0.778,
+            "high": 0.786,
+            "low": 0.769
+          },
+          "2026-06-24": {
+            "open": 0.779,
+            "close": 0.761,
+            "high": 0.781,
+            "low": 0.76
+          },
+          "2026-06-25": {
+            "open": 0.757,
+            "close": 0.753,
+            "high": 0.765,
+            "low": 0.752
+          },
+          "2026-06-26": {
+            "open": 0.753,
+            "close": 0.746,
+            "high": 0.757,
+            "low": 0.745
+          },
+          "2026-06-29": {
+            "open": 0.745,
+            "close": 0.75,
+            "high": 0.753,
+            "low": 0.731
+          },
+          "2026-06-30": {
+            "open": 0.747,
+            "close": 0.734,
+            "high": 0.747,
+            "low": 0.728
+          },
+          "2026-07-01": {
+            "open": 0.732,
+            "close": 0.737,
+            "high": 0.74,
+            "low": 0.728
+          },
+          "2026-07-02": {
+            "open": 0.737,
+            "close": 0.748,
+            "high": 0.754,
+            "low": 0.737
+          },
+          "2026-07-03": {
+            "open": 0.744,
+            "close": 0.747,
+            "high": 0.753,
+            "low": 0.738
+          },
+          "2026-07-06": {
+            "open": 0.744,
+            "close": 0.76,
+            "high": 0.761,
+            "low": 0.74
+          },
+          "2026-07-07": {
+            "open": 0.759,
+            "close": 0.759,
+            "high": 0.763,
+            "low": 0.751
+          },
+          "2026-07-08": {
+            "open": 0.758,
+            "close": 0.77,
+            "high": 0.77,
+            "low": 0.752
+          },
+          "2026-07-09": {
+            "open": 0.764,
+            "close": 0.761,
+            "high": 0.766,
+            "low": 0.758
+          },
+          "2026-07-10": {
+            "open": 0.761,
+            "close": 0.767,
+            "high": 0.767,
+            "low": 0.758
+          },
+          "2026-07-13": {
+            "open": 0.764,
+            "close": 0.779,
+            "high": 0.781,
+            "low": 0.762
+          },
+          "2026-07-14": {
+            "open": 0.778,
+            "close": 0.781,
+            "high": 0.783,
+            "low": 0.773
+          },
+          "2026-07-15": {
+            "open": 0.775,
+            "close": 0.79,
+            "high": 0.792,
+            "low": 0.773
+          },
+          "2026-07-16": {
+            "open": 0.79,
+            "close": 0.782,
+            "high": 0.795,
+            "low": 0.78
+          },
+          "2026-07-17": {
+            "open": 0.784,
+            "close": 0.789,
+            "high": 0.794,
+            "low": 0.783
+          },
+          "2026-07-20": {
+            "open": 0.787,
+            "close": 0.808,
+            "high": 0.809,
+            "low": 0.786
+          },
+          "2026-07-21": {
+            "open": 0.808,
+            "close": 0.79,
+            "high": 0.815,
+            "low": 0.789
+          },
+          "2026-07-22": {
+            "open": 0.789,
+            "close": 0.799,
+            "high": 0.799,
+            "low": 0.781
+          },
+          "2026-07-23": {
+            "open": 0.797,
+            "close": 0.803,
+            "high": 0.805,
+            "low": 0.795
+          },
+          "2026-07-24": {
+            "open": 0.805,
+            "close": 0.804,
+            "high": 0.81,
+            "low": 0.803
+          },
+          "2026-07-27": {
+            "open": 0.807,
+            "close": 0.805,
+            "high": 0.811,
+            "low": 0.801
+          },
+          "2026-07-28": {
+            "open": 0.807,
+            "close": 0.818,
+            "high": 0.819,
+            "low": 0.805
+          },
+          "2026-07-29": {
+            "open": 0.819,
+            "close": 0.819,
+            "high": 0.826,
+            "low": 0.818
+          },
+          "2026-07-30": {
+            "open": 0.819,
+            "close": 0.84,
+            "high": 0.841,
+            "low": 0.818
+          },
+          "2026-07-31": {
+            "open": 0.826,
+            "close": 0.836,
+            "high": 0.836,
+            "low": 0.81
+          },
+          "2026-08-03": {
+            "open": 0.827,
+            "close": 0.831,
+            "high": 0.836,
+            "low": 0.821
+          },
+          "2026-08-04": {
+            "open": 0.829,
+            "close": 0.811,
+            "high": 0.829,
+            "low": 0.81
+          },
+          "2026-08-05": {
+            "open": 0.808,
+            "close": 0.801,
+            "high": 0.813,
+            "low": 0.798
+          },
+          "2026-08-06": {
+            "open": 0.803,
+            "close": 0.805,
+            "high": 0.807,
+            "low": 0.794
+          },
+          "2026-08-07": {
+            "open": 0.802,
+            "close": 0.798,
+            "high": 0.805,
+            "low": 0.793
+          },
+          "2026-08-10": {
+            "open": 0.795,
+            "close": 0.803,
+            "high": 0.808,
+            "low": 0.795
+          }
+        },
+        "bar_count": 82,
+        "first": "2026-04-13",
+        "last": "2026-08-10",
+        "fresh_for_as_of": false
       },
       "512980": {
         "etf_code": "512980",
@@ -9692,9 +8790,510 @@
         "bar_sources": {
           "2026-08-11": "TENCENT_ETF_FINAL_QUOTE"
         }
+      },
+      "560620": {
+        "etf_code": "560620",
+        "bars": {
+          "2026-04-13": {
+            "open": 0.974,
+            "close": 0.98,
+            "high": 0.98,
+            "low": 0.973
+          },
+          "2026-04-14": {
+            "open": 0.986,
+            "close": 0.981,
+            "high": 0.986,
+            "low": 0.975
+          },
+          "2026-04-15": {
+            "open": 0.986,
+            "close": 0.981,
+            "high": 0.986,
+            "low": 0.977
+          },
+          "2026-04-16": {
+            "open": 0.986,
+            "close": 0.988,
+            "high": 0.99,
+            "low": 0.985
+          },
+          "2026-04-17": {
+            "open": 0.99,
+            "close": 0.987,
+            "high": 0.993,
+            "low": 0.984
+          },
+          "2026-04-20": {
+            "open": 0.993,
+            "close": 0.996,
+            "high": 0.996,
+            "low": 0.989
+          },
+          "2026-04-21": {
+            "open": 0.997,
+            "close": 1.007,
+            "high": 1.009,
+            "low": 0.992
+          },
+          "2026-04-22": {
+            "open": 1.007,
+            "close": 1.006,
+            "high": 1.008,
+            "low": 1.004
+          },
+          "2026-04-23": {
+            "open": 1.006,
+            "close": 1.018,
+            "high": 1.021,
+            "low": 1.001
+          },
+          "2026-04-24": {
+            "open": 1.018,
+            "close": 1.006,
+            "high": 1.043,
+            "low": 1.004
+          },
+          "2026-04-27": {
+            "open": 1.006,
+            "close": 1.002,
+            "high": 1.006,
+            "low": 0.992
+          },
+          "2026-04-28": {
+            "open": 1.0,
+            "close": 1.008,
+            "high": 1.012,
+            "low": 0.996
+          },
+          "2026-04-29": {
+            "open": 1.009,
+            "close": 1.007,
+            "high": 1.01,
+            "low": 1.002
+          },
+          "2026-04-30": {
+            "open": 1.003,
+            "close": 0.997,
+            "high": 1.008,
+            "low": 0.996
+          },
+          "2026-05-06": {
+            "open": 0.997,
+            "close": 1.016,
+            "high": 1.016,
+            "low": 0.997
+          },
+          "2026-05-07": {
+            "open": 1.015,
+            "close": 1.027,
+            "high": 1.028,
+            "low": 1.01
+          },
+          "2026-05-08": {
+            "open": 1.025,
+            "close": 1.026,
+            "high": 1.041,
+            "low": 1.022
+          },
+          "2026-05-11": {
+            "open": 1.027,
+            "close": 1.036,
+            "high": 1.043,
+            "low": 1.026
+          },
+          "2026-05-12": {
+            "open": 1.036,
+            "close": 1.044,
+            "high": 1.053,
+            "low": 1.035
+          },
+          "2026-05-13": {
+            "open": 1.044,
+            "close": 1.064,
+            "high": 1.07,
+            "low": 1.044
+          },
+          "2026-05-14": {
+            "open": 1.064,
+            "close": 1.046,
+            "high": 1.08,
+            "low": 1.046
+          },
+          "2026-05-15": {
+            "open": 1.04,
+            "close": 1.035,
+            "high": 1.045,
+            "low": 1.021
+          },
+          "2026-05-18": {
+            "open": 1.031,
+            "close": 1.039,
+            "high": 1.068,
+            "low": 1.025
+          },
+          "2026-05-19": {
+            "open": 1.039,
+            "close": 1.079,
+            "high": 1.081,
+            "low": 1.039
+          },
+          "2026-05-20": {
+            "open": 1.079,
+            "close": 1.035,
+            "high": 1.081,
+            "low": 1.033
+          },
+          "2026-05-21": {
+            "open": 1.028,
+            "close": 1.018,
+            "high": 1.042,
+            "low": 1.016
+          },
+          "2026-05-22": {
+            "open": 1.008,
+            "close": 1.017,
+            "high": 1.024,
+            "low": 1.006
+          },
+          "2026-05-25": {
+            "open": 1.019,
+            "close": 1.036,
+            "high": 1.038,
+            "low": 1.019
+          },
+          "2026-05-26": {
+            "open": 1.033,
+            "close": 1.04,
+            "high": 1.046,
+            "low": 1.029
+          },
+          "2026-05-27": {
+            "open": 1.039,
+            "close": 1.052,
+            "high": 1.052,
+            "low": 1.03
+          },
+          "2026-05-28": {
+            "open": 1.048,
+            "close": 1.06,
+            "high": 1.07,
+            "low": 1.048
+          },
+          "2026-05-29": {
+            "open": 1.059,
+            "close": 1.092,
+            "high": 1.093,
+            "low": 1.059
+          },
+          "2026-06-01": {
+            "open": 1.095,
+            "close": 1.104,
+            "high": 1.108,
+            "low": 1.067
+          },
+          "2026-06-02": {
+            "open": 1.098,
+            "close": 1.095,
+            "high": 1.101,
+            "low": 1.082
+          },
+          "2026-06-03": {
+            "open": 1.084,
+            "close": 1.095,
+            "high": 1.105,
+            "low": 1.069
+          },
+          "2026-06-04": {
+            "open": 1.099,
+            "close": 1.081,
+            "high": 1.106,
+            "low": 1.081
+          },
+          "2026-06-05": {
+            "open": 1.081,
+            "close": 1.044,
+            "high": 1.092,
+            "low": 1.043
+          },
+          "2026-06-08": {
+            "open": 1.031,
+            "close": 1.021,
+            "high": 1.048,
+            "low": 1.018
+          },
+          "2026-06-09": {
+            "open": 1.024,
+            "close": 1.026,
+            "high": 1.028,
+            "low": 1.007
+          },
+          "2026-06-10": {
+            "open": 1.026,
+            "close": 1.012,
+            "high": 1.026,
+            "low": 1.006
+          },
+          "2026-06-11": {
+            "open": 1.02,
+            "close": 1.01,
+            "high": 1.02,
+            "low": 1.002
+          },
+          "2026-06-12": {
+            "open": 1.005,
+            "close": 1.018,
+            "high": 1.021,
+            "low": 1.005
+          },
+          "2026-06-15": {
+            "open": 1.033,
+            "close": 1.022,
+            "high": 1.033,
+            "low": 1.015
+          },
+          "2026-06-16": {
+            "open": 1.022,
+            "close": 1.013,
+            "high": 1.024,
+            "low": 1.012
+          },
+          "2026-06-17": {
+            "open": 0.998,
+            "close": 1.007,
+            "high": 1.028,
+            "low": 0.998
+          },
+          "2026-06-18": {
+            "open": 1.0,
+            "close": 0.976,
+            "high": 1.004,
+            "low": 0.975
+          },
+          "2026-06-22": {
+            "open": 0.965,
+            "close": 0.983,
+            "high": 0.983,
+            "low": 0.961
+          },
+          "2026-06-23": {
+            "open": 0.983,
+            "close": 0.968,
+            "high": 0.998,
+            "low": 0.968
+          },
+          "2026-06-24": {
+            "open": 0.973,
+            "close": 0.954,
+            "high": 0.973,
+            "low": 0.952
+          },
+          "2026-06-25": {
+            "open": 0.968,
+            "close": 0.94,
+            "high": 0.968,
+            "low": 0.938
+          },
+          "2026-06-26": {
+            "open": 0.944,
+            "close": 0.936,
+            "high": 0.951,
+            "low": 0.935
+          },
+          "2026-06-29": {
+            "open": 0.929,
+            "close": 0.937,
+            "high": 0.95,
+            "low": 0.92
+          },
+          "2026-06-30": {
+            "open": 0.935,
+            "close": 0.933,
+            "high": 0.935,
+            "low": 0.924
+          },
+          "2026-07-01": {
+            "open": 0.924,
+            "close": 0.943,
+            "high": 0.948,
+            "low": 0.924
+          },
+          "2026-07-02": {
+            "open": 0.945,
+            "close": 0.938,
+            "high": 0.95,
+            "low": 0.935
+          },
+          "2026-07-03": {
+            "open": 0.941,
+            "close": 0.942,
+            "high": 0.943,
+            "low": 0.937
+          },
+          "2026-07-06": {
+            "open": 0.944,
+            "close": 0.938,
+            "high": 0.944,
+            "low": 0.935
+          },
+          "2026-07-07": {
+            "open": 0.937,
+            "close": 0.924,
+            "high": 0.937,
+            "low": 0.922
+          },
+          "2026-07-08": {
+            "open": 0.924,
+            "close": 0.926,
+            "high": 0.93,
+            "low": 0.919
+          },
+          "2026-07-09": {
+            "open": 0.92,
+            "close": 0.925,
+            "high": 0.925,
+            "low": 0.915
+          },
+          "2026-07-10": {
+            "open": 0.92,
+            "close": 0.934,
+            "high": 0.939,
+            "low": 0.92
+          },
+          "2026-07-13": {
+            "open": 0.929,
+            "close": 0.927,
+            "high": 0.929,
+            "low": 0.927
+          },
+          "2026-07-14": {
+            "open": 0.939,
+            "close": 0.938,
+            "high": 0.94,
+            "low": 0.927
+          },
+          "2026-07-15": {
+            "open": 0.927,
+            "close": 0.947,
+            "high": 0.958,
+            "low": 0.927
+          },
+          "2026-07-16": {
+            "open": 0.95,
+            "close": 0.932,
+            "high": 0.95,
+            "low": 0.93
+          },
+          "2026-07-17": {
+            "open": 0.933,
+            "close": 0.944,
+            "high": 0.952,
+            "low": 0.933
+          },
+          "2026-07-20": {
+            "open": 0.944,
+            "close": 0.974,
+            "high": 0.974,
+            "low": 0.934
+          },
+          "2026-07-21": {
+            "open": 0.974,
+            "close": 0.961,
+            "high": 0.99,
+            "low": 0.96
+          },
+          "2026-07-22": {
+            "open": 0.96,
+            "close": 0.984,
+            "high": 0.988,
+            "low": 0.951
+          },
+          "2026-07-23": {
+            "open": 1.025,
+            "close": 0.994,
+            "high": 1.025,
+            "low": 0.975
+          },
+          "2026-07-24": {
+            "open": 0.99,
+            "close": 0.956,
+            "high": 0.99,
+            "low": 0.956
+          },
+          "2026-07-27": {
+            "open": 0.956,
+            "close": 0.963,
+            "high": 0.963,
+            "low": 0.951
+          },
+          "2026-07-28": {
+            "open": 0.963,
+            "close": 0.96,
+            "high": 0.963,
+            "low": 0.949
+          },
+          "2026-07-29": {
+            "open": 0.945,
+            "close": 0.972,
+            "high": 0.973,
+            "low": 0.939
+          },
+          "2026-07-30": {
+            "open": 0.98,
+            "close": 0.978,
+            "high": 0.98,
+            "low": 0.968
+          },
+          "2026-07-31": {
+            "open": 0.976,
+            "close": 0.978,
+            "high": 0.979,
+            "low": 0.967
+          },
+          "2026-08-03": {
+            "open": 0.978,
+            "close": 0.989,
+            "high": 0.992,
+            "low": 0.978
+          },
+          "2026-08-04": {
+            "open": 0.993,
+            "close": 0.978,
+            "high": 0.993,
+            "low": 0.976
+          },
+          "2026-08-05": {
+            "open": 0.979,
+            "close": 0.969,
+            "high": 0.979,
+            "low": 0.964
+          },
+          "2026-08-06": {
+            "open": 0.967,
+            "close": 0.962,
+            "high": 0.967,
+            "low": 0.955
+          },
+          "2026-08-07": {
+            "open": 0.965,
+            "close": 0.957,
+            "high": 0.965,
+            "low": 0.953
+          },
+          "2026-08-10": {
+            "open": 0.955,
+            "close": 0.965,
+            "high": 0.965,
+            "low": 0.955
+          }
+        },
+        "bar_count": 82,
+        "first": "2026-04-13",
+        "last": "2026-08-10",
+        "fresh_for_as_of": false
       }
     },
-    "updated_at": "2026-08-11T11:23:58+00:00",
+    "updated_at": "2026-08-11T12:05:39+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-08-11",
@@ -9702,8 +9301,6 @@
         "159697",
         "159745",
         "159928",
-        "159995",
-        "159998",
         "510300",
         "512400",
         "512430",
@@ -9721,12 +9318,6 @@
           "2026-08-11"
         ],
         "159928": [
-          "2026-08-11"
-        ],
-        "159995": [
-          "2026-08-11"
-        ],
-        "159998": [
           "2026-08-11"
         ],
         "510300": [
