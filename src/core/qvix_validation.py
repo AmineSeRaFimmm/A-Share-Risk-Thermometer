@@ -20,6 +20,7 @@ QVIX_METADATA_COLUMNS = [
     "observed",
     "quality_flags",
     "secondary_source",
+    "secondary_close",
     "source_agreement",
     "source_value_delta",
 ]

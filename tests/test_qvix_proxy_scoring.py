@@ -60,6 +60,34 @@ def test_qvix_validation_preserves_delayed_index_metadata():
     assert int(row["qvix_delay_minutes"]) == 15
 
 
+def test_qvix_validation_preserves_cross_confirmation_metadata():
+    avix = pd.DataFrame([{"trade_date": "2026-08-11", "avix_clean": 19.31}])
+    qvix = pd.DataFrame([{
+        "date": "2026-08-11",
+        "close": 19.48,
+        "source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
+        "qvix_quote_time": "2026-08-11T15:00:38+08:00",
+        "is_final": True,
+        "is_proxy": True,
+        "is_delayed": True,
+        "sample_size": 239,
+        "observed": True,
+        "quality_flags": "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY",
+        "secondary_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
+        "secondary_close": 19.304886,
+        "source_agreement": 0.991,
+        "source_value_delta": 0.1751,
+    }])
+
+    row = validate_qvix(avix, qvix).iloc[0]
+
+    assert row["secondary_source"] == "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED"
+    assert float(row["secondary_close"]) == 19.304886
+    assert float(row["source_agreement"]) == 0.991
+    assert float(row["source_value_delta"]) == 0.1751
+    assert row["quality"] == "WARN_QVIX_REALTIME_PROXY"
+
+
 def test_model_confidence_discounts_qvix_proxy_weight():
     row = pd.Series(
         {

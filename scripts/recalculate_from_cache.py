@@ -8,17 +8,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import pandas as pd
 
 from src.core.avix_formula import calculate_avix_for_date
-from src.core.breadth import compute_breadth_pressure, drop_legacy_synthetic_breadth
+from src.core.breadth import drop_legacy_synthetic_breadth
 from src.core.clean_surface import clean_option_surface
-from src.core.drawdown import compute_drawdown
-from src.core.qvix_validation import validate_qvix
-from src.core.realized_vol import compute_realized_vol
-from src.core.risk_temperature import compute_risk_temperature
 from src.data_sources.akshare_breadth import fetch_a_breadth_snapshot, summarize_breadth
-from src.data_sources.akshare_qvix import fetch_qvix
+from scripts.bootstrap_history import refresh_qvix_and_risk_outputs
 from src.storage.csv_store import read_csv, write_csv
 from src.storage.paths import CALCULATED, NORMALIZED, RAW, ensure_dirs
-from src.utils.dates import now_cn
 
 
 def calculate_clean(chain: pd.DataFrame, rates: pd.DataFrame, raw: pd.DataFrame) -> pd.DataFrame:
@@ -60,14 +55,6 @@ def main() -> None:
         raise SystemExit("avix_raw_close.csv missing or empty")
     clean = calculate_clean(chain, rates, raw)
     write_csv(clean, CALCULATED / "avix_clean_close.csv")
-    try:
-        qvix = fetch_qvix()
-    except Exception as exc:  # noqa: BLE001
-        print(f"WARN qvix fetch failed: {exc}")
-        qvix = read_csv(RAW / "qvix" / "qvix.csv")
-    write_csv(qvix, RAW / "qvix" / "qvix.csv")
-    qv = validate_qvix(clean, qvix)
-    write_csv(qv, CALCULATED / "qvix_validation.csv")
     hs = index_history[index_history["symbol"] == "sh000300"].copy()
     latest_trade_date = str(pd.to_datetime(hs["date"]).max().date()) if not hs.empty else str(clean["trade_date"].max())
     breadth_hist = drop_legacy_synthetic_breadth(read_csv(NORMALIZED / "breadth_history.csv"))
@@ -82,19 +69,12 @@ def main() -> None:
         summary = summarize_breadth(breadth_raw, latest_trade_date)
         breadth_hist = pd.concat([breadth_hist, summary], ignore_index=True).drop_duplicates("trade_date", keep="last")
         write_csv(breadth_hist, NORMALIZED / "breadth_history.csv")
-    breadth = compute_breadth_pressure(breadth_hist)
-    realized = compute_realized_vol(index_history)
-    drawdown = compute_drawdown(index_history)
-    components = compute_risk_temperature(clean, qv, realized, drawdown, breadth, index_history)
-    write_csv(components, CALCULATED / "risk_components.csv")
-    write_csv(components[["trade_date", "risk_temperature", "regime", "regime_cn", "quality"]], CALCULATED / "risk_temperature.csv")
-    audit = pd.DataFrame([{
-        "trade_date": components["trade_date"].iloc[-1],
-        "event": "recalculate_from_cache",
-        "quality": components["quality"].iloc[-1],
-        "time": now_cn().isoformat(timespec="seconds"),
-    }]) if not components.empty else pd.DataFrame()
-    write_csv(audit, CALCULATED / "audit_log.csv")
+    refresh_qvix_and_risk_outputs(
+        clean,
+        index_history,
+        rates,
+        event="recalculate_from_cache",
+    )
 
 
 if __name__ == "__main__":

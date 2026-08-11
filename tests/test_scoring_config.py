@@ -25,6 +25,9 @@ def test_regimes_cover_full_range():
 def test_thresholds_defaults():
     thr = load_thresholds()
     assert thr["min_qvix_corr_60"] == 0.60
+    assert thr["min_qvix_eod_etf_points"] == 180
+    assert thr["min_qvix_eod_index_options"] == 30
+    assert thr["max_qvix_eod_cross_source_relative_delta"] == 0.20
     assert thr["min_history_days_for_percentile"] == 120
     assert thr["min_options_per_term"] == 8
     assert thr["fixed_warning_level"] == 22

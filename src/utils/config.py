@@ -96,6 +96,11 @@ def load_thresholds() -> dict[str, Any]:
         "preferred_options_per_term": int(quality.get("preferred_options_per_term", 12)),
         "max_raw_clean_diff": float(quality.get("max_raw_clean_diff", 2.0)),
         "min_qvix_corr_60": float(quality.get("min_qvix_corr_60", 0.60)),
+        "min_qvix_eod_etf_points": int(quality.get("min_qvix_eod_etf_points", 180)),
+        "min_qvix_eod_index_options": int(quality.get("min_qvix_eod_index_options", 30)),
+        "max_qvix_eod_cross_source_relative_delta": float(
+            quality.get("max_qvix_eod_cross_source_relative_delta", 0.20)
+        ),
         "min_history_days_for_percentile": int(quality.get("min_history_days_for_percentile", 120)),
         "fixed_warning_level": float(avix.get("fixed_warning_level", 22)),
         "fixed_panic_level": float(avix.get("fixed_panic_level", 25)),

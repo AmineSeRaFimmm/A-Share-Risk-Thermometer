@@ -88,6 +88,9 @@ def test_official_close_qvix_source_uses_official_payload() -> None:
     app = (ROOT / "web/assets/app.js").read_text(encoding="utf-8")
     assert "const qvix = nowcast.active ? nowcast : (latest?.official_close || {});" in app
     assert "const source = String(qvix.qvix_source || '');" in app
+    assert "300ETF QVIX代理 · 东财复核" in app
+    assert "qvix.qvix_secondary_close" in app
+    assert "qvix.qvix_source_agreement" in app
 
 
 def test_flex_page_exposes_core_tail_alert_contract() -> None:

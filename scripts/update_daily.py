@@ -21,6 +21,7 @@ from scripts.bootstrap_history import (
     calculate_all,
     load_cached_option_frames,
     option_cache_max_date,
+    refresh_qvix_and_risk_outputs,
 )
 from src.core.contracts import build_contract_master
 from src.core.official_avix_quality import official_avix_ready
@@ -116,9 +117,17 @@ def main(*, build_site: bool = True) -> None:
         chain_max is not None and chain_max >= trade_date
     )
     if official_current and options_current:
-        # Still refresh breadth for the day when possible, then rebuild site.
+        # AVIX can be current while QVIX is still provisional or arrives later.
+        # Refresh QVIX and all dependent scores without refetching option history.
         summary = _ensure_breadth_for_date(trade_date)
         _merge_breadth_history(summary)
+        rates = read_csv(NORMALIZED / "rate_curve_history.csv")
+        refresh_qvix_and_risk_outputs(
+            latest_clean,
+            index_history,
+            rates,
+            event="update_daily_qvix_refresh",
+        )
         if build_site:
             build_site_data()
         return

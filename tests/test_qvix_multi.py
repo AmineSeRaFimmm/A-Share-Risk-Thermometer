@@ -7,15 +7,46 @@ import pandas as pd
 
 from src.data_sources.akshare_qvix import (
     SOURCE_AK_ETF,
+    SOURCE_EOD_CROSS_CONFIRMED,
     SOURCE_RT_ETF_CSV,
     SOURCE_ETF,
     SOURCE_INDEX,
     _extract_pack,
     _normalize_min_qvix,
+    build_cross_confirmed_eod_qvix,
     fetch_qvix,
     fetch_qvix_from_optbbs_parse,
     merge_qvix_cache,
 )
+
+
+def _eod_row(
+    *,
+    source: str,
+    close: float,
+    quote_time: str,
+    sample_size: int,
+    proxy: bool = False,
+    delayed: bool = False,
+    final: bool = True,
+) -> pd.DataFrame:
+    return pd.DataFrame([{
+        "date": "2026-08-11",
+        "open": close,
+        "high": close,
+        "low": close,
+        "close": close,
+        "source": source,
+        "qvix_quote_time": quote_time,
+        "source_quote_time": quote_time,
+        "sample_size": sample_size,
+        "intraday_points": sample_size,
+        "observed": True,
+        "is_final": final,
+        "is_proxy": proxy,
+        "is_delayed": delayed,
+        "quality_flags": "PROXY" if proxy else "DELAYED" if delayed else "OK",
+    }])
 
 
 def _fake_k_csv() -> pd.DataFrame:
@@ -133,3 +164,157 @@ def test_normalize_min_qvix_builds_intraday_proxy_bar():
     assert row["qvix_quote_time"] == "2026-07-22T10:01:40+08:00"
     assert bool(row["is_proxy"])
     assert int(row["sample_size"]) == 2
+
+
+def test_cross_confirmed_eod_qvix_accepts_two_strict_final_sources():
+    etf = _eod_row(
+        source=SOURCE_RT_ETF_CSV,
+        close=19.48,
+        quote_time="2026-08-11T15:00:38+08:00",
+        sample_size=239,
+        proxy=True,
+    )
+    eastmoney = _eod_row(
+        source="EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
+        close=19.304886,
+        quote_time="2026-08-11T15:31:19+08:00",
+        sample_size=54,
+        delayed=True,
+    )
+
+    row = build_cross_confirmed_eod_qvix("2026-08-11", etf, eastmoney).iloc[0]
+
+    assert row["source"] == SOURCE_EOD_CROSS_CONFIRMED
+    assert float(row["close"]) == 19.48
+    assert float(row["secondary_close"]) == 19.304886
+    assert row["secondary_source"] == "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED"
+    assert float(row["source_agreement"]) > 0.99
+    assert bool(row["is_proxy"])
+    assert bool(row["is_delayed"])
+    assert set(row["quality_flags"].split("|")) >= {
+        "CROSS_CONFIRMED", "DELAYED", "EOD_PROVISIONAL", "PROXY",
+    }
+
+
+def test_cross_confirmed_eod_qvix_rejects_weak_or_divergent_inputs():
+    valid_etf = _eod_row(
+        source=SOURCE_RT_ETF_CSV,
+        close=20.0,
+        quote_time="2026-08-11T15:00:38+08:00",
+        sample_size=239,
+        proxy=True,
+    )
+    sparse_eastmoney = _eod_row(
+        source="EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
+        close=20.1,
+        quote_time="2026-08-11T15:31:19+08:00",
+        sample_size=20,
+        delayed=True,
+    )
+    divergent_eastmoney = _eod_row(
+        source="EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
+        close=25.0,
+        quote_time="2026-08-11T15:31:19+08:00",
+        sample_size=54,
+        delayed=True,
+    )
+
+    assert build_cross_confirmed_eod_qvix("2026-08-11", valid_etf, sparse_eastmoney).empty
+    assert build_cross_confirmed_eod_qvix("2026-08-11", valid_etf, divergent_eastmoney).empty
+
+
+def test_daily_backfill_replaces_provisional_but_not_the_reverse():
+    provisional = _eod_row(
+        source=SOURCE_EOD_CROSS_CONFIRMED,
+        close=19.48,
+        quote_time="2026-08-11T15:00:38+08:00",
+        sample_size=239,
+        proxy=True,
+        delayed=True,
+    )
+    provisional["quality_flags"] = "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY"
+    daily = pd.DataFrame([{
+        "date": "2026-08-11",
+        "open": 19.4,
+        "high": 19.7,
+        "low": 19.3,
+        "close": 19.55,
+        "source": SOURCE_ETF,
+        "fetch_time": "2026-08-12T08:00:00+08:00",
+    }])
+
+    backfilled = merge_qvix_cache(daily, provisional).iloc[0]
+    protected = merge_qvix_cache(provisional, daily).iloc[0]
+
+    assert backfilled["source"] == SOURCE_ETF
+    assert float(backfilled["close"]) == 19.55
+    assert protected["source"] == SOURCE_ETF
+    assert float(protected["close"]) == 19.55
+
+
+def test_fetch_qvix_adds_cross_confirmed_eod_only_when_daily_is_missing(monkeypatch):
+    monkeypatch.setattr(
+        "src.data_sources.akshare_qvix.fetch_optbbs_k_csv",
+        lambda **kwargs: _fake_k_csv(),
+    )
+    monkeypatch.setattr(
+        "src.data_sources.akshare_qvix._fetch_akshare_qvix_merge",
+        lambda: pd.DataFrame(),
+    )
+    provisional = _eod_row(
+        source=SOURCE_EOD_CROSS_CONFIRMED,
+        close=19.48,
+        quote_time="2026-08-11T15:00:38+08:00",
+        sample_size=239,
+        proxy=True,
+        delayed=True,
+    )
+    provisional["quality_flags"] = "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY"
+    monkeypatch.setattr(
+        "src.data_sources.akshare_qvix.fetch_cross_confirmed_eod_qvix",
+        lambda trade_date, rate_curve, index_history: provisional,
+    )
+
+    out = fetch_qvix(
+        eod_trade_date="2026-08-11",
+        rate_curve=pd.DataFrame([{"date": "2026-08-11"}]),
+        index_history=pd.DataFrame([{"date": "2026-08-11"}]),
+    )
+
+    row = out[out["date"] == "2026-08-11"].iloc[0]
+    assert row["source"] == SOURCE_EOD_CROSS_CONFIRMED
+    assert float(row["close"]) == 19.48
+
+
+def test_fetch_qvix_does_not_fetch_eod_proxy_when_daily_exists(monkeypatch):
+    raw = _fake_k_csv()
+    extra = raw.iloc[[-1]].copy()
+    extra.iloc[0, 0] = "2026-08-11"
+    extra.iloc[0, 9:13] = [19.4, 19.7, 19.3, 19.55]
+    raw = pd.concat([raw, extra], ignore_index=True)
+    monkeypatch.setattr(
+        "src.data_sources.akshare_qvix.fetch_optbbs_k_csv",
+        lambda **kwargs: raw,
+    )
+    monkeypatch.setattr(
+        "src.data_sources.akshare_qvix._fetch_akshare_qvix_merge",
+        lambda: pd.DataFrame(),
+    )
+
+    def unexpected(*args, **kwargs):
+        raise AssertionError("EOD fallback must not run when a daily row exists")
+
+    monkeypatch.setattr(
+        "src.data_sources.akshare_qvix.fetch_cross_confirmed_eod_qvix",
+        unexpected,
+    )
+
+    out = fetch_qvix(
+        eod_trade_date="2026-08-11",
+        rate_curve=pd.DataFrame([{"date": "2026-08-11"}]),
+        index_history=pd.DataFrame([{"date": "2026-08-11"}]),
+    )
+
+    row = out[out["date"] == "2026-08-11"].iloc[0]
+    assert row["source"] == SOURCE_ETF
+    assert float(row["close"]) == 19.55

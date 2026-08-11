@@ -1,8 +1,9 @@
 """Delayed 300-index QVIX replica from Eastmoney's public CFFEX option board.
 
 Eastmoney publishes the CFFEX IO option T-board with best bid/ask quotes, but
-the board is delayed by roughly 15 minutes.  This source is therefore only a
-nowcast fallback: it must never become an official close observation.
+the board is delayed by roughly 15 minutes. It may independently cross-check
+an exact-date 300ETF final-minute observation after close, but is never treated
+as a daily-series observation by itself.
 """
 from __future__ import annotations
 
@@ -136,6 +137,8 @@ def fetch_eastmoney_delayed_qvix_for_date(
         if pd.isna(value) or float(value) <= 0 or str(calculated.get("quality")) != "OK":
             return pd.DataFrame()
         quote_time_cn = quote_time.tz_convert("Asia/Shanghai") if quote_time is not None else None
+        if quote_time_cn is None or quote_time_cn.strftime("%Y-%m-%d") != trade_date:
+            return pd.DataFrame()
         now_cn = pd.Timestamp.now(tz="Asia/Shanghai")
         delay_minutes = None if quote_time_cn is None else max(0, int((now_cn - quote_time_cn).total_seconds() // 60))
         meta = quality_metadata(
@@ -146,9 +149,11 @@ def fetch_eastmoney_delayed_qvix_for_date(
             sample_size=len(raw),
             is_delayed=True,
             is_final=bool(
-                quote_time_cn is not None
-                and (quote_time_cn.hour * 60 + quote_time_cn.minute) >= 14 * 60 + 55
-                and (now_cn.hour * 60 + now_cn.minute) >= 15 * 60 + 15
+                (quote_time_cn.hour * 60 + quote_time_cn.minute) >= 14 * 60 + 55
+                and (
+                    now_cn.strftime("%Y-%m-%d") > trade_date
+                    or (now_cn.hour * 60 + now_cn.minute) >= 15 * 60 + 15
+                )
             ),
             max_age_seconds=30 * 60,
         )

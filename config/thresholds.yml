@@ -3,6 +3,9 @@ quality:
   preferred_options_per_term: 12
   max_raw_clean_diff: 2.0
   min_qvix_corr_60: 0.60
+  min_qvix_eod_etf_points: 180
+  min_qvix_eod_index_options: 30
+  max_qvix_eod_cross_source_relative_delta: 0.20
   min_history_days_for_percentile: 120
 avix:
   fixed_warning_level: 22

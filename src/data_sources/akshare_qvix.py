@@ -29,6 +29,7 @@ import pandas as pd
 import requests
 
 from src.core.data_quality import quality_metadata
+from src.utils.config import load_thresholds
 from src.utils.retry import retry_call
 
 OPTBBS_K_CSV = "http://1.optbbs.com/d/csv/d/k.csv"
@@ -42,6 +43,15 @@ SOURCE_RT_INDEX_AK = "AKSHARE_300INDEX_MIN_QVIX"
 SOURCE_RT_ETF_CSV = "OPTBBS_CSV_300ETF_MIN_QVIX_PROXY"
 SOURCE_RT_ETF_PAGE = "OPTBBS_PAGE_300ETF_MIN_QVIX_PROXY"
 SOURCE_RT_ETF_AK = "AKSHARE_300ETF_MIN_QVIX_PROXY"
+SOURCE_EOD_CROSS_CONFIRMED = (
+    "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED"
+)
+
+_THRESHOLDS = load_thresholds()
+MIN_EOD_ETF_POINTS = int(_THRESHOLDS["min_qvix_eod_etf_points"])
+MIN_EOD_INDEX_OPTIONS = int(_THRESHOLDS["min_qvix_eod_index_options"])
+MAX_EOD_RELATIVE_DELTA = float(_THRESHOLDS["max_qvix_eod_cross_source_relative_delta"])
+EOD_QUOTE_CUTOFF_MINUTE = 14 * 60 + 55
 
 # 0-based OHLC column packs in k.csv (date is always column 0)
 _PACKS = {
@@ -318,6 +328,192 @@ def fetch_realtime_qvix_for_date(trade_date: str) -> pd.DataFrame:
     return pd.DataFrame()
 
 
+def _boolean(value) -> bool:
+    if value is None or pd.isna(value):
+        return False
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes"}
+    return bool(value)
+
+
+def _text(value) -> str:
+    if value is None:
+        return ""
+    try:
+        if pd.isna(value):
+            return ""
+    except (TypeError, ValueError):
+        pass
+    return str(value).strip()
+
+
+def _strict_eod_candidate(
+    frame: pd.DataFrame,
+    trade_date: str,
+    *,
+    min_samples: int,
+    source_fragment: str,
+    require_proxy: bool = False,
+    require_delayed: bool = False,
+) -> pd.Series | None:
+    if frame is None or frame.empty:
+        return None
+    row = frame.iloc[-1]
+    if str(row.get("date", ""))[:10] != trade_date:
+        return None
+    source = _text(row.get("source"))
+    if source_fragment not in source:
+        return None
+    close = pd.to_numeric(row.get("close"), errors="coerce")
+    sample_size = pd.to_numeric(
+        row.get("sample_size", row.get("intraday_points")), errors="coerce"
+    )
+    quote_text = next(
+        (
+            text
+            for text in [
+                _text(row.get("qvix_quote_time")),
+                _text(row.get("source_quote_time")),
+                _text(row.get("last_time")),
+            ]
+            if text
+        ),
+        "",
+    )
+    quote = pd.to_datetime(quote_text, errors="coerce")
+    if pd.notna(quote):
+        if quote.tzinfo is None:
+            quote = quote.tz_localize("Asia/Shanghai")
+        else:
+            quote = quote.tz_convert("Asia/Shanghai")
+    flags = set(_text(row.get("quality_flags")).split("|"))
+    rejected_flags = {"MISSING", "STALE", "TIME_UNVERIFIED", "EMPTY_SAMPLE", "SOURCE_DIVERGENCE"}
+    if (
+        pd.isna(close)
+        or float(close) <= 0
+        or pd.isna(sample_size)
+        or int(sample_size) < min_samples
+        or pd.isna(quote)
+        or quote.strftime("%Y-%m-%d") != trade_date
+        or quote.hour * 60 + quote.minute < EOD_QUOTE_CUTOFF_MINUTE
+        or not _boolean(row.get("observed", True))
+        or not _boolean(row.get("is_final"))
+        or bool(flags & rejected_flags)
+    ):
+        return None
+    if require_proxy and not (_boolean(row.get("is_proxy")) or "PROXY" in source):
+        return None
+    if require_delayed and not (_boolean(row.get("is_delayed")) or "DELAYED" in source):
+        return None
+    return row
+
+
+def build_cross_confirmed_eod_qvix(
+    trade_date: str,
+    etf_final: pd.DataFrame,
+    eastmoney_final: pd.DataFrame,
+) -> pd.DataFrame:
+    """Accept an EOD proxy only when independent ETF and index sources agree."""
+    trade_date = str(trade_date)[:10]
+    etf = _strict_eod_candidate(
+        etf_final,
+        trade_date,
+        min_samples=MIN_EOD_ETF_POINTS,
+        source_fragment="300ETF",
+        require_proxy=True,
+    )
+    eastmoney = _strict_eod_candidate(
+        eastmoney_final,
+        trade_date,
+        min_samples=MIN_EOD_INDEX_OPTIONS,
+        source_fragment="EASTMONEY_CFFEX_300INDEX",
+        require_delayed=True,
+    )
+    if etf is None or eastmoney is None:
+        return pd.DataFrame()
+
+    etf_close = float(pd.to_numeric(etf.get("close"), errors="coerce"))
+    eastmoney_close = float(pd.to_numeric(eastmoney.get("close"), errors="coerce"))
+    delta = abs(etf_close - eastmoney_close)
+    relative_delta = delta / etf_close
+    if relative_delta > MAX_EOD_RELATIVE_DELTA:
+        print(
+            "WARN QVIX EOD cross-check rejected: "
+            f"date={trade_date} etf={etf_close:.4f} eastmoney={eastmoney_close:.4f} "
+            f"relative_delta={relative_delta:.4f} limit={MAX_EOD_RELATIVE_DELTA:.4f}"
+        )
+        return pd.DataFrame()
+
+    out = etf.to_frame().T.copy()
+    out["source"] = SOURCE_EOD_CROSS_CONFIRMED
+    out["is_proxy"] = True
+    out["is_delayed"] = True
+    out["is_final"] = True
+    out["observed"] = True
+    out["secondary_source"] = _text(eastmoney.get("source"))
+    out["secondary_close"] = eastmoney_close
+    out["source_value_delta"] = round(delta, 4)
+    out["source_agreement"] = round(max(0.0, 1.0 - relative_delta), 4)
+    flags = {
+        flag
+        for value in [etf.get("quality_flags"), eastmoney.get("quality_flags")]
+        for flag in _text(value).split("|")
+        if flag and flag != "OK"
+    }
+    flags.update({"CROSS_CONFIRMED", "DELAYED", "EOD_PROVISIONAL", "PROXY"})
+    out["quality_flags"] = "|".join(sorted(flags))
+    return _ensure_qvix_metadata(out.reset_index(drop=True))
+
+
+def _fetch_final_300etf_qvix_for_date(trade_date: str) -> pd.DataFrame:
+    sources = [
+        lambda: _fetch_optbbs_min_csv(_REALTIME_CSV["300etf"], trade_date, SOURCE_RT_ETF_CSV),
+        lambda: _fetch_optbbs_min_from_page(
+            _REALTIME_PAGE["300etf"], _REALTIME_CSV["300etf"], trade_date, SOURCE_RT_ETF_PAGE
+        ),
+        lambda: _fetch_akshare_min_qvix("index_option_300etf_min_qvix", trade_date, SOURCE_RT_ETF_AK),
+    ]
+    for fetcher in sources:
+        try:
+            candidate = fetcher()
+        except Exception as exc:  # noqa: BLE001
+            print(f"WARN 300ETF EOD QVIX source failed {trade_date}: {exc}")
+            continue
+        if _strict_eod_candidate(
+            candidate,
+            trade_date,
+            min_samples=MIN_EOD_ETF_POINTS,
+            source_fragment="300ETF",
+            require_proxy=True,
+        ) is not None:
+            return candidate
+    return pd.DataFrame()
+
+
+def fetch_cross_confirmed_eod_qvix(
+    trade_date: str,
+    rate_curve: pd.DataFrame,
+    index_history: pd.DataFrame,
+) -> pd.DataFrame:
+    """Fetch and strictly validate a provisional exact-date EOD QVIX proxy."""
+    trade_date = str(trade_date)[:10]
+    etf = _fetch_final_300etf_qvix_for_date(trade_date)
+    if etf.empty:
+        return pd.DataFrame()
+    from src.data_sources.eastmoney_qvix import fetch_eastmoney_delayed_qvix_for_date
+
+    eastmoney = fetch_eastmoney_delayed_qvix_for_date(trade_date, rate_curve, index_history)
+    accepted = build_cross_confirmed_eod_qvix(trade_date, etf, eastmoney)
+    if not accepted.empty:
+        row = accepted.iloc[0]
+        print(
+            "QVIX EOD cross-confirmed: "
+            f"date={trade_date} close={row.get('close')} secondary={row.get('secondary_close')} "
+            f"agreement={row.get('source_agreement')}"
+        )
+    return accepted
+
+
 def _extract_pack(raw: pd.DataFrame, pack: str, source: str) -> pd.DataFrame:
     cols = _PACKS[pack]
     if raw is None or raw.empty or raw.shape[1] <= max(cols):
@@ -412,35 +608,25 @@ def _fetch_akshare_series(fn_name: str, source: str) -> pd.DataFrame:
 def _merge_prefer_primary(primary: pd.DataFrame, fallback: pd.DataFrame) -> pd.DataFrame:
     """Merge QVIX frames by date, using fallback only where primary has no close."""
     if primary is None or primary.empty:
-        return fallback.copy() if fallback is not None and not fallback.empty else pd.DataFrame()
+        return _ensure_qvix_metadata(fallback)
     if fallback is None or fallback.empty:
-        return primary.copy()
-    cols = ["date", "open", "high", "low", "close", "source", "fetch_time"]
+        return _ensure_qvix_metadata(primary)
     left = primary.copy()
     right = fallback.copy()
-    for frame in (left, right):
-        for col in cols:
-            if col not in frame.columns:
-                frame[col] = pd.NA
-        frame["date"] = pd.to_datetime(frame["date"], errors="coerce").dt.strftime("%Y-%m-%d")
-    m = left[cols].merge(right[cols], on="date", how="outer", suffixes=("_p", "_f"))
-    primary_close = pd.to_numeric(m["close_p"], errors="coerce")
-    fallback_close = pd.to_numeric(m["close_f"], errors="coerce")
-    use_fallback = (primary_close.isna() | primary_close.le(0)) & fallback_close.notna() & fallback_close.gt(0)
-    out = pd.DataFrame({"date": m["date"]})
-    for col in ["open", "high", "low", "close"]:
-        primary_col = pd.to_numeric(m[f"{col}_p"], errors="coerce")
-        fallback_col = pd.to_numeric(m[f"{col}_f"], errors="coerce")
-        out[col] = primary_col.where(~use_fallback, fallback_col)
-    out["source"] = m["source_p"].where(~use_fallback, m["source_f"])
-    out["fetch_time"] = m["fetch_time_p"].where(~use_fallback, m["fetch_time_f"])
-    return (
+    left["_source_precedence"] = 1
+    right["_source_precedence"] = 0
+    out = pd.concat([right, left], ignore_index=True, sort=False)
+    out["date"] = pd.to_datetime(out.get("date"), errors="coerce").dt.strftime("%Y-%m-%d")
+    out["close"] = pd.to_numeric(out.get("close"), errors="coerce")
+    out = (
         out.dropna(subset=["date", "close"])
-        .loc[lambda df: pd.to_numeric(df["close"], errors="coerce").gt(0)]
-        .sort_values("date")
+        .loc[lambda df: df["close"].gt(0)]
+        .sort_values(["date", "_source_precedence"])
         .drop_duplicates("date", keep="last")
+        .drop(columns="_source_precedence")
         .reset_index(drop=True)
     )
+    return _ensure_qvix_metadata(out)
 
 
 def _fetch_akshare_qvix_merge() -> pd.DataFrame:
@@ -460,12 +646,19 @@ def _fetch_akshare_qvix_merge() -> pd.DataFrame:
     return m
 
 
-def fetch_qvix() -> pd.DataFrame:
-    """Multi-source QVIX for RT confirmation.
+def fetch_qvix(
+    *,
+    eod_trade_date: str | None = None,
+    rate_curve: pd.DataFrame | None = None,
+    index_history: pd.DataFrame | None = None,
+) -> pd.DataFrame:
+    """Multi-source QVIX with daily-first, cross-confirmed EOD fallback.
 
     Order:
       1) Direct parse of optbbs k.csv (index + 300ETF fill)
       2) AKShare 300index / 300etf wrappers if parse path empty
+      3) Exact-date 300ETF final minute bar, accepted only when independently
+         cross-confirmed by the delayed Eastmoney CFFEX 300-index replica
     """
     parsed, meta = fetch_qvix_from_optbbs_parse()
     if not parsed.empty:
@@ -482,42 +675,59 @@ def fetch_qvix() -> pd.DataFrame:
                 f"optbbs_max={parsed['date'].max()} akshare_max={ak['date'].max()} "
                 f"merged_rows={len(merged)}"
             )
-        return _ensure_qvix_metadata(merged)
+        daily = _ensure_qvix_metadata(merged)
+    else:
+        print(f"WARN QVIX optbbs parse empty/failed: {meta.get('error', meta)}")
+        daily = _ensure_qvix_metadata(_fetch_akshare_qvix_merge())
 
-    print(f"WARN QVIX optbbs parse empty/failed: {meta.get('error', meta)}")
-    return _ensure_qvix_metadata(_fetch_akshare_qvix_merge())
+    target = str(eod_trade_date or "")[:10]
+    if not target or rate_curve is None or index_history is None:
+        return daily
+    daily_dates = set(daily.get("date", pd.Series(dtype=str)).astype(str)) if not daily.empty else set()
+    if target in daily_dates:
+        return daily
+    provisional = fetch_cross_confirmed_eod_qvix(target, rate_curve, index_history)
+    return _merge_prefer_primary(daily, provisional)
+
+
+def _qvix_source_priority(row: pd.Series) -> int:
+    source = _text(row.get("source"))
+    flags = _text(row.get("quality_flags"))
+    if source in {SOURCE_INDEX, SOURCE_AK_INDEX}:
+        return 40
+    if source in {SOURCE_ETF, SOURCE_AK_ETF}:
+        return 30
+    if source == SOURCE_EOD_CROSS_CONFIRMED or "EOD_PROVISIONAL" in flags:
+        return 20
+    if "MIN_QVIX" in source or "DELAYED" in source:
+        return 10
+    return 0
 
 
 def merge_qvix_cache(fresh: pd.DataFrame, cached: pd.DataFrame) -> pd.DataFrame:
-    """Merge fresh QVIX with cache, preferring non-null close values.
+    """Merge QVIX cache by source authority, then freshness.
 
-    Upstream sometimes returns trailing date rows with empty OHLC; keep prior
-    good closes instead of overwriting them with NaN.
+    Daily rows always replace provisional EOD rows when they arrive later.
+    Provisional rows can never overwrite an existing daily observation.
     """
     if fresh is None or fresh.empty:
         return _ensure_qvix_metadata(cached)
     if cached is None or cached.empty:
         return _ensure_qvix_metadata(fresh)
-    cols = ["date", "open", "high", "low", "close", "source", "fetch_time"]
-    for frame in (fresh, cached):
-        for col in cols:
-            if col not in frame.columns:
-                frame[col] = pd.NA
-    left = cached[cols].copy()
-    right = fresh[cols].copy()
-    left["date"] = pd.to_datetime(left["date"], errors="coerce").dt.strftime("%Y-%m-%d")
-    right["date"] = pd.to_datetime(right["date"], errors="coerce").dt.strftime("%Y-%m-%d")
-    merged = left.merge(right, on="date", how="outer", suffixes=("_old", "_new"))
-    out = pd.DataFrame({"date": merged["date"]})
-    for col in ["open", "high", "low", "close"]:
-        new = pd.to_numeric(merged[f"{col}_new"], errors="coerce")
-        old = pd.to_numeric(merged[f"{col}_old"], errors="coerce")
-        # Prefer positive new close; else keep old
-        prefer_new = new.notna() & (new > 0)
-        out[col] = new.where(prefer_new, old)
-    # source follows whichever close we kept when possible
-    new_close = pd.to_numeric(merged["close_new"], errors="coerce")
-    prefer_new = new_close.notna() & (new_close > 0)
-    out["source"] = merged["source_new"].where(prefer_new, merged["source_old"])
-    out["fetch_time"] = merged["fetch_time_new"].where(prefer_new, merged["fetch_time_old"])
-    return _ensure_qvix_metadata(out.dropna(subset=["date"]).sort_values("date").reset_index(drop=True))
+    old = _ensure_qvix_metadata(cached).copy()
+    new = _ensure_qvix_metadata(fresh).copy()
+    old["_freshness"] = 0
+    new["_freshness"] = 1
+    out = pd.concat([old, new], ignore_index=True, sort=False)
+    out["date"] = pd.to_datetime(out.get("date"), errors="coerce").dt.strftime("%Y-%m-%d")
+    out["close"] = pd.to_numeric(out.get("close"), errors="coerce")
+    out = out.dropna(subset=["date", "close"]).loc[lambda df: df["close"].gt(0)].copy()
+    out["_source_priority"] = out.apply(_qvix_source_priority, axis=1)
+    out = (
+        out.sort_values(["date", "_source_priority", "_freshness"])
+        .drop_duplicates("date", keep="last")
+        .drop(columns=["_source_priority", "_freshness"])
+        .sort_values("date")
+        .reset_index(drop=True)
+    )
+    return _ensure_qvix_metadata(out)

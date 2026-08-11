@@ -16,7 +16,7 @@ from src.storage.paths import ROOT, RAW, NORMALIZED, CALCULATED, ensure_dirs
 from src.storage.csv_store import write_csv, read_csv
 from src.data_sources.akshare_indices import fetch_index_daily
 from src.data_sources.akshare_options import fetch_option_daily, fetch_option_realtime
-from src.data_sources.akshare_qvix import fetch_qvix
+from src.data_sources.akshare_qvix import fetch_qvix, merge_qvix_cache
 from src.data_sources.akshare_breadth import (
     fetch_a_breadth_snapshot,
     fetch_breadth_summary_multi,
@@ -306,6 +306,56 @@ def _trim_unusable_official_avix_tip(clean: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
+def refresh_qvix_and_risk_outputs(
+    clean: pd.DataFrame,
+    index_history: pd.DataFrame,
+    rates: pd.DataFrame,
+    *,
+    event: str,
+) -> pd.DataFrame:
+    """Refresh daily-first QVIX and rebuild all dependent risk outputs."""
+    target_date = None if clean.empty else str(clean["trade_date"].max())[:10]
+    try:
+        qvix_fresh = fetch_qvix(
+            eod_trade_date=target_date,
+            rate_curve=rates,
+            index_history=index_history,
+        )
+    except Exception as exc:  # noqa: BLE001
+        print(f"WARN qvix fetch failed: {exc}")
+        qvix_fresh = pd.DataFrame()
+    qvix_cached = read_csv(RAW / "qvix" / "qvix.csv")
+    qvix = merge_qvix_cache(qvix_fresh, qvix_cached)
+    if qvix.empty and not qvix_cached.empty:
+        qvix = qvix_cached
+        print("WARN using cached QVIX after empty merge")
+    write_csv(qvix, RAW / "qvix" / "qvix.csv")
+
+    qv = validate_qvix(clean, qvix)
+    write_csv(qv, CALCULATED / "qvix_validation.csv")
+    realized = compute_realized_vol(index_history)
+    drawdown = compute_drawdown(index_history)
+    breadth_hist = drop_legacy_synthetic_breadth(read_csv(NORMALIZED / "breadth_history.csv"))
+    breadth = compute_breadth_pressure(breadth_hist)
+    components = compute_risk_temperature(clean, qv, realized, drawdown, breadth, index_history)
+    write_csv(components, CALCULATED / "risk_components.csv")
+    write_csv(
+        components[[
+            "trade_date", "risk_temperature", "regime", "regime_cn",
+            "quality", "model_confidence", "model_missing_components",
+        ]],
+        CALCULATED / "risk_temperature.csv",
+    )
+    audit = pd.DataFrame([{
+        "trade_date": components["trade_date"].iloc[-1],
+        "event": event,
+        "quality": components["quality"].iloc[-1],
+        "time": now_cn().isoformat(timespec="seconds"),
+    }]) if not components.empty else pd.DataFrame()
+    write_csv(audit, CALCULATED / "audit_log.csv")
+    return components
+
+
 def calculate_all(
     master: pd.DataFrame,
     option_frames: list[pd.DataFrame],
@@ -398,22 +448,6 @@ def calculate_all(
     # Official publication requires a complete 30-day term structure.
     clean = _trim_unusable_official_avix_tip(clean)
     write_csv(clean, CALCULATED / "avix_clean_close.csv")
-    try:
-        qvix_fresh = fetch_qvix()
-    except Exception as exc:  # noqa: BLE001
-        print(f"WARN qvix fetch failed: {exc}")
-        qvix_fresh = pd.DataFrame()
-    from src.data_sources.akshare_qvix import merge_qvix_cache
-    qvix_cached = read_csv(RAW / "qvix" / "qvix.csv")
-    qvix = merge_qvix_cache(qvix_fresh, qvix_cached)
-    if qvix.empty and not qvix_cached.empty:
-        qvix = qvix_cached
-        print("WARN using cached QVIX after empty merge")
-    write_csv(qvix, RAW / "qvix" / "qvix.csv")
-    qv = validate_qvix(clean, qvix)
-    write_csv(qv, CALCULATED / "qvix_validation.csv")
-    realized = compute_realized_vol(index_history)
-    drawdown = compute_drawdown(index_history)
     breadth_hist = drop_legacy_synthetic_breadth(read_csv(NORMALIZED / "breadth_history.csv"))
     # Ensure latest HS300 trade date has a stock-breadth attempt when still missing/weak.
     latest_index_date = None
@@ -451,19 +485,12 @@ def calculate_all(
     except Exception as exc:  # noqa: BLE001
         print(f"WARN Sohu breadth backfill failed: {exc}")
     write_csv(breadth_hist, NORMALIZED / "breadth_history.csv")
-    breadth = compute_breadth_pressure(breadth_hist)
-    components = compute_risk_temperature(clean, qv, realized, drawdown, breadth, index_history)
-    write_csv(components, CALCULATED / "risk_components.csv")
-    write_csv(
-        components[[
-            "trade_date", "risk_temperature", "regime", "regime_cn",
-            "quality", "model_confidence", "model_missing_components",
-        ]],
-        CALCULATED / "risk_temperature.csv",
+    return refresh_qvix_and_risk_outputs(
+        clean,
+        index_history,
+        rates,
+        event="bootstrap_history",
     )
-    audit = pd.DataFrame([{"trade_date": components["trade_date"].iloc[-1], "event": "bootstrap_history", "quality": components["quality"].iloc[-1], "time": now_cn().isoformat(timespec="seconds")}]) if not components.empty else pd.DataFrame()
-    write_csv(audit, CALCULATED / "audit_log.csv")
-    return components
 
 def main() -> None:
     parser = argparse.ArgumentParser()

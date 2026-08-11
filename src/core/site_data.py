@@ -306,6 +306,12 @@ def latest_payload(
             "qvix_close": finite(row.get("qvix_close")),
             "qvix_source": row.get("qvix_source"),
             "qvix_quote_time": row.get("qvix_quote_time"),
+            "qvix_delay_minutes": finite(row.get("qvix_delay_minutes")),
+            "qvix_quality": row.get("qvix_quality"),
+            "qvix_quality_flags": row.get("qvix_quality_flags"),
+            "qvix_secondary_source": row.get("qvix_secondary_source"),
+            "qvix_secondary_close": finite(row.get("qvix_secondary_close")),
+            "qvix_source_agreement": finite(row.get("qvix_source_agreement")),
             "model_confidence": _model_confidence_summary(row, row.quality),
         },
         "nowcast": {
@@ -477,6 +483,12 @@ def components_payload(risk: pd.DataFrame, realtime: pd.DataFrame | None = None,
                 "quality": str(row.get("quality") or "OK"),
             }
             for key in WEIGHTS
+        }
+        factor_meta["qvix_confirmation"] = {
+            "raw_value": row.get("qvix_close"),
+            "source": row.get("qvix_source"),
+            "quote_time": row.get("qvix_quote_time"),
+            "quality": row.get("qvix_quality_flags") or row.get("qvix_quality"),
         }
     missing = set(str(
         estimate.get("model_missing_components") if use_estimate else row.get("model_missing_components") or ""

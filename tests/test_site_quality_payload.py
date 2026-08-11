@@ -23,6 +23,11 @@ def _official_risk() -> pd.DataFrame:
         "qvix_close": 19.59,
         "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
         "qvix_quote_time": "2026-07-29",
+        "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
+        "qvix_quality_flags": "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY",
+        "qvix_secondary_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
+        "qvix_secondary_close": 19.42,
+        "qvix_source_agreement": 0.956,
         "realized_vol_percentile": 94.4,
         "drawdown_pressure": 82.2,
         "market_breadth_pressure": 14.6,
@@ -97,9 +102,24 @@ def test_latest_and_components_preserve_state_and_quality_audit():
     assert latest["official_close"]["qvix_close"] == 19.59
     assert latest["official_close"]["qvix_source"] == "OPTBBS_PARSE_300ETF_QVIX_PROXY"
     assert latest["official_close"]["qvix_quote_time"] == "2026-07-29"
+    assert latest["official_close"]["qvix_secondary_source"] == "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED"
+    assert latest["official_close"]["qvix_secondary_close"] == 19.42
+    assert latest["official_close"]["qvix_source_agreement"] == 0.956
 
     qvix = next(item for item in components["components"] if item["key"] == "qvix_confirmation")
     assert qvix["raw_value"] == 24.84
     assert qvix["source"] == "OPTBBS_CSV_300ETF_MIN_QVIX_PROXY"
     assert qvix["quote_time"] == "2026-07-30T14:56:40+08:00"
     json.dumps({"latest": latest, "components": components}, allow_nan=False)
+
+
+def test_official_components_expose_qvix_provenance():
+    risk = _official_risk()
+
+    components = components_payload(risk, pd.DataFrame(), {"rows": []})
+    qvix = next(item for item in components["components"] if item["key"] == "qvix_confirmation")
+
+    assert qvix["raw_value"] == 19.59
+    assert qvix["source"] == "OPTBBS_PARSE_300ETF_QVIX_PROXY"
+    assert qvix["quote_time"] == "2026-07-29"
+    assert qvix["quality"] == "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY"

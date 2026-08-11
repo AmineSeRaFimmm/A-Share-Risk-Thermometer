@@ -472,9 +472,12 @@ function renderQvixFallback(latest) {
   const nowcast = latest?.nowcast || {};
   const qvix = nowcast.active ? nowcast : (latest?.official_close || {});
   const source = String(qvix.qvix_source || '');
+  const secondarySource = String(qvix.qvix_secondary_source || '');
   const delay = Number(qvix.qvix_delay_minutes);
   let label = '--';
-  if (source.includes('EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED')) {
+  if (source.includes('EOD_QVIX_PROXY_CROSSCHECKED')) {
+    label = '300ETF QVIX代理 · 东财复核';
+  } else if (source.includes('EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED')) {
     label = `东财300股指期权复刻 · 延迟约${Number.isFinite(delay) ? delay : 15}分`;
   } else if (source) {
     label = source.includes('300ETF') ? '300ETF QVIX代理' : '300股指QVIX';
@@ -486,6 +489,9 @@ function renderQvixFallback(latest) {
       source || null,
       qvix.qvix_quote_time ? `盘口时间: ${qvix.qvix_quote_time}` : null,
       qvix.qvix_close != null ? `QVIX: ${formatRealtimeAvix(qvix.qvix_close)}` : null,
+      secondarySource ? `复核源: ${secondarySource}` : null,
+      qvix.qvix_secondary_close != null ? `复核值: ${formatRealtimeAvix(qvix.qvix_secondary_close)}` : null,
+      qvix.qvix_source_agreement != null ? `一致度: ${formatPct(qvix.qvix_source_agreement)}` : null,
     ].filter(Boolean).join(' | ') || '无盘中 QVIX 备用数据';
   }
 }

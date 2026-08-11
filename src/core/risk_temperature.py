@@ -279,6 +279,7 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
         "qvix_source", "qvix_quote_time", "qvix_delay_minutes", "age_seconds",
         "is_proxy", "is_delayed", "sample_size", "observed", "quality_flags",
         "is_final", "secondary_source", "source_agreement", "source_value_delta",
+        "secondary_close",
         "qvix_replica", "qvix_replica_quality", "qvix_replica_method",
     ]
     available_qvix_cols = [col for col in qvix_cols if col in qvix_validation.columns]
@@ -287,6 +288,8 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
             "quality": "qvix_quality",
             "source_agreement": "qvix_source_agreement",
             "secondary_source": "qvix_secondary_source",
+            "secondary_close": "qvix_secondary_close",
+            "source_value_delta": "qvix_source_value_delta",
         })
         if not qvix_validation.empty
         else pd.DataFrame()
