@@ -5535,9 +5535,7 @@ async function dispatchGithubActionsWorkflow(mode, { baselineTime = null } = {})
   }
   const cfg = dashboardState.dataPlane.actions;
   const workflow = mode === 'full' ? cfg.workflows.full : cfg.workflows.realtime;
-  const inputs = mode === 'full'
-    ? { mode: 'daily' }
-    : { mode: 'single' };
+  const inputs = mode === 'full' ? { mode: 'daily' } : null;
   const activeRun = await findReusableGithubActionsRun(workflow, mode, baselineTime);
   if (activeRun) {
     return { ok: true, workflow, reused: true, runId: activeRun.id };
@@ -5551,7 +5549,7 @@ async function dispatchGithubActionsWorkflow(mode, { baselineTime = null } = {})
       'X-GitHub-Api-Version': '2022-11-28',
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ ref: cfg.ref, inputs }),
+    body: JSON.stringify(inputs ? { ref: cfg.ref, inputs } : { ref: cfg.ref }),
   });
   if (res.status === 204 || res.ok) {
     cfg.lastDispatchAt = Date.now();

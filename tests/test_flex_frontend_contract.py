@@ -35,6 +35,14 @@ class FlexFrontendContractTests(unittest.TestCase):
             self.web,
         )
 
+    def test_realtime_dispatch_omits_removed_mode_input(self) -> None:
+        self.assertIn("const inputs = mode === 'full' ? { mode: 'daily' } : null;", self.web)
+        self.assertIn(
+            "JSON.stringify(inputs ? { ref: cfg.ref, inputs } : { ref: cfg.ref })",
+            self.web,
+        )
+        self.assertNotIn("{ mode: 'single' }", self.web)
+
     def test_marking_is_not_capped_by_strategy_as_of(self) -> None:
         self.assertIn("function flexEffectiveMarkDate(positionCodes = [])", self.web)
         self.assertNotIn("function flexEffectiveMarkDate(preferredAsOf)", self.web)

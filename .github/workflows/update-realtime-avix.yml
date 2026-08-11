@@ -23,6 +23,14 @@ on:
     # free GitHub runners, so the gate identifies these ticks by their schedule.
     - cron: "16,26,46 7 * * 1-5"
   workflow_dispatch:
+    inputs:
+      mode:
+        description: "Deprecated compatibility input; every dispatch runs one bounded update"
+        required: false
+        default: "single"
+        type: choice
+        options:
+          - single
 
 permissions:
   contents: write
