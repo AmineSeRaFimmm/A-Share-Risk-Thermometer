@@ -127,6 +127,12 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("pendingCloseKeys.has(positionKey)", self.web)
         self.assertIn(": pendingClose", self.web)
 
+    def test_hold_clock_uses_completed_eod_sessions(self) -> None:
+        self.assertIn("return elapsed < 0 ? 0 : elapsed + 1;", self.web)
+        self.assertIn("Number(pos.hold_days) - 1", self.web)
+        self.assertIn("ledger?.mark_as_of || flexEffectiveMarkDate(codes)", self.web)
+        self.assertIn("flexPositionExitInfo(pos, today)", self.web)
+
     def test_holding_audit_fields_and_time_context_are_visible(self) -> None:
         index = (ROOT / "web/index.html").read_text(encoding="utf-8")
         self.assertIn("份额</span><span>成本/均价</span><span>盯市/时点", index)

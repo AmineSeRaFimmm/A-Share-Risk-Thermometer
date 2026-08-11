@@ -368,17 +368,7 @@ def calculate_all(
         raw_new = raw_new.rename(columns={"avix": "avix_raw"})
     raw = _merge_avix_series(existing_raw, raw_new) if not full_recompute else raw_new
     write_csv(raw, CALCULATED / "avix_raw_close.csv")
-    if len(chain) > 100_000 and not raw_new.empty:
-        clean_new = raw_new.rename(columns={"avix_raw": "avix_clean"}).copy()
-        # A partial single-tenor tip remains raw/auditable but is not official.
-        clean_new = _trim_unusable_official_avix_tip(clean_new)
-        clean_new["avix_raw"] = clean_new["avix_clean"]
-        clean_new["raw_clean_diff"] = 0.0
-        clean_new["cleaned_option_count"] = clean_new[["near_n_options", "next_n_options"]].min(axis=1)
-        clean_new["cleaned_option_ratio"] = 1.0
-        clean_new["clean_method"] = "moneyness_filter_fast_from_raw"
-        clean = _merge_avix_series(existing_clean, clean_new) if not full_recompute else clean_new
-    elif raw_new.empty and not existing_clean.empty and not full_recompute:
+    if raw_new.empty and not existing_clean.empty and not full_recompute:
         clean = existing_clean
     else:
         # Full clean path only for target dates when incremental; full chain clean when full recompute.
@@ -401,7 +391,7 @@ def calculate_all(
             sizes = clean_chain.groupby("trade_date").size() if not clean_chain.empty else pd.Series(dtype=float)
             clean_new["cleaned_option_count"] = clean_new["trade_date"].map(counts)
             clean_new["cleaned_option_ratio"] = clean_new["trade_date"].map(lambda d: counts.get(d, 0) / sizes.get(d, 1) if sizes.get(d, 0) else None)
-            clean_new["clean_method"] = "iv_filter_rolling_median"
+            clean_new["clean_method"] = "iv_filter_cp_rolling_median_v2"
             clean_new.loc[clean_new["raw_clean_diff"] > 2.0, "quality"] = clean_new["quality"].astype(str) + "|WARN_CLEAN_IMPACT_HIGH"
             clean_new.loc[clean_new["raw_clean_diff"] > 4.0, "quality"] = clean_new["quality"].astype(str) + "|LOW_CLEAN_IMPACT_TOO_HIGH"
         clean = _merge_avix_series(existing_clean, clean_new) if not full_recompute else clean_new

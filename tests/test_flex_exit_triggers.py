@@ -80,8 +80,8 @@ def test_exit_plan_has_max_path():
     ]
     plan = build_sleeve_exit_plan(st, ["CSI300_CORE_BUY"], trade_dates=dates)
     sat = plan["satellite"]
-    assert sat["paths"]["max_signal_date"] == "2026-07-24"
-    assert sat["paths"]["max_exec_next_open"] == "2026-07-27"
+    assert sat["paths"]["max_signal_date"] == "2026-07-23"
+    assert sat["paths"]["max_exec_next_open"] == "2026-07-24"
     assert sat["days_to_max"] == SAT_MAX_HOLD - 1
     assert sat["triggered_close"] is None
 

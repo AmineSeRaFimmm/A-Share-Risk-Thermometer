@@ -424,9 +424,9 @@
       "sample_size": 242,
       "start_date": "2025-07-25",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": -0.0969,
-      "corr_temp_fwd_excess": -0.0452,
-      "corr_delta_temp_fwd_excess": 0.031,
+      "corr_temp_fwd_return": -0.0961,
+      "corr_temp_fwd_excess": -0.0443,
+      "corr_delta_temp_fwd_excess": 0.0316,
       "avg_fwd_return": -0.0082,
       "avg_fwd_excess": -0.0134,
       "win_rate_excess": 0.3223
@@ -439,9 +439,9 @@
       "sample_size": 242,
       "start_date": "2025-07-25",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": -0.0769,
-      "corr_temp_fwd_excess": -0.0269,
-      "corr_delta_temp_fwd_excess": -0.0533,
+      "corr_temp_fwd_return": -0.0777,
+      "corr_temp_fwd_excess": -0.0278,
+      "corr_delta_temp_fwd_excess": -0.0527,
       "avg_fwd_return": -0.0054,
       "avg_fwd_excess": -0.0106,
       "win_rate_excess": 0.3926
@@ -454,9 +454,9 @@
       "sample_size": 242,
       "start_date": "2025-07-25",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": -0.1414,
-      "corr_temp_fwd_excess": -0.0937,
-      "corr_delta_temp_fwd_excess": 0.0483,
+      "corr_temp_fwd_return": -0.1398,
+      "corr_temp_fwd_excess": -0.0919,
+      "corr_delta_temp_fwd_excess": 0.0491,
       "avg_fwd_return": -0.008,
       "avg_fwd_excess": -0.0132,
       "win_rate_excess": 0.2975
@@ -469,9 +469,9 @@
       "sample_size": 242,
       "start_date": "2025-07-25",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": 0.0046,
-      "corr_temp_fwd_excess": 0.0617,
-      "corr_delta_temp_fwd_excess": 0.0436,
+      "corr_temp_fwd_return": 0.005,
+      "corr_temp_fwd_excess": 0.0621,
+      "corr_delta_temp_fwd_excess": 0.0447,
       "avg_fwd_return": -0.0121,
       "avg_fwd_excess": -0.0173,
       "win_rate_excess": 0.3223
@@ -486,7 +486,7 @@
       "end_date": "2026-07-24",
       "corr_temp_fwd_return": 0.0077,
       "corr_temp_fwd_excess": 0.0581,
-      "corr_delta_temp_fwd_excess": 0.035,
+      "corr_delta_temp_fwd_excess": 0.0352,
       "avg_fwd_return": -0.0064,
       "avg_fwd_excess": -0.0116,
       "win_rate_excess": 0.3471
@@ -499,9 +499,9 @@
       "sample_size": 232,
       "start_date": "2025-07-25",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.143,
-      "corr_temp_fwd_excess": -0.0833,
-      "corr_delta_temp_fwd_excess": -0.0216,
+      "corr_temp_fwd_return": -0.1407,
+      "corr_temp_fwd_excess": -0.0817,
+      "corr_delta_temp_fwd_excess": -0.0215,
       "avg_fwd_return": -0.0193,
       "avg_fwd_excess": -0.03,
       "win_rate_excess": 0.3362
@@ -514,9 +514,9 @@
       "sample_size": 232,
       "start_date": "2025-07-25",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.0736,
-      "corr_temp_fwd_excess": -0.0029,
-      "corr_delta_temp_fwd_excess": -0.0442,
+      "corr_temp_fwd_return": -0.0719,
+      "corr_temp_fwd_excess": -0.0018,
+      "corr_delta_temp_fwd_excess": -0.044,
       "avg_fwd_return": -0.0129,
       "avg_fwd_excess": -0.0236,
       "win_rate_excess": 0.3276
@@ -529,9 +529,9 @@
       "sample_size": 232,
       "start_date": "2025-07-25",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.3423,
-      "corr_temp_fwd_excess": -0.2986,
-      "corr_delta_temp_fwd_excess": 0.0382,
+      "corr_temp_fwd_return": -0.34,
+      "corr_temp_fwd_excess": -0.2972,
+      "corr_delta_temp_fwd_excess": 0.038,
       "avg_fwd_return": -0.0194,
       "avg_fwd_excess": -0.0301,
       "win_rate_excess": 0.2629
@@ -544,9 +544,9 @@
       "sample_size": 232,
       "start_date": "2025-07-25",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.0445,
-      "corr_temp_fwd_excess": 0.0381,
-      "corr_delta_temp_fwd_excess": -0.001,
+      "corr_temp_fwd_return": -0.0422,
+      "corr_temp_fwd_excess": 0.0393,
+      "corr_delta_temp_fwd_excess": -0.0011,
       "avg_fwd_return": -0.0276,
       "avg_fwd_excess": -0.0383,
       "win_rate_excess": 0.1681
@@ -559,9 +559,9 @@
       "sample_size": 232,
       "start_date": "2025-07-25",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.0038,
-      "corr_temp_fwd_excess": 0.0706,
-      "corr_delta_temp_fwd_excess": 0.0066,
+      "corr_temp_fwd_return": -0.0022,
+      "corr_temp_fwd_excess": 0.0708,
+      "corr_delta_temp_fwd_excess": 0.0055,
       "avg_fwd_return": -0.0154,
       "avg_fwd_excess": -0.0261,
       "win_rate_excess": 0.2716
@@ -574,9 +574,9 @@
       "sample_size": 247,
       "start_date": "2025-07-25",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": -0.0201,
-      "corr_temp_fwd_excess": -0.0223,
-      "corr_delta_temp_fwd_excess": -0.0075,
+      "corr_temp_fwd_return": -0.0153,
+      "corr_temp_fwd_excess": -0.0185,
+      "corr_delta_temp_fwd_excess": -0.0037,
       "avg_fwd_return": -0.004,
       "avg_fwd_excess": -0.0065,
       "win_rate_excess": 0.3441
@@ -589,9 +589,9 @@
       "sample_size": 247,
       "start_date": "2025-07-25",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": -0.0455,
-      "corr_temp_fwd_excess": -0.0558,
-      "corr_delta_temp_fwd_excess": -0.0664,
+      "corr_temp_fwd_return": -0.0423,
+      "corr_temp_fwd_excess": -0.0532,
+      "corr_delta_temp_fwd_excess": -0.0643,
       "avg_fwd_return": -0.0025,
       "avg_fwd_excess": -0.0051,
       "win_rate_excess": 0.3765
@@ -604,9 +604,9 @@
       "sample_size": 247,
       "start_date": "2025-07-25",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": 0.009,
-      "corr_temp_fwd_excess": 0.0074,
-      "corr_delta_temp_fwd_excess": 0.0615,
+      "corr_temp_fwd_return": 0.0158,
+      "corr_temp_fwd_excess": 0.0134,
+      "corr_delta_temp_fwd_excess": 0.0606,
       "avg_fwd_return": -0.0034,
       "avg_fwd_excess": -0.0059,
       "win_rate_excess": 0.3806
@@ -619,9 +619,9 @@
       "sample_size": 247,
       "start_date": "2025-07-25",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": 0.0382,
-      "corr_temp_fwd_excess": 0.0348,
-      "corr_delta_temp_fwd_excess": -0.0069,
+      "corr_temp_fwd_return": 0.0399,
+      "corr_temp_fwd_excess": 0.0355,
+      "corr_delta_temp_fwd_excess": -0.0047,
       "avg_fwd_return": -0.0059,
       "avg_fwd_excess": -0.0084,
       "win_rate_excess": 0.3563
@@ -634,9 +634,9 @@
       "sample_size": 247,
       "start_date": "2025-07-25",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": 0.0608,
-      "corr_temp_fwd_excess": 0.0447,
-      "corr_delta_temp_fwd_excess": 0.0039,
+      "corr_temp_fwd_return": 0.0627,
+      "corr_temp_fwd_excess": 0.0452,
+      "corr_delta_temp_fwd_excess": 0.0095,
       "avg_fwd_return": -0.0032,
       "avg_fwd_excess": -0.0057,
       "win_rate_excess": 0.3563
@@ -649,9 +649,9 @@
       "sample_size": 494,
       "start_date": "2024-07-11",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": 0.048,
-      "corr_temp_fwd_excess": 0.0991,
-      "corr_delta_temp_fwd_excess": 0.043,
+      "corr_temp_fwd_return": 0.0493,
+      "corr_temp_fwd_excess": 0.097,
+      "corr_delta_temp_fwd_excess": 0.0434,
       "avg_fwd_return": 0.0049,
       "avg_fwd_excess": -0.0016,
       "win_rate_excess": 0.4312
@@ -664,9 +664,9 @@
       "sample_size": 494,
       "start_date": "2024-07-11",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": -0.0466,
-      "corr_temp_fwd_excess": -0.0352,
-      "corr_delta_temp_fwd_excess": 0.0179,
+      "corr_temp_fwd_return": -0.0447,
+      "corr_temp_fwd_excess": -0.0366,
+      "corr_delta_temp_fwd_excess": 0.0177,
       "avg_fwd_return": 0.0024,
       "avg_fwd_excess": -0.004,
       "win_rate_excess": 0.4514
@@ -679,9 +679,9 @@
       "sample_size": 494,
       "start_date": "2024-07-11",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": -0.0299,
-      "corr_temp_fwd_excess": -0.0062,
-      "corr_delta_temp_fwd_excess": 0.0745,
+      "corr_temp_fwd_return": -0.0287,
+      "corr_temp_fwd_excess": -0.0087,
+      "corr_delta_temp_fwd_excess": 0.0758,
       "avg_fwd_return": 0.0038,
       "avg_fwd_excess": -0.0027,
       "win_rate_excess": 0.4595
@@ -694,9 +694,9 @@
       "sample_size": 494,
       "start_date": "2024-07-11",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": -0.0104,
-      "corr_temp_fwd_excess": 0.0186,
-      "corr_delta_temp_fwd_excess": 0.0551,
+      "corr_temp_fwd_return": -0.0084,
+      "corr_temp_fwd_excess": 0.0177,
+      "corr_delta_temp_fwd_excess": 0.0549,
       "avg_fwd_return": -0.0008,
       "avg_fwd_excess": -0.0073,
       "win_rate_excess": 0.4271
@@ -709,9 +709,9 @@
       "sample_size": 494,
       "start_date": "2024-07-11",
       "end_date": "2026-07-24",
-      "corr_temp_fwd_return": -0.0132,
-      "corr_temp_fwd_excess": 0.022,
-      "corr_delta_temp_fwd_excess": 0.0087,
+      "corr_temp_fwd_return": -0.0096,
+      "corr_temp_fwd_excess": 0.0224,
+      "corr_delta_temp_fwd_excess": 0.0052,
       "avg_fwd_return": -0.0019,
       "avg_fwd_excess": -0.0084,
       "win_rate_excess": 0.3704
@@ -724,9 +724,9 @@
       "sample_size": 484,
       "start_date": "2024-07-11",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": 0.0366,
-      "corr_temp_fwd_excess": 0.1573,
-      "corr_delta_temp_fwd_excess": 0.0169,
+      "corr_temp_fwd_return": 0.0404,
+      "corr_temp_fwd_excess": 0.1555,
+      "corr_delta_temp_fwd_excess": 0.0166,
       "avg_fwd_return": 0.009,
       "avg_fwd_excess": -0.0051,
       "win_rate_excess": 0.4298
@@ -739,9 +739,9 @@
       "sample_size": 484,
       "start_date": "2024-07-11",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.1375,
+      "corr_temp_fwd_return": -0.1328,
       "corr_temp_fwd_excess": -0.1047,
-      "corr_delta_temp_fwd_excess": 0.032,
+      "corr_delta_temp_fwd_excess": 0.0317,
       "avg_fwd_return": 0.0052,
       "avg_fwd_excess": -0.0089,
       "win_rate_excess": 0.4132
@@ -754,9 +754,9 @@
       "sample_size": 484,
       "start_date": "2024-07-11",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.1404,
-      "corr_temp_fwd_excess": -0.0844,
-      "corr_delta_temp_fwd_excess": 0.0528,
+      "corr_temp_fwd_return": -0.1371,
+      "corr_temp_fwd_excess": -0.0875,
+      "corr_delta_temp_fwd_excess": 0.0507,
       "avg_fwd_return": 0.0061,
       "avg_fwd_excess": -0.0079,
       "win_rate_excess": 0.4628
@@ -769,9 +769,9 @@
       "sample_size": 484,
       "start_date": "2024-07-11",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.0589,
-      "corr_temp_fwd_excess": 0.0294,
-      "corr_delta_temp_fwd_excess": 0.0296,
+      "corr_temp_fwd_return": -0.0546,
+      "corr_temp_fwd_excess": 0.0285,
+      "corr_delta_temp_fwd_excess": 0.0267,
       "avg_fwd_return": -0.0026,
       "avg_fwd_excess": -0.0166,
       "win_rate_excess": 0.3574
@@ -784,9 +784,9 @@
       "sample_size": 484,
       "start_date": "2024-07-11",
       "end_date": "2026-07-10",
-      "corr_temp_fwd_return": -0.0331,
-      "corr_temp_fwd_excess": 0.0953,
-      "corr_delta_temp_fwd_excess": 0.0007,
+      "corr_temp_fwd_return": -0.0284,
+      "corr_temp_fwd_excess": 0.0926,
+      "corr_delta_temp_fwd_excess": -0.0035,
       "avg_fwd_return": -0.0043,
       "avg_fwd_excess": -0.0184,
       "win_rate_excess": 0.3182
@@ -799,9 +799,9 @@
       "sample_size": 499,
       "start_date": "2024-07-11",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": 0.0755,
-      "corr_temp_fwd_excess": 0.076,
-      "corr_delta_temp_fwd_excess": 0.0545,
+      "corr_temp_fwd_return": 0.0801,
+      "corr_temp_fwd_excess": 0.0778,
+      "corr_delta_temp_fwd_excess": 0.0556,
       "avg_fwd_return": 0.0026,
       "avg_fwd_excess": -0.0007,
       "win_rate_excess": 0.4309
@@ -814,9 +814,9 @@
       "sample_size": 499,
       "start_date": "2024-07-11",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": 0.0022,
-      "corr_temp_fwd_excess": -0.0255,
-      "corr_delta_temp_fwd_excess": 0.0305,
+      "corr_temp_fwd_return": 0.0065,
+      "corr_temp_fwd_excess": -0.0242,
+      "corr_delta_temp_fwd_excess": 0.0281,
       "avg_fwd_return": 0.0013,
       "avg_fwd_excess": -0.002,
       "win_rate_excess": 0.4489
@@ -829,9 +829,9 @@
       "sample_size": 499,
       "start_date": "2024-07-11",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": 0.0492,
-      "corr_temp_fwd_excess": 0.0425,
-      "corr_delta_temp_fwd_excess": 0.0894,
+      "corr_temp_fwd_return": 0.0541,
+      "corr_temp_fwd_excess": 0.0447,
+      "corr_delta_temp_fwd_excess": 0.0846,
       "avg_fwd_return": 0.0021,
       "avg_fwd_excess": -0.0012,
       "win_rate_excess": 0.4749
@@ -844,9 +844,9 @@
       "sample_size": 499,
       "start_date": "2024-07-11",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": 0.0394,
-      "corr_temp_fwd_excess": 0.0346,
-      "corr_delta_temp_fwd_excess": 0.0872,
+      "corr_temp_fwd_return": 0.043,
+      "corr_temp_fwd_excess": 0.0359,
+      "corr_delta_temp_fwd_excess": 0.0846,
       "avg_fwd_return": -0.0003,
       "avg_fwd_excess": -0.0036,
       "win_rate_excess": 0.4148
@@ -859,9 +859,9 @@
       "sample_size": 499,
       "start_date": "2024-07-11",
       "end_date": "2026-07-31",
-      "corr_temp_fwd_return": 0.0128,
-      "corr_temp_fwd_excess": -0.0115,
-      "corr_delta_temp_fwd_excess": 0.0101,
+      "corr_temp_fwd_return": 0.0162,
+      "corr_temp_fwd_excess": -0.0119,
+      "corr_delta_temp_fwd_excess": 0.0068,
       "avg_fwd_return": -0.0008,
       "avg_fwd_excess": -0.0041,
       "win_rate_excess": 0.3828
@@ -1099,16 +1099,16 @@
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 208,
-          "avg_excess": -0.0254,
-          "win_rate": 0.2837
+          "sample_size": 207,
+          "avg_excess": -0.0253,
+          "win_rate": 0.285
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 98,
-          "avg_excess": -0.0006,
-          "win_rate": 0.4592
+          "sample_size": 99,
+          "avg_excess": -0.001,
+          "win_rate": 0.4545
         },
         {
           "bucket": "高风险",
@@ -1142,16 +1142,16 @@
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 208,
-          "avg_excess": -0.022,
-          "win_rate": 0.3125
+          "sample_size": 207,
+          "avg_excess": -0.0222,
+          "win_rate": 0.3092
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 98,
-          "avg_excess": -0.0136,
-          "win_rate": 0.4388
+          "sample_size": 99,
+          "avg_excess": -0.0134,
+          "win_rate": 0.4444
         },
         {
           "bucket": "高风险",
@@ -1185,16 +1185,16 @@
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 208,
-          "avg_excess": -0.0263,
-          "win_rate": 0.3173
+          "sample_size": 207,
+          "avg_excess": -0.0265,
+          "win_rate": 0.314
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 98,
-          "avg_excess": 0.0275,
-          "win_rate": 0.5816
+          "sample_size": 99,
+          "avg_excess": 0.0274,
+          "win_rate": 0.5859
         },
         {
           "bucket": "高风险",
@@ -1228,16 +1228,16 @@
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 208,
-          "avg_excess": -0.0208,
-          "win_rate": 0.3846
+          "sample_size": 207,
+          "avg_excess": -0.0213,
+          "win_rate": 0.3816
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 98,
-          "avg_excess": -0.0076,
-          "win_rate": 0.4796
+          "sample_size": 99,
+          "avg_excess": -0.0066,
+          "win_rate": 0.4848
         },
         {
           "bucket": "高风险",
@@ -1271,16 +1271,16 @@
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 208,
-          "avg_excess": -0.0307,
-          "win_rate": 0.274
+          "sample_size": 207,
+          "avg_excess": -0.0309,
+          "win_rate": 0.2705
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 98,
-          "avg_excess": -0.0016,
-          "win_rate": 0.4082
+          "sample_size": 99,
+          "avg_excess": -0.0015,
+          "win_rate": 0.4141
         },
         {
           "bucket": "高风险",
@@ -1306,9 +1306,9 @@
       "name": "食品饮料",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 6,
-      "avg_fwd_excess": -0.0293,
-      "win_rate": 0.1667
+      "sample_size": 7,
+      "avg_fwd_excess": -0.0236,
+      "win_rate": 0.2857
     },
     {
       "window": "1Y",
@@ -1327,8 +1327,8 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 26,
-      "avg_fwd_excess": 0.0001,
-      "win_rate": 0.4615
+      "avg_fwd_excess": -0.0011,
+      "win_rate": 0.4231
     },
     {
       "window": "1Y",
@@ -1396,9 +1396,9 @@
       "name": "房地产",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 6,
-      "avg_fwd_excess": -0.0068,
-      "win_rate": 0.5
+      "sample_size": 7,
+      "avg_fwd_excess": -0.003,
+      "win_rate": 0.5714
     },
     {
       "window": "1Y",
@@ -1417,7 +1417,7 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 26,
-      "avg_fwd_excess": 0.0039,
+      "avg_fwd_excess": 0.0036,
       "win_rate": 0.3846
     },
     {
@@ -1486,9 +1486,9 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 6,
-      "avg_fwd_excess": -0.0121,
-      "win_rate": 0.3333
+      "sample_size": 7,
+      "avg_fwd_excess": -0.0049,
+      "win_rate": 0.4286
     },
     {
       "window": "1Y",
@@ -1507,7 +1507,7 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 26,
-      "avg_fwd_excess": 0.0056,
+      "avg_fwd_excess": 0.0044,
       "win_rate": 0.3077
     },
     {
@@ -1576,9 +1576,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 6,
-      "avg_fwd_excess": 0.008,
-      "win_rate": 0.6667
+      "sample_size": 7,
+      "avg_fwd_excess": 0.0152,
+      "win_rate": 0.7143
     },
     {
       "window": "1Y",
@@ -1597,7 +1597,7 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 26,
-      "avg_fwd_excess": 0.0099,
+      "avg_fwd_excess": 0.0093,
       "win_rate": 0.4615
     },
     {
@@ -1666,9 +1666,9 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 6,
-      "avg_fwd_excess": -0.0176,
-      "win_rate": 0.1667
+      "sample_size": 7,
+      "avg_fwd_excess": -0.013,
+      "win_rate": 0.2857
     },
     {
       "window": "1Y",
@@ -1687,8 +1687,8 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 26,
-      "avg_fwd_excess": 0.003,
-      "win_rate": 0.4615
+      "avg_fwd_excess": 0.0023,
+      "win_rate": 0.4231
     },
     {
       "window": "1Y",
@@ -1756,9 +1756,9 @@
       "name": "食品饮料",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 11,
-      "avg_fwd_excess": -0.0221,
-      "win_rate": 0.1818
+      "sample_size": 12,
+      "avg_fwd_excess": -0.0194,
+      "win_rate": 0.25
     },
     {
       "window": "2Y",
@@ -1777,8 +1777,8 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 79,
-      "avg_fwd_excess": -0.0009,
-      "win_rate": 0.4304
+      "avg_fwd_excess": -0.0013,
+      "win_rate": 0.4177
     },
     {
       "window": "2Y",
@@ -1846,9 +1846,9 @@
       "name": "房地产",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 11,
-      "avg_fwd_excess": 0.0168,
-      "win_rate": 0.7273
+      "sample_size": 12,
+      "avg_fwd_excess": 0.017,
+      "win_rate": 0.75
     },
     {
       "window": "2Y",
@@ -1867,7 +1867,7 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 79,
-      "avg_fwd_excess": 0.0046,
+      "avg_fwd_excess": 0.0045,
       "win_rate": 0.5063
     },
     {
@@ -1936,9 +1936,9 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 11,
-      "avg_fwd_excess": 0.0066,
-      "win_rate": 0.4545
+      "sample_size": 12,
+      "avg_fwd_excess": 0.0093,
+      "win_rate": 0.5
     },
     {
       "window": "2Y",
@@ -1957,7 +1957,7 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 79,
-      "avg_fwd_excess": 0.0166,
+      "avg_fwd_excess": 0.0162,
       "win_rate": 0.5316
     },
     {
@@ -2026,9 +2026,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 11,
-      "avg_fwd_excess": 0.0164,
-      "win_rate": 0.8182
+      "sample_size": 12,
+      "avg_fwd_excess": 0.0199,
+      "win_rate": 0.8333
     },
     {
       "window": "2Y",
@@ -2047,7 +2047,7 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 79,
-      "avg_fwd_excess": 0.008,
+      "avg_fwd_excess": 0.0078,
       "win_rate": 0.5443
     },
     {
@@ -2116,9 +2116,9 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 11,
-      "avg_fwd_excess": -0.0134,
-      "win_rate": 0.1818
+      "sample_size": 12,
+      "avg_fwd_excess": -0.0111,
+      "win_rate": 0.25
     },
     {
       "window": "2Y",
@@ -2137,8 +2137,8 @@
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
       "sample_size": 79,
-      "avg_fwd_excess": 0.0068,
-      "win_rate": 0.5823
+      "avg_fwd_excess": 0.0066,
+      "win_rate": 0.5696
     },
     {
       "window": "2Y",

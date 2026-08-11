@@ -125,6 +125,33 @@ def test_stale_rebuild_cannot_invent_intraday_sample() -> None:
     assert history.empty
 
 
+def test_later_rebuild_can_correct_existing_official_endpoint() -> None:
+    history, _ = update_intraday_temperature_history(
+        pd.DataFrame(),
+        _latest(
+            "2026-08-03T15:20:00+08:00",
+            57.8,
+            mode="OFFICIAL_CLOSE",
+            final=True,
+        ),
+    )
+    corrected, changed = update_intraday_temperature_history(
+        history,
+        _latest(
+            "2026-08-04T08:00:00+08:00",
+            57.9,
+            trade_date="2026-08-03",
+            mode="OFFICIAL_CLOSE",
+            final=True,
+        ),
+    )
+
+    assert changed
+    assert len(corrected) == 1
+    assert corrected.iloc[0]["risk_temperature"] == 57.9
+    assert corrected.iloc[0]["sampled_at"] == "2026-08-03T15:20:00+08:00"
+
+
 def test_payload_uses_one_trade_date_and_strict_values() -> None:
     history = pd.DataFrame()
     for timestamp, temperature in [

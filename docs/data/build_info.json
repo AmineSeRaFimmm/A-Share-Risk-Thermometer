@@ -1,7 +1,7 @@
 {
-  "build_time": "2026-08-10T19:56:44+08:00",
+  "build_time": "2026-08-11T09:55:12+08:00",
   "etf_marks_as_of": "2026-08-10",
-  "etf_marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
-  "etf_marks_revision": "2026-08-10|OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
+  "etf_marks_quality": "OK",
+  "etf_marks_revision": "2026-08-10|OK",
   "revision_reason": "ETF_EOD_MARKS"
 }

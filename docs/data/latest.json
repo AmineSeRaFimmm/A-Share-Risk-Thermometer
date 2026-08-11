@@ -1,7 +1,7 @@
 {
   "trade_date": "2026-08-10",
-  "update_time": "2026-08-10T19:22:01+08:00",
-  "risk_temperature": 57.8,
+  "update_time": "2026-08-11T09:54:49+08:00",
+  "risk_temperature": 57.9,
   "regime": "CAUTION",
   "regime_cn": "警戒",
   "quality": "WARN_QVIX_REALTIME_PROXY",
@@ -17,9 +17,9 @@
   "temperature_mode_cn": "收盘正式",
   "is_final": true,
   "components": {
-    "avix_percentile_2y": 63.0219,
-    "avix_zscore_1y": 51.844,
-    "avix_5d_change": 15.5768,
+    "avix_percentile_2y": 63.2207,
+    "avix_zscore_1y": 52.1704,
+    "avix_5d_change": 15.6565,
     "qvix_confirmation": 100.0,
     "realized_vol": 86.3095,
     "drawdown_pressure": 55.8338,
@@ -45,7 +45,7 @@
     "breadth_quality": "OK"
   },
   "avix": {
-    "avix_clean_close": 19.4657,
+    "avix_clean_close": 19.4469,
     "avix_raw_close": 19.4657,
     "avix_realtime_mid": 19.4774,
     "avix_realtime_quality": "OK",
@@ -57,16 +57,16 @@
     "avix_realtime_source_quote_time": null,
     "avix_realtime_fetch_time": "2026-08-10T16:51:09+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
-    "avix_percentile_2y": 0.6302,
+    "avix_percentile_2y": 0.6322,
     "quality": "OK"
   },
   "official_close": {
     "trade_date": "2026-08-10",
-    "risk_temperature": 57.8,
+    "risk_temperature": 57.9,
     "regime": "CAUTION",
     "regime_cn": "警戒",
     "quality": "WARN_QVIX_REALTIME_PROXY",
-    "avix_clean": 19.4657,
+    "avix_clean": 19.4469,
     "qvix_close": 19.59,
     "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
     "qvix_quote_time": null,
@@ -80,12 +80,12 @@
   },
   "nowcast": {
     "active": false,
-    "official_risk_temperature": 57.8,
+    "official_risk_temperature": 57.9,
     "reason_cn": "已有正式收盘，优先官方 AVIX"
   },
   "interpretation": {
-    "headline": "市场风险温度 57.8，处于警戒",
-    "summary": "QVIX确认、实现波动率、AVIX两年分位是当前风险温度的主要驱动；多因子合成后给出 57.8/100。",
+    "headline": "市场风险温度 57.9，处于警戒",
+    "summary": "QVIX确认、实现波动率、AVIX两年分位是当前风险温度的主要驱动；多因子合成后给出 57.9/100。",
     "posture": "降低追高倾向",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }

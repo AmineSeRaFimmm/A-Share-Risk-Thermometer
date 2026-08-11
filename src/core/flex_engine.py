@@ -8,6 +8,7 @@ from __future__ import annotations
 import json
 import math
 from dataclasses import asdict, dataclass, field
+from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -128,31 +129,6 @@ STAGE_OPPOSITES = {
     "HIGH_COOLING": {"RISING_HARD"},
 }
 
-# Sector meta for ranking (from event study; frozen research snapshot)
-SECTOR_META: dict[str, dict[str, Any]] = {
-    "通信": {"win_rate": 0.59, "n": 438, "mean_excess": 0.0079},
-    "电子": {"win_rate": 0.55, "n": 438, "mean_excess": 0.0066},
-    "机械设备": {"win_rate": 0.57, "n": 438, "mean_excess": 0.0045},
-    "国防军工": {"win_rate": 0.55, "n": 438, "mean_excess": 0.0040},
-    "建筑材料": {"win_rate": 0.58, "n": 184, "mean_excess": 0.0050},
-    "商贸零售": {"win_rate": 0.59, "n": 184, "mean_excess": 0.0050},
-    "传媒": {"win_rate": 0.58, "n": 184, "mean_excess": 0.0050},
-    "恒生科技": {"win_rate": 0.58, "n": 165, "mean_excess": 0.0080},
-    "石油石化": {"win_rate": 0.76, "n": 37, "mean_excess": 0.0149},
-    "综合": {"win_rate": 0.69, "n": 39, "mean_excess": 0.0160},
-    "轻工制造": {"win_rate": 0.69, "n": 39, "mean_excess": 0.0150},
-    "煤炭": {"win_rate": 0.59, "n": 37, "mean_excess": 0.0150},
-    "有色金属": {"win_rate": 0.53, "n": 477, "mean_excess": 0.0063},
-    "基础化工": {"win_rate": 0.57, "n": 477, "mean_excess": 0.0050},
-    "电力设备": {"win_rate": 0.53, "n": 477, "mean_excess": 0.0045},
-    "公用事业": {"win_rate": 0.44, "n": 184, "mean_excess": -0.003},
-    "银行": {"win_rate": 0.49, "n": 184, "mean_excess": -0.001},
-    "美容护理": {"win_rate": 0.40, "n": 327, "mean_excess": -0.004},
-    "房地产": {"win_rate": 0.42, "n": 438, "mean_excess": -0.003},
-    "钢铁": {"win_rate": 0.42, "n": 438, "mean_excess": -0.003},
-    "计算机": {"win_rate": 0.44, "n": 477, "mean_excess": -0.002},
-}
-
 # Rough beta for risk dashboard (research heuristics)
 SECTOR_BETA = {
     "沪深300": 1.0,
@@ -181,7 +157,8 @@ SECTOR_BETA = {
 
 POSITION_STATE_PATH = CALCULATED / "flex_position_state.json"
 
-# Cost-stress snapshot (filled/updated by backtest; defaults from last research)
+# Structural fallback only. Numerical claims must come from the generated,
+# versioned backtest artifact and must never silently fall back to stale values.
 DEFAULT_BACKTEST_STATS: dict[str, Any] = {
     "mode": "combined_flex_v2",
     "label_cn": "组合 Flex v2（状态机+质量降权+成本压力）",
@@ -191,46 +168,17 @@ DEFAULT_BACKTEST_STATS: dict[str, Any] = {
     "satellite_stop_loss": SAT_STOP_LOSS,
     "satellite_take_profit": SAT_TAKE_PROFIT,
     "execution": "CORE严格条件 T日14:50尾盘；其余信号 T+1 开盘",
-    "core_only": {
-        "total_return": 0.5392,
-        "ann_return": 0.0706,
-        "max_dd": -0.1509,
-        "win_rate": 0.6327,
-        "trade_count": 49,
-    },
+    "validation_status": "BACKTEST_ARTIFACT_UNAVAILABLE",
+    "core_only": {},
     "conservative": {
         "note": "对照口径；总暴露 capped；同一日度路径与成本模型",
-        "full_sample": {
-            "total_return": 1.2609,
-            "ann_return": 0.1376,
-            "max_dd": -0.1365,
-            "win_rate": 0.5927,
-            "trade_count": 275,
-        },
-        "oos": {
-            "total_return": 0.4511,
-            "ann_return": 0.1639,
-            "max_dd": -0.0452,
-            "win_rate": 0.6182,
-            "trade_count": 110,
-        },
+        "full_sample": {},
+        "oos": {},
     },
     "aggressive": {
         "note": "生产进取模式；单仓满仓、双仓60/40；卫星-3%止损/+4%止盈；日度路径与换仓成本口径",
-        "full_sample": {
-            "total_return": 5.8830,
-            "ann_return": 0.3566,
-            "max_dd": -0.1878,
-            "win_rate": 0.5927,
-            "trade_count": 275,
-        },
-        "oos": {
-            "total_return": 1.5352,
-            "ann_return": 0.4613,
-            "max_dd": -0.1188,
-            "win_rate": 0.6182,
-            "trade_count": 110,
-        },
+        "full_sample": {},
+        "oos": {},
     },
     "cost_stress": {
         "base_bps_one_way": 1,
@@ -340,11 +288,21 @@ def quality_adjusted_return(r: float, quality: str) -> float:
     return float(r) / h
 
 
-def _sector_score(name: str, stage_id: str) -> float:
-    meta = SECTOR_META.get(name) or {}
+@lru_cache(maxsize=None)
+def _stage_sector_evidence(stage_id: str, name: str, side: str) -> dict[str, Any]:
+    """Return the single stage definition used by scoring and display."""
+    from src.core.stage_trade_playbook import STAGE_DEFS
+
+    field = "sectors_long" if side == "long" else "sectors_short"
+    stage = next((item for item in STAGE_DEFS if item.get("stage_id") == stage_id), {})
+    evidence = next((item for item in stage.get(field, []) if item.get("name") == name), {})
+    return dict(evidence)
+
+
+def _sector_score(name: str, stage_id: str, meta: dict[str, Any], *, side: str = "long") -> float:
     n = float(meta.get("n") or 30)
     wr = float(meta.get("win_rate") or 0.5)
-    me = float(meta.get("mean_excess") or 0.003)
+    me = float(meta.get("mean_excess") or 0.0)
     q = QUALITY_WEIGHT.get(_quality_of(name), 0.0)
     tier = STAGE_TIER.get(stage_id, "excluded")
     tw = STAGE_TIER_WEIGHT.get(tier, 0.0)
@@ -354,8 +312,9 @@ def _sector_score(name: str, stage_id: str) -> float:
         tw *= 0.5
     if n < MIN_N_OBSERVE:
         return 0.0
-    # score = mean_excess * sqrt(n) * win_rate * quality * tier
-    return max(0.0, me) * math.sqrt(max(n, 1.0)) * wr * q * tw * STAGE_MERGE_SCORE.get(stage_id, 0.5)
+    edge = max(0.0, me) if side == "long" else max(0.0, -me)
+    # score = directional edge * sqrt(n) * win_rate * ETF quality * stage tier
+    return edge * math.sqrt(max(n, 1.0)) * wr * q * tw * STAGE_MERGE_SCORE.get(stage_id, 0.5)
 
 
 def merge_satellite_targets(
@@ -371,9 +330,9 @@ def merge_satellite_targets(
 
     score_map: dict[str, float] = {}
     stage_src: dict[str, list[str]] = {}
-    why_map: dict[str, str] = {}
-    meta_map: dict[str, dict] = {}
     stage_score_map: dict[str, list[dict[str, Any]]] = {}
+    avoid_score_map: dict[str, float] = {}
+    avoid_evidence_map: dict[str, list[dict[str, Any]]] = {}
     suppressed: list[str] = []
 
     for sid in stages:
@@ -385,30 +344,61 @@ def merge_satellite_targets(
             # 升温当日不从 RISING 路径追 恒科/电子/计算机；CORE 名单可另计
             if rising_hard and name in RISING_SAME_DAY_AVOID_OPEN and sid == "RISING_HARD":
                 continue
-            sc = _sector_score(name, sid)
+            meta = _stage_sector_evidence(sid, name, "long")
+            sc = _sector_score(name, sid, meta, side="long")
             if sc <= 0:
                 continue
             score_map[name] = score_map.get(name, 0.0) + sc
             stage_src.setdefault(name, []).append(sid)
-            meta = SECTOR_META.get(name) or {}
-            meta_map[name] = meta
             stage_score_map.setdefault(name, []).append(
                 {
                     "stage_id": sid,
                     "score": round(sc, 6),
+                    "why": meta.get("why"),
                     "win_rate": meta.get("win_rate"),
                     "n": meta.get("n"),
                     "mean_excess": meta.get("mean_excess"),
+                    "horizon": meta.get("horizon"),
                 }
             )
-            why_map[name] = f"阶段{'+'.join(stage_src[name])} 合并得分"
+
+        for name in FLEX_SAT_SHORT.get(sid, []):
+            meta = _stage_sector_evidence(sid, name, "short")
+            sc = _sector_score(name, sid, meta, side="short")
+            avoid_score_map[name] = avoid_score_map.get(name, 0.0) + sc
+            avoid_evidence_map.setdefault(name, []).append(
+                {
+                    "stage_id": sid,
+                    "score": round(sc, 6),
+                    "why": meta.get("why"),
+                    "win_rate": meta.get("win_rate"),
+                    "n": meta.get("n"),
+                    "mean_excess": meta.get("mean_excess"),
+                    "horizon": meta.get("horizon"),
+                }
+            )
+
+    # A sector cannot be long and AVOID at the same time. Resolve the
+    # directional evidence before normalizing weights.
+    conflict_notes: dict[str, str] = {}
+    for name in set(score_map).intersection(avoid_evidence_map):
+        if score_map[name] >= avoid_score_map.get(name, 0.0):
+            avoid_evidence_map.pop(name, None)
+            avoid_score_map.pop(name, None)
+            conflict_notes[name] = "同名多空冲突按阶段证据得分保留超配"
+        else:
+            score_map.pop(name, None)
+            stage_src.pop(name, None)
+            stage_score_map.pop(name, None)
+            conflict_notes[name] = "同名多空冲突按阶段证据得分保留回避"
 
     # normalize weights among positive scores
     total = sum(score_map.values()) or 1.0
     longs: list[dict[str, Any]] = []
     for name, sc in sorted(score_map.items(), key=lambda x: -x[1]):
         q = _quality_of(name)
-        meta = meta_map.get(name) or {}
+        evidence = stage_score_map.get(name, [])
+        primary = max(evidence, key=lambda item: float(item.get("score") or 0.0), default={})
         w_raw = sc / total
         longs.append(
             {
@@ -417,34 +407,44 @@ def merge_satellite_targets(
                 "weight_in_sat": round(w_raw, 4),
                 "quality": q,
                 "quality_weight": QUALITY_WEIGHT.get(q, 0.0),
-                "win_rate": meta.get("win_rate"),
-                "n": meta.get("n"),
-                "mean_excess": meta.get("mean_excess"),
+                "win_rate": primary.get("win_rate"),
+                "n": primary.get("n"),
+                "mean_excess": primary.get("mean_excess"),
                 "stages": stage_src.get(name, []),
-                "stage_evidence": stage_score_map.get(name, []),
-                "why": why_map.get(name, "阶段超配"),
+                "stage_evidence": evidence,
+                "why": primary.get("why") if len(evidence) == 1 else f"阶段{'+'.join(stage_src[name])}证据合并",
                 "tier": STAGE_TIER.get(stage_src.get(name, [""])[0], "high"),
+                "conflict_resolution": conflict_notes.get(name),
             }
         )
 
     # AVOID list from active stages (not SELL)
-    avoid_names: dict[str, dict] = {}
-    for sid in active_sat:
-        for name in FLEX_SAT_SHORT.get(sid, []):
-            meta = SECTOR_META.get(name) or {}
-            avoid_names[name] = {
+    avoids: list[dict[str, Any]] = []
+    long_by_code = {map_sector(item["name"]).get("etf_code"): item for item in longs}
+    for name, evidence in avoid_evidence_map.items():
+        code = map_sector(name).get("etf_code")
+        if code and code in long_by_code:
+            long_by_code[code].setdefault("suppressed_avoid_names", []).append(name)
+            continue
+        primary = max(evidence, key=lambda item: float(item.get("score") or 0.0), default={})
+        avoids.append(
+            {
                 "name": name,
                 "side": "AVOID",
                 "side_cn": "回避（若持有则减配）",
-                "stages": [sid],
-                "why": f"{sid} 阶段相对偏弱",
-                "win_rate": meta.get("win_rate"),
-                "n": meta.get("n"),
+                "stages": [item["stage_id"] for item in evidence],
+                "stage_evidence": evidence,
+                "why": primary.get("why") or "阶段相对偏弱",
+                "win_rate": primary.get("win_rate"),
+                "n": primary.get("n"),
+                "mean_excess": primary.get("mean_excess"),
                 "conditional": True,
                 "condition_cn": f"仅当已持有「{name}」映射 ETF 时减至 0；无持仓则无需操作",
+                "conflict_resolution": conflict_notes.get(name),
             }
+        )
 
-    return longs, list(avoid_names.values()), suppressed
+    return longs, avoids, suppressed
 
 
 def compute_allocation(
@@ -591,13 +591,13 @@ def simulate_positions(
         rising = "RISING_HARD" in stages
         is_last = i == len(feat_rows) - 1
 
-        # --- advance day counters (held days counted from entry_date, not signal day) ---
+        # --- completed holding sessions (entry session is day 1) ---
         if state.core.status == "open" and state.core.entry_date:
             core_hold_days = _core_planned_hold_days(state)
             try:
                 ei = dates.index(str(state.core.entry_date)[:10])
                 if i >= ei:
-                    state.core.days_held = i - ei
+                    state.core.days_held = i - ei + 1
                     state.core.days_remaining = max(0, core_hold_days - state.core.days_held)
                 else:
                     state.core.days_held = 0
@@ -609,7 +609,7 @@ def simulate_positions(
             try:
                 ei = dates.index(str(state.satellite.entry_date)[:10])
                 if i >= ei:
-                    state.satellite.days_held = i - ei
+                    state.satellite.days_held = i - ei + 1
                     state.satellite.days_remaining = max(0, SAT_MAX_HOLD - state.satellite.days_held)
                 else:
                     state.satellite.days_held = 0
@@ -778,36 +778,6 @@ def build_flex_panel_v2(
     observe_stages = [s for s in stages if STAGE_TIER.get(s) == "observe"]
     sat_signal = bool(longs) and (bool(high_stages) or bool(observe_stages))
 
-    # Prefer why/win_rate from detailed stage cards, preserving the stage that supplied the evidence.
-    detail_by_name_stage: dict[tuple[str, str], dict] = {}
-    for st in detailed:
-        for sec in (st.get("sectors_long") or []) + (st.get("sectors_short") or []):
-            detail_by_name_stage[(sec["name"], st.get("stage_id"))] = sec
-
-    for item in longs:
-        evidence = []
-        for sid in item.get("stages") or []:
-            d = detail_by_name_stage.get((item["name"], sid)) or {}
-            if d:
-                evidence.append(
-                    {
-                        "stage_id": sid,
-                        "why": d.get("why"),
-                        "win_rate": d.get("win_rate"),
-                        "n": d.get("n"),
-                        "horizon": d.get("horizon"),
-                    }
-                )
-        if evidence:
-            item["stage_evidence"] = evidence
-        d = evidence[0] if len(evidence) == 1 else {}
-        if d.get("why"):
-            item["why"] = d["why"]
-        if d.get("win_rate") is not None:
-            item["win_rate"] = d["win_rate"]
-        if d.get("n") is not None:
-            item["n"] = d["n"]
-
     # Observe-only → max 1 name, flag
     observe_only = sat_signal and not high_stages and bool(observe_stages)
     if observe_only:
@@ -819,6 +789,27 @@ def build_flex_panel_v2(
     # Allocation uses *intended* new exposure for display, but position-aware actions
     core_open = state.core.status == "open"
     sat_open = state.satellite.status == "open"
+    protected_names = set(state.core.names if core_open else []) | set(
+        state.satellite.names if sat_open else []
+    )
+    protected_codes = {
+        map_sector(name).get("etf_code") for name in protected_names if map_sector(name).get("etf_code")
+    }
+    suppressed_avoid_conflicts: list[dict[str, str]] = []
+    resolved_avoids: list[dict[str, Any]] = []
+    for item in avoids:
+        code = map_sector(item["name"]).get("etf_code")
+        if item["name"] in protected_names or (code and code in protected_codes):
+            suppressed_avoid_conflicts.append(
+                {
+                    "name": item["name"],
+                    "etf_code": code or "",
+                    "reason": "策略持仓退出规则优先，禁止同时发布 AVOID/清零指令",
+                }
+            )
+            continue
+        resolved_avoids.append(item)
+    avoids = resolved_avoids
 
     # Target: signal-based desired exposure
     want_core = core_buy_signal or (core_open and state.core.days_remaining > 0)
@@ -1258,6 +1249,7 @@ def build_flex_panel_v2(
         },
         "active_stages": stages,
         "suppressed_stages": suppressed,
+        "suppressed_avoid_conflicts": suppressed_avoid_conflicts,
         "merge_note_cn": (
             f"多阶段合并：{', '.join(sat_stage_ids) or '无'}；"
             f"被门控压制：{', '.join(suppressed) or '无'}"
@@ -1410,7 +1402,7 @@ def _sat_should_close(state: FlexState, stages: list[str]) -> bool:
 
 
 def _nth_trade_date(trade_dates: list[str], entry_date: str | None, held_offset: int) -> str | None:
-    """Date when days_held would equal held_offset if entry_date is hold day 0."""
+    """Return a trade date offset from entry_date (entry offset is zero)."""
     if not entry_date or not trade_dates:
         return None
     ed = str(entry_date)[:10]
@@ -1460,18 +1452,18 @@ def build_sleeve_exit_plan(
         "triggered_close": sat_meta,
         "paths": {},
         "note_cn": (
-            "四只卫星同一 sleeve 同日进出。"
+            "卫星篮子内标的按同一 sleeve 同日进出。"
             "MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。"
         ),
     }
     if sat.status == "open" and sat.entry_date:
         sat_plan["paths"] = {
-            "event_earliest_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_MIN_HOLD),
-            "default_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_DEFAULT_HOLD),
-            "max_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_MAX_HOLD),
-            "max_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_MAX_HOLD + 1),
-            "default_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_DEFAULT_HOLD + 1),
-            "event_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_MIN_HOLD + 1),
+            "event_earliest_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_MIN_HOLD - 1),
+            "default_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_DEFAULT_HOLD - 1),
+            "max_signal_date": _nth_trade_date(dates, sat.entry_date, SAT_MAX_HOLD - 1),
+            "max_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_MAX_HOLD),
+            "default_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_DEFAULT_HOLD),
+            "event_exec_next_open": _nth_trade_date(dates, sat.entry_date, SAT_MIN_HOLD),
         }
         # Authoritative due date for longest path (always scheduled at open).
         sat.exit_due_date = sat_plan["paths"].get("max_signal_date")
@@ -1500,8 +1492,8 @@ def build_sleeve_exit_plan(
     }
     if core.status == "open" and core.entry_date:
         hold_days = _core_planned_hold_days(state)
-        core_plan["max_signal_date"] = _nth_trade_date(dates, core.entry_date, hold_days)
-        core_plan["max_exec_next_open"] = _nth_trade_date(dates, core.entry_date, hold_days + 1)
+        core_plan["max_signal_date"] = _nth_trade_date(dates, core.entry_date, hold_days - 1)
+        core_plan["max_exec_next_open"] = _nth_trade_date(dates, core.entry_date, hold_days)
         core.exit_due_date = core_plan.get("max_signal_date")
         core_plan["exit_due_date"] = core.exit_due_date
         core_plan["days_to_max"] = max(0, hold_days - int(core.days_held or 0))

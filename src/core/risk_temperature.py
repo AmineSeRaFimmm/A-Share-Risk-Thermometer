@@ -330,7 +330,11 @@ def compute_risk_temperature(avix_clean: pd.DataFrame, qvix_validation: pd.DataF
     df["qvix_confirmation"] = df["qvix_confirmation"].fillna(50)
     df["realized_vol_percentile"] = df["realized_vol_percentile"].fillna(50)
     df["drawdown_pressure"] = df["drawdown_pressure"].fillna(50)
-    df["market_breadth_pressure"] = df.get("breadth_pressure", pd.Series(index=df.index, dtype=float)).ffill().fillna(50)
+    # Missing breadth is unknown, not yesterday's observation. Keep the
+    # documented neutral contribution while confidence records the gap.
+    df["market_breadth_pressure"] = df.get(
+        "breadth_pressure", pd.Series(index=df.index, dtype=float)
+    ).fillna(50)
     df["turnover_stress"] = df["turnover_stress"].fillna(50)
     temp = sum(df[k] * w for k, w in WEIGHTS.items())
     df["risk_temperature"] = temp.map(lambda x: round(clip(x), 1))

@@ -22,18 +22,6 @@ from src.utils.dates import now_cn
 
 
 def calculate_clean(chain: pd.DataFrame, rates: pd.DataFrame, raw: pd.DataFrame) -> pd.DataFrame:
-    if len(chain) > 100_000:
-        # Same strict official-tip policy as bootstrap_history.calculate_all.
-        from scripts.bootstrap_history import _trim_unusable_official_avix_tip
-
-        clean = raw.rename(columns={"avix_raw": "avix_clean"}).copy()
-        clean = _trim_unusable_official_avix_tip(clean)
-        clean["avix_raw"] = clean["avix_clean"]
-        clean["raw_clean_diff"] = 0.0
-        clean["cleaned_option_count"] = clean[["near_n_options", "next_n_options"]].min(axis=1)
-        clean["cleaned_option_ratio"] = 1.0
-        clean["clean_method"] = "moneyness_filter_fast_from_raw"
-        return clean
     clean_chain = clean_option_surface(chain, rates)
     clean_for_calc = clean_chain.copy()
     if "clean_valid" in clean_for_calc.columns:
@@ -50,10 +38,12 @@ def calculate_clean(chain: pd.DataFrame, rates: pd.DataFrame, raw: pd.DataFrame)
     totals = clean_chain.groupby("trade_date").size()
     clean["cleaned_option_count"] = counts.reindex(clean["trade_date"]).values
     clean["cleaned_option_ratio"] = clean["cleaned_option_count"] / totals.reindex(clean["trade_date"]).values
-    clean["clean_method"] = "moneyness_filter_fast" if len(chain) > 100_000 else "iv_filter_rolling_median"
+    clean["clean_method"] = "iv_filter_cp_rolling_median_v2"
     clean.loc[clean["raw_clean_diff"] > 2.0, "quality"] = clean["quality"].astype(str) + "|WARN_CLEAN_IMPACT_HIGH"
     clean.loc[clean["raw_clean_diff"] > 4.0, "quality"] = clean["quality"].astype(str) + "|LOW_CLEAN_IMPACT_TOO_HIGH"
-    return clean
+    from scripts.bootstrap_history import _trim_unusable_official_avix_tip
+
+    return _trim_unusable_official_avix_tip(clean)
 
 
 def main() -> None:

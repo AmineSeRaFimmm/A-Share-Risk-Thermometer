@@ -2722,8 +2722,8 @@ function flexCalendarDaysBetween(fromStr, toStr) {
 
 // ---------------------------------------------------------------------------
 // Trading-day calendar — MUST match flex_engine / backtest:
-//   days_held = index(as_of) - index(entry_date) on trade_date list
-//   close when days_held >= hold_days  → exit signal date = entry + hold_days trade steps
+//   days_held = index(as_of) - index(entry_date) + 1 on trade_date list
+//   close when days_held >= hold_days → execute at the following session open
 // ---------------------------------------------------------------------------
 
 function flexExtendTradeDatesForward(sorted, extraN) {
@@ -2861,8 +2861,7 @@ function flexAddTradingDays(dateStr, n) {
 }
 
 /**
- * Trading-day distance index(to) - index(from), matching flex_engine days_held
- * when from=entry_date and to=as_of (as_of snapped on-or-before).
+ * Trading-day distance index(to) - index(from).
  */
 function flexTradingDaysBetween(fromStr, toStr) {
   const dates = flexEnsureTradeCalendar();
@@ -2875,12 +2874,13 @@ function flexTradingDaysBetween(fromStr, toStr) {
 /** Engine-equivalent days_held for a local position. */
 function flexPositionDaysHeld(pos, asOf = flexDateCn(0)) {
   if (!pos?.buy_date) return 0;
-  return Math.max(0, flexTradingDaysBetween(pos.buy_date, asOf));
+  const elapsed = flexTradingDaysBetween(pos.buy_date, asOf);
+  return elapsed < 0 ? 0 : elapsed + 1;
 }
 
 /**
- * Exit signal date = buy_date + hold_days trading steps (days_held >= hold_days).
- * Same formula as backtest exit_i = entry_i + HOLD_DAYS.
+ * Exit signal is published after hold_days completed sessions; execution is
+ * the next open, matching backtest exit_i = entry_i + HOLD_DAYS.
  */
 function flexPositionExitSignalDate(pos) {
   if (!pos) return null;
@@ -2888,15 +2888,15 @@ function flexPositionExitSignalDate(pos) {
   // calendar unavailable to the browser.
   if (pos.exit_date) return String(pos.exit_date).slice(0, 10);
   if (pos.buy_date && pos.hold_days != null && Number.isFinite(Number(pos.hold_days))) {
-    return flexAddTradingDays(pos.buy_date, Number(pos.hold_days));
+    return flexAddTradingDays(pos.buy_date, Math.max(0, Number(pos.hold_days) - 1));
   }
   return null;
 }
 
 /** Remaining hold days / exit date — trading days only (real + sim books). */
-function flexPositionExitInfo(pos) {
+function flexPositionExitInfo(pos, asOf = null) {
   if (!pos || !(Number(pos.qty) > 0)) return { left: null, exitDate: null, label: '—', daysHeld: null };
-  const today = flexDateCn(0);
+  const today = String(asOf || flexEffectiveMarkDate([pos.etf_code].filter(Boolean))).slice(0, 10);
   const holdDays = pos.hold_days != null && Number.isFinite(Number(pos.hold_days))
     ? Number(pos.hold_days)
     : null;
@@ -3957,10 +3957,11 @@ function deskCollectOpenSignals(flex) {
 
 /** Personal positions whose hold window has ended (user's buy_date clock). */
 function deskLocalDueCloses(ledger = loadFlexLedger()) {
-  const today = flexDateCn(0);
+  const codes = flexOpenPositions(ledger).map(pos => pos.etf_code).filter(Boolean);
+  const today = String(ledger?.mark_as_of || flexEffectiveMarkDate(codes)).slice(0, 10);
   const rows = [];
   for (const pos of flexOpenPositions(ledger)) {
-    const info = flexPositionExitInfo(pos);
+    const info = flexPositionExitInfo(pos, today);
     const daysHeld = info.daysHeld != null ? info.daysHeld : flexPositionDaysHeld(pos, today);
     const holdDays = pos.hold_days != null ? Number(pos.hold_days) : null;
     // Same rule as engine: days_held >= hold_days → CLOSE signal (execute next trade open).

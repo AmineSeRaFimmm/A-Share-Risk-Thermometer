@@ -194,18 +194,27 @@ def update_intraday_temperature_history(
     sampled_at = _shanghai_timestamp(latest.get("update_time"))
     temperature = pd.to_numeric(latest.get("risk_temperature"), errors="coerce")
     mode = str(latest.get("temperature_mode") or "")
+    is_final = bool(latest.get("is_final")) or mode == "OFFICIAL_CLOSE"
 
     if (
         len(trade_date) != 10
         or sampled_at is None
-        or sampled_at.strftime("%Y-%m-%d") != trade_date
         or pd.isna(temperature)
         or not 0 <= float(temperature) <= 100
         or mode not in VALID_MODES
     ):
         return frame, False
+    if sampled_at.strftime("%Y-%m-%d") != trade_date:
+        # A later rebuild may correct an already-recorded official endpoint
+        # after methodology/data repairs. Preserve its original timestamp and
+        # never invent a historical endpoint when none existed.
+        existing_final = frame[frame["trade_date"].eq(trade_date) & frame["is_final"]]
+        if not is_final or existing_final.empty:
+            return frame, False
+        sampled_at = _shanghai_timestamp(existing_final.sort_values("sampled_at").iloc[-1]["sampled_at"])
+        if sampled_at is None:
+            return frame, False
 
-    is_final = bool(latest.get("is_final")) or mode == "OFFICIAL_CLOSE"
     breadth_pressure = _market_value(latest, "breadth_pressure")
     quality_text = str(latest.get("quality") or "")
     breadth_observed = (

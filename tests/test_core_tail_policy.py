@@ -10,12 +10,12 @@ from src.core.flex_engine import CORE_HOLD_DAYS, simulate_positions
 
 
 def _risk_panel(*, rt: float, dd60: float, confidence: float) -> pd.DataFrame:
-    dates = pd.bdate_range("2026-07-20", periods=7)
+    dates = pd.bdate_range("2026-07-20", periods=6)
     return pd.DataFrame(
         {
             "trade_date": dates.strftime("%Y-%m-%d"),
-            "risk_temperature": [rt] * len(dates),
-            "sh000300_dd60": [dd60] * len(dates),
+            "risk_temperature": [rt] + [50.0] * (len(dates) - 1),
+            "sh000300_dd60": [dd60] + [0.0] * (len(dates) - 1),
             "model_confidence": [confidence] * len(dates),
         }
     )
