@@ -10,6 +10,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.core.intraday_temperature import confirmed_core_tail_dates
+from src.core.flex_snapshot import publish_flex_snapshot
 from src.core.sector_etf_map import all_sector_mappings
 from src.core.stage_trade_playbook import build_playbook_payload
 from src.storage.csv_store import read_csv
@@ -39,6 +40,10 @@ def main() -> None:
     map_df = pd.DataFrame(mapping_rows)
     map_df.to_csv(research_out / "sector_etf_mapping.csv", index=False)
     write_json({"rows": mapping_rows}, SITE / "sector_etf_map.json")
+    try:
+        publish_flex_snapshot()
+    except ValueError as exc:
+        print(f"WARN Flex snapshot not published: {exc}")
 
     # human markdown
     md = _to_markdown(payload, mapping_rows)
@@ -171,9 +176,10 @@ def _to_markdown(p: dict, mapping_rows: list | None = None) -> str:
     lines += ["## 可执行清单（按优先级）", ""]
     for i, ins in enumerate(p.get("actionable_instructions") or [], 1):
         title = ins.get("instrument_display") or ins.get("instrument") or ins.get("name")
+        action = ins.get("side") or ins.get("action") or "WATCH"
         lines.append(
-            f"{i}. **[{ins.get('priority')}] {ins.get('side')}** `{title}`  "
-            f"| 触发: {ins.get('trigger')} | 进: {ins.get('entry')} | 出: {ins.get('exit')}"
+            f"{i}. **[{ins.get('priority')}] {action}** `{title}`  "
+            f"| 触发: {ins.get('trigger') or '—'} | 进: {ins.get('entry') or '—'} | 出: {ins.get('exit') or '—'}"
         )
         if ins.get("etf_code"):
             lines.append(f"   - ETF: **{ins.get('etf_code')}** {ins.get('etf_name')}（{ins.get('etf_quality_cn')}）")
@@ -181,7 +187,8 @@ def _to_markdown(p: dict, mapping_rows: list | None = None) -> str:
             lines.append(f"   - 依据: {ins['why']}")
         if ins.get("win_rate") is not None:
             lines.append(f"   - 历史胜率≈{_pct(ins.get('win_rate'))} n={ins.get('n', '--')}")
-        lines.append(f"   - {ins.get('disclaimer', '')}")
+        if ins.get("disclaimer"):
+            lines.append(f"   - {ins['disclaimer']}")
         lines.append("")
 
     lines += ["## 全阶段规则目录（静态）", ""]

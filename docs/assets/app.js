@@ -90,6 +90,8 @@ const dashboardState = {
   flexBook: loadFlexBookPreference(), // real = 本机点买；sim = 策略严格跟随
   flexPlaybook: null,
   flexActive: null,
+  flexSnapshotRevision: null,
+  flexTradeCalendar: null,
   flexLedgerBound: false,
   flexModal: null,
   flexSimSyncedAsOf: null,
@@ -907,12 +909,31 @@ async function loadCriticalDashboardData({ fresh = false } = {}) {
 }
 
 async function loadHeavyDashboardData({ fresh = false } = {}) {
-  const [strategy, rtTactical, stagePlaybook, etfMarks] = await Promise.all([
+  const [strategy, rtTactical, flexSnapshot] = await Promise.all([
     loadJSON('./data/strategy.json', { fresh }).catch(() => ({ status: 'missing' })),
     loadJSON('./data/rt_tactical.json', { fresh }).catch(() => ({ status: 'missing' })),
-    loadJSON('./data/stage_playbook.json', { fresh }).catch(() => ({ status: 'missing' })),
-    loadJSON('./data/etf_daily_marks.json', { fresh }).catch(() => ({ status: 'missing', by_code: {} })),
+    loadJSON('./data/flex_snapshot.json', { fresh }).catch(() => null),
   ]);
+  let stagePlaybook;
+  let etfMarks;
+  const validSnapshot = Number(flexSnapshot?.schema_version) === 1
+    && typeof flexSnapshot?.revision === 'string'
+    && flexSnapshot?.stage_playbook?.flex_panel
+    && flexSnapshot?.etf_daily_marks?.by_code
+    && Array.isArray(flexSnapshot?.trade_calendar?.dates);
+  if (validSnapshot) {
+    stagePlaybook = flexSnapshot.stage_playbook;
+    etfMarks = flexSnapshot.etf_daily_marks;
+    dashboardState.flexSnapshotRevision = flexSnapshot.revision;
+    dashboardState.flexTradeCalendar = flexSnapshot.trade_calendar;
+  } else {
+    [stagePlaybook, etfMarks] = await Promise.all([
+      loadJSON('./data/stage_playbook.json', { fresh }).catch(() => ({ status: 'missing' })),
+      loadJSON('./data/etf_daily_marks.json', { fresh }).catch(() => ({ status: 'missing', by_code: {} })),
+    ]);
+    dashboardState.flexSnapshotRevision = null;
+    dashboardState.flexTradeCalendar = null;
+  }
   dashboardState.heavyLoaded = true;
   dashboardState.etfMarks = etfMarks && etfMarks.status !== 'missing'
     ? etfMarks
@@ -2760,7 +2781,7 @@ function flexGenerateWeekdayRange(fromStr, toStr) {
 function flexEnsureTradeCalendar() {
   const set = new Set();
   const observed = new Set();
-  const official = dashboardState.tradeCalendar || {};
+  const official = dashboardState.flexTradeCalendar || dashboardState.tradeCalendar || {};
   const add = (v) => {
     const s = String(v || '').slice(0, 10);
     if (/^\d{4}-\d{2}-\d{2}$/.test(s)) set.add(s);
@@ -3195,7 +3216,7 @@ function renderFlexHoldings() {
       <strong>${isFlexSimBook() ? '模拟仓暂无持仓' : '真实仓暂无持仓'}</strong>
       <p>${isFlexSimBook()
         ? '请先保存全仓金额；策略纸面 open 时将自动同步持仓（EOD 开盘入场/收盘盯市）。'
-        : '在「信号」里点「记买入」并录入成交价后入账。数据只存在当前浏览器，可导出备份。'}</p>
+        : '在「信号」里点「记买入」并录入成交价后入账。数据仅保存在当前浏览器。'}</p>
     </div>`;
     return;
   }
@@ -3266,7 +3287,7 @@ function renderFlexJournal() {
   if (!rows.length) {
     el.innerHTML = `<div class="flex-empty-state soft">
       <strong>暂无流水</strong>
-      <p>买卖、调仓、调整全仓金额会记录在此。可导出 JSON 备份。</p>
+      <p>买卖、调仓、调整全仓金额会记录在此。</p>
     </div>`;
     return;
   }
@@ -4578,44 +4599,6 @@ function bindFlexExecControls() {
     flexToast(`${bookName}已清空（本金 ${formatMoney(capital)} 保留）`, 'warn');
     if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
     else renderFlexExecUi();
-  });
-
-  document.getElementById('flexExportLedgerBtn')?.addEventListener('click', () => {
-    const ledger = loadFlexLedger();
-    const blob = new Blob([JSON.stringify(ledger, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    const tag = isFlexSimBook() ? 'sim' : 'real';
-    a.download = `flex-ledger-${tag}-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    flexToast(`已导出${isFlexSimBook() ? '模拟' : '真实'}账本`, 'ok', 1500);
-  });
-
-  document.getElementById('flexImportLedgerBtn')?.addEventListener('click', () => {
-    document.getElementById('flexImportLedgerFile')?.click();
-  });
-  document.getElementById('flexImportLedgerFile')?.addEventListener('change', async (ev) => {
-    const file = ev.target?.files?.[0];
-    ev.target.value = '';
-    if (!file) return;
-    try {
-      const text = await file.text();
-      const parsed = JSON.parse(text);
-      if (!parsed || typeof parsed !== 'object') throw new Error('无效账本文件');
-      const ledger = normalizeFlexLedger(parsed);
-      const bookName = isFlexSimBook() ? '模拟仓' : '真实仓';
-      if (!confirm(`导入到【${bookName}】？将覆盖该账本持仓与流水。\n全仓 ${formatMoney(ledger.capital)} · 持仓 ${flexOpenPositions(ledger).length} · 流水 ${(ledger.journal || []).length}`)) {
-        return;
-      }
-      saveFlexLedger(ledger);
-      flexToast(`已导入到${bookName}`, 'ok');
-      if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
-      else renderFlexExecUi();
-    } catch (e) {
-      flexToast(e.message || '导入失败', 'err', 3200);
-    }
   });
 
   document.getElementById('flexModalCloseBtn')?.addEventListener('click', closeFlexTradeModal);

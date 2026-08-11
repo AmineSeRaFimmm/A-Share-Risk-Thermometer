@@ -21,6 +21,7 @@ from src.core.etf_marks import (
     fetch_etf_final_quotes,
     write_etf_marks_site,
 )
+from src.core.flex_snapshot import publish_flex_snapshot
 from src.storage.json_store import write_json
 from src.storage.paths import DOCS, SITE
 from src.utils.dates import now_cn, today_cn
@@ -77,12 +78,15 @@ def _read_json(path: Path) -> dict[str, Any]:
         return {}
 
 
-def _publish_build_revision(target: str, quality: str) -> None:
+def _publish_build_revision(target: str, quality: str, flex_revision: str) -> None:
     path = DOCS / "data" / "build_info.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     current = _read_json(path)
     revision = f"{target}|{quality}"
-    if current.get("etf_marks_revision") == revision:
+    if (
+        current.get("etf_marks_revision") == revision
+        and current.get("flex_snapshot_revision") == flex_revision
+    ):
         return
     write_json(
         {
@@ -91,6 +95,7 @@ def _publish_build_revision(target: str, quality: str) -> None:
             "etf_marks_as_of": target,
             "etf_marks_quality": quality,
             "etf_marks_revision": revision,
+            "flex_snapshot_revision": flex_revision,
             "revision_reason": "ETF_EOD_MARKS",
         },
         path,
@@ -107,7 +112,12 @@ def refresh_etf_eod_marks(*, trade_date: str | None = None) -> dict[str, Any] | 
     published = _read_json(SITE / "etf_daily_marks.json")
     published_through = str(published.get("complete_as_of") or "")[:10]
     if published.get("quality") == "OK" and payload_is_complete(published, published_through) and published_through >= target:
-        _publish_build_revision(published_through, str(published.get("quality") or "OK"))
+        snapshot = publish_flex_snapshot()
+        _publish_build_revision(
+            published_through,
+            str(published.get("quality") or "OK"),
+            snapshot["revision"],
+        )
         print(f"ETF EOD marks already complete through {published_through}.")
         return published
 
@@ -149,7 +159,12 @@ def refresh_etf_eod_marks(*, trade_date: str | None = None) -> dict[str, Any] | 
             for code in collect_flex_etf_codes(playbook)
         )
     ):
-        _publish_build_revision(target, str(payload.get("quality") or FINAL_QUOTE_QUALITY))
+        snapshot = publish_flex_snapshot()
+        _publish_build_revision(
+            target,
+            str(payload.get("quality") or FINAL_QUOTE_QUALITY),
+            snapshot["revision"],
+        )
         print(f"ETF post-close marks already published for {target}; daily confirmation still pending.")
         return published
 
@@ -157,7 +172,12 @@ def refresh_etf_eod_marks(*, trade_date: str | None = None) -> dict[str, Any] | 
     docs_data = DOCS / "data"
     docs_data.mkdir(parents=True, exist_ok=True)
     shutil.copy2(SITE / "etf_daily_marks.json", docs_data / "etf_daily_marks.json")
-    _publish_build_revision(target, str(payload.get("quality") or "OK"))
+    snapshot = publish_flex_snapshot()
+    _publish_build_revision(
+        target,
+        str(payload.get("quality") or "OK"),
+        snapshot["revision"],
+    )
     print(
         "ETF EOD refresh complete: "
         f"target={target} codes={payload.get('code_count')} "

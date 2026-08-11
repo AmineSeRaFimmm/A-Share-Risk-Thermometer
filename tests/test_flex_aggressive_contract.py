@@ -13,6 +13,7 @@ from research.backtest_flex_v2 import (
 )
 from src.core.flex_engine import merge_satellite_targets, quality_adjusted_return
 from src.core.sector_etf_map import attach_etf_fields
+from src.core.stage_trade_playbook import build_playbook_payload
 
 
 def test_proxy_adjustment_does_not_shrink_losses():
@@ -98,3 +99,35 @@ def test_backtest_uses_real_daily_path_not_endpoint_smoothing():
     assert np.isclose(path[1], 1.0)
     assert np.isclose(path[2], -0.45)
     assert np.isclose(path[3], 0.0)
+
+
+def test_published_actionable_instructions_are_engine_resolved(monkeypatch):
+    monkeypatch.setattr("src.core.flex_engine.save_position_state", lambda _state: None)
+    risk = pd.DataFrame(
+        [
+            {
+                "trade_date": "2026-08-10",
+                "risk_temperature": 70.0,
+                "sh000300_dd60": -0.06,
+                "regime": "CAUTION",
+                "regime_cn": "警戒",
+                "quality": "OK",
+                "model_confidence": 93.7,
+            }
+        ]
+    )
+    payload = build_playbook_payload(risk, pd.DataFrame())
+    actions = payload["actionable_instructions"]
+    assert actions == payload["flex_panel"]["all_actions"]
+    long_ids = {
+        item.get("etf_code") or item.get("name")
+        for item in actions
+        if item.get("action") in {"OPEN", "HOLD"}
+    }
+    avoid_ids = {
+        item.get("etf_code") or item.get("name")
+        for item in actions
+        if item.get("action") == "AVOID"
+    }
+    assert long_ids.isdisjoint(avoid_ids)
+    assert payload["stage_observations"]

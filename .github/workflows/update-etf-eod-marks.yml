@@ -65,7 +65,9 @@ jobs:
           set -euo pipefail
           git config user.name "risk-thermometer-bot"
           git config user.email "actions@github.com"
-          git add data/site/etf_daily_marks.json docs/data/etf_daily_marks.json docs/data/build_info.json
+          git add \
+            data/site/etf_daily_marks.json data/site/flex_snapshot.json \
+            docs/data/etf_daily_marks.json docs/data/flex_snapshot.json docs/data/build_info.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
             exit 0

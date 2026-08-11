@@ -619,7 +619,11 @@ def build_playbook_payload(
             }
             for s in detailed
         ],
-        "actionable_instructions": instructions,
+        # Only the position-aware, conflict-resolved engine output is executable.
+        # Per-stage rows remain available as evidence, but external consumers
+        # must not mistake contradictory raw observations for simultaneous orders.
+        "actionable_instructions": flex_panel.get("all_actions", []),
+        "stage_observations": instructions,
         "flex_panel": flex_panel,
         "all_stage_catalog": [
             {

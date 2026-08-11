@@ -44,7 +44,9 @@ def test_workflow_starts_at_1530_and_retries() -> None:
     workflow = (ROOT / ".github/workflows/update-etf-eod-marks.yml").read_text(encoding="utf-8")
     assert 'cron: "30,45 7 * * 1-5"' in workflow
     assert "a later tick will retry" in workflow
-    assert "data/site/etf_daily_marks.json docs/data/etf_daily_marks.json docs/data/build_info.json" in workflow
+    assert "data/site/flex_snapshot.json" in workflow
+    assert "docs/data/flex_snapshot.json" in workflow
+    assert "docs/data/build_info.json" in workflow
 
 
 def test_recovery_fetch_is_serial_to_avoid_embedded_v8_crashes() -> None:
@@ -54,10 +56,20 @@ def test_recovery_fetch_is_serial_to_avoid_embedded_v8_crashes() -> None:
 
 def test_daily_confirmation_changes_frontend_revision(monkeypatch, tmp_path) -> None:
     monkeypatch.setattr(updater, "DOCS", tmp_path)
-    updater._publish_build_revision("2026-08-10", FINAL_QUOTE_QUALITY)
+    updater._publish_build_revision("2026-08-10", FINAL_QUOTE_QUALITY, "flex-a")
     provisional = updater._read_json(tmp_path / "data" / "build_info.json")
-    updater._publish_build_revision("2026-08-10", "OK")
+    updater._publish_build_revision("2026-08-10", "OK", "flex-b")
     confirmed = updater._read_json(tmp_path / "data" / "build_info.json")
     assert provisional["etf_marks_revision"].endswith(FINAL_QUOTE_QUALITY)
     assert confirmed["etf_marks_revision"] == "2026-08-10|OK"
+    assert confirmed["flex_snapshot_revision"] == "flex-b"
     assert confirmed["build_time"] >= provisional["build_time"]
+
+
+def test_same_etf_revision_still_publishes_new_flex_snapshot(monkeypatch, tmp_path) -> None:
+    monkeypatch.setattr(updater, "DOCS", tmp_path)
+    updater._publish_build_revision("2026-08-10", "OK", "flex-a")
+    updater._publish_build_revision("2026-08-10", "OK", "flex-b")
+    current = updater._read_json(tmp_path / "data" / "build_info.json")
+    assert current["etf_marks_revision"] == "2026-08-10|OK"
+    assert current["flex_snapshot_revision"] == "flex-b"

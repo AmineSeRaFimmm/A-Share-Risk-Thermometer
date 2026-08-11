@@ -36,11 +36,11 @@ from research.backtest_core_plus_sectors import (  # noqa: E402
 )
 from src.core.flex_engine import (  # noqa: E402
     FLEX_SAT_LONG,
-    QUALITY_RETURN_HAIRCUT,
     QUALITY_WEIGHT,
     STAGE_OPPOSITES,
     STAGE_TIER,
     merge_satellite_targets,
+    quality_adjusted_return,
 )
 from src.core.sector_etf_map import map_sector  # noqa: E402
 
@@ -53,7 +53,90 @@ def quality_of(name: str) -> str:
     return str(map_sector(name).get("quality") or "missing")
 
 
+def _safe_return(start: float, end: float) -> float | None:
+    if not (np.isfinite(start) and np.isfinite(end) and start > 0 and end > 0):
+        return None
+    return float(end / start - 1.0)
+
+
+def _instrument_path_returns(
+    opens: np.ndarray,
+    closes: np.ndarray,
+    entry_i: int,
+    exit_i: int,
+    *,
+    buy_cost: float,
+    sell_cost: float,
+    name: str | None = None,
+    apply_proxy_adjustment: bool = False,
+) -> dict[int, float] | None:
+    """Entry-open to daily-close to exit-open path with explicit costs."""
+    if entry_i < 0 or exit_i >= len(opens) or exit_i <= entry_i:
+        return None
+    entry_return = _safe_return(
+        float(opens[entry_i]) * (1.0 + buy_cost),
+        float(closes[entry_i]),
+    )
+    exit_return = _safe_return(
+        float(closes[exit_i - 1]),
+        float(opens[exit_i]) * (1.0 - sell_cost),
+    )
+    if entry_return is None or exit_return is None:
+        return None
+    path = {entry_i: entry_return}
+    for j in range(entry_i + 1, exit_i):
+        value = _safe_return(float(closes[j - 1]), float(closes[j]))
+        if value is None:
+            return None
+        path[j] = value
+    path[exit_i] = exit_return
+    if apply_proxy_adjustment and name:
+        quality = quality_of(name)
+        if QUALITY_WEIGHT.get(quality, 0.0) <= 0:
+            return None
+        path = {j: quality_adjusted_return(value, quality) for j, value in path.items()}
+    return path
+
+
+def _path_total(path: dict[int, float]) -> float:
+    return float(np.prod([1.0 + value for value in path.values()]) - 1.0)
+
+
+class DailyReturnPath(np.ndarray):
+    """Daily returns with an explicit position mask for flat holding days."""
+
+    active_mask: np.ndarray | None
+
+    def __new__(cls, values: np.ndarray, active_mask: np.ndarray):
+        obj = np.asarray(values, dtype=float).view(cls)
+        mask = np.asarray(active_mask, dtype=bool)
+        if mask.shape != obj.shape:
+            raise ValueError("active_mask must match daily return shape")
+        obj.active_mask = mask.copy()
+        return obj
+
+    def __array_finalize__(self, obj) -> None:
+        self.active_mask = getattr(obj, "active_mask", None)
+
+    def __getitem__(self, key):
+        result = super().__getitem__(key)
+        if isinstance(result, DailyReturnPath) and self.active_mask is not None:
+            result.active_mask = np.asarray(self.active_mask, dtype=bool)[key].copy()
+        return result
+
+
+def active_days(daily: np.ndarray) -> np.ndarray:
+    values = np.asarray(daily, dtype=float)
+    mask = getattr(daily, "active_mask", None)
+    if mask is not None:
+        mask = np.asarray(mask, dtype=bool)
+        if mask.shape == values.shape:
+            return mask.copy()
+    return values != 0.0
+
+
 def stats_from_daily(daily: np.ndarray, trade_rets: list[float] | None = None) -> dict:
+    active = active_days(daily)
     daily = np.asarray(daily, dtype=float)
     equity = np.cumprod(1.0 + daily)
     total = float(equity[-1] - 1.0) if len(equity) else 0.0
@@ -69,15 +152,17 @@ def stats_from_daily(daily: np.ndarray, trade_rets: list[float] | None = None) -
         "trade_count": int(len(rets)),
         "win_rate": float(np.mean([r > 0 for r in rets])) if rets else float("nan"),
         "avg_trade": float(np.mean(rets)) if rets else float("nan"),
-        "exposure_ratio": float(np.mean(daily != 0.0)) if n else 0.0,
+        "exposure_ratio": float(np.mean(active)) if n else 0.0,
     }
 
 
 def oos_daily(daily: np.ndarray, dates: pd.Series, start: pd.Timestamp = OOS_START) -> np.ndarray:
-    out = daily.copy()
+    out = np.asarray(daily, dtype=float).copy()
+    active = active_days(daily)
     mask = dates.values < np.datetime64(start)
     out[mask] = 0.0
-    return out
+    active[mask] = False
+    return DailyReturnPath(out, active)
 
 
 def load_nowcast_rt_points() -> dict[pd.Timestamp, float]:
@@ -295,6 +380,7 @@ def simulate_core_daily(
 ) -> tuple[np.ndarray, list[float]]:
     n = len(rt)
     daily = np.zeros(n, dtype=float)
+    active = np.zeros(n, dtype=bool)
     rets: list[float] = []
     next_free = 0
     for i in range(n - 2):
@@ -307,18 +393,25 @@ def simulate_core_daily(
         if not np.isfinite(csi_open[i + 1]):
             continue
         entry_i = i + 1
-        exit_i = min(entry_i + hold_days, n - 1)
-        px_in = csi_open[entry_i]
-        px_out = csi_open[exit_i] if exit_i < n and np.isfinite(csi_open[exit_i]) else csi_close[min(exit_i, n - 1)]
-        if not (np.isfinite(px_in) and np.isfinite(px_out)):
+        exit_i = entry_i + hold_days
+        if exit_i >= n:
             continue
-        r = (px_out * (1 - sell_cost)) / (px_in * (1 + buy_cost)) - 1.0
-        hold = max(1, exit_i - entry_i)
-        daily_r = (1.0 + r) ** (1.0 / hold) - 1.0
-        daily[entry_i:exit_i] = daily_r
-        rets.append(float(r))
+        path = _instrument_path_returns(
+            csi_open,
+            csi_close,
+            entry_i,
+            exit_i,
+            buy_cost=buy_cost,
+            sell_cost=sell_cost,
+        )
+        if not path:
+            continue
+        for j, value in path.items():
+            daily[j] = value
+            active[j] = True
+        rets.append(_path_total(path))
         next_free = exit_i + 1
-    return daily, rets
+    return DailyReturnPath(daily, active), rets
 
 
 def precompute_stages(df: pd.DataFrame) -> list[list[str]]:
@@ -342,27 +435,8 @@ def simulate_sat_daily(
     sector_open = meta["sector_open"]
     sector_close = meta["sector_close"]
     daily = np.zeros(n, dtype=float)
+    active = np.zeros(n, dtype=bool)
     rets: list[float] = []
-
-    def ret_asset(opens, closes, entry_i, exit_i, name: str) -> float | None:
-        if entry_i >= len(opens) or entry_i < 0:
-            return None
-        px_in = opens[entry_i]
-        if not np.isfinite(px_in):
-            return None
-        if exit_i < len(opens) and np.isfinite(opens[exit_i]):
-            px_out = opens[exit_i]
-        else:
-            px_out = closes[min(exit_i, len(closes) - 1)]
-        if not np.isfinite(px_out):
-            return None
-        r = (px_out * (1 - sell_cost)) / (px_in * (1 + buy_cost)) - 1.0
-        if apply_haircut:
-            q = quality_of(name)
-            if QUALITY_WEIGHT.get(q, 0) <= 0:
-                return None
-            r *= QUALITY_RETURN_HAIRCUT.get(q, 0.85)
-        return float(r)
 
     i = 0
     while i < n - 2:
@@ -389,7 +463,10 @@ def simulate_sat_daily(
             stages[0] if stages else "",
         )
         entry_i = i + 1
-        exit_i = min(entry_i + sat_default, n - 1)
+        if entry_i + sat_max >= n:
+            i += 1
+            continue
+        exit_i = entry_i + sat_default
         if event_exit:
             for k in range(entry_i + sat_min, min(entry_i + sat_max, n - 1) + 1):
                 st_sig = stages_all[k - 1] if k - 1 >= 0 else stages_all[min(k, n - 1)]
@@ -407,25 +484,37 @@ def simulate_sat_daily(
             else:
                 exit_i = min(entry_i + sat_max, n - 1)
 
-        trade_rets = []
+        paths = []
         weights = []
         for x in use:
-            r = ret_asset(sector_open[x["name"]], sector_close[x["name"]], entry_i, exit_i, x["name"])
-            if r is not None:
-                trade_rets.append(r)
+            path = _instrument_path_returns(
+                sector_open[x["name"]],
+                sector_close[x["name"]],
+                entry_i,
+                exit_i,
+                buy_cost=buy_cost,
+                sell_cost=sell_cost,
+                name=x["name"],
+                apply_proxy_adjustment=apply_haircut,
+            )
+            if path:
+                paths.append(path)
                 weights.append(max(float(x.get("weight_in_sat") or 0.0), 1e-6))
-        if not trade_rets:
+        if not paths:
             i += 1
             continue
         w = np.asarray(weights, dtype=float)
         w = w / w.sum()
-        sat_ret = float(np.dot(w, np.asarray(trade_rets, dtype=float)))
-        hold = max(1, exit_i - entry_i)
-        daily_r = (1.0 + sat_ret) ** (1.0 / hold) - 1.0
-        daily[entry_i:exit_i] = daily_r
-        rets.append(sat_ret)
+        basket_path = {
+            j: float(sum(w[k] * paths[k][j] for k in range(len(paths))))
+            for j in range(entry_i, exit_i + 1)
+        }
+        for j, value in basket_path.items():
+            daily[j] = value
+            active[j] = True
+        rets.append(_path_total(basket_path))
         i = exit_i + 1
-    return daily, rets
+    return DailyReturnPath(daily, active), rets
 
 
 def combine_port(
@@ -439,8 +528,8 @@ def combine_port(
 ) -> np.ndarray:
     c = np.asarray(core_daily, dtype=float)
     s = np.asarray(sat_daily, dtype=float)
-    c_on = c != 0.0
-    s_on = s != 0.0
+    c_on = active_days(core_daily)
+    s_on = active_days(sat_daily)
     wc = np.where(c_on, w_core, 0.0)
     ws = np.where(s_on, w_sat, 0.0)
     if flex_single_full:
@@ -457,7 +546,9 @@ def combine_port(
         scale[over] = total_cap / total[over]
         wc = wc * scale
         ws = ws * scale
-    return wc * c + ws * s
+    combined = wc * c + ws * s
+    active = (c_on & (wc > 0.0)) | (s_on & (ws > 0.0))
+    return DailyReturnPath(combined, active)
 
 
 def score_row(st: dict) -> float:

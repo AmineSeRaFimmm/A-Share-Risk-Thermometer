@@ -17,6 +17,8 @@ from src.core.intraday_temperature import confirmed_core_tail_dates, record_intr
 from src.core.rt_tactical import build_rt_tactical_payload
 from src.core.stage_trade_playbook import build_playbook_payload, extend_risk_for_playbook
 from src.core.calendar import trading_calendar_payload
+from src.core.flex_snapshot import publish_flex_snapshot
+from src.storage.json_store import read_json
 import pandas as pd
 
 
@@ -153,6 +155,7 @@ def main() -> None:
         )
     except Exception as exc:  # noqa: BLE001
         print(f"WARN etf_daily_marks build failed: {exc}")
+    flex_snapshot = publish_flex_snapshot()
     _load_or_build_sector_payloads(risk, index_history)
     write_json({
         "title": "A-Share Risk Thermometer methodology",
@@ -191,8 +194,20 @@ def main() -> None:
         src = CALCULATED / name
         if src.exists():
             shutil.copy2(src, downloads / name)
+    marks = read_json(SITE / "etf_daily_marks.json", default={}) or {}
+    marks_as_of = str(marks.get("complete_as_of") or marks.get("as_of") or "")[:10]
+    marks_quality = str(marks.get("quality") or "UNKNOWN")
     write_json(
-        {"build_time": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds")},
+        {
+            "build_time": pd.Timestamp.now(tz="Asia/Shanghai").isoformat(timespec="seconds"),
+            "etf_marks_as_of": marks_as_of or None,
+            "etf_marks_quality": marks_quality,
+            "etf_marks_revision": f"{marks_as_of}|{marks_quality}" if marks_as_of else None,
+            "flex_snapshot_revision": flex_snapshot["revision"],
+            "flex_snapshot_strategy_as_of": flex_snapshot.get("strategy_as_of"),
+            "flex_snapshot_marks_as_of": flex_snapshot.get("marks_as_of"),
+            "revision_reason": "SITE_BUILD",
+        },
         data_dir / "build_info.json",
     )
 

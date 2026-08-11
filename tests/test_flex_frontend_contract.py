@@ -19,6 +19,22 @@ class FlexFrontendContractTests(unittest.TestCase):
     def test_published_app_matches_source(self) -> None:
         self.assertEqual(self.web, self.docs)
 
+    def test_unused_ledger_management_is_absent(self) -> None:
+        self.assertNotIn("flexExportLedgerBtn", self.web)
+        self.assertNotIn("flexImportLedgerBtn", self.web)
+        self.assertNotIn("flexImportLedgerFile", self.web)
+        self.assertNotIn("可导出 JSON 备份", self.web)
+
+    def test_flex_uses_one_atomic_snapshot(self) -> None:
+        self.assertIn("./data/flex_snapshot.json", self.web)
+        self.assertIn("flexSnapshot.stage_playbook", self.web)
+        self.assertIn("flexSnapshot.etf_daily_marks", self.web)
+        self.assertIn("flexSnapshot.trade_calendar", self.web)
+        self.assertIn(
+            "dashboardState.flexTradeCalendar || dashboardState.tradeCalendar",
+            self.web,
+        )
+
     def test_marking_is_not_capped_by_strategy_as_of(self) -> None:
         self.assertIn("function flexEffectiveMarkDate(positionCodes = [])", self.web)
         self.assertNotIn("function flexEffectiveMarkDate(preferredAsOf)", self.web)

@@ -16,5 +16,8 @@
     "zero:eod": "bash deploy/local-zero/run_eod.sh",
     "zero:server": "bash deploy/local-zero/run_app_server.sh",
     "zero:status": "curl -s http://127.0.0.1:8787/api/status | python3 -m json.tool | head -50"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.62.1"
   }
 }
