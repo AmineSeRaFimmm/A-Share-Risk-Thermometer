@@ -49,16 +49,25 @@ def fetch_indices(recent_days: int | None) -> pd.DataFrame:
         cache_path = RAW / "indices" / f"{symbol}.csv"
         old = read_csv(cache_path)
         try:
-            df = fetch_index_daily(symbol)
+            fresh = fetch_index_daily(symbol)
         except Exception as exc:  # noqa: BLE001
             print(f"WARN index fetch failed {symbol}: {exc}")
+            fresh = pd.DataFrame()
+        if old.empty:
+            df = fresh
+        elif fresh.empty:
             df = old
-        if df.empty:
-            df = old
+        else:
+            # recent_days limits option probing, never the long index history
+            # required by percentiles, drawdowns, backtests, and strict CI.
+            df = (
+                pd.concat([old, fresh], ignore_index=True, sort=False)
+                .drop_duplicates(["date", "symbol"], keep="last")
+                .sort_values("date")
+                .reset_index(drop=True)
+            )
         if df.empty:
             raise RuntimeError(f"No index data available for {symbol}; source failed and no cache exists")
-        if recent_days:
-            df = df.tail(max(recent_days + 80, recent_days))
         write_csv(df, cache_path)
         frames.append(df)
     out = pd.concat(frames, ignore_index=True)
