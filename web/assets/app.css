@@ -257,9 +257,7 @@ h1, h2, h3,
 /* Magazine: silence explanatory chrome */
 .disclaimer,
 .chart-note:not(.gap-note),
-.flex-trust,
 .flex-block-hint,
-.flex-mark-note,
 .flex-modal-disclaimer,
 .rt-tactical-note,
 .strategy-note,
@@ -824,6 +822,12 @@ dd[data-freshness="stale"] { color: var(--red); }
   line-height: 1.55;
 }
 
+.flex-trust[data-quality="ok"] { border-left: 4px solid var(--green); }
+.flex-trust[data-quality="warn"] {
+  border-left: 4px solid var(--amber);
+  background: var(--amber-bg);
+}
+
 .flex-trust strong { color: var(--ink); font-weight: 700; }
 .flex-trust code {
   font-family: var(--mono);
@@ -1345,6 +1349,26 @@ dd[data-freshness="stale"] { color: var(--red); }
 }
 
 .flex-mode-hint b { color: var(--ink); }
+
+.flex-validation {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin: 0 22px 12px;
+  padding: 9px 12px;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  color: var(--ink-2);
+  font-size: 11px;
+  line-height: 1.45;
+  letter-spacing: 0;
+}
+
+.flex-validation[hidden] { display: none !important; }
+.flex-validation strong { color: var(--ink); }
+.flex-validation span { font-variant-numeric: tabular-nums; }
+.flex-validation .warn { color: var(--amber); font-weight: 600; }
 
 .flex-tabs {
   display: flex;
@@ -2617,7 +2641,8 @@ body.in-app-webview.app-tabs-mode .topbar-minimal {
   }
 
   .flex-tabs { margin-left: 16px; margin-right: 16px; }
-  .flex-summary { margin-left: 16px; margin-right: 16px; }
+  .flex-summary,
+  .flex-validation { margin-left: 16px; margin-right: 16px; }
 
   .flex-strip-fund {
     width: auto;

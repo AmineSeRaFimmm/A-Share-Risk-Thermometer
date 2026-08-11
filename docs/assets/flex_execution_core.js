@@ -70,6 +70,80 @@
     return { ok: true, code: 'OK' };
   }
 
+  function normalizeTradeDate(value) {
+    const match = String(value || '').match(/^(\d{4}-\d{2}-\d{2})/);
+    return match ? match[1] : '';
+  }
+
+  function validateTradeDate({ tradeDate, sessionDate, calendar = [], notBefore = null } = {}) {
+    const day = normalizeTradeDate(tradeDate);
+    const session = normalizeTradeDate(sessionDate);
+    const floor = normalizeTradeDate(notBefore);
+    if (!day) return { ok: false, code: 'INVALID' };
+    if (session && day > session) return { ok: false, code: 'FUTURE' };
+    if (floor && day < floor) return { ok: false, code: 'BEFORE_EXECUTION' };
+    const sessions = new Set((calendar || []).map(normalizeTradeDate).filter(Boolean));
+    if (sessions.size && !sessions.has(day)) return { ok: false, code: 'NON_TRADING_DAY' };
+    return { ok: true, code: 'OK' };
+  }
+
+  function freshQuote(snapshot, code, { active, nowMs, todayYmd, maxAgeMs } = {}) {
+    if (!active) return null;
+    const fetchedAt = Number(snapshot?.fetchedAt);
+    const age = Number(nowMs) - fetchedAt;
+    if (!Number.isFinite(fetchedAt) || !Number.isFinite(age) || age < 0 || age > Number(maxAgeMs)) return null;
+    const normalizedCode = String(code || '').replace(/\D/g, '').padStart(6, '0');
+    const quote = snapshot?.quotes?.[normalizedCode];
+    if (!(Number(quote?.price) > 0) || normalizeTradeDate(quote?.quote_date) !== normalizeTradeDate(todayYmd)) return null;
+    return quote;
+  }
+
+  function openExecutionLabel({ lag, tail = false } = {}) {
+    if (tail && Number(lag) === 0) return '14:50尾盘买';
+    if (Number(lag) === 1) return 'T+1可确认';
+    if (Number(lag) === 0) return '待T+1开盘';
+    return '窗口外';
+  }
+
+  function satelliteCloseLabel({ closeCode = '', phase = 'pending', genericClosing = false } = {}) {
+    const code = String(closeCode || '').toUpperCase();
+    const suffix = phase === 'executed' ? '已执行' : phase === 'real_pending' ? '待平' : '待执行';
+    if (code === 'LOCAL_STOP_LOSS') return `止损${suffix}`;
+    if (code === 'LOCAL_TAKE_PROFIT') return `止盈${suffix}`;
+    return genericClosing ? (phase === 'executed' ? '策略已平' : '策略待平') : '';
+  }
+
+  function satelliteHistoryStartDate(positions, journal, explicitBasisDate = null) {
+    const satellites = (positions || []).filter(pos => String(pos?.sleeve || '').toLowerCase() === 'satellite');
+    if (!satellites.length) return '';
+    const identity = new Set();
+    const entryDates = [];
+    for (const pos of satellites) {
+      for (const value of [pos?.key, pos?.name, pos?.etf_code]) {
+        const normalized = String(value || '').trim();
+        if (normalized) identity.add(normalized);
+      }
+      const entry = normalizeTradeDate(pos?.entry_bar_date || pos?.buy_date);
+      if (entry) entryDates.push(entry);
+    }
+    const earliestEntry = entryDates.slice().sort()[0] || '';
+    const candidates = [...entryDates, normalizeTradeDate(explicitBasisDate)].filter(Boolean);
+    const mutationTypes = new Set(['BUY', 'OPEN', 'ADD', 'REDUCE', 'CLOSE', 'SYNC']);
+    for (const row of journal || []) {
+      if (!mutationTypes.has(String(row?.type || '').toUpperCase())) continue;
+      const day = normalizeTradeDate(row?.trade_date || row?.ts);
+      if (!day || (earliestEntry && day < earliestEntry)) continue;
+      const sleeve = String(row?.sleeve || '').toLowerCase();
+      const rowValues = [row?.key, row?.name, row?.etf_code].map(value => String(value || '').trim()).filter(Boolean);
+      const matchesCurrent = rowValues.some(value => identity.has(value));
+      const clearlyCore = sleeve === 'core'
+        || rowValues.includes('510300')
+        || rowValues.some(value => value.includes('沪深300'));
+      if (sleeve === 'satellite' || matchesCurrent || (!clearlyCore && rowValues.length)) candidates.push(day);
+    }
+    return candidates.sort().at(-1) || '';
+  }
+
   return {
     ONE_WAY_COST_RATE,
     ETF_LOT_SIZE,
@@ -80,5 +154,11 @@
     firstPositivePrice,
     reductionInstruction,
     eodDecisionGate,
+    normalizeTradeDate,
+    validateTradeDate,
+    freshQuote,
+    openExecutionLabel,
+    satelliteCloseLabel,
+    satelliteHistoryStartDate,
   };
 }));

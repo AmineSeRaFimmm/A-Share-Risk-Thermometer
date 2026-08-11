@@ -568,14 +568,16 @@ def build_playbook_payload(
 
     data_quality: dict[str, Any] = {
         "risk_source": "OFFICIAL_CLOSE",
-        "official_as_of": None if not bridge_meta else bridge_meta.get("official_as_of"),
+        "official_as_of": (
+            bridge_meta.get("official_as_of") if bridge_meta else None
+        ) or feat["trade_date"],
         "bridged": bool(bridge_meta and bridge_meta.get("bridged")),
         "bridged_dates": [] if not bridge_meta else list(bridge_meta.get("bridged_dates") or []),
         "bridge_source": None if not bridge_meta else bridge_meta.get("bridge_source"),
         "note_cn": (
-            "策略书 as_of 已用指数日历 + NOWCAST/桥接补齐正式 RT 缺口；温度图正式序列仍以 official 为准。"
+            "策略日期已用指数日历和盘中估算桥接正式风险因子缺口；正式温度历史不受影响。"
             if bridge_meta and bridge_meta.get("bridged")
-            else "策略书 as_of 与正式 risk_components 一致。"
+            else "策略日期与正式风险因子日期一致。"
         ),
     }
     if bridge_meta and bridge_meta.get("bridged"):

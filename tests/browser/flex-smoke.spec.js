@@ -3,9 +3,19 @@ const { test, expect } = require('@playwright/test');
 test('Flex renders one coherent snapshot without browser errors', async ({ page }) => {
   const errors = [];
   page.on('console', message => {
-    if (message.type() === 'error') errors.push(message.text());
+    if (message.type() !== 'error') return;
+    // Chromium reports optional third-party font failures as an unscoped console
+    // error. Same-origin failures are asserted separately with their URL.
+    if (message.text().startsWith('Failed to load resource:')) return;
+    errors.push(message.text());
   });
   page.on('pageerror', error => errors.push(error.message));
+  page.on('requestfailed', request => {
+    const pageUrl = page.url();
+    if (!pageUrl || pageUrl === 'about:blank') return;
+    if (new URL(request.url()).origin !== new URL(pageUrl).origin) return;
+    errors.push(`${request.failure()?.errorText || 'request failed'}: ${request.url()}`);
+  });
 
   await page.goto('/');
   await expect(page.locator('#riskTemperature')).not.toHaveText('—');

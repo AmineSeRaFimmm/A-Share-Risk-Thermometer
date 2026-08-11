@@ -137,9 +137,11 @@ class FlexFrontendContractTests(unittest.TestCase):
 
     def test_execution_view_uses_effective_risk_target_and_auditable_returns(self) -> None:
         index = (ROOT / "web/index.html").read_text(encoding="utf-8")
+        core = (ROOT / "web/assets/flex_execution_core.js").read_text(encoding="utf-8")
         self.assertIn("function flexDeskViewState", self.web)
         self.assertIn("const effectiveSat = satelliteRisk ? 0 : baseSat", self.web)
-        self.assertIn("止盈已执行", self.web)
+        self.assertIn("function satelliteCloseLabel", core)
+        self.assertIn("genericClosing: true", self.web)
         self.assertIn('id="flexExecTotalReturn"', index)
         self.assertIn("const totalRet = capital > 0 ? (equity - capital) / capital : null", self.web)
         self.assertIn("row.note || '—'", self.web)
@@ -162,7 +164,38 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("份额</span><span>成本/均价</span><span>盯市/时点", index)
         self.assertIn("策略信号：正式EOD", self.web)
         self.assertIn("收益/风控：持仓共同EOD", self.web)
-        self.assertIn("const markSource = pos.mark_price_type === 'realtime'", self.web)
+        self.assertIn("const markSource = missingPx", self.web)
+
+    def test_trade_date_and_quote_contracts_are_explicit(self) -> None:
+        index = (ROOT / "web/index.html").read_text(encoding="utf-8")
+        self.assertIn('id="flexModalTradeDate"', index)
+        self.assertIn("flexValidateActualTradeDate", self.web)
+        self.assertIn("buy_date: actualTradeDate", self.web)
+        self.assertIn("trade_date: actualTradeDate", self.web)
+        self.assertIn("flexFreshRealtimeQuote(code)", self.web)
+        self.assertIn("deskCollectOpenSignals(dashboardState.flexActive", self.web)
+        self.assertNotIn("buy_date: flexDateCn(0)", self.web)
+
+    def test_t_plus_one_copy_matches_execution_gate(self) -> None:
+        self.assertIn("T日仅提示", self.web)
+        self.assertIn("T+1开盘成交后", self.web)
+        self.assertNotIn("T 与 T+1 可点", self.web)
+        self.assertNotIn("可买·T～T+1", self.web)
+
+    def test_satellite_history_and_missing_marks_are_conservative(self) -> None:
+        self.assertIn("satellite_basis_as_of", self.web)
+        self.assertIn("satelliteHistoryStartDate", self.web)
+        self.assertIn("MISSING_NO_CODE", self.web)
+        self.assertIn("风控共同EOD不完整", self.web)
+
+    def test_backtest_validation_and_data_quality_are_visible(self) -> None:
+        index = (ROOT / "web/index.html").read_text(encoding="utf-8")
+        self.assertIn('id="flexValidationLine"', index)
+        self.assertIn("renderFlexValidation(stats)", self.web)
+        self.assertIn("回顾OOS", self.web)
+        self.assertIn("Walk-forward固定策略", self.web)
+        self.assertIn("trust.hidden = false", self.web)
+        self.assertNotIn("trust.textContent = '';", self.web)
 
     def test_named_sector_positions_do_not_fall_through_to_shared_etf_code(self) -> None:
         self.assertIn("Named strategy intents must not fall through to code-only matching", self.web)

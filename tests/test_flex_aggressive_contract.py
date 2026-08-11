@@ -117,6 +117,7 @@ def test_published_actionable_instructions_are_engine_resolved(monkeypatch):
         ]
     )
     payload = build_playbook_payload(risk, pd.DataFrame())
+    assert payload["data_quality"]["official_as_of"] == "2026-08-10"
     actions = payload["actionable_instructions"]
     assert actions == payload["flex_panel"]["all_actions"]
     long_ids = {
