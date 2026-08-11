@@ -5743,7 +5743,7 @@ async function dispatchGithubActionsWorkflow(mode, { baselineTime = null } = {})
   }
   const cfg = dashboardState.dataPlane.actions;
   const workflow = mode === 'full' ? cfg.workflows.full : cfg.workflows.realtime;
-  const inputs = mode === 'full' ? { mode: 'daily' } : null;
+  const inputs = mode === 'full' ? { mode: 'rebuild_recent' } : null;
   const activeRun = await findReusableGithubActionsRun(workflow, mode, baselineTime);
   if (activeRun) {
     return { ok: true, workflow, reused: true, runId: activeRun.id };

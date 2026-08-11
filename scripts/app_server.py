@@ -168,8 +168,8 @@ def refresh_pipeline(mode: str = "realtime") -> dict[str, Any]:
                 # Rebuild full site if latest still missing official files.
                 if not (SITE / "history.json").exists() or not (DOCS / "data" / "history.json").exists():
                     steps.append(_run_script("build_site_data.py", timeout=600))
-        else:  # full daily pipeline
-            steps.append(_run_script("update_daily.py", timeout=1800, args=["--skip-site-build"]))
+        else:  # full refresh: refetch and recompute the recent official window
+            steps.append(_run_script("bootstrap_history.py", timeout=1800, args=["--recent-days", "120"]))
             if steps[-1].get("ok"):
                 steps.append(_run_script("build_site_data.py", timeout=600))
             else:

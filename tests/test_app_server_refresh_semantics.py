@@ -49,3 +49,25 @@ def test_successful_realtime_updater_is_reported_as_success(monkeypatch) -> None
 
     assert result["ok"] is True
     assert [step["script"] for step in result["steps"]] == ["update_realtime_avix.py"]
+
+
+def test_full_refresh_rebuilds_recent_history(monkeypatch) -> None:
+    _reset_state()
+    monkeypatch.setattr(app_server, "_sync_web_to_docs", lambda: None)
+    monkeypatch.setattr(app_server, "_sync_site_data_to_docs", lambda: None)
+    monkeypatch.setattr(app_server, "build_status", lambda: {"ok": True})
+    calls = []
+
+    def fake_run(script: str, timeout: int = 900, args=None):
+        calls.append((script, args))
+        return {"script": script, "ok": True, "seconds": 0.1}
+
+    monkeypatch.setattr(app_server, "_run_script", fake_run)
+
+    result = app_server.refresh_pipeline("full")
+
+    assert result["ok"] is True
+    assert calls == [
+        ("bootstrap_history.py", ["--recent-days", "120"]),
+        ("build_site_data.py", None),
+    ]
