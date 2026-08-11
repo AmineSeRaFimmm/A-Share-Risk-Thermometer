@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "revision": "f23650f51a764d276df90e3a3da9d347fc2e672f27fb57b55f8be4b2085abe46",
-  "built_at": "2026-08-11T19:06:05+08:00",
+  "revision": "3325a2fc2ab711489a26774bf80b42f85e1750ef88d143a6620cd1355720a95f",
+  "built_at": "2026-08-11T19:23:58+08:00",
   "strategy_as_of": "2026-08-11",
   "marks_as_of": "2026-08-11",
   "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
@@ -54,11 +54,11 @@
     },
     "market_state": {
       "trade_date": "2026-08-11",
-      "rt": 55.8,
-      "prev_rt": 57.9,
-      "rt_d1": -2.1000000000000014,
-      "rt_d5": -9.400000000000006,
-      "rt_rollmax_10": 89.8,
+      "rt": 55.4,
+      "prev_rt": 57.8,
+      "rt_d1": -2.3999999999999986,
+      "rt_d5": -10.100000000000001,
+      "rt_rollmax_10": 90.1,
       "hs300_dd60": -0.0782402684133988,
       "regime": "CAUTION",
       "regime_cn": "警戒",
@@ -1260,9 +1260,9 @@
         }
       },
       "market_state": {
-        "rt": 55.8,
-        "rt_d1": -2.1000000000000014,
-        "rt_d5": -9.400000000000006,
+        "rt": 55.4,
+        "rt_d1": -2.3999999999999986,
+        "rt_d5": -10.100000000000001,
         "hs300_dd60": -0.0782402684133988,
         "model_confidence": 86.5,
         "regime_cn": "警戒"
@@ -9694,7 +9694,7 @@
         }
       }
     },
-    "updated_at": "2026-08-11T11:06:05+00:00",
+    "updated_at": "2026-08-11T11:23:58+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-08-11",

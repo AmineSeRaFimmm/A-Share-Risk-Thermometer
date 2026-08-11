@@ -1,7 +1,7 @@
 {
   "trade_date": "2026-08-11",
-  "update_time": "2026-08-11T19:05:32+08:00",
-  "risk_temperature": 55.8,
+  "update_time": "2026-08-11T19:23:25+08:00",
+  "risk_temperature": 55.4,
   "regime": "CAUTION",
   "regime_cn": "警戒",
   "quality": "WARN_QVIX_MISSING",
@@ -21,7 +21,7 @@
     "avix_zscore_1y": 50.9534,
     "avix_5d_change": 32.1717,
     "qvix_confirmation": 50.0,
-    "realized_vol": 84.9206,
+    "realized_vol": 82.2222,
     "drawdown_pressure": 62.5805,
     "breadth_pressure": 53.9291,
     "turnover_stress": 1.218
@@ -55,14 +55,14 @@
     "avix_realtime_usable_gap_fill": true,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
     "avix_realtime_source_quote_time": null,
-    "avix_realtime_fetch_time": "2026-08-11T16:37:32+08:00",
+    "avix_realtime_fetch_time": "2026-08-11T19:22:42+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
     "avix_percentile_2y": 0.6044,
     "quality": "OK"
   },
   "official_close": {
     "trade_date": "2026-08-11",
-    "risk_temperature": 55.8,
+    "risk_temperature": 55.4,
     "regime": "CAUTION",
     "regime_cn": "警戒",
     "quality": "WARN_QVIX_MISSING",
@@ -80,12 +80,12 @@
   },
   "nowcast": {
     "active": false,
-    "official_risk_temperature": 55.8,
+    "official_risk_temperature": 55.4,
     "reason_cn": "已有正式收盘，优先官方 AVIX"
   },
   "interpretation": {
-    "headline": "市场风险温度 55.8，处于警戒",
-    "summary": "实现波动率、回撤压力、AVIX两年分位是当前风险温度的主要驱动；多因子合成后给出 55.8/100。",
+    "headline": "市场风险温度 55.4，处于警戒",
+    "summary": "实现波动率、回撤压力、AVIX两年分位是当前风险温度的主要驱动；多因子合成后给出 55.4/100。",
     "posture": "降低追高倾向",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }

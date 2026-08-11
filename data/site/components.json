@@ -57,9 +57,9 @@
     {
       "key": "realized_vol_percentile",
       "name": "实现波动率",
-      "score": 84.9206,
+      "score": 82.2222,
       "weight": 0.12,
-      "contribution": 10.1905,
+      "contribution": 9.8667,
       "observed": true,
       "raw_value": null,
       "source": "OFFICIAL_CLOSE",
