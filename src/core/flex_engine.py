@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 import math
+from copy import deepcopy
 from dataclasses import asdict, dataclass, field
 from functools import lru_cache
 from pathlib import Path
@@ -549,29 +550,27 @@ def _precompute_feature_rows(
     return rows
 
 
-def simulate_positions(
-    risk_components: pd.DataFrame,
-    index_history: pd.DataFrame | None,
+def _walk_position_rows(
+    feat_rows: list[dict[str, Any]],
+    state: FlexState,
     *,
-    mode: str = MODE_CONSERVATIVE,
-    classify_fn=None,
+    start_index: int = 0,
+    first_row_already_counted: bool = False,
     active_stages_fn=None,
     confirmed_core_tail_dates: set[str] | None = None,
 ) -> FlexState:
-    """Walk-forward simulate Flex positions to as_of so OPEN/HOLD/CLOSE is consistent."""
+    """Advance one state through ordered feature rows without revising prior fills."""
     from src.core.stage_trade_playbook import active_stages
 
     active_stages_fn = active_stages_fn or active_stages
-
-    feat_rows = _precompute_feature_rows(risk_components, index_history)
     if not feat_rows:
-        return FlexState(mode=mode)
+        return state
 
     dates = [r["trade_date"] for r in feat_rows]
-    state = FlexState(mode=mode)
     csi = map_csi300()
 
-    for i, feat in enumerate(feat_rows):
+    for i in range(start_index, len(feat_rows)):
+        feat = feat_rows[i]
         stages = active_stages_fn(feat)
         core_sig = bool(
             feat.get("hs300_dd60") is not None
@@ -592,30 +591,41 @@ def simulate_positions(
         is_last = i == len(feat_rows) - 1
 
         # --- completed holding sessions (entry session is day 1) ---
-        if state.core.status == "open" and state.core.entry_date:
+        update_clock = not (first_row_already_counted and i == start_index)
+        if update_clock and state.core.status == "open" and state.core.entry_date:
             core_hold_days = _core_planned_hold_days(state)
-            try:
-                ei = dates.index(str(state.core.entry_date)[:10])
-                if i >= ei:
-                    state.core.days_held = i - ei + 1
+            if first_row_already_counted:
+                if d >= str(state.core.entry_date)[:10]:
+                    state.core.days_held += 1
                     state.core.days_remaining = max(0, core_hold_days - state.core.days_held)
-                else:
-                    state.core.days_held = 0
-                    state.core.days_remaining = core_hold_days
-            except ValueError:
-                pass
+            else:
+                try:
+                    ei = dates.index(str(state.core.entry_date)[:10])
+                    if i >= ei:
+                        state.core.days_held = i - ei + 1
+                        state.core.days_remaining = max(0, core_hold_days - state.core.days_held)
+                    else:
+                        state.core.days_held = 0
+                        state.core.days_remaining = core_hold_days
+                except ValueError:
+                    pass
 
-        if state.satellite.status == "open" and state.satellite.entry_date:
-            try:
-                ei = dates.index(str(state.satellite.entry_date)[:10])
-                if i >= ei:
-                    state.satellite.days_held = i - ei + 1
+        if update_clock and state.satellite.status == "open" and state.satellite.entry_date:
+            if first_row_already_counted:
+                if d >= str(state.satellite.entry_date)[:10]:
+                    state.satellite.days_held += 1
                     state.satellite.days_remaining = max(0, SAT_MAX_HOLD - state.satellite.days_held)
-                else:
-                    state.satellite.days_held = 0
-                    state.satellite.days_remaining = SAT_DEFAULT_HOLD
-            except ValueError:
-                pass
+            else:
+                try:
+                    ei = dates.index(str(state.satellite.entry_date)[:10])
+                    if i >= ei:
+                        state.satellite.days_held = i - ei + 1
+                        state.satellite.days_remaining = max(0, SAT_MAX_HOLD - state.satellite.days_held)
+                    else:
+                        state.satellite.days_held = 0
+                        state.satellite.days_remaining = SAT_DEFAULT_HOLD
+                except ValueError:
+                    pass
 
         # --- exits: apply on historical days only; keep open on last bar for panel CLOSE ---
         if not is_last:
@@ -701,6 +711,68 @@ def simulate_positions(
     return state
 
 
+def simulate_positions(
+    risk_components: pd.DataFrame,
+    index_history: pd.DataFrame | None,
+    *,
+    mode: str = MODE_CONSERVATIVE,
+    classify_fn=None,
+    active_stages_fn=None,
+    confirmed_core_tail_dates: set[str] | None = None,
+) -> FlexState:
+    """Walk-forward simulate Flex positions when no durable live state exists."""
+    feat_rows = _precompute_feature_rows(risk_components, index_history)
+    return _walk_position_rows(
+        feat_rows,
+        FlexState(mode=mode),
+        active_stages_fn=active_stages_fn,
+        confirmed_core_tail_dates=confirmed_core_tail_dates,
+    )
+
+
+def advance_positions(
+    risk_components: pd.DataFrame,
+    index_history: pd.DataFrame | None,
+    previous: FlexState,
+    *,
+    mode: str = MODE_CONSERVATIVE,
+    active_stages_fn=None,
+    confirmed_core_tail_dates: set[str] | None = None,
+) -> FlexState:
+    """Advance a published live state using only sessions after its as_of.
+
+    The prior as_of row is evaluated once more as a now-historical signal day,
+    but its holding clock is not incremented twice. This preserves actual entry
+    metadata while still allowing a T+1 order or due exit to execute when the
+    next session first becomes available.
+    """
+    feat_rows = _precompute_feature_rows(risk_components, index_history)
+    if not feat_rows:
+        state = deepcopy(previous)
+        state.mode = mode
+        return state
+
+    dates = [row["trade_date"] for row in feat_rows]
+    previous_as_of = str(previous.as_of or "")[:10]
+    latest = dates[-1]
+    if not previous_as_of or previous_as_of not in dates:
+        raise ValueError(f"saved Flex as_of {previous_as_of or 'missing'} is outside feature history")
+
+    state = deepcopy(previous)
+    state.mode = mode
+    if latest <= previous_as_of:
+        return state
+
+    return _walk_position_rows(
+        feat_rows,
+        state,
+        start_index=dates.index(previous_as_of),
+        first_row_already_counted=True,
+        active_stages_fn=active_stages_fn,
+        confirmed_core_tail_dates=confirmed_core_tail_dates,
+    )
+
+
 def build_risk_dashboard(
     alloc: dict[str, Any],
     core_active: bool,
@@ -758,16 +830,40 @@ def build_flex_panel_v2(
     """Full Flex panel with state machine, sizing, merge, minimal actions."""
     mode = mode if mode in SIZING else MODE_CONSERVATIVE
     rising = "RISING_HARD" in stages
+    persist_position_state = True
 
-    # Simulated state as of latest
+    # Durable live state advances from its last published session. Historical
+    # input revisions must never rewrite an already-open sleeve's entry/basket.
     if risk_components is not None and not risk_components.empty:
-        state = simulate_positions(
-            risk_components,
-            index_history,
-            mode=mode,
-            confirmed_core_tail_dates=confirmed_core_tail_dates,
+        saved_state = load_position_state()
+        risk_dates = (
+            risk_components.loc[
+                pd.to_numeric(risk_components.get("risk_temperature"), errors="coerce").notna(),
+                "trade_date",
+            ]
+            .astype(str)
+            .str.slice(0, 10)
         )
-        save_position_state(state)
+        latest_input_date = risk_dates.max() if not risk_dates.empty else ""
+        saved_date = str(saved_state.as_of or "")[:10]
+        if saved_date and latest_input_date >= saved_date:
+            state = advance_positions(
+                risk_components,
+                index_history,
+                saved_state,
+                mode=mode,
+                confirmed_core_tail_dates=confirmed_core_tail_dates,
+            )
+        else:
+            # Historical research builds may replay an older slice, but must not
+            # roll the durable live state backwards.
+            persist_position_state = not saved_date
+            state = simulate_positions(
+                risk_components,
+                index_history,
+                mode=mode,
+                confirmed_core_tail_dates=confirmed_core_tail_dates,
+            )
     else:
         state = load_position_state()
         state.mode = mode
@@ -1180,7 +1276,8 @@ def build_flex_panel_v2(
     exit_plan = build_sleeve_exit_plan(state, stages, trade_dates=trade_dates)
     # Persist exit_due_date into position state file
     state.as_of = str(feat.get("trade_date") or state.as_of or "")[:10] or state.as_of
-    save_position_state(state)
+    if persist_position_state:
+        save_position_state(state)
 
     if alloc["allocation_mode"] == "BOTH":
         headline = "组合 Flex v2：核心 + 卫星（多阶段合并）"

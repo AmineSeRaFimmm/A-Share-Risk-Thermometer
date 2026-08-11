@@ -22,6 +22,11 @@ def test_collect_includes_csi300():
     assert "510300" in codes
 
 
+def test_stable_primary_universe_keeps_previous_strategy_etfs_available():
+    codes = collect_flex_etf_codes(None, include_all_primary=True)
+    assert {"515880", "159886", "512660"}.issubset(codes)
+
+
 def test_bars_to_dict_rounds():
     df = pd.DataFrame(
         [
@@ -43,13 +48,36 @@ def test_payload_reports_stale_codes_and_common_complete_date(monkeypatch):
               if last != "2026-07-14" else []),
         ])
 
-    monkeypatch.setattr("src.core.etf_marks.collect_flex_etf_codes", lambda _playbook: ["510300", "515880"])
+    monkeypatch.setattr(
+        "src.core.etf_marks.collect_flex_etf_codes",
+        lambda _playbook, **kwargs: ["510300", "515880"],
+    )
     monkeypatch.setattr("src.core.etf_marks.load_or_fetch_etf_bars", fake_load)
     payload = build_etf_marks_payload(as_of="2026-07-15", playbook={})
     assert payload["stale_codes"] == ["515880"]
     assert payload["complete_as_of"] == "2026-07-14"
     assert payload["quality"] == "WARN_INCOMPLETE_AS_OF"
     assert payload["by_code"]["510300"]["fresh_for_as_of"] is True
+
+
+def test_auxiliary_coverage_gap_does_not_block_required_mark_quality(monkeypatch):
+    def fake_codes(_playbook, **kwargs):
+        return ["510300", "515880"] if kwargs.get("include_all_primary") else ["510300"]
+
+    def fake_load(code, **_kwargs):
+        if code == "515880":
+            return pd.DataFrame()
+        return pd.DataFrame([
+            {"trade_date": "2026-08-11", "open": 1, "close": 1, "high": 1, "low": 1},
+        ])
+
+    monkeypatch.setattr("src.core.etf_marks.collect_flex_etf_codes", fake_codes)
+    monkeypatch.setattr("src.core.etf_marks.load_or_fetch_etf_bars", fake_load)
+    payload = build_etf_marks_payload(as_of="2026-08-11", playbook={})
+
+    assert payload["quality"] == "OK"
+    assert payload["missing_codes"] == []
+    assert payload["coverage_missing_codes"] == ["515880"]
 
 
 def test_etf_marks_fetch_codes_with_bounded_parallelism(monkeypatch):
@@ -76,7 +104,7 @@ def test_etf_marks_fetch_codes_with_bounded_parallelism(monkeypatch):
             "low": 0.9,
         }])
 
-    monkeypatch.setattr(mod, "collect_flex_etf_codes", lambda _playbook: codes)
+    monkeypatch.setattr(mod, "collect_flex_etf_codes", lambda _playbook, **kwargs: codes)
     monkeypatch.setattr(mod, "load_or_fetch_etf_bars", fetch)
     payload = build_etf_marks_payload(as_of="2026-07-15", max_workers=2)
     assert max_active == 2
@@ -194,3 +222,29 @@ def test_official_candidate_replaces_preserved_quote_and_quality() -> None:
     assert merged["by_code"]["510300"]["bars"]["2026-08-10"]["open"] == 4.751
     assert "bar_sources" not in merged["by_code"]["510300"]
     assert merged["published_bar_preservation"]["status"] == "not_needed"
+
+
+def test_merge_keeps_auxiliary_staleness_out_of_required_quality() -> None:
+    candidate = {
+        "as_of": "2026-08-11",
+        "required_codes": ["510300"],
+        "coverage_codes": ["510300", "515880"],
+        "missing_codes": [],
+        "by_code": {
+            "510300": {
+                "etf_code": "510300",
+                "bars": {"2026-08-11": {"open": 1, "close": 1, "high": 1, "low": 1}},
+            },
+            "515880": {
+                "etf_code": "515880",
+                "bars": {"2026-08-10": {"open": 1, "close": 1, "high": 1, "low": 1}},
+            },
+        },
+    }
+
+    merged = merge_published_etf_marks(candidate, candidate)
+
+    assert merged["quality"] == "OK"
+    assert merged["stale_codes"] == []
+    assert merged["complete_as_of"] == "2026-08-11"
+    assert merged["coverage_stale_codes"] == ["515880"]

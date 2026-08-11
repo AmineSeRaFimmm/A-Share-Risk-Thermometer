@@ -108,3 +108,74 @@ test('Flex buy ledger records the selected trading session', async ({ page }) =>
   expect(recorded.positions['core:510300'].buy_date).toBe(sessionDate);
   expect(recorded.journal[0].trade_date).toBe(sessionDate);
 });
+
+test('Flex v6 recovers fixed-basket take profit from the first EOD crossing', async ({ page }) => {
+  await seedFlex(page, {
+    book: 'sim',
+    ledger: {
+      version: 5, book: 'sim', capital: 60000, cash: 12000,
+      positions: {
+        corrupted: {
+          key: 'corrupted', name: '煤炭', etf_code: '515220', sleeve: 'satellite',
+          qty: 1000, avg_price: 1, cost_basis: 1000, buy_date: '2026-08-05',
+        },
+      },
+      journal: [], risk_exits: {}, pending_orders: {},
+    },
+  });
+  await page.goto('/');
+  const result = await page.evaluate(() => {
+    const bars = {
+      '2026-07-30': { open: 1.0, close: 1.0, high: 1.0, low: 1.0 },
+      '2026-07-31': { open: 1.0, close: 1.0, high: 1.0, low: 1.0 },
+      '2026-08-03': { open: 1.0, close: 1.0, high: 1.0, low: 1.0 },
+      '2026-08-04': { open: 1.0, close: 1.03, high: 1.03, low: 1.0 },
+      '2026-08-05': { open: 1.03, close: 1.05, high: 1.05, low: 1.03 },
+      '2026-08-06': { open: 1.04, close: 1.04, high: 1.04, low: 1.04 },
+    };
+    dashboardState.etfMarks = {
+      as_of: '2026-08-06', complete_as_of: '2026-08-06', quality: 'OK', missing_codes: [],
+      by_code: {
+        '515880': { etf_code: '515880', bars },
+        '513180': { etf_code: '513180', bars },
+      },
+    };
+    dashboardState.latest = { official_close: { trade_date: '2026-08-06' } };
+    dashboardState.flexTradeDates = Object.keys(bars);
+    const flex = {
+      as_of: '2026-08-06', mode: 'aggressive',
+      market_state: { trade_date: '2026-08-06' },
+      modes: { aggressive: { core_when_signal: 0.6, sat_when_signal: 0.4 } },
+      allocation: { w_core: 0, w_sat: 1 },
+      hold_days_sat: 8,
+      satellite_risk_rule: { stop_loss: -0.03, take_profit: 0.04 },
+      hold_list: [
+        { name: '通信', etf_code: '515880', etf_name: '通信ETF' },
+        { name: '恒生科技', etf_code: '513180', etf_name: '恒生科技ETF' },
+      ],
+      position_state: {
+        core: { status: 'flat' },
+        satellite: {
+          status: 'open', entry_signal_date: '2026-07-29', entry_date: '2026-07-30',
+          names: ['通信', '恒生科技'], weights: { 通信: 0.5, 恒生科技: 0.5 },
+        },
+      },
+    };
+    const ledger = rebuildSimLedgerFromStrategy(flex);
+    return {
+      version: ledger.version,
+      basis: ledger.satellite_risk_basis,
+      risk: ledger.risk_exits['2026-07-29'],
+      satelliteCount: Object.values(ledger.positions).filter(pos => pos.sleeve === 'satellite').length,
+      signal: ledger.journal.find(row => row.type === 'SIGNAL' && row.name === '卫星组合'),
+    };
+  });
+
+  expect(result.version).toBe(6);
+  expect(result.basis.entry_date).toBe('2026-07-30');
+  expect(result.risk.status).toBe('EXECUTED');
+  expect(result.risk.signal_date).toBe('2026-08-05');
+  expect(result.risk.execution_date).toBe('2026-08-06');
+  expect(result.satelliteCount).toBe(0);
+  expect(result.signal.trade_date).toBe('2026-08-05');
+});

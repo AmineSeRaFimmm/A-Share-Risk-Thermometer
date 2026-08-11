@@ -87,6 +87,10 @@ class FlexFrontendContractTests(unittest.TestCase):
 
     def test_satellite_risk_exit_is_basket_level_and_persistent(self) -> None:
         self.assertIn("function flexSatelliteBasketRiskStatus", self.web)
+        self.assertIn("function flexBuildSatelliteRiskBasis", self.web)
+        self.assertIn("function flexSatelliteBasisRiskStatus", self.web)
+        self.assertIn("satellite_risk_basis:", self.web)
+        self.assertIn("fixedBasis: true", self.web)
         self.assertIn("risk_exits:", self.web)
         self.assertIn("ledger.risk_exits[satSignalId]", self.web)
         self.assertIn("status: 'PENDING'", self.web)
@@ -105,6 +109,8 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("Incremental, read-only simulation ledger", self.web)
         self.assertIn("模拟仓为只读账本", self.web)
         self.assertIn("reset.disabled = sim", self.web)
+        self.assertIn("version: 6", self.web)
+        self.assertIn("storedVersion >= 6", self.web)
         self.assertNotIn("version: 3,\n      book: 'sim'", self.web)
 
     def test_real_orders_are_durable_and_exit_actions_take_priority(self) -> None:

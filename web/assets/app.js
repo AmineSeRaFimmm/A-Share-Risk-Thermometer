@@ -1332,7 +1332,7 @@ function flexUid(prefix = 'fx') {
 
 function defaultFlexLedger(book = dashboardState.flexBook) {
   return {
-    version: 5,
+    version: 6,
     book: book === 'sim' ? 'sim' : 'real',
     capital: 0,
     cash: 0,
@@ -1344,6 +1344,7 @@ function defaultFlexLedger(book = dashboardState.flexBook) {
     pending_rebalance: null,
     pending_orders: {},
     satellite_basis_as_of: null,
+    satellite_risk_basis: null,
   };
 }
 
@@ -1378,7 +1379,7 @@ function flexMarkValue(ledger) {
 /** Migrate v1 ledgers that derived cash as capital−cost (dropped realized PnL). */
 function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
   const ledger = {
-    version: 5,
+    version: 6,
     book: raw?.book === 'sim' || book === 'sim' ? 'sim' : 'real',
     capital: Number(raw?.capital) || 0,
     cash: raw?.cash,
@@ -1394,6 +1395,9 @@ function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
       ? JSON.parse(JSON.stringify(raw.pending_orders))
       : {},
     satellite_basis_as_of: FlexExecutionCore.normalizeTradeDate(raw?.satellite_basis_as_of) || null,
+    satellite_risk_basis: raw?.satellite_risk_basis && typeof raw.satellite_risk_basis === 'object'
+      ? JSON.parse(JSON.stringify(raw.satellite_risk_basis))
+      : null,
   };
   if (ledger.cash == null || !Number.isFinite(Number(ledger.cash))) {
     // Best-effort migration for pre-v2 books.
@@ -1412,16 +1416,20 @@ function normalizeFlexLedger(raw, book = dashboardState.flexBook) {
   return ledger;
 }
 
-function loadFlexLedgerForBook(book) {
+function loadRawFlexLedgerForBook(book) {
   try {
     const raw = localStorage.getItem(flexLedgerStorageKey(book));
-    if (!raw) return defaultFlexLedger(book);
+    if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== 'object') return defaultFlexLedger(book);
-    return normalizeFlexLedger(parsed, book);
+    return parsed && typeof parsed === 'object' ? parsed : null;
   } catch (_) {
-    return defaultFlexLedger(book);
+    return null;
   }
+}
+
+function loadFlexLedgerForBook(book) {
+  const raw = loadRawFlexLedgerForBook(book);
+  return raw ? normalizeFlexLedger(raw, book) : defaultFlexLedger(book);
 }
 
 function loadFlexLedger() {
@@ -1952,6 +1960,61 @@ function flexSimEntryBar(target) {
   return bar?.trade_date === day && Number(bar.open) > 0 ? bar : null;
 }
 
+function flexBuildSatelliteRiskBasis(flex) {
+  const sat = flex?.position_state?.satellite || {};
+  const signalId = String(sat.entry_signal_date || '').slice(0, 10);
+  const entryDate = String(sat.entry_date || '').slice(0, 10);
+  const names = Array.isArray(sat.names) ? sat.names : [];
+  if (String(sat.status || '') !== 'open' || !signalId || !entryDate || !names.length) return null;
+
+  const rawWeights = sat.weights || {};
+  const rawWeightSum = names.reduce((sum, name) => sum + (Number(rawWeights[name]) || 0), 0);
+  const members = names.map(name => {
+    const instrument = flexLookupInstrument(flex, name);
+    const code = String(instrument?.etf_code || '').replace(/\D/g, '').padStart(6, '0');
+    const bar = flexEtfBarLookup(code, entryDate, { prefer: 'exact' });
+    return {
+      name,
+      etf_code: /^\d{6}$/.test(code) ? code : '',
+      weight: rawWeightSum > 0 ? (Number(rawWeights[name]) || 0) / rawWeightSum : 1 / names.length,
+      entry_open: bar?.trade_date === entryDate && Number(bar.open) > 0 ? Number(bar.open) : null,
+    };
+  });
+  const missingCodes = members
+    .filter(member => !member.etf_code || !(Number(member.entry_open) > 0))
+    .map(member => member.etf_code || `NO_CODE:${member.name}`);
+  return {
+    version: 1,
+    signal_id: signalId,
+    entry_date: entryDate,
+    cost_rate: FLEX_ONE_WAY_COST_RATE,
+    complete: missingCodes.length === 0,
+    missing_codes: missingCodes,
+    members,
+  };
+}
+
+function flexSyncSatelliteRiskBasis(ledger, flex) {
+  const next = flexBuildSatelliteRiskBasis(flex);
+  if (!next) {
+    ledger.satellite_risk_basis = null;
+    return ledger;
+  }
+  const current = ledger.satellite_risk_basis;
+  const currentIdentity = JSON.stringify([
+    current?.signal_id,
+    current?.entry_date,
+    (current?.members || []).map(member => [member.name, member.etf_code, Number(member.weight)]),
+  ]);
+  const nextIdentity = JSON.stringify([
+    next.signal_id,
+    next.entry_date,
+    next.members.map(member => [member.name, member.etf_code, Number(member.weight)]),
+  ]);
+  if (currentIdentity !== nextIdentity || !current?.complete) ledger.satellite_risk_basis = next;
+  return ledger;
+}
+
 function flexSimExecutePendingRebalance(ledger) {
   const order = ledger.pending_rebalance;
   if (!order?.execution_date || !Array.isArray(order.targets)) return ledger;
@@ -2235,13 +2298,15 @@ function rebuildSimLedgerFromStrategy(flex) {
   const asOf = String(f.as_of || f.market_state?.trade_date || '').slice(0, 10);
   let targets = collectStrategyPaperTargets(f);
   let targetByKey = new Map(targets.map(target => [flexSimPositionKey(target), target]));
-  const raw = loadFlexLedgerForBook('sim');
+  const storedRaw = loadRawFlexLedgerForBook('sim');
+  const storedVersion = Number(storedRaw?.version) || 0;
+  const raw = storedRaw ? normalizeFlexLedger(storedRaw, 'sim') : defaultFlexLedger('sim');
   let capital = Number(raw.capital) || Number(loadFlexLedgerForBook('real').capital) || 0;
 
-  // v3 simulation books were reconstructed from historical prices. Start one
-  // clean v4 baseline instead of carrying irreconcilable synthetic deltas.
-  let ledger = Number(raw.version) >= 4 ? normalizeFlexLedger(raw, 'sim') : defaultFlexLedger('sim');
-  if (Number(raw.version) < 4) {
+  // v5 could rewrite the open basket and reset its risk clock during refresh.
+  // Rebuild one deterministic v6 baseline from authoritative position_state.
+  let ledger = storedVersion >= 6 ? normalizeFlexLedger(raw, 'sim') : defaultFlexLedger('sim');
+  if (storedVersion < 6) {
     ledger.capital = capital;
     ledger.cash = capital;
     ledger.journal = flexSimJournal([], {
@@ -2253,10 +2318,10 @@ function rebuildSimLedgerFromStrategy(flex) {
       qty: 0,
       trade_date: asOf,
       ts: flexSimTradeTimestamp(asOf, 'close'),
-      note: '升级为增量记账；旧版追溯重建流水未继承',
+      note: '升级为固定入场篮子风险基准；v5受重配影响的模拟流水未继承',
     });
   }
-  ledger.version = 5;
+  ledger.version = 6;
   ledger.book = 'sim';
   ledger.capital = capital;
   ledger.positions = { ...(ledger.positions || {}) };
@@ -2291,6 +2356,7 @@ function rebuildSimLedgerFromStrategy(flex) {
   ledger = flexSimExecuteSatelliteRisk(ledger, satRisk);
   ledger = flexSimCloseRemovedPositions(ledger, targetByKey, satRisk, asOf);
   ledger = flexSimEnsurePaperPositions(ledger, targets, asOf);
+  ledger = flexSyncSatelliteRiskBasis(ledger, f);
 
   // Risk is evaluated only after the current paper basket is fully present.
   // This keeps a clean first load identical to every later refresh.
@@ -2653,9 +2719,112 @@ function flexApplyExactEodDate(ledger, markDate) {
   return marked;
 }
 
+function flexSatelliteBasisRiskStatus(basis, flex, markDate) {
+  const rule = flexSatelliteRiskRule(flex);
+  if (!basis?.complete || !basis.entry_date || !Array.isArray(basis.members) || !basis.members.length) {
+    return {
+      triggered: false,
+      blocked: true,
+      label: `卫星风控暂停 · 固定入场基准缺失${basis?.missing_codes?.length ? `（${basis.missing_codes.join('、')}）` : ''}`,
+      rule,
+    };
+  }
+  let grossRatio = 0;
+  for (const member of basis.members) {
+    const bar = flexEtfBarLookup(member.etf_code, markDate, { prefer: 'exact' });
+    const entryOpen = Number(member.entry_open);
+    if (bar?.trade_date !== markDate || !(Number(bar.close) > 0) || !(entryOpen > 0)) {
+      return {
+        triggered: false,
+        blocked: true,
+        label: `卫星风控暂停 · ${markDate} 固定篮子共同EOD缺价`,
+        rule,
+      };
+    }
+    grossRatio += Number(member.weight) * Number(bar.close) / entryOpen;
+  }
+  const ret = grossRatio / (1 + (Number(basis.cost_rate) || 0)) - 1;
+  const elapsed = flexTradingDaysBetween(basis.entry_date, markDate);
+  const daysHeld = elapsed < 0 ? 0 : elapsed + 1;
+  if (daysHeld < FLEX_SAT_MIN_HOLD_DAYS) {
+    return {
+      triggered: false,
+      label: `卫星篮子已持有${daysHeld}日 · 满${FLEX_SAT_MIN_HOLD_DAYS}日后检查止损/止盈`,
+      rule,
+      ret,
+      daysHeld,
+      markDate,
+      fixedBasis: true,
+    };
+  }
+  if (ret <= rule.stopLoss || ret >= rule.takeProfit) {
+    const stop = ret <= rule.stopLoss;
+    return {
+      triggered: true,
+      close_code: stop ? 'LOCAL_STOP_LOSS' : 'LOCAL_TAKE_PROFIT',
+      action_cn: stop ? '卫星篮子止损卖出' : '卫星篮子止盈卖出',
+      badge: stop ? '止损平仓' : '止盈平仓',
+      label: `卫星篮子${stop ? '止损' : '止盈'}已触发 ${flexFormatSignedPct(ret)}`,
+      why: `固定入场篮子EOD累计收益 ${flexFormatSignedPct(ret)} 已触发 ${stop ? flexFormatSignedPct(rule.stopLoss, 0) : flexFormatSignedPct(rule.takeProfit, 0)}；下一交易日开盘整篮平仓`,
+      rule,
+      ret,
+      daysHeld,
+      markDate,
+      fixedBasis: true,
+    };
+  }
+  return {
+    triggered: false,
+    label: `卫星篮子距止损${((ret - rule.stopLoss) * 100).toFixed(1)}个百分点 · 距止盈${((rule.takeProfit - ret) * 100).toFixed(1)}个百分点`,
+    rule,
+    ret,
+    daysHeld,
+    markDate,
+    fixedBasis: true,
+  };
+}
+
 /** Recover the first EOD threshold crossing even when the page was not opened that day. */
 function flexSatelliteBasketFirstRiskTrigger(ledger, flex) {
   const latest = flexApplyEodMarksToLedger(ledger);
+  const basis = ledger?.satellite_risk_basis;
+  if (basis?.signal_id && basis.signal_id === String(flex?.position_state?.satellite?.entry_signal_date || '').slice(0, 10)) {
+    if (!basis.complete) return flexSatelliteBasisRiskStatus(basis, flex, latest.mark_as_of);
+    const codes = basis.members.map(member => member.etf_code).filter(Boolean);
+    const coverage = flexEtfMarksCoverage(codes);
+    const gate = flexEodDecisionGate({
+      mark_as_of: coverage.session,
+      mark_stale_codes: coverage.stale_codes,
+      _eod_mark_stats: { missing: coverage.missing_codes.length },
+    }, flex);
+    if (!gate.ok) {
+      return {
+        triggered: false,
+        blocked: true,
+        label: `卫星风控暂停 · ${gate.reason}`,
+        rule: flexSatelliteRiskRule(flex),
+        markDate: gate.markDate,
+        requiredDate: gate.requiredDate,
+      };
+    }
+
+    let commonDates = null;
+    for (const code of codes) {
+      const bars = dashboardState.etfMarks?.by_code?.[code]?.bars || {};
+      const dates = new Set(Object.keys(bars).filter(day => day >= basis.entry_date && day <= coverage.session));
+      commonDates = commonDates == null
+        ? dates
+        : new Set([...commonDates].filter(day => dates.has(day)));
+    }
+    let latestBasisStatus = null;
+    for (const day of [...(commonDates || [])].sort()) {
+      const status = flexSatelliteBasisRiskStatus(basis, flex, day);
+      if (status?.triggered) return { ...status, triggerDate: day, markDate: day };
+      if (!status?.blocked) latestBasisStatus = status;
+    }
+    return latestBasisStatus || flexSatelliteBasisRiskStatus(basis, flex, coverage.session);
+  }
+
   const latestStatus = flexSatelliteBasketRiskStatus(latest, flex);
   if (!latestStatus || latestStatus.blocked || !latest.mark_as_of) return latestStatus;
   const satellites = flexOpenPositions(latest).filter(

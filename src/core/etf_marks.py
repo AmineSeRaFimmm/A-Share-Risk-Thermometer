@@ -35,12 +35,14 @@ def _today_cn() -> str:
 def collect_flex_etf_codes(
     playbook: dict[str, Any] | None = None,
     *,
+    include_all_primary: bool = False,
     include_full_map: bool = False,
 ) -> list[str]:
     """ETF codes needed for Flex sim EOD marks.
 
     Default: CSI300 + codes on current panel/position_state (professional, small set).
-    Optional full sector map only when include_full_map=True (slow / more failure surface).
+    include_all_primary keeps every preferred sector ETF available for durable
+    local holdings. include_full_map additionally includes alternate proxies.
     """
     codes: set[str] = set()
     csi = map_csi300()
@@ -71,13 +73,14 @@ def collect_flex_etf_codes(
         if core.get("etf_code"):
             codes.add(str(core["etf_code"]).zfill(6))
 
-    if include_full_map:
+    if include_all_primary or include_full_map:
         for row in all_sector_mappings():
             if row.get("etf_code"):
                 codes.add(str(row["etf_code"]).zfill(6))
-            for alt in row.get("alt_codes") or []:
-                if alt:
-                    codes.add(str(alt).zfill(6))
+            if include_full_map:
+                for alt in row.get("alt_codes") or []:
+                    if alt:
+                        codes.add(str(alt).zfill(6))
 
     return sorted(c for c in codes if c and c.isdigit() and len(c) == 6)
 
@@ -367,9 +370,14 @@ def merge_published_etf_marks(
     out = json.loads(json.dumps(candidate))
     candidate_by = candidate.get("by_code") or {}
     published_by = published.get("by_code") or {}
-    expected = sorted(set(candidate_by) | set(candidate.get("missing_codes") or []))
+    expected = sorted(
+        set(candidate.get("coverage_codes") or [])
+        | set(candidate_by)
+        | set(candidate.get("missing_codes") or [])
+    )
     if not expected:
         return candidate
+    required = sorted(set(candidate.get("required_codes") or expected))
 
     merged_by: dict[str, Any] = {}
     carried_dates: dict[str, list[str]] = {}
@@ -421,18 +429,34 @@ def merge_published_etf_marks(
             item.pop("bar_sources", None)
         merged_by[code] = item
 
-    missing = [code for code in expected if not merged_by.get(code, {}).get("bars")]
+    missing = [code for code in required if not merged_by.get(code, {}).get("bars")]
     stale = [
-        code for code in expected
+        code for code in required
         if merged_by.get(code, {}).get("bars") and max(merged_by[code]["bars"]) < target
     ]
     common_dates: set[str] | None = None
-    for code in expected:
+    for code in required:
         dates = set((merged_by.get(code, {}).get("bars") or {}).keys())
         if not dates:
             continue
         common_dates = dates if common_dates is None else common_dates & dates
     complete_as_of = max(common_dates) if common_dates and not missing else None
+    coverage_missing = [code for code in expected if not merged_by.get(code, {}).get("bars")]
+    coverage_stale = [
+        code for code in expected
+        if merged_by.get(code, {}).get("bars") and max(merged_by[code]["bars"]) < target
+    ]
+    coverage_common_dates: set[str] | None = None
+    for code in expected:
+        dates = set((merged_by.get(code, {}).get("bars") or {}).keys())
+        if not dates:
+            continue
+        coverage_common_dates = dates if coverage_common_dates is None else coverage_common_dates & dates
+    coverage_complete_as_of = (
+        max(coverage_common_dates)
+        if coverage_common_dates and not coverage_missing
+        else None
+    )
     complete = complete_as_of == target and not missing and not stale
     quality = (
         FINAL_QUOTE_QUALITY if complete and has_provisional_target
@@ -445,6 +469,9 @@ def merge_published_etf_marks(
         "missing_codes": missing,
         "stale_codes": stale,
         "complete_as_of": complete_as_of,
+        "coverage_missing_codes": coverage_missing,
+        "coverage_stale_codes": coverage_stale,
+        "coverage_complete_as_of": coverage_complete_as_of,
         "quality": quality,
         "published_bar_preservation": {
             "status": "used" if carried_dates else "not_needed",
@@ -556,11 +583,15 @@ def build_etf_marks_payload(
             except Exception:
                 playbook = None
 
-    codes = collect_flex_etf_codes(playbook)
+    required_codes = collect_flex_etf_codes(playbook)
+    codes = collect_flex_etf_codes(playbook, include_all_primary=True)
     by_code: dict[str, Any] = {}
     missing: list[str] = []
     stale: list[str] = []
     common_dates: set[str] | None = None
+    coverage_missing: list[str] = []
+    coverage_stale: list[str] = []
+    coverage_common_dates: set[str] | None = None
     bars_by_code: dict[str, dict[str, dict[str, float]]] = {}
 
     def load_one(code: str) -> tuple[str, dict[str, dict[str, float]]]:
@@ -577,7 +608,9 @@ def build_etf_marks_payload(
     for code in codes:
         bars = bars_by_code.get(code, {})
         if not bars:
-            missing.append(code)
+            coverage_missing.append(code)
+            if code in required_codes:
+                missing.append(code)
             continue
         by_code[code] = {
             "etf_code": code,
@@ -588,11 +621,20 @@ def build_etf_marks_payload(
             "fresh_for_as_of": max(bars) >= end,
         }
         dates = {day for day in bars if day <= end}
-        common_dates = dates if common_dates is None else common_dates & dates
+        coverage_common_dates = dates if coverage_common_dates is None else coverage_common_dates & dates
+        if code in required_codes:
+            common_dates = dates if common_dates is None else common_dates & dates
         if max(bars) < end:
-            stale.append(code)
+            coverage_stale.append(code)
+            if code in required_codes:
+                stale.append(code)
 
     complete_as_of = max(common_dates) if common_dates and not missing else None
+    coverage_complete_as_of = (
+        max(coverage_common_dates)
+        if coverage_common_dates and not coverage_missing
+        else None
+    )
 
     return {
         "title": "Flex ETF daily marks (EOD)",
@@ -606,10 +648,15 @@ def build_etf_marks_payload(
         "source": "AKSHARE_FUND_ETF_HIST_EM",
         "fetch_workers": workers,
         "not_broker_feed": True,
+        "required_codes": required_codes,
+        "coverage_codes": codes,
         "code_count": len(by_code),
         "missing_codes": missing,
         "stale_codes": stale,
         "complete_as_of": complete_as_of,
+        "coverage_missing_codes": coverage_missing,
+        "coverage_stale_codes": coverage_stale,
+        "coverage_complete_as_of": coverage_complete_as_of,
         "quality": "OK" if not missing and not stale and complete_as_of == end else "WARN_INCOMPLETE_AS_OF",
         "by_code": by_code,
         "updated_at": datetime.now().astimezone().isoformat(timespec="seconds"),
