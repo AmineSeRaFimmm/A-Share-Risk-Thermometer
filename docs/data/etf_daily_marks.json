@@ -5,7 +5,7 @@
   "as_of": "2026-08-11",
   "start": "2026-04-13",
   "source": "AKSHARE_FUND_ETF_HIST_EM",
-  "fetch_workers": 1,
+  "fetch_workers": 4,
   "not_broker_feed": true,
   "code_count": 13,
   "missing_codes": [],
@@ -6566,8 +6566,68 @@
       }
     }
   },
-  "updated_at": "2026-08-11T08:33:18+00:00",
-  "eod_completion_source": "POST_CLOSE_FINAL_QUOTE",
+  "updated_at": "2026-08-11T08:39:08+00:00",
+  "published_bar_preservation": {
+    "status": "used",
+    "candidate_as_of": "2026-08-11",
+    "codes": [
+      "159697",
+      "159745",
+      "159928",
+      "159995",
+      "159998",
+      "510300",
+      "512400",
+      "512430",
+      "512980",
+      "513180",
+      "515220",
+      "516020",
+      "516850"
+    ],
+    "dates_by_code": {
+      "159697": [
+        "2026-08-11"
+      ],
+      "159745": [
+        "2026-08-11"
+      ],
+      "159928": [
+        "2026-08-11"
+      ],
+      "159995": [
+        "2026-08-11"
+      ],
+      "159998": [
+        "2026-08-11"
+      ],
+      "510300": [
+        "2026-08-11"
+      ],
+      "512400": [
+        "2026-08-11"
+      ],
+      "512430": [
+        "2026-08-11"
+      ],
+      "512980": [
+        "2026-08-11"
+      ],
+      "513180": [
+        "2026-08-11"
+      ],
+      "515220": [
+        "2026-08-11"
+      ],
+      "516020": [
+        "2026-08-11"
+      ],
+      "516850": [
+        "2026-08-11"
+      ]
+    }
+  },
+  "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
   "final_quote_fallback": {
     "trade_date": "2026-08-11",
     "status": "complete",
@@ -6626,11 +6686,5 @@
         "quote_time": "2026-08-11T16:14:37+08:00"
       }
     }
-  },
-  "published_bar_preservation": {
-    "status": "not_needed",
-    "candidate_as_of": "2026-08-11",
-    "codes": [],
-    "dates_by_code": {}
   }
 }
