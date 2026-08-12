@@ -8,7 +8,7 @@ from typing import Any
 from src.core.sector_etf_map import map_sector
 
 
-BRIEF_SCHEMA_VERSION = 1
+BRIEF_SCHEMA_VERSION = 2
 DEFAULT_SATELLITE_MIN_HOLD = 3
 DEFAULT_SATELLITE_STOP_LOSS = -0.03
 DEFAULT_SATELLITE_TAKE_PROFIT = 0.04
@@ -35,6 +35,22 @@ def _next_trade_date(day: str | None, trade_dates: list[str]) -> str | None:
     if not day:
         return None
     return next((candidate for candidate in trade_dates if candidate > day), None)
+
+
+def _latest_trade_date(day: str | None, trade_dates: list[str]) -> str | None:
+    if not day:
+        return None
+    return next((candidate for candidate in reversed(trade_dates) if candidate <= day), None)
+
+
+def _is_in_daily_window(item: dict[str, Any], as_of: str | None) -> bool:
+    """Keep an action in the brief from signal day through execution day."""
+
+    signal_date = _date(item.get("signal_date"))
+    if not signal_date or not as_of:
+        return False
+    execution_date = _date(item.get("execution_date")) or signal_date
+    return signal_date <= as_of <= execution_date
 
 
 def _bar(
@@ -349,16 +365,18 @@ def build_daily_flex_brief(
     strategy_as_of = _date(flex.get("as_of") or stage_playbook.get("as_of"))
     tail_summary = intraday_temperature.get("core_tail_day_summary") or {}
     tail_signal = intraday_temperature.get("core_tail_signal") or {}
+    intraday_date = _date(intraday_temperature.get("trade_date"))
     tail_date = (
         _date(tail_signal.get("trade_date") or intraday_temperature.get("trade_date"))
         if tail_summary.get("execute_triggered")
         else None
     )
-    as_of = max(
-        [day for day in (strategy_as_of, tail_date) if day is not None],
+    trade_dates = _trade_dates(trade_calendar)
+    report_candidate = max(
+        [day for day in (strategy_as_of, intraday_date, tail_date) if day is not None],
         default=None,
     )
-    trade_dates = _trade_dates(trade_calendar)
+    as_of = _latest_trade_date(report_candidate, trade_dates) or report_candidate
     risk_event = evaluate_satellite_risk_event(flex, etf_daily_marks, trade_calendar)
     risk_triggered = risk_event.get("status") == "TRIGGERED"
     items = _group_strategy_actions(
@@ -435,6 +453,8 @@ def build_daily_flex_brief(
             }
         )
 
+    items = [item for item in items if _is_in_daily_window(item, as_of)]
+
     priority = {"STOP_LOSS": 0, "TAKE_PROFIT": 0, "EXIT": 1, "ENTRY": 2}
     items.sort(key=lambda item: (priority.get(str(item.get("event_type")), 9), str(item.get("sleeve"))))
     marks_as_of = _date(
@@ -442,17 +462,22 @@ def build_daily_flex_brief(
     )
     if items:
         status = "ACTION"
-        headline = f"截至 {as_of} 有 {len(items)} 项有效策略动作"
+        headline = f"{as_of} 有 {len(items)} 项处于执行窗口的策略动作"
     elif any(
         str(((flex.get("position_state") or {}).get(sleeve) or {}).get("status") or "").lower()
         == "open"
+        and not (
+            sleeve == "satellite"
+            and risk_triggered
+            and risk_event.get("execution_status") == "EXECUTED"
+        )
         for sleeve in ("core", "satellite")
     ):
         status = "HOLD"
-        headline = "今日没有新增入场或离场信号"
+        headline = "今日无新动作，维持策略持仓"
     else:
         status = "NO_ACTION"
-        headline = "今日没有 Flex 策略动作"
+        headline = "今日没有处于执行窗口的 Flex 策略动作"
 
     return {
         "schema_version": BRIEF_SCHEMA_VERSION,
@@ -464,8 +489,16 @@ def build_daily_flex_brief(
         "headline_cn": headline,
         "items": items,
         "satellite_risk_event": risk_event,
+        "visibility_policy": {
+            "policy_id": "SIGNAL_THROUGH_EXECUTION_SESSION",
+            "signal_day_included": True,
+            "execution_day_included": True,
+            "expires_next_trade_session": True,
+            "label_cn": "信号交易日至执行交易日收盘",
+        },
         "data_quality": {
-            "strategy_as_of": as_of,
+            "report_as_of": as_of,
+            "strategy_as_of": strategy_as_of,
             "marks_as_of": marks_as_of,
             "marks_quality": etf_daily_marks.get("quality"),
             "risk_check_status": risk_event.get("status"),

@@ -1046,7 +1046,7 @@ function renderDailyFlexBrief(brief) {
   const quality = document.getElementById('dailyFlexBriefQuality');
   if (!meta || !summary || !items || !quality) return;
 
-  const valid = Number(brief?.schema_version) === 1
+  const valid = Number(brief?.schema_version) === 2
     && brief?.strategy_id === 'FLEX_AGGRESSIVE'
     && Array.isArray(brief?.items);
   if (!valid) {
@@ -1058,12 +1058,13 @@ function renderDailyFlexBrief(brief) {
     return;
   }
 
-  const strategyDay = dailyFlexDateLabel(brief.as_of);
+  const reportDay = dailyFlexDateLabel(brief.as_of);
+  const strategyDay = dailyFlexDateLabel(brief.data_quality?.strategy_as_of);
   const marksDay = dailyFlexDateLabel(brief.marks_as_of);
   const risk = brief.satellite_risk_event || {};
   const dq = brief.data_quality || {};
   const blocked = risk.status === 'BLOCKED';
-  meta.textContent = `策略 ${strategyDay} · 行情 ${marksDay}`;
+  meta.textContent = `日报 ${reportDay} · 策略 ${strategyDay} · 行情 ${marksDay}`;
   summary.dataset.status = blocked ? 'blocked' : String(brief.status || '').toLowerCase();
   summary.innerHTML = [
     `<strong>${escapeHtml(brief.headline_cn || '今日没有 Flex 策略动作')}</strong>`,
@@ -1112,7 +1113,7 @@ function renderDailyFlexBrief(brief) {
   quality.dataset.status = blocked ? 'blocked' : 'ok';
   quality.textContent = blocked
     ? `数据核验未通过：${risk.reason_cn || '固定卫星篮子行情不完整'}`
-    : `策略动作与 ETF 日线来自同一快照 · 行情质量 ${dq.marks_quality || '—'} · 卫星风控 ${risk.status || '—'}`;
+    : `日报窗口 ${brief.visibility_policy?.label_cn || '信号交易日至执行交易日收盘'} · 行情质量 ${dq.marks_quality || '—'} · 卫星风控 ${risk.status || '—'}`;
 }
 
 function renderIntradayTemperaturePanel(payload) {

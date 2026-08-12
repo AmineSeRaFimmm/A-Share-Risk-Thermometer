@@ -21,8 +21,10 @@ test('Flex renders one coherent snapshot without browser errors', async ({ page 
   await expect(page.locator('#riskTemperature')).not.toHaveText('—');
   await expect(page.locator('#dailyFlexBrief')).toBeVisible();
   await expect(page.locator('#dailyFlexBriefMeta')).not.toHaveText('等待权威快照');
-  await expect(page.locator('#dailyFlexBriefItems .daily-flex-brief-item')).toHaveCount(2);
-  await expect(page.locator('#dailyFlexBrief')).toContainText('卫星篮子止盈已执行');
+  await expect(page.locator('#dailyFlexBriefItems .daily-flex-brief-item')).toHaveCount(1);
+  await expect(page.locator('#dailyFlexBrief')).toContainText('核心到期卖出');
+  await expect(page.locator('#dailyFlexBrief')).not.toContainText('卫星篮子止盈已执行');
+  await expect(page.locator('#dailyFlexBriefQuality')).toContainText('信号交易日至执行交易日收盘');
   await page.locator('#dockFlex').click();
   await expect(page.locator('#viewFlex')).toBeVisible();
   await expect(page.locator('#flexAsOf')).not.toHaveText('');

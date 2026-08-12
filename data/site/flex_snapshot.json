@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "5fbb30447503ba47b2c8d8b25553e89297fca44b28470b374654f12d7aee6892",
-  "built_at": "2026-08-12T10:33:04+08:00",
+  "revision": "984bb3c4c12db676da7d03f3757237a8592caa75d11aa4ee432e07f9f267ce85",
+  "built_at": "2026-08-12T10:35:18+08:00",
   "strategy_as_of": "2026-08-11",
   "marks_as_of": "2026-08-11",
   "marks_quality": "OK",
@@ -20021,89 +20021,14 @@
     ]
   },
   "daily_strategy_brief": {
-    "schema_version": 1,
+    "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-08-11",
+    "as_of": "2026-08-12",
     "marks_as_of": "2026-08-11",
     "status": "ACTION",
-    "headline_cn": "截至 2026-08-11 有 2 项有效策略动作",
+    "headline_cn": "2026-08-12 有 1 项处于执行窗口的策略动作",
     "items": [
-      {
-        "id": "2026-08-05:TAKE_PROFIT:satellite",
-        "event_type": "TAKE_PROFIT",
-        "sleeve": "satellite",
-        "action_cn": "卫星篮子止盈",
-        "title_cn": "卫星篮子止盈已执行",
-        "signal_date": "2026-08-05",
-        "execution_date": "2026-08-06",
-        "execution_mode": "T_PLUS_1_OPEN",
-        "execution_window_cn": "下一交易日开盘整篮平仓",
-        "execution_status": "EXECUTED",
-        "close_code": "LOCAL_TAKE_PROFIT",
-        "trigger_return": 0.04508069636153311,
-        "trigger_threshold": 0.04,
-        "days_held": 5,
-        "reason_cn": "固定卫星篮子持有第 5 日 EOD 收益首次达到止盈线",
-        "instruments": [
-          {
-            "name": "通信",
-            "etf_code": "515880",
-            "etf_name": "通信ETF国泰",
-            "weight_in_sleeve": 0.2328,
-            "portfolio_weight": null,
-            "entry_open": 0.593
-          },
-          {
-            "name": "恒生科技",
-            "etf_code": "513180",
-            "etf_name": "恒生科技ETF华夏",
-            "weight_in_sleeve": 0.1897,
-            "portfolio_weight": null,
-            "entry_open": 0.618
-          },
-          {
-            "name": "机械设备",
-            "etf_code": "159886",
-            "etf_name": "机械ETF富国",
-            "weight_in_sleeve": 0.1281,
-            "portfolio_weight": null,
-            "entry_open": 0.916
-          },
-          {
-            "name": "建筑材料",
-            "etf_code": "159745",
-            "etf_name": "建材ETF国泰",
-            "weight_in_sleeve": 0.1252,
-            "portfolio_weight": null,
-            "entry_open": 0.535
-          },
-          {
-            "name": "传媒",
-            "etf_code": "512980",
-            "etf_name": "传媒ETF广发",
-            "weight_in_sleeve": 0.1252,
-            "portfolio_weight": null,
-            "entry_open": 0.789
-          },
-          {
-            "name": "国防军工",
-            "etf_code": "512660",
-            "etf_name": "军工ETF国泰",
-            "weight_in_sleeve": 0.1099,
-            "portfolio_weight": null,
-            "entry_open": 1.085
-          },
-          {
-            "name": "商贸零售",
-            "etf_code": "159928",
-            "etf_name": "消费ETF汇添富",
-            "weight_in_sleeve": 0.0891,
-            "portfolio_weight": null,
-            "entry_open": 0.68
-          }
-        ]
-      },
       {
         "id": "2026-08-11:EXIT:core:CORE_MAX_HOLD",
         "event_type": "EXIT",
@@ -20208,7 +20133,15 @@
       "checked_through": "2026-08-05",
       "reason_cn": "固定卫星篮子持有第 5 日 EOD 收益首次达到止盈线"
     },
+    "visibility_policy": {
+      "policy_id": "SIGNAL_THROUGH_EXECUTION_SESSION",
+      "signal_day_included": true,
+      "execution_day_included": true,
+      "expires_next_trade_session": true,
+      "label_cn": "信号交易日至执行交易日收盘"
+    },
     "data_quality": {
+      "report_as_of": "2026-08-12",
       "strategy_as_of": "2026-08-11",
       "marks_as_of": "2026-08-11",
       "marks_quality": "OK",

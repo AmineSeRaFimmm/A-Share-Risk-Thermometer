@@ -15,6 +15,8 @@ def _calendar() -> dict:
             "2026-08-07",
             "2026-08-10",
             "2026-08-11",
+            "2026-08-12",
+            "2026-08-13",
         ]
     }
 
@@ -104,8 +106,66 @@ def test_first_take_profit_supersedes_later_satellite_max_hold_exit() -> None:
     assert brief["satellite_risk_event"]["trigger_return"] == pytest.approx(
         1.041 / 1.0001 - 1
     )
-    assert [item["event_type"] for item in brief["items"]] == ["TAKE_PROFIT"]
+    assert brief["items"] == []
     assert not any(item.get("close_code") == "MAX_HOLD" for item in brief["items"])
+
+
+def test_triggered_risk_event_is_visible_through_execution_day_only() -> None:
+    playbook = _playbook()
+    playbook["as_of"] = "2026-08-07"
+    playbook["flex_panel"]["as_of"] = "2026-08-07"
+    marks = _marks(
+        {
+            "2026-08-04": 1.01,
+            "2026-08-05": 1.02,
+            "2026-08-06": 1.041,
+            "2026-08-07": 1.06,
+        }
+    )
+    marks["as_of"] = "2026-08-07"
+    marks["complete_as_of"] = "2026-08-07"
+
+    brief = build_daily_flex_brief(playbook, marks, _calendar())
+
+    assert brief["as_of"] == "2026-08-07"
+    assert [item["event_type"] for item in brief["items"]] == ["TAKE_PROFIT"]
+    assert brief["visibility_policy"]["expires_next_trade_session"] is True
+
+
+def test_intraday_trade_date_advances_report_and_expires_old_action() -> None:
+    core_close = {
+        "sleeve": "core",
+        "name": "沪深300",
+        "action": "CLOSE",
+        "action_cn": "核心到期卖出",
+        "close_code": "MAX_HOLD",
+        "etf_code": "510300",
+        "why": "最长持有到期",
+    }
+    playbook = _playbook(close_list=[core_close])
+    playbook["as_of"] = "2026-08-11"
+    playbook["flex_panel"]["as_of"] = "2026-08-11"
+
+    execution_day = build_daily_flex_brief(
+        playbook,
+        _marks({"2026-08-10": 1.0}),
+        _calendar(),
+        {"trade_date": "2026-08-12"},
+    )
+
+    assert execution_day["as_of"] == "2026-08-12"
+    assert execution_day["data_quality"]["strategy_as_of"] == "2026-08-11"
+    assert [item["event_type"] for item in execution_day["items"]] == ["EXIT"]
+
+    next_session = build_daily_flex_brief(
+        playbook,
+        _marks({"2026-08-10": 1.0}),
+        _calendar(),
+        {"trade_date": "2026-08-13"},
+    )
+
+    assert next_session["as_of"] == "2026-08-13"
+    assert next_session["items"] == []
 
 
 def test_missing_common_eod_blocks_first_crossing_instead_of_skipping_gap() -> None:
