@@ -16,7 +16,7 @@
     <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon-180.png?v=20260720-mag-icon">
     <link rel="icon" type="image/png" sizes="192x192" href="./assets/icon-192.png?v=20260720-mag-icon">
     <link rel="icon" type="image/png" sizes="512x512" href="./assets/icon-512.png?v=20260720-mag-icon">
-    <link rel="stylesheet" href="./assets/app.css?v=20260811-flex-display-contract-v1">
+    <link rel="stylesheet" href="./assets/app.css?v=20260812-daily-flex-brief-v1">
   </head>
   <body class="app-shell app-tabs-mode">
     <header class="topbar topbar-minimal">
@@ -113,6 +113,22 @@
             </div>
             <div id="intradayTemperatureChart" class="chart intraday"></div>
           </article>
+        </section>
+
+        <section class="daily-flex-brief" id="dailyFlexBrief" aria-labelledby="dailyFlexBriefTitle">
+          <div class="section-head daily-flex-brief-head">
+            <div>
+              <span class="daily-flex-brief-kicker">FLEX · AGGRESSIVE</span>
+              <h2 id="dailyFlexBriefTitle">每日策略快报</h2>
+            </div>
+            <span id="dailyFlexBriefMeta">等待权威快照</span>
+          </div>
+          <div class="daily-flex-brief-summary" id="dailyFlexBriefSummary" data-status="loading">
+            <strong>正在核对策略动作</strong>
+            <span>—</span>
+          </div>
+          <div class="daily-flex-brief-items" id="dailyFlexBriefItems" aria-live="polite"></div>
+          <p class="daily-flex-brief-quality" id="dailyFlexBriefQuality"></p>
         </section>
 
       </section>
@@ -443,6 +459,6 @@
     <script src="./vendor/echarts.min.js"></script>
     <script src="./assets/charts.js?v=20260805-core-tail"></script>
     <script src="./assets/flex_execution_core.js?v=20260811-flex-ledger-v5"></script>
-    <script src="./assets/app.js?v=20260811-flex-risk-v6"></script>
+    <script src="./assets/app.js?v=20260812-daily-flex-brief-v1"></script>
   </body>
 </html>

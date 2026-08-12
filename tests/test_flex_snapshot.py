@@ -29,6 +29,9 @@ def test_flex_snapshot_revision_is_content_addressed():
     changed = _payloads()
     changed[1]["quality"] = "WARN"
     assert build_flex_snapshot(*changed)["revision"] != first["revision"]
+    assert first["schema_version"] == 2
+    assert first["daily_strategy_brief"]["strategy_id"] == "FLEX_AGGRESSIVE"
+    assert first["daily_strategy_brief"]["provenance"]["browser_ledger_used"] is False
 
 
 def test_publish_flex_snapshot_writes_identical_site_and_docs(tmp_path):

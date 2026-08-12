@@ -30,6 +30,7 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("flexSnapshot.stage_playbook", self.web)
         self.assertIn("flexSnapshot.etf_daily_marks", self.web)
         self.assertIn("flexSnapshot.trade_calendar", self.web)
+        self.assertIn("flexSnapshot.daily_strategy_brief", self.web)
         self.assertIn(
             "dashboardState.flexTradeCalendar || dashboardState.tradeCalendar",
             self.web,
@@ -100,10 +101,13 @@ class FlexFrontendContractTests(unittest.TestCase):
         )[0]
         self.assertLess(
             rebuild.index("flexSimEnsurePaperPositions(ledger, targets, asOf)"),
-            rebuild.index("flexSatelliteBasketFirstRiskTrigger(ledger, f)"),
+            rebuild.index("flexAuthoritativeSatelliteRisk(f) || flexSatelliteBasketFirstRiskTrigger(ledger, f)"),
         )
         self.assertIn("function flexSimExecuteSatelliteRisk", self.web)
         self.assertIn("function flexSimCloseRemovedPositions", self.web)
+        self.assertIn("function flexAuthoritativeSatelliteRisk", self.web)
+        self.assertIn("daily_strategy_brief: dashboardState.dailyFlexBrief", self.web)
+        self.assertIn("const satRiskExecuted = satRisk.status === 'TRIGGERED'", self.web)
 
     def test_simulation_is_incremental_and_read_only(self) -> None:
         self.assertIn("Incremental, read-only simulation ledger", self.web)

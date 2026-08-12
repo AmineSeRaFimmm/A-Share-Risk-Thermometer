@@ -19,6 +19,10 @@ test('Flex renders one coherent snapshot without browser errors', async ({ page 
 
   await page.goto('/');
   await expect(page.locator('#riskTemperature')).not.toHaveText('—');
+  await expect(page.locator('#dailyFlexBrief')).toBeVisible();
+  await expect(page.locator('#dailyFlexBriefMeta')).not.toHaveText('等待权威快照');
+  await expect(page.locator('#dailyFlexBriefItems .daily-flex-brief-item')).toHaveCount(2);
+  await expect(page.locator('#dailyFlexBrief')).toContainText('卫星篮子止盈已执行');
   await page.locator('#dockFlex').click();
   await expect(page.locator('#viewFlex')).toBeVisible();
   await expect(page.locator('#flexAsOf')).not.toHaveText('');
@@ -29,11 +33,13 @@ test('Flex renders one coherent snapshot without browser errors', async ({ page 
     return { ok: response.ok, payload: await response.json() };
   });
   expect(snapshot.ok).toBe(true);
-  expect(snapshot.payload.schema_version).toBe(1);
+  expect(snapshot.payload.schema_version).toBe(2);
   expect(snapshot.payload.revision).toMatch(/^[a-f0-9]{64}$/);
   expect(snapshot.payload.stage_playbook.flex_panel).toBeTruthy();
   expect(snapshot.payload.etf_daily_marks.by_code).toBeTruthy();
   expect(snapshot.payload.trade_calendar.dates.length).toBeGreaterThan(0);
+  expect(snapshot.payload.daily_strategy_brief.strategy_id).toBe('FLEX_AGGRESSIVE');
+  expect(snapshot.payload.daily_strategy_brief.provenance.browser_ledger_used).toBe(false);
 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   expect(overflow).toBe(false);

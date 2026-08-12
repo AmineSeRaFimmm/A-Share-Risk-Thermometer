@@ -4,12 +4,13 @@ import hashlib
 from pathlib import Path
 from typing import Any
 
+from src.core.flex_daily_brief import build_daily_flex_brief
 from src.storage.json_store import dumps_json, read_json, write_json
 from src.storage.paths import DOCS, SITE
 from src.utils.dates import now_cn
 
 
-FLEX_SNAPSHOT_SCHEMA_VERSION = 1
+FLEX_SNAPSHOT_SCHEMA_VERSION = 2
 FLEX_SNAPSHOT_NAME = "flex_snapshot.json"
 
 
@@ -17,6 +18,7 @@ def build_flex_snapshot(
     stage_playbook: dict[str, Any],
     etf_daily_marks: dict[str, Any],
     trade_calendar: dict[str, Any],
+    intraday_temperature: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     if not isinstance(stage_playbook.get("flex_panel"), dict):
         raise ValueError("stage_playbook.flex_panel is required")
@@ -29,6 +31,12 @@ def build_flex_snapshot(
         "stage_playbook": stage_playbook,
         "etf_daily_marks": etf_daily_marks,
         "trade_calendar": trade_calendar,
+        "daily_strategy_brief": build_daily_flex_brief(
+            stage_playbook,
+            etf_daily_marks,
+            trade_calendar,
+            intraday_temperature,
+        ),
     }
     digest = hashlib.sha256(
         dumps_json(content, indent=None).encode("utf-8")
@@ -57,6 +65,7 @@ def publish_flex_snapshot(
         read_json(site_dir / "stage_playbook.json", default={}) or {},
         read_json(site_dir / "etf_daily_marks.json", default={}) or {},
         read_json(site_dir / "trade_calendar.json", default={}) or {},
+        read_json(site_dir / "intraday_temperature.json", default={}) or {},
     )
     write_json(snapshot, site_dir / FLEX_SNAPSHOT_NAME)
     docs_data = docs_dir / "data"

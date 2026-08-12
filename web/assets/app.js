@@ -92,6 +92,7 @@ const dashboardState = {
   flexActive: null,
   flexSnapshotRevision: null,
   flexTradeCalendar: null,
+  dailyFlexBrief: null,
   flexLedgerBound: false,
   flexModal: null,
   flexSimSyncedAsOf: null,
@@ -922,7 +923,7 @@ async function loadHeavyDashboardData({ fresh = false } = {}) {
   ]);
   let stagePlaybook;
   let etfMarks;
-  const validSnapshot = Number(flexSnapshot?.schema_version) === 1
+  const validSnapshot = [1, 2].includes(Number(flexSnapshot?.schema_version))
     && typeof flexSnapshot?.revision === 'string'
     && flexSnapshot?.stage_playbook?.flex_panel
     && flexSnapshot?.etf_daily_marks?.by_code
@@ -932,6 +933,7 @@ async function loadHeavyDashboardData({ fresh = false } = {}) {
     etfMarks = flexSnapshot.etf_daily_marks;
     dashboardState.flexSnapshotRevision = flexSnapshot.revision;
     dashboardState.flexTradeCalendar = flexSnapshot.trade_calendar;
+    dashboardState.dailyFlexBrief = flexSnapshot.daily_strategy_brief || null;
   } else {
     [stagePlaybook, etfMarks] = await Promise.all([
       loadJSON('./data/stage_playbook.json', { fresh }).catch(() => ({ status: 'missing' })),
@@ -939,12 +941,19 @@ async function loadHeavyDashboardData({ fresh = false } = {}) {
     ]);
     dashboardState.flexSnapshotRevision = null;
     dashboardState.flexTradeCalendar = null;
+    dashboardState.dailyFlexBrief = null;
   }
   dashboardState.heavyLoaded = true;
   dashboardState.etfMarks = etfMarks && etfMarks.status !== 'missing'
     ? etfMarks
     : { status: 'missing', by_code: {}, policy: 'SIM_ENTRY_OPEN_MARK_CLOSE' };
-  return { strategy, rtTactical, stagePlaybook, etfMarks: dashboardState.etfMarks };
+  return {
+    strategy,
+    rtTactical,
+    stagePlaybook,
+    etfMarks: dashboardState.etfMarks,
+    dailyStrategyBrief: dashboardState.dailyFlexBrief,
+  };
 }
 
 function renderTemperatureCoreTailSignal(payload) {
@@ -1000,6 +1009,110 @@ function renderTemperatureCoreTailSignal(payload) {
   container.dataset.state = displayState;
   setText('temperatureCoreTailStatus', status);
   setText('temperatureCoreTailDetail', detail);
+}
+
+function dailyFlexDateLabel(value) {
+  const day = String(value || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) return '—';
+  return `${day.slice(5, 7)}月${day.slice(8, 10)}日`;
+}
+
+function dailyFlexEventMeta(item) {
+  const signal = dailyFlexDateLabel(item?.signal_date);
+  const execution = dailyFlexDateLabel(item?.execution_date);
+  if (item?.execution_mode === 'T_TAIL_1450') {
+    return `信号 ${signal} · 执行 ${signal} 14:50-15:00`;
+  }
+  if (item?.execution_status === 'EXECUTED') {
+    return `信号 ${signal} · 已于 ${execution} 开盘执行`;
+  }
+  return `信号 ${signal} · 计划 ${execution} 开盘执行`;
+}
+
+function dailyFlexEventBadge(eventType) {
+  const badges = {
+    ENTRY: ['入场', 'entry'],
+    EXIT: ['离场', 'exit'],
+    TAKE_PROFIT: ['止盈', 'take-profit'],
+    STOP_LOSS: ['止损', 'stop-loss'],
+  };
+  return badges[String(eventType || '')] || ['动作', 'action'];
+}
+
+function renderDailyFlexBrief(brief) {
+  const meta = document.getElementById('dailyFlexBriefMeta');
+  const summary = document.getElementById('dailyFlexBriefSummary');
+  const items = document.getElementById('dailyFlexBriefItems');
+  const quality = document.getElementById('dailyFlexBriefQuality');
+  if (!meta || !summary || !items || !quality) return;
+
+  const valid = Number(brief?.schema_version) === 1
+    && brief?.strategy_id === 'FLEX_AGGRESSIVE'
+    && Array.isArray(brief?.items);
+  if (!valid) {
+    meta.textContent = '权威快照未就绪';
+    summary.dataset.status = 'blocked';
+    summary.innerHTML = '<strong>暂不发布策略日报</strong><span>等待新版 Flex 原子快照，页面不会自行推断信号。</span>';
+    items.innerHTML = '';
+    quality.textContent = '';
+    return;
+  }
+
+  const strategyDay = dailyFlexDateLabel(brief.as_of);
+  const marksDay = dailyFlexDateLabel(brief.marks_as_of);
+  const risk = brief.satellite_risk_event || {};
+  const dq = brief.data_quality || {};
+  const blocked = risk.status === 'BLOCKED';
+  meta.textContent = `策略 ${strategyDay} · 行情 ${marksDay}`;
+  summary.dataset.status = blocked ? 'blocked' : String(brief.status || '').toLowerCase();
+  summary.innerHTML = [
+    `<strong>${escapeHtml(brief.headline_cn || '今日没有 Flex 策略动作')}</strong>`,
+    `<span>${blocked ? escapeHtml(risk.reason_cn || '卫星风控数据不完整') : '唯一口径 · Flex 进取策略'}</span>`,
+  ].join('');
+
+  if (!brief.items.length) {
+    items.innerHTML = '<div class="daily-flex-brief-empty">维持当前策略状态，无新增入场、离场或止盈止损动作。</div>';
+  } else {
+    items.innerHTML = brief.items.map(item => {
+      const [badgeText, badgeClass] = dailyFlexEventBadge(item.event_type);
+      const instrumentText = (item.instruments || []).map(instrument => {
+        const code = instrument.etf_code ? ` ${instrument.etf_code}` : '';
+        const portfolioWeight = Number(instrument.portfolio_weight);
+        const sleeveWeight = Number(instrument.weight_in_sleeve);
+        const weight = Number.isFinite(portfolioWeight) && portfolioWeight > 0
+          ? ` · 组合${(portfolioWeight * 100).toFixed(1)}%`
+          : (Number.isFinite(sleeveWeight) && sleeveWeight > 0
+            ? ` · 篮内${(sleeveWeight * 100).toFixed(1)}%`
+            : '');
+        return `${instrument.name || '—'}${code}${weight}`;
+      }).join(' / ');
+      const triggerReturn = Number(item.trigger_return);
+      const trigger = Number.isFinite(triggerReturn)
+        ? `<span class="daily-flex-trigger">首次触发收益 ${flexFormatSignedPct(triggerReturn)}</span>`
+        : '';
+      return `
+        <article class="daily-flex-brief-item" data-event-type="${escapeHtml(badgeClass)}">
+          <span class="daily-flex-event-badge ${escapeHtml(badgeClass)}">${escapeHtml(badgeText)}</span>
+          <div class="daily-flex-event-body">
+            <div class="daily-flex-event-title">
+              <strong>${escapeHtml(item.title_cn || item.action_cn || '策略动作')}</strong>
+              <span>${String(item.sleeve || '') === 'core' ? '核心仓' : '卫星仓'}</span>
+            </div>
+            <p class="daily-flex-event-instruments">${escapeHtml(instrumentText || '—')}</p>
+            <p class="daily-flex-event-reason">${escapeHtml(item.reason_cn || '')}</p>
+          </div>
+          <div class="daily-flex-event-timing">
+            <strong>${escapeHtml(dailyFlexEventMeta(item))}</strong>
+            ${trigger}
+          </div>
+        </article>`;
+    }).join('');
+  }
+
+  quality.dataset.status = blocked ? 'blocked' : 'ok';
+  quality.textContent = blocked
+    ? `数据核验未通过：${risk.reason_cn || '固定卫星篮子行情不完整'}`
+    : `策略动作与 ETF 日线来自同一快照 · 行情质量 ${dq.marks_quality || '—'} · 卫星风控 ${risk.status || '—'}`;
 }
 
 function renderIntradayTemperaturePanel(payload) {
@@ -1071,8 +1184,10 @@ function renderCriticalDashboard({ latest, history, tradeCalendar, nowcastHistor
   if (dashboardState.flexPlaybook) renderFlexTradePanel(dashboardState.flexPlaybook);
 }
 
-function renderHeavyDashboard({ strategy, rtTactical, stagePlaybook }) {
+function renderHeavyDashboard({ strategy, rtTactical, stagePlaybook, dailyStrategyBrief }) {
   dashboardState.strategy = strategy || {};
+  dashboardState.dailyFlexBrief = dailyStrategyBrief || null;
+  renderDailyFlexBrief(dashboardState.dailyFlexBrief);
   renderFlexTradePanel(stagePlaybook);
   renderStrategy(strategy);
   renderRtTactical(rtTactical);
@@ -1261,8 +1376,12 @@ function flexWithCoreTailSignal(flex, signal) {
   const copy = { ...base, core_tail_signal: tail };
   if (!flexCoreTailActionableNow(tail)) return copy;
 
-  const satOpen = String(base.position_state?.satellite?.status || '') === 'open'
-    || !!base.satellite?.active;
+  const satRisk = base.daily_strategy_brief?.satellite_risk_event || {};
+  const satRiskExecuted = satRisk.status === 'TRIGGERED' && satRisk.execution_status === 'EXECUTED';
+  const satOpen = !satRiskExecuted && (
+    String(base.position_state?.satellite?.status || '') === 'open'
+    || !!base.satellite?.active
+  );
   const target = satOpen ? 0.6 : 1.0;
   const action = {
     sleeve: 'core',
@@ -2362,10 +2481,10 @@ function rebuildSimLedgerFromStrategy(flex) {
   // This keeps a clean first load identical to every later refresh.
   ledger = flexApplyEodMarksToLedger(ledger);
   if (satSignalId && !satRisk && ledger.mark_as_of && Number(ledger._eod_mark_stats?.missing) === 0) {
-    const basket = flexSatelliteBasketFirstRiskTrigger(ledger, f);
+    const basket = flexAuthoritativeSatelliteRisk(f) || flexSatelliteBasketFirstRiskTrigger(ledger, f);
     if (basket?.triggered) {
       const signalDate = basket.triggerDate || ledger.mark_as_of;
-      const executionDate = flexAddTradingDays(signalDate, 1);
+      const executionDate = basket.executionDate || flexAddTradingDays(signalDate, 1);
       satRisk = {
         status: 'PENDING',
         close_code: basket.close_code,
@@ -2782,6 +2901,59 @@ function flexSatelliteBasisRiskStatus(basis, flex, markDate) {
     markDate,
     fixedBasis: true,
   };
+}
+
+function flexAuthoritativeSatelliteRisk(flex) {
+  const event = flex?.daily_strategy_brief?.satellite_risk_event;
+  const signalId = String(flex?.position_state?.satellite?.entry_signal_date || '').slice(0, 10);
+  if (!event || !signalId || String(event.signal_id || '').slice(0, 10) !== signalId) return null;
+  const rule = flexSatelliteRiskRule(flex);
+  if (event.status === 'TRIGGERED') {
+    const ret = Number(event.trigger_return);
+    const stop = event.event_type === 'STOP_LOSS';
+    return {
+      authoritative: true,
+      triggered: true,
+      close_code: event.close_code,
+      action_cn: stop ? '卫星篮子止损卖出' : '卫星篮子止盈卖出',
+      badge: stop ? '止损平仓' : '止盈平仓',
+      label: `卫星篮子${stop ? '止损' : '止盈'}已触发 ${flexFormatSignedPct(ret)}`,
+      why: event.reason_cn || `固定入场篮子已触发${stop ? '止损' : '止盈'}；下一交易日开盘整篮平仓`,
+      rule,
+      ret,
+      daysHeld: Number(event.days_held) || null,
+      markDate: event.trigger_date,
+      triggerDate: event.trigger_date,
+      executionDate: event.execution_date,
+      fixedBasis: true,
+    };
+  }
+  if (event.status === 'BLOCKED') {
+    return {
+      authoritative: true,
+      triggered: false,
+      blocked: true,
+      label: `卫星风控暂停 · ${event.reason_cn || '固定篮子数据不完整'}`,
+      rule,
+      markDate: event.checked_through || null,
+    };
+  }
+  if (event.status === 'CLEAR') {
+    const ret = Number(event.latest_return);
+    return {
+      authoritative: true,
+      triggered: false,
+      label: Number.isFinite(ret)
+        ? `卫星篮子尚未触发止损止盈 · EOD收益 ${flexFormatSignedPct(ret)}`
+        : '卫星篮子尚未触发止损止盈',
+      rule,
+      ret: Number.isFinite(ret) ? ret : null,
+      daysHeld: Number(event.days_held) || null,
+      markDate: event.checked_through || null,
+      fixedBasis: true,
+    };
+  }
+  return null;
 }
 
 /** Recover the first EOD threshold crossing even when the page was not opened that day. */
@@ -5245,6 +5417,7 @@ function renderFlexTradePanel(playbook) {
   }
 
   dashboardState.flexPlaybook = playbook;
+  flex = { ...flex, daily_strategy_brief: dashboardState.dailyFlexBrief };
   flex = flexWithCoreTailSignal(flex, tailSignal);
   // Product lock: only aggressive Flex sizing is exposed in the app; backend is the sizing source of truth.
   const mode = 'aggressive';
@@ -5260,6 +5433,7 @@ function renderFlexTradePanel(playbook) {
     ...flex,
     as_of: flex.as_of || playbook?.as_of || '',
     data_quality: playbook?.data_quality || flex.data_quality || null,
+    daily_strategy_brief: dashboardState.dailyFlexBrief,
     mode,
   };
   dashboardState.flexActive = flex;

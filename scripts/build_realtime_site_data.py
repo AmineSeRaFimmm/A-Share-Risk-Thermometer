@@ -9,6 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from src.core.nowcast_history import build_nowcast_history_from_files, nowcast_rows_csv
 from src.core.intraday_temperature import record_intraday_temperature
+from src.core.flex_snapshot import publish_flex_snapshot
 from src.core.site_data import audit_payload, components_payload, latest_payload
 from src.storage.csv_store import read_csv, write_csv
 from src.storage.json_store import write_json
@@ -35,6 +36,7 @@ def main() -> None:
     write_json(intraday, SITE / "intraday_temperature.json")
     write_json(components_payload(risk, realtime, nowcast_history), SITE / "components.json")
     write_json(audit_payload(risk, realtime, nowcast_history), SITE / "audit.json")
+    publish_flex_snapshot()
 
     data_dir = DOCS / "data"
     if data_dir.exists():

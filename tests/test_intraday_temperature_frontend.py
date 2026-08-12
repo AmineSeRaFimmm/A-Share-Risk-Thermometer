@@ -22,9 +22,13 @@ def test_temperature_page_loads_persisted_intraday_series() -> None:
 
     assert 'id="intradayTemperatureChart"' in html
     assert 'id="intradayTemperatureNote"' in html
+    assert 'id="dailyFlexBrief"' in html
+    assert html.index('id="dailyFlexBrief"') > html.index('id="intradayTemperatureChart"')
     assert "./data/intraday_temperature.json" in app
     assert "function renderIntradayTemperaturePanel(payload)" in app
     assert "function renderIntradayTemperatureChart(payload)" in charts
+    assert "function renderDailyFlexBrief(brief)" in app
+    assert "flexSnapshot.daily_strategy_brief" in app
     assert "今日尚无刷新采样" in charts
     assert "正式收盘终点" in charts
     assert "type: 'time'" in charts
@@ -59,6 +63,8 @@ def test_realtime_workflow_publishes_intraday_artifacts() -> None:
         "data/calculated/intraday_temperature_history.csv",
         "data/site/intraday_temperature.json",
         "docs/data/intraday_temperature.json",
+        "data/site/flex_snapshot.json",
+        "docs/data/flex_snapshot.json",
     }.issubset(set(ALLOWED_PATHS))
 
 
@@ -72,7 +78,7 @@ def test_pages_refresh_coalesces_active_workflows_and_waits_for_slow_publish() -
 def test_refresh_renders_the_published_revision_without_stale_cache_or_lost_force_reload() -> None:
     html = (ROOT / "web/index.html").read_text(encoding="utf-8")
     app = (ROOT / "web/assets/app.js").read_text(encoding="utf-8")
-    assert "./assets/app.js?v=20260811-flex-risk-v6" in html
+    assert "./assets/app.js?v=20260812-daily-flex-brief-v1" in html
     assert "function dashboardDataRevision(" in app
     assert "return [updateTime, buildTime, tradeDate]" in app
     assert "fetch(url, fresh ? { cache: 'no-store' } : undefined)" in app

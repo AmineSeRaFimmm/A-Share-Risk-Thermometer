@@ -16,11 +16,13 @@ ALLOWED_PATHS = [
     "data/site/audit.json",
     "data/site/nowcast_history.json",
     "data/site/intraday_temperature.json",
+    "data/site/flex_snapshot.json",
     "docs/data/latest.json",
     "docs/data/components.json",
     "docs/data/audit.json",
     "docs/data/nowcast_history.json",
     "docs/data/intraday_temperature.json",
+    "docs/data/flex_snapshot.json",
     "docs/data/downloads/risk_temperature_nowcast.csv",
 ]
 
