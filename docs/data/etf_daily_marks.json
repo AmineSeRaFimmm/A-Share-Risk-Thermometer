@@ -2,22 +2,22 @@
   "title": "Flex ETF daily marks (EOD)",
   "policy": "SIM_ENTRY_OPEN_MARK_CLOSE",
   "policy_cn": "模拟仓专业口径：入场价=入场日开盘价；盯市价=as_of收盘价；不做盘中轮询；与策略/回测日频一致。",
-  "as_of": "2026-08-11",
-  "start": "2026-04-13",
+  "as_of": "2026-08-12",
+  "start": "2026-04-14",
   "source": "AKSHARE_FUND_ETF_HIST_EM",
   "fetch_workers": 4,
   "not_broker_feed": true,
   "required_codes": [
     "159745",
-    "159886",
     "159928",
+    "159998",
     "510300",
-    "512660",
-    "512800",
+    "512400",
     "512980",
     "513180",
-    "515880",
-    "560620"
+    "515220",
+    "516020",
+    "516850"
   ],
   "coverage_codes": [
     "159666",
@@ -52,12 +52,53 @@
   ],
   "code_count": 29,
   "missing_codes": [],
-  "stale_codes": [],
+  "stale_codes": [
+    "159745",
+    "159928",
+    "159998",
+    "510300",
+    "512400",
+    "512980",
+    "513180",
+    "515220",
+    "516020",
+    "516850"
+  ],
   "complete_as_of": "2026-08-11",
   "coverage_missing_codes": [],
-  "coverage_stale_codes": [],
+  "coverage_stale_codes": [
+    "159666",
+    "159697",
+    "159730",
+    "159745",
+    "159766",
+    "159886",
+    "159928",
+    "159995",
+    "159998",
+    "510300",
+    "512010",
+    "512200",
+    "512400",
+    "512430",
+    "512580",
+    "512660",
+    "512800",
+    "512880",
+    "512980",
+    "513180",
+    "515210",
+    "515220",
+    "515710",
+    "515880",
+    "516020",
+    "516110",
+    "516670",
+    "516850",
+    "560620"
+  ],
   "coverage_complete_as_of": "2026-08-11",
-  "quality": "OK",
+  "quality": "WARN_INCOMPLETE_AS_OF",
   "by_code": {
     "159666": {
       "etf_code": "159666",
@@ -564,7 +605,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "159697": {
       "etf_code": "159697",
@@ -1071,7 +1112,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "159730": {
       "etf_code": "159730",
@@ -1578,7 +1619,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "159745": {
       "etf_code": "159745",
@@ -2085,7 +2126,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "159766": {
       "etf_code": "159766",
@@ -2592,7 +2633,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "159886": {
       "etf_code": "159886",
@@ -3099,7 +3140,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "159928": {
       "etf_code": "159928",
@@ -3606,7 +3647,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "159995": {
       "etf_code": "159995",
@@ -4113,7 +4154,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "159998": {
       "etf_code": "159998",
@@ -4620,7 +4661,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "510300": {
       "etf_code": "510300",
@@ -5127,7 +5168,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512010": {
       "etf_code": "512010",
@@ -5634,7 +5675,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512200": {
       "etf_code": "512200",
@@ -6141,7 +6182,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512400": {
       "etf_code": "512400",
@@ -6648,7 +6689,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512430": {
       "etf_code": "512430",
@@ -7077,7 +7118,7 @@
       "bar_count": 70,
       "first": "2026-04-30",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512580": {
       "etf_code": "512580",
@@ -7584,7 +7625,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512660": {
       "etf_code": "512660",
@@ -8091,7 +8132,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512800": {
       "etf_code": "512800",
@@ -8598,7 +8639,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512880": {
       "etf_code": "512880",
@@ -9105,7 +9146,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "512980": {
       "etf_code": "512980",
@@ -9612,7 +9653,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "513180": {
       "etf_code": "513180",
@@ -10119,7 +10160,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "515210": {
       "etf_code": "515210",
@@ -10626,7 +10667,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "515220": {
       "etf_code": "515220",
@@ -11133,7 +11174,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "515710": {
       "etf_code": "515710",
@@ -11640,7 +11681,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "515880": {
       "etf_code": "515880",
@@ -12147,7 +12188,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "516020": {
       "etf_code": "516020",
@@ -12654,7 +12695,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "516110": {
       "etf_code": "516110",
@@ -13161,7 +13202,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "516670": {
       "etf_code": "516670",
@@ -13668,7 +13709,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "516850": {
       "etf_code": "516850",
@@ -14175,7 +14216,7 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     },
     "560620": {
       "etf_code": "560620",
@@ -14682,14 +14723,128 @@
       "bar_count": 83,
       "first": "2026-04-13",
       "last": "2026-08-11",
-      "fresh_for_as_of": true
+      "fresh_for_as_of": false
     }
   },
-  "updated_at": "2026-08-11T21:57:11+08:00",
+  "updated_at": "2026-08-12T08:38:42+00:00",
   "published_bar_preservation": {
-    "status": "not_needed",
-    "candidate_as_of": "2026-08-11",
-    "codes": [],
-    "dates_by_code": {}
+    "status": "used",
+    "candidate_as_of": "2026-08-12",
+    "codes": [
+      "159666",
+      "159697",
+      "159730",
+      "159745",
+      "159766",
+      "159886",
+      "159928",
+      "159995",
+      "159998",
+      "510300",
+      "512010",
+      "512200",
+      "512400",
+      "512580",
+      "512660",
+      "512800",
+      "512880",
+      "512980",
+      "513180",
+      "515210",
+      "515220",
+      "515710",
+      "515880",
+      "516020",
+      "516110",
+      "516670",
+      "516850",
+      "560620"
+    ],
+    "dates_by_code": {
+      "159666": [
+        "2026-04-13"
+      ],
+      "159697": [
+        "2026-04-13"
+      ],
+      "159730": [
+        "2026-04-13"
+      ],
+      "159745": [
+        "2026-04-13"
+      ],
+      "159766": [
+        "2026-04-13"
+      ],
+      "159886": [
+        "2026-04-13"
+      ],
+      "159928": [
+        "2026-04-13"
+      ],
+      "159995": [
+        "2026-04-13"
+      ],
+      "159998": [
+        "2026-04-13"
+      ],
+      "510300": [
+        "2026-04-13"
+      ],
+      "512010": [
+        "2026-04-13"
+      ],
+      "512200": [
+        "2026-04-13"
+      ],
+      "512400": [
+        "2026-04-13"
+      ],
+      "512580": [
+        "2026-04-13"
+      ],
+      "512660": [
+        "2026-04-13"
+      ],
+      "512800": [
+        "2026-04-13"
+      ],
+      "512880": [
+        "2026-04-13"
+      ],
+      "512980": [
+        "2026-04-13"
+      ],
+      "513180": [
+        "2026-04-13"
+      ],
+      "515210": [
+        "2026-04-13"
+      ],
+      "515220": [
+        "2026-04-13"
+      ],
+      "515710": [
+        "2026-04-13"
+      ],
+      "515880": [
+        "2026-04-13"
+      ],
+      "516020": [
+        "2026-04-13"
+      ],
+      "516110": [
+        "2026-04-13"
+      ],
+      "516670": [
+        "2026-04-13"
+      ],
+      "516850": [
+        "2026-04-13"
+      ],
+      "560620": [
+        "2026-04-13"
+      ]
+    }
   }
 }

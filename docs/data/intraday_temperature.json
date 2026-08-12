@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "trade_date": "2026-08-12",
-  "sample_count": 26,
-  "eligible_count": 25,
+  "sample_count": 27,
+  "eligible_count": 26,
   "excluded_count": 1,
-  "has_final": false,
+  "has_final": true,
   "first_sample_at": "2026-08-12T09:17:10+08:00",
-  "last_sample_at": "2026-08-12T15:00:10+08:00",
+  "last_sample_at": "2026-08-12T16:37:44+08:00",
   "rows": [
     {
       "sampled_at": "2026-08-12T09:17:10+08:00",
@@ -750,6 +750,34 @@
       "core_tail_degraded": false,
       "core_tail_actionable_at_sample": false,
       "core_tail_uncertainty": null
+    },
+    {
+      "sampled_at": "2026-08-12T16:37:44+08:00",
+      "time": "16:37",
+      "risk_temperature": 52.3,
+      "temperature_mode": "OFFICIAL_CLOSE",
+      "temperature_mode_cn": "收盘正式",
+      "is_final": true,
+      "quality": "WARN_QVIX_REALTIME_PROXY",
+      "model_confidence": 92.2,
+      "model_coverage_score": 100.0,
+      "model_data_quality_score": 92.2,
+      "model_missing_components": "QVIX_PROXY",
+      "hs300_drawdown_60d": -0.0729,
+      "breadth_mode": "STOCK_A",
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU",
+      "breadth_observed": true,
+      "plot_eligible": true,
+      "core_tail_status": "FINAL",
+      "core_tail_status_cn": "已转正式收盘，尾盘窗口结束",
+      "core_tail_sample_state": "INVALID",
+      "core_tail_sample_state_cn": "数据结构无效",
+      "core_tail_consecutive_samples": 0,
+      "core_tail_stable": false,
+      "core_tail_degraded": false,
+      "core_tail_actionable_at_sample": false,
+      "core_tail_uncertainty": null
     }
   ],
   "available_dates": [
@@ -763,8 +791,8 @@
     "2026-08-12"
   ],
   "core_tail_signal": {
-    "status": "INACTIVE",
-    "status_cn": "严格条件未同时满足",
+    "status": "FINAL",
+    "status_cn": "已转正式收盘，尾盘窗口结束",
     "trade_date": "2026-08-12",
     "candidate": false,
     "stable": false,
@@ -775,19 +803,19 @@
     "degraded_samples_in_streak": 0,
     "degraded": false,
     "degraded_uncertainty": null,
-    "latest_sample_state": "FAIL",
-    "latest_sample_state_cn": "完整数据不通过",
-    "last_sample_at": "2026-08-12T15:00:10+08:00",
-    "valid_until": "2026-08-12T15:15:10+08:00",
+    "latest_sample_state": "INVALID",
+    "latest_sample_state_cn": "数据结构无效",
+    "last_sample_at": "2026-08-12T16:37:44+08:00",
+    "valid_until": "2026-08-12T16:52:44+08:00",
     "conditions": {
-      "state": "FAIL",
+      "state": "INVALID",
       "eligible": false,
-      "definitive_fail": true,
-      "skip_without_reset": false,
+      "definitive_fail": false,
+      "skip_without_reset": true,
       "degraded": false,
-      "decision_basis": "FULL_QUALITY",
+      "decision_basis": "UNBOUNDED_INVALID",
       "uncertainty": null,
-      "data_valid": true,
+      "data_valid": false,
       "conditions_pass": false,
       "checks": {
         "risk_temperature": false,
@@ -797,7 +825,7 @@
         "data_quality": true,
         "allowed_degradations": true,
         "stock_breadth": true,
-        "intraday_mode": true
+        "intraday_mode": false
       },
       "quality_checks": {
         "confidence_present": true,
@@ -805,27 +833,29 @@
         "data_quality": true,
         "allowed_degradations": true,
         "stock_breadth": true,
-        "intraday_mode": true
+        "intraday_mode": false
       },
       "strategy_checks": {
         "risk_temperature": false,
         "hs300_drawdown_60d": true
       },
-      "invalid_reasons": [],
+      "invalid_reasons": [
+        "intraday_mode"
+      ],
       "values": {
-        "risk_temperature": 52.1,
-        "hs300_drawdown_60d": -0.0725,
-        "model_confidence": 81.4,
+        "risk_temperature": 52.3,
+        "hs300_drawdown_60d": -0.0729,
+        "model_confidence": 92.2,
         "model_coverage_score": 100.0,
-        "model_data_quality_score": 81.4,
+        "model_data_quality_score": 92.2,
         "model_missing_components": "QVIX_PROXY",
         "disallowed_missing_components": "",
         "breadth_mode": "STOCK_A",
         "breadth_quality": "OK",
-        "temperature_mode": "NOWCAST"
+        "temperature_mode": "OFFICIAL_CLOSE"
       },
       "model_coverage_score": 100.0,
-      "model_data_quality_score": 81.4,
+      "model_data_quality_score": 92.2,
       "model_missing_components": "QVIX_PROXY",
       "breadth_mode": "STOCK_A",
       "breadth_quality": "OK",
