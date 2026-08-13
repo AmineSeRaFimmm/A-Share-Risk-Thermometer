@@ -5,7 +5,7 @@
   "as_of": "2026-08-13",
   "start": "2026-04-15",
   "source": "AKSHARE_FUND_ETF_HIST_EM",
-  "fetch_workers": 1,
+  "fetch_workers": 4,
   "not_broker_feed": true,
   "required_codes": [
     "159745",
@@ -14974,55 +14974,7 @@
       "fresh_for_as_of": true
     }
   },
-  "updated_at": "2026-08-13T08:56:05+00:00",
-  "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
-  "final_quote_fallback": {
-    "trade_date": "2026-08-13",
-    "status": "complete",
-    "code_count": 10,
-    "quotes": {
-      "159745": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:42+08:00"
-      },
-      "159928": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:15+08:00"
-      },
-      "159998": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:21+08:00"
-      },
-      "510300": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:38+08:00"
-      },
-      "512400": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:43+08:00"
-      },
-      "512980": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:38+08:00"
-      },
-      "513180": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:35+08:00"
-      },
-      "515220": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:57+08:00"
-      },
-      "516020": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:34+08:00"
-      },
-      "516850": {
-        "source": "TENCENT_ETF_FINAL_QUOTE",
-        "quote_time": "2026-08-13T16:14:31+08:00"
-      }
-    }
-  },
+  "updated_at": "2026-08-13T09:38:14+00:00",
   "published_bar_preservation": {
     "status": "used",
     "candidate_as_of": "2026-08-13",
@@ -15071,7 +15023,8 @@
       ],
       "159745": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "159766": [
         "2026-04-13",
@@ -15083,7 +15036,8 @@
       ],
       "159928": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "159995": [
         "2026-04-13",
@@ -15091,11 +15045,13 @@
       ],
       "159998": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "510300": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "512010": [
         "2026-04-13",
@@ -15107,7 +15063,8 @@
       ],
       "512400": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "512580": [
         "2026-04-13",
@@ -15127,11 +15084,13 @@
       ],
       "512980": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "513180": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "515210": [
         "2026-04-13",
@@ -15139,7 +15098,8 @@
       ],
       "515220": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "515710": [
         "2026-04-13",
@@ -15151,7 +15111,8 @@
       ],
       "516020": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "516110": [
         "2026-04-13",
@@ -15163,12 +15124,62 @@
       ],
       "516850": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ],
       "560620": [
         "2026-04-13",
-        "2026-04-14"
+        "2026-04-14",
+        "2026-08-13"
       ]
+    }
+  },
+  "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
+  "final_quote_fallback": {
+    "trade_date": "2026-08-13",
+    "status": "complete",
+    "code_count": 10,
+    "quotes": {
+      "159745": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:42+08:00"
+      },
+      "159928": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:15+08:00"
+      },
+      "159998": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:21+08:00"
+      },
+      "510300": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:38+08:00"
+      },
+      "512400": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:43+08:00"
+      },
+      "512980": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:38+08:00"
+      },
+      "513180": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:35+08:00"
+      },
+      "515220": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:57+08:00"
+      },
+      "516020": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:34+08:00"
+      },
+      "516850": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-08-13T16:14:31+08:00"
+      }
     }
   }
 }
