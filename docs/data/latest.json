@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-08-13",
-  "update_time": "2026-08-13T16:46:09+08:00",
+  "update_time": "2026-08-13T16:48:35+08:00",
   "risk_temperature": 50.1,
   "regime": "CAUTION",
   "regime_cn": "警戒",
@@ -55,7 +55,7 @@
     "avix_realtime_usable_gap_fill": true,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
     "avix_realtime_source_quote_time": null,
-    "avix_realtime_fetch_time": "2026-08-13T16:43:25+08:00",
+    "avix_realtime_fetch_time": "2026-08-13T16:48:32+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
     "avix_percentile_2y": 0.3996,
     "quality": "OK"
