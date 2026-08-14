@@ -1,21 +1,5 @@
 [
   {
-    "date": "2022-11-28",
-    "risk_temperature": 71.1,
-    "regime": "HIGH_RISK",
-    "avix_clean": 22.9331,
-    "qvix": 22.86,
-    "qvix_source": "OPTBBS_PARSE_300INDEX_QVIX",
-    "qvix_quality": "OK",
-    "qvix_is_proxy": false,
-    "qvix_replica": 23.0821,
-    "qvix_replica_quality": "OK_REPLICA_ROLLING_MEDIAN_BASIS",
-    "hs300_close": 3733.242,
-    "drawdown_pressure": 70.6446,
-    "breadth_pressure": 50.0,
-    "model_confidence": 100.0
-  },
-  {
     "date": "2022-11-29",
     "risk_temperature": 59.3,
     "regime": "CAUTION",
@@ -14372,8 +14356,8 @@
     "risk_temperature": 52.3,
     "regime": "CAUTION",
     "avix_clean": 18.5683,
-    "qvix": 18.75,
-    "qvix_source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
+    "qvix": 18.74,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
     "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
     "qvix_is_proxy": true,
     "qvix_replica": 18.9212,
@@ -14381,15 +14365,15 @@
     "hs300_close": 4690.917,
     "drawdown_pressure": 58.1083,
     "breadth_pressure": 15.7135,
-    "model_confidence": 92.2
+    "model_confidence": 93.7
   },
   {
     "date": "2026-08-13",
-    "risk_temperature": 50.1,
+    "risk_temperature": 54.9,
     "regime": "CAUTION",
     "avix_clean": 18.0418,
-    "qvix": 18.75,
-    "qvix_source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
+    "qvix": 18.39,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
     "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
     "qvix_is_proxy": true,
     "qvix_replica": 18.382,
@@ -14397,6 +14381,22 @@
     "hs300_close": 4663.951,
     "drawdown_pressure": 62.6376,
     "breadth_pressure": 62.5234,
-    "model_confidence": 92.0
+    "model_confidence": 93.7
+  },
+  {
+    "date": "2026-08-14",
+    "risk_temperature": 51.6,
+    "regime": "CAUTION",
+    "avix_clean": 17.7677,
+    "qvix": 18.04,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
+    "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
+    "qvix_is_proxy": true,
+    "qvix_replica": 18.1079,
+    "qvix_replica_quality": "OK_REPLICA_ROLLING_MEDIAN_BASIS",
+    "hs300_close": 4665.881,
+    "drawdown_pressure": 62.3998,
+    "breadth_pressure": 45.5662,
+    "model_confidence": 93.7
   }
 ]

@@ -1,8 +1,8 @@
 {
   "schema_version": 2,
-  "revision": "d8da77e60687f2429707627acdbc6f25f969b63c3c3034e99323d414abc48829",
-  "built_at": "2026-08-14T17:10:13+08:00",
-  "strategy_as_of": "2026-08-13",
+  "revision": "e2482013e9057bc992c52ad264816f8327325891f652d8f2f404a7a9dcad8192",
+  "built_at": "2026-08-14T17:34:04+08:00",
+  "strategy_as_of": "2026-08-14",
   "marks_as_of": "2026-08-14",
   "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
   "calendar_coverage_through": "2026-12-31",
@@ -43,27 +43,27 @@
         "research/output/core_plus_sectors/core_plus_sectors_report.md"
       ]
     },
-    "as_of": "2026-08-13",
+    "as_of": "2026-08-14",
     "data_quality": {
       "risk_source": "OFFICIAL_CLOSE",
-      "official_as_of": "2026-08-13",
+      "official_as_of": "2026-08-14",
       "bridged": false,
       "bridged_dates": [],
       "bridge_source": null,
       "note_cn": "策略日期与正式风险因子日期一致。"
     },
     "market_state": {
-      "trade_date": "2026-08-13",
-      "rt": 50.1,
-      "prev_rt": 52.3,
-      "rt_d1": -2.1999999999999957,
-      "rt_d5": -14.699999999999996,
-      "rt_rollmax_10": 76.0,
-      "hs300_dd60": -0.0782082504390613,
+      "trade_date": "2026-08-14",
+      "rt": 51.6,
+      "prev_rt": 54.9,
+      "rt_d1": -3.299999999999997,
+      "rt_d5": -8.0,
+      "rt_rollmax_10": 74.2,
+      "hs300_dd60": -0.0778268017324491,
       "regime": "CAUTION",
       "regime_cn": "警戒",
       "quality": "WARN_QVIX_REALTIME_PROXY",
-      "model_confidence": 92.0
+      "model_confidence": 93.7
     },
     "active_stage_ids": [
       "FALLING_HARD"
@@ -171,10 +171,10 @@
         "weight_target": 0.6,
         "weight_hint": "60%",
         "why": "未触发新信号；按回测规则持有满期，不因阶段切换强平",
-        "days_held": 2,
-        "days_remaining": 3,
+        "days_held": 3,
+        "days_remaining": 2,
         "entry": "—",
-        "exit": "约剩 3 日",
+        "exit": "约剩 2 日",
         "sector": "沪深300",
         "etf_code": "510300",
         "etf_name": "沪深300ETF华泰柏瑞",
@@ -196,10 +196,10 @@
         "weight_target": 0.1434,
         "weight_hint": "14%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 2,
-        "days_remaining": 6,
+        "days_held": 3,
+        "days_remaining": 5,
         "entry": "—",
-        "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "恒生科技",
         "etf_code": "513180",
         "etf_name": "恒生科技ETF华夏",
@@ -221,10 +221,10 @@
         "weight_target": 0.0946,
         "weight_hint": "9%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 2,
-        "days_remaining": 6,
+        "days_held": 3,
+        "days_remaining": 5,
         "entry": "—",
-        "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "建筑材料",
         "etf_code": "159745",
         "etf_name": "建材ETF国泰",
@@ -246,10 +246,10 @@
         "weight_target": 0.0946,
         "weight_hint": "9%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 2,
-        "days_remaining": 6,
+        "days_held": 3,
+        "days_remaining": 5,
         "entry": "—",
-        "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "传媒",
         "etf_code": "512980",
         "etf_name": "传媒ETF广发",
@@ -271,10 +271,10 @@
         "weight_target": 0.0674,
         "weight_hint": "7%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 2,
-        "days_remaining": 6,
+        "days_held": 3,
+        "days_remaining": 5,
         "entry": "—",
-        "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "商贸零售",
         "etf_code": "159928",
         "etf_name": "消费ETF汇添富",
@@ -514,7 +514,7 @@
       "status": "持有",
       "status_code": "BOTH",
       "headline": "组合 Flex v2：持仓管理（无新开）",
-      "as_of": "2026-08-13",
+      "as_of": "2026-08-14",
       "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
       "core_tail_policy": {
         "id": "CORE_STRICT_TAIL_V2",
@@ -799,11 +799,11 @@
         }
       },
       "market_state": {
-        "rt": 50.1,
-        "rt_d1": -2.1999999999999957,
-        "rt_d5": -14.699999999999996,
-        "hs300_dd60": -0.0782082504390613,
-        "model_confidence": 92.0,
+        "rt": 51.6,
+        "rt_d1": -3.299999999999997,
+        "rt_d5": -8.0,
+        "hs300_dd60": -0.0778268017324491,
+        "model_confidence": 93.7,
         "regime_cn": "警戒"
       },
       "active_stages": [
@@ -824,15 +824,15 @@
       ],
       "merge_note_cn": "多阶段合并：FALLING_HARD；被门控压制：无",
       "position_state": {
-        "as_of": "2026-08-13",
+        "as_of": "2026-08-14",
         "mode": "aggressive",
         "core": {
           "status": "open",
           "entry_signal_date": "2026-08-11",
           "entry_date": "2026-08-12",
           "exit_due_date": "2026-08-18",
-          "days_held": 2,
-          "days_remaining": 3,
+          "days_held": 3,
+          "days_remaining": 2,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
             "沪深300"
@@ -850,8 +850,8 @@
           "entry_signal_date": "2026-08-11",
           "entry_date": "2026-08-12",
           "exit_due_date": "2026-08-21",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
             "恒生科技",
@@ -873,12 +873,12 @@
         "last_actions": []
       },
       "exit_plan": {
-        "as_of": "2026-08-13",
+        "as_of": "2026-08-14",
         "core": {
           "status": "open",
           "entry_signal_date": "2026-08-11",
           "entry_date": "2026-08-12",
-          "days_held": 2,
+          "days_held": 3,
           "hold_days": 5,
           "execution_mode": "T_PLUS_1_OPEN",
           "entry_price_type": "open",
@@ -886,13 +886,13 @@
           "max_signal_date": "2026-08-18",
           "max_exec_next_open": "2026-08-19",
           "exit_due_date": "2026-08-18",
-          "days_to_max": 3
+          "days_to_max": 2
         },
         "satellite": {
           "status": "open",
           "entry_signal_date": "2026-08-11",
           "entry_date": "2026-08-12",
-          "days_held": 2,
+          "days_held": 3,
           "stage_id": "CSI300_CORE_BUY",
           "rules": {
             "min_hold": 3,
@@ -911,7 +911,7 @@
           },
           "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。",
           "exit_due_date": "2026-08-21",
-          "days_to_max": 6
+          "days_to_max": 5
         },
         "guarantee_cn": "日更成功且 as_of=当日时：任一 close_code 触发必写入 close_list；执行台必须展示策略平仓提示（本机未点买也可看，点买后可记账平仓）。日更失败则页面不会刷新——需看 Actions。"
       },
@@ -921,7 +921,7 @@
         "action": "HOLD",
         "action_cn": "持有中",
         "tone": "buy",
-        "detail": "已持有约 2 日，剩余约 3 日。",
+        "detail": "已持有约 3 日，剩余约 2 日。",
         "rule": "60≤RT<80 且 60日回撤≤-5%；持有5日",
         "active": true,
         "etf_code": "510300",
@@ -933,8 +933,8 @@
           "entry_signal_date": "2026-08-11",
           "entry_date": "2026-08-12",
           "exit_due_date": "2026-08-18",
-          "days_held": 2,
-          "days_remaining": 3,
+          "days_held": 3,
+          "days_remaining": 2,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
             "沪深300"
@@ -1164,8 +1164,8 @@
           "entry_signal_date": "2026-08-11",
           "entry_date": "2026-08-12",
           "exit_due_date": "2026-08-21",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
             "恒生科技",
@@ -1199,10 +1199,10 @@
           "weight_target": 0.6,
           "weight_hint": "60%",
           "why": "未触发新信号；按回测规则持有满期，不因阶段切换强平",
-          "days_held": 2,
-          "days_remaining": 3,
+          "days_held": 3,
+          "days_remaining": 2,
           "entry": "—",
-          "exit": "约剩 3 日",
+          "exit": "约剩 2 日",
           "sector": "沪深300",
           "etf_code": "510300",
           "etf_name": "沪深300ETF华泰柏瑞",
@@ -1224,10 +1224,10 @@
           "weight_target": 0.1434,
           "weight_hint": "14%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "恒生科技",
           "etf_code": "513180",
           "etf_name": "恒生科技ETF华夏",
@@ -1249,10 +1249,10 @@
           "weight_target": 0.0946,
           "weight_hint": "9%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "建筑材料",
           "etf_code": "159745",
           "etf_name": "建材ETF国泰",
@@ -1274,10 +1274,10 @@
           "weight_target": 0.0946,
           "weight_hint": "9%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "传媒",
           "etf_code": "512980",
           "etf_name": "传媒ETF广发",
@@ -1299,10 +1299,10 @@
           "weight_target": 0.0674,
           "weight_hint": "7%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "商贸零售",
           "etf_code": "159928",
           "etf_name": "消费ETF汇添富",
@@ -1371,10 +1371,10 @@
           "weight_target": 0.6,
           "weight_hint": "60%",
           "why": "未触发新信号；按回测规则持有满期，不因阶段切换强平",
-          "days_held": 2,
-          "days_remaining": 3,
+          "days_held": 3,
+          "days_remaining": 2,
           "entry": "—",
-          "exit": "约剩 3 日",
+          "exit": "约剩 2 日",
           "sector": "沪深300",
           "etf_code": "510300",
           "etf_name": "沪深300ETF华泰柏瑞",
@@ -1398,10 +1398,10 @@
           "weight_target": 0.6,
           "weight_hint": "60%",
           "why": "未触发新信号；按回测规则持有满期，不因阶段切换强平",
-          "days_held": 2,
-          "days_remaining": 3,
+          "days_held": 3,
+          "days_remaining": 2,
           "entry": "—",
-          "exit": "约剩 3 日",
+          "exit": "约剩 2 日",
           "sector": "沪深300",
           "etf_code": "510300",
           "etf_name": "沪深300ETF华泰柏瑞",
@@ -1423,10 +1423,10 @@
           "weight_target": 0.1434,
           "weight_hint": "14%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "恒生科技",
           "etf_code": "513180",
           "etf_name": "恒生科技ETF华夏",
@@ -1448,10 +1448,10 @@
           "weight_target": 0.0946,
           "weight_hint": "9%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "建筑材料",
           "etf_code": "159745",
           "etf_name": "建材ETF国泰",
@@ -1473,10 +1473,10 @@
           "weight_target": 0.0946,
           "weight_hint": "9%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "传媒",
           "etf_code": "512980",
           "etf_name": "传媒ETF广发",
@@ -1498,10 +1498,10 @@
           "weight_target": 0.0674,
           "weight_hint": "7%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 5 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "商贸零售",
           "etf_code": "159928",
           "etf_name": "消费ETF汇添富",
@@ -2106,7 +2106,7 @@
     "as_of": "2026-08-14",
     "start": "2026-04-16",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 1,
+    "fetch_workers": 4,
     "not_broker_feed": true,
     "required_codes": [
       "159745",
@@ -17244,55 +17244,7 @@
         "fresh_for_as_of": false
       }
     },
-    "updated_at": "2026-08-14T08:50:37+00:00",
-    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
-    "final_quote_fallback": {
-      "trade_date": "2026-08-13",
-      "status": "complete",
-      "code_count": 10,
-      "quotes": {
-        "159745": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:42+08:00"
-        },
-        "159928": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:15+08:00"
-        },
-        "159998": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:21+08:00"
-        },
-        "510300": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:38+08:00"
-        },
-        "512400": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:43+08:00"
-        },
-        "512980": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:38+08:00"
-        },
-        "513180": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:35+08:00"
-        },
-        "515220": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:57+08:00"
-        },
-        "516020": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:34+08:00"
-        },
-        "516850": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-13T16:14:31+08:00"
-        }
-      }
-    },
+    "updated_at": "2026-08-14T09:34:04+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-08-14",
@@ -17345,7 +17297,8 @@
         "159745": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "159766": [
           "2026-04-13",
@@ -17360,7 +17313,8 @@
         "159928": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "159995": [
           "2026-04-13",
@@ -17370,12 +17324,14 @@
         "159998": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "510300": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "512010": [
           "2026-04-13",
@@ -17390,7 +17346,8 @@
         "512400": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "512580": [
           "2026-04-13",
@@ -17415,12 +17372,14 @@
         "512980": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "513180": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "515210": [
           "2026-04-13",
@@ -17430,7 +17389,8 @@
         "515220": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "515710": [
           "2026-04-13",
@@ -17445,7 +17405,8 @@
         "516020": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "516110": [
           "2026-04-13",
@@ -17460,13 +17421,62 @@
         "516850": [
           "2026-04-13",
           "2026-04-14",
-          "2026-04-15"
+          "2026-04-15",
+          "2026-08-14"
         ],
         "560620": [
           "2026-04-13",
           "2026-04-14",
           "2026-04-15"
         ]
+      }
+    },
+    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
+    "final_quote_fallback": {
+      "trade_date": "2026-08-13",
+      "status": "complete",
+      "code_count": 10,
+      "quotes": {
+        "159745": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:42+08:00"
+        },
+        "159928": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:15+08:00"
+        },
+        "159998": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:21+08:00"
+        },
+        "510300": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:38+08:00"
+        },
+        "512400": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:43+08:00"
+        },
+        "512980": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:38+08:00"
+        },
+        "513180": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:35+08:00"
+        },
+        "515220": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:57+08:00"
+        },
+        "516020": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:34+08:00"
+        },
+        "516850": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-13T16:14:31+08:00"
+        }
       }
     }
   },
@@ -17476,9 +17486,8 @@
     "authoritative": true,
     "coverage_from": "1990-12-19",
     "coverage_through": "2026-12-31",
-    "generated_for": "2026-08-13",
+    "generated_for": "2026-08-14",
     "dates": [
-      "2016-08-15",
       "2016-08-16",
       "2016-08-17",
       "2016-08-18",
@@ -20053,9 +20062,9 @@
       "transaction_cost_bps_one_way": 1.0,
       "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
       "status": "CLEAR",
-      "checked_through": "2026-08-13",
-      "latest_return": -0.00472446314612629,
-      "days_held": 2,
+      "checked_through": "2026-08-14",
+      "latest_return": -0.015131185920714274,
+      "days_held": 3,
       "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
     },
     "visibility_policy": {
@@ -20067,7 +20076,7 @@
     },
     "data_quality": {
       "report_as_of": "2026-08-14",
-      "strategy_as_of": "2026-08-13",
+      "strategy_as_of": "2026-08-14",
       "marks_as_of": "2026-08-14",
       "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
       "risk_check_status": "CLEAR",
