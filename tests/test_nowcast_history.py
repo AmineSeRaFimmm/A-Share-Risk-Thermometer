@@ -7,7 +7,9 @@ import pandas as pd
 from src.core.nowcast_history import (
     _augment_breadth_for_realtime_dates,
     _augment_qvix_for_realtime_dates,
+    _eligible_realtime_rows,
     _fetch_realtime_factor_inputs,
+    _realtime_avix_flags,
 )
 
 
@@ -140,3 +142,71 @@ def test_realtime_factor_fetches_run_concurrently(monkeypatch):
     assert float(q.iloc[0]["close"]) == 20.0
     assert float(i.iloc[0]["close"]) == 4000.0
     assert b.iloc[0]["quality"] == "OK"
+
+
+def test_soft_warn_avix_fetches_live_factors_without_weakening_close_history(monkeypatch):
+    from src.core import nowcast_history as mod
+
+    monkeypatch.setattr(mod, "_shanghai_today", lambda: "2026-08-17")
+    rows = pd.DataFrame(
+        [
+            {
+                "trade_date": "2026-08-17",
+                "valuation_time": "2026-08-17T10:00:00+08:00",
+                "quality": "WARN_NOT_BRACKET_30D",
+                "avix_mid": 18.45,
+                "gap_fill_eligible": False,
+            },
+            {
+                "trade_date": "2026-08-16",
+                "valuation_time": "2026-08-16T10:00:00+08:00",
+                "quality": "WARN_NOT_BRACKET_30D",
+                "avix_mid": 18.20,
+                "gap_fill_eligible": False,
+            },
+            {
+                "trade_date": "2026-08-15",
+                "valuation_time": "2026-08-15T15:20:00+08:00",
+                "quality": "OK",
+                "avix_mid": 18.10,
+                "gap_fill_eligible": True,
+            },
+            {
+                "trade_date": "2026-08-17",
+                "valuation_time": None,
+                "quality": "WARN_NOT_BRACKET_30D",
+                "avix_mid": 18.00,
+                "gap_fill_eligible": False,
+            },
+        ]
+    )
+
+    eligible = _eligible_realtime_rows(rows)
+
+    assert list(eligible["trade_date"]) == ["2026-08-17", "2026-08-15"]
+
+
+def test_soft_warn_avix_is_not_promoted_to_estimated_close(monkeypatch):
+    from src.core import nowcast_history as mod
+
+    monkeypatch.setattr(mod, "_shanghai_today", lambda: "2026-08-17")
+    rows = pd.DataFrame(
+        [
+            {
+                "trade_date": "2026-08-17",
+                "valuation_time": "2026-08-17T15:16:00+08:00",
+                "quality": "WARN_NOT_BRACKET_30D",
+                "avix_mid": 18.45,
+                "gap_fill_eligible": False,
+            }
+        ]
+    )
+
+    assert _eligible_realtime_rows(rows).empty
+
+
+def test_realtime_avix_formula_warning_is_preserved_with_source_flags():
+    assert _realtime_avix_flags(
+        "WARN_NOT_BRACKET_30D", "TIME_UNVERIFIED"
+    ) == "TIME_UNVERIFIED|WARN_NOT_BRACKET_30D"
+    assert _realtime_avix_flags("WARN_NOT_BRACKET_30D", float("nan")) == "WARN_NOT_BRACKET_30D"

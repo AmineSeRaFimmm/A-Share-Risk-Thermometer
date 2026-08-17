@@ -475,7 +475,7 @@ function renderQvixFallback(latest) {
   const source = String(qvix.qvix_source || '');
   const secondarySource = String(qvix.qvix_secondary_source || '');
   const delay = Number(qvix.qvix_delay_minutes);
-  let label = '--';
+  let label = '盘中QVIX缺失';
   if (source.includes('EOD_QVIX_PROXY_CROSSCHECKED')) {
     label = '300ETF QVIX代理 · 东财复核';
   } else if (source.includes('EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED')) {

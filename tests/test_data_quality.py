@@ -41,6 +41,13 @@ def test_missing_neutral_fill_never_counts_as_observed():
     assert observation_quality_score(observed=False, quality_flags="MISSING") == 0.0
 
 
+def test_unbracketed_avix_terms_reduce_observation_quality():
+    assert observation_quality_score(
+        observed=True,
+        quality_flags="WARN_NOT_BRACKET_30D",
+    ) == 0.9
+
+
 def test_final_close_does_not_become_stale_after_market():
     meta = quality_metadata(
         source="EOD",

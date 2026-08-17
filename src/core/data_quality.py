@@ -105,6 +105,8 @@ def observation_quality_score(
         score *= 0.80
     if "TIME_UNVERIFIED" in flags:
         score *= 0.85
+    if "WARN_NOT_BRACKET_30D" in flags:
+        score *= 0.90
     if "STALE" in flags:
         score *= 0.50
     if "SPARSE" in flags or "EMPTY_SAMPLE" in flags:

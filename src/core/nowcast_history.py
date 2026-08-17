@@ -12,13 +12,14 @@ from src.data_sources.eastmoney_indices import fetch_realtime_index_snapshot
 from src.core.realtime_avix import (
     calculate_realtime_avix,
     realtime_avix_allows_gap_fill,
+    realtime_avix_allows_nowcast,
 )
 from src.core.risk_temperature import compute_risk_temperature
 from src.core.qvix_validation import validate_qvix
 from src.core.realized_vol import compute_realized_vol
 from src.core.drawdown import compute_drawdown
 from src.core.realtime_index_factors import augment_index_history_with_realtime
-from src.core.market_state import estimated_temperature_mode
+from src.core.market_state import CLOSE_PENDING, INTRADAY, estimated_temperature_mode
 from src.core.breadth import compute_breadth_pressure, drop_legacy_synthetic_breadth
 from src.storage.csv_store import read_csv
 from src.storage.paths import CALCULATED, NORMALIZED, RAW
@@ -31,6 +32,16 @@ def _finite(value):
     except Exception:
         return None
     return round(numeric, 4) if pd.notna(numeric) else None
+
+
+def _realtime_avix_flags(quality, quality_flags) -> str:
+    quality_text = _text_or_none(quality) or ""
+    return merge_quality(
+        [
+            _text_or_none(quality_flags) or "",
+            quality_text if quality_text.startswith(("WARN", "LOW", "BAD")) else "",
+        ]
+    )
 
 
 def _text_or_none(value) -> str | None:
@@ -80,26 +91,77 @@ def _realtime_avix_rows(
         row = result.iloc[-1].to_dict()
         quality = str(row.get("quality", ""))
         avix_mid = pd.to_numeric(row.get("avix_mid"), errors="coerce")
-        # Gap-fill estimated close: strict OK only — never soft-WARN into history proxy.
-        if realtime_avix_allows_gap_fill(quality, avix_mid):
+        gap_fill_eligible = realtime_avix_allows_gap_fill(quality, avix_mid)
+        nowcast_eligible = realtime_avix_allows_nowcast(quality, avix_mid)
+        if nowcast_eligible:
+            row["quality_flags"] = _realtime_avix_flags(quality, row.get("quality_flags"))
+            row["gap_fill_eligible"] = gap_fill_eligible
             rows.append(row)
-            status_by_date[trade_date] = "实时AVIX可用(严格OK，可补估算收盘)"
+            status_by_date[trade_date] = (
+                "实时AVIX可用(严格OK，可补估算收盘)"
+                if gap_fill_eligible
+                else f"实时AVIX仅可盘中: {quality or 'UNKNOWN'}"
+            )
         elif pd.notna(avix_mid) and float(avix_mid) > 0:
-            status_by_date[trade_date] = f"实时AVIX仅可盘中: {quality or 'UNKNOWN'}"
+            status_by_date[trade_date] = f"实时AVIX不可用于盘中: {quality or 'UNKNOWN'}"
         else:
             status_by_date[trade_date] = f"实时AVIX不可用: {quality or 'UNKNOWN'}"
 
     return pd.DataFrame(rows), status_by_date
 
 
+def _shanghai_today() -> str:
+    return pd.Timestamp.now(tz="Asia/Shanghai").strftime("%Y-%m-%d")
+
+
+def _eligible_realtime_rows(realtime_avix: pd.DataFrame) -> pd.DataFrame:
+    """Allow soft-WARN AVIX only for the current live/pending session.
+
+    Strict gap-fill rows remain eligible for estimated-close history. This
+    prevents the live QVIX/index/breadth fetch path from depending on the more
+    restrictive close-reconstruction gate without weakening that gate.
+    """
+
+    if realtime_avix is None or realtime_avix.empty:
+        return pd.DataFrame()
+    out = realtime_avix.copy()
+    modes = out.get("valuation_time", pd.Series(index=out.index, dtype=object)).map(
+        estimated_temperature_mode
+    )
+    out["_temperature_mode"] = modes.map(lambda item: item[0])
+    strict = out.get(
+        "gap_fill_eligible",
+        pd.Series(False, index=out.index, dtype=bool),
+    ).fillna(False).astype(bool)
+    current_session = out["trade_date"].astype(str).eq(_shanghai_today())
+    valuation_session = (
+        out.get("valuation_time", pd.Series("", index=out.index, dtype=object))
+        .fillna("")
+        .astype(str)
+        .str.slice(0, 10)
+        .eq(_shanghai_today())
+    )
+    live_mode = out["_temperature_mode"].isin({INTRADAY, CLOSE_PENDING})
+    return out.loc[strict | (current_session & valuation_session & live_mode)].drop(
+        columns=["_temperature_mode"], errors="ignore"
+    )
+
+
 def _pseudo_avix_clean(official_clean: pd.DataFrame, realtime_avix: pd.DataFrame) -> pd.DataFrame:
     clean = official_clean.copy()
     if clean.empty or realtime_avix.empty:
         return clean
+    realtime_quality = realtime_avix.get(
+        "quality", pd.Series("OK", index=realtime_avix.index, dtype=object)
+    )
     estimate_rows = pd.DataFrame({
         "trade_date": realtime_avix["trade_date"].astype(str),
         "avix_clean": pd.to_numeric(realtime_avix["avix_mid"], errors="coerce"),
-        "quality": "OK_REALTIME_AVIX_ESTIMATE",
+        "quality": realtime_quality.map(
+            lambda value: merge_quality(
+                ["OK_REALTIME_AVIX_ESTIMATE", _text_or_none(value) or ""]
+            )
+        ),
         "near_expiry": realtime_avix.get("near_expiry"),
         "next_expiry": realtime_avix.get("next_expiry"),
         "near_dte": realtime_avix.get("near_dte"),
@@ -318,6 +380,7 @@ def build_nowcast_history(
     realtime_avix, realtime_status = _realtime_avix_rows(official_clean, rate_curve, index_history)
     official_latest = str(official_risk["trade_date"].max())
     realtime_avix = realtime_avix[realtime_avix["trade_date"].astype(str) > official_latest].copy()
+    realtime_avix = _eligible_realtime_rows(realtime_avix)
     if realtime_avix.empty:
         return {
             "status": "no_estimates",
