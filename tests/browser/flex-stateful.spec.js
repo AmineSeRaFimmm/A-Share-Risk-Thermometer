@@ -125,6 +125,18 @@ test('Flex v6 recovers fixed-basket take profit from the first EOD crossing', as
   });
   await page.goto('/');
   const result = await page.evaluate(() => {
+    // App startup may already migrate the seeded v5 ledger. Reset the fixture
+    // immediately before exercising the migration so this test is isolated.
+    localStorage.setItem('ashare_flex_exec_ledger_sim_v1', JSON.stringify({
+      version: 5, book: 'sim', capital: 60000, cash: 12000,
+      positions: {
+        corrupted: {
+          key: 'corrupted', name: '煤炭', etf_code: '515220', sleeve: 'satellite',
+          qty: 1000, avg_price: 1, cost_basis: 1000, buy_date: '2026-08-05',
+        },
+      },
+      journal: [], risk_exits: {}, pending_orders: {},
+    }));
     const bars = {
       '2026-07-30': { open: 1.0, close: 1.0, high: 1.0, low: 1.0 },
       '2026-07-31': { open: 1.0, close: 1.0, high: 1.0, low: 1.0 },
