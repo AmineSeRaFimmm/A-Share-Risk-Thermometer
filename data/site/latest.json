@@ -1,10 +1,10 @@
 {
-  "trade_date": "2026-08-14",
-  "update_time": "2026-08-14T19:10:16+08:00",
-  "risk_temperature": 51.6,
+  "trade_date": "2026-08-17",
+  "update_time": "2026-08-17T09:29:22+08:00",
+  "risk_temperature": 57.3,
   "regime": "CAUTION",
   "regime_cn": "警戒",
-  "quality": "WARN_QVIX_REALTIME_PROXY",
+  "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY",
   "model_confidence": {
     "score": 93.7,
     "coverage_score": 100.0,
@@ -13,13 +13,13 @@
     "missing_components": "QVIX_PROXY"
   },
   "model_confidence_label": "93.7 / 高",
-  "temperature_mode": "OFFICIAL_CLOSE",
-  "temperature_mode_cn": "收盘正式",
-  "is_final": true,
+  "temperature_mode": "NOWCAST",
+  "temperature_mode_cn": "盘中估算",
+  "is_final": false,
   "components": {
-    "avix_percentile_2y": 36.7793,
-    "avix_zscore_1y": 37.1776,
-    "avix_5d_change": 32.7636,
+    "avix_percentile_2y": 50.0,
+    "avix_zscore_1y": 46.0079,
+    "avix_5d_change": 42.901,
     "qvix_confirmation": 100.0,
     "realized_vol": 78.5714,
     "drawdown_pressure": 62.3998,
@@ -47,17 +47,17 @@
   "avix": {
     "avix_clean_close": 17.7677,
     "avix_raw_close": 17.7896,
-    "avix_realtime_mid": 17.8175,
-    "avix_realtime_quality": "OK",
-    "avix_realtime_note": "normal two-term interpolation",
+    "avix_realtime_mid": 18.7566,
+    "avix_realtime_quality": "WARN_NOT_BRACKET_30D",
+    "avix_realtime_note": "nearest two terms do not bracket 30D",
     "avix_realtime_usable": true,
     "avix_realtime_usable_nowcast": true,
-    "avix_realtime_usable_gap_fill": true,
+    "avix_realtime_usable_gap_fill": false,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
     "avix_realtime_source_quote_time": null,
-    "avix_realtime_fetch_time": "2026-08-14T17:31:55+08:00",
+    "avix_realtime_fetch_time": "2026-08-17T09:29:17+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
-    "avix_percentile_2y": 0.3678,
+    "avix_percentile_2y": 0.5,
     "quality": "OK"
   },
   "official_close": {
@@ -85,13 +85,30 @@
     }
   },
   "nowcast": {
-    "active": false,
+    "trade_date": "2026-08-17",
+    "risk_temperature": 57.3,
+    "regime": "CAUTION",
+    "regime_cn": "警戒",
+    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY",
+    "baseline_trade_date": "2026-08-14",
     "official_risk_temperature": 51.6,
-    "reason_cn": "已有正式收盘，优先官方 AVIX"
+    "realtime_avix": 18.7566,
+    "realtime_avix_quality": "WARN_NOT_BRACKET_30D",
+    "realtime_valuation_time": "2026-08-17T09:29:17+08:00",
+    "qvix_close": null,
+    "qvix_source": null,
+    "qvix_quote_time": null,
+    "qvix_delay_minutes": null,
+    "realtime_index_source": null,
+    "realtime_index_quote_time": null,
+    "realtime_index_fetch_time": null,
+    "realtime_index_symbols": null,
+    "method": "Realtime AVIX factors + previous official close non-AVIX factors",
+    "active": true
   },
   "interpretation": {
-    "headline": "市场风险温度 51.6，处于警戒",
-    "summary": "QVIX确认、实现波动率、回撤压力是当前风险温度的主要驱动；多因子合成后给出 51.6/100。",
+    "headline": "市场风险温度 57.3，处于警戒",
+    "summary": "QVIX确认、实现波动率、回撤压力是当前风险温度的主要驱动；多因子合成后给出 57.3/100。",
     "posture": "降低追高倾向",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }

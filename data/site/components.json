@@ -1,13 +1,13 @@
 {
-  "trade_date": "2026-08-14",
-  "temperature_mode": "OFFICIAL_CLOSE",
+  "trade_date": "2026-08-17",
+  "temperature_mode": "NOWCAST",
   "components": [
     {
       "key": "avix_percentile_2y",
       "name": "AVIX两年分位",
-      "score": 36.7793,
+      "score": 50.0,
       "weight": 0.28,
-      "contribution": 10.2982,
+      "contribution": 14.0,
       "observed": true,
       "raw_value": 17.7677,
       "source": "OFFICIAL_CLOSE",
@@ -18,9 +18,9 @@
     {
       "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 37.1776,
+      "score": 46.0079,
       "weight": 0.14,
-      "contribution": 5.2049,
+      "contribution": 6.4411,
       "observed": true,
       "raw_value": 17.7677,
       "source": "OFFICIAL_CLOSE",
@@ -31,9 +31,9 @@
     {
       "key": "avix_5d_change",
       "name": "AVIX 5日变化",
-      "score": 32.7636,
+      "score": 42.901,
       "weight": 0.08,
-      "contribution": 2.6211,
+      "contribution": 3.4321,
       "observed": true,
       "raw_value": 17.7677,
       "source": "OFFICIAL_CLOSE",
