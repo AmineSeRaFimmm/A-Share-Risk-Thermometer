@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "trade_date": "2026-08-17",
-  "sample_count": 3,
-  "eligible_count": 3,
+  "sample_count": 4,
+  "eligible_count": 4,
   "excluded_count": 0,
   "has_final": false,
   "first_sample_at": "2026-08-17T09:29:22+08:00",
-  "last_sample_at": "2026-08-17T09:35:59+08:00",
+  "last_sample_at": "2026-08-17T09:56:27+08:00",
   "rows": [
     {
       "sampled_at": "2026-08-17T09:29:22+08:00",
@@ -91,6 +91,34 @@
       "core_tail_degraded": false,
       "core_tail_actionable_at_sample": false,
       "core_tail_uncertainty": null
+    },
+    {
+      "sampled_at": "2026-08-17T09:56:27+08:00",
+      "time": "09:56",
+      "risk_temperature": 55.4,
+      "temperature_mode": "NOWCAST",
+      "temperature_mode_cn": "盘中估算",
+      "is_final": false,
+      "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY",
+      "model_confidence": 93.7,
+      "model_coverage_score": 100.0,
+      "model_data_quality_score": 93.7,
+      "model_missing_components": "QVIX_PROXY",
+      "hs300_drawdown_60d": -0.0778,
+      "breadth_mode": "STOCK_A",
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU",
+      "breadth_observed": true,
+      "plot_eligible": true,
+      "core_tail_status": "INACTIVE",
+      "core_tail_status_cn": "严格条件未同时满足",
+      "core_tail_sample_state": "FAIL",
+      "core_tail_sample_state_cn": "完整数据不通过",
+      "core_tail_consecutive_samples": 0,
+      "core_tail_stable": false,
+      "core_tail_degraded": false,
+      "core_tail_actionable_at_sample": false,
+      "core_tail_uncertainty": null
     }
   ],
   "available_dates": [
@@ -121,8 +149,8 @@
     "degraded_uncertainty": null,
     "latest_sample_state": "FAIL",
     "latest_sample_state_cn": "完整数据不通过",
-    "last_sample_at": "2026-08-17T09:35:59+08:00",
-    "valid_until": "2026-08-17T09:50:59+08:00",
+    "last_sample_at": "2026-08-17T09:56:27+08:00",
+    "valid_until": "2026-08-17T10:11:27+08:00",
     "conditions": {
       "state": "FAIL",
       "eligible": false,
@@ -157,7 +185,7 @@
       },
       "invalid_reasons": [],
       "values": {
-        "risk_temperature": 53.7,
+        "risk_temperature": 55.4,
         "hs300_drawdown_60d": -0.0778,
         "model_confidence": 93.7,
         "model_coverage_score": 100.0,

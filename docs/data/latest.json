@@ -1,7 +1,7 @@
 {
   "trade_date": "2026-08-17",
-  "update_time": "2026-08-17T09:35:59+08:00",
-  "risk_temperature": 53.7,
+  "update_time": "2026-08-17T09:56:27+08:00",
+  "risk_temperature": 55.4,
   "regime": "CAUTION",
   "regime_cn": "警戒",
   "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY",
@@ -17,9 +17,9 @@
   "temperature_mode_cn": "盘中估算",
   "is_final": false,
   "components": {
-    "avix_percentile_2y": 41.6667,
-    "avix_zscore_1y": 40.5163,
-    "avix_5d_change": 36.582,
+    "avix_percentile_2y": 45.4365,
+    "avix_zscore_1y": 43.2921,
+    "avix_5d_change": 39.7769,
     "qvix_confirmation": 100.0,
     "realized_vol": 78.5714,
     "drawdown_pressure": 62.3998,
@@ -47,7 +47,7 @@
   "avix": {
     "avix_clean_close": 17.7677,
     "avix_raw_close": 17.7896,
-    "avix_realtime_mid": 18.1422,
+    "avix_realtime_mid": 18.4528,
     "avix_realtime_quality": "WARN_NOT_BRACKET_30D",
     "avix_realtime_note": "nearest two terms do not bracket 30D",
     "avix_realtime_usable": true,
@@ -55,9 +55,9 @@
     "avix_realtime_usable_gap_fill": false,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
     "avix_realtime_source_quote_time": null,
-    "avix_realtime_fetch_time": "2026-08-17T09:35:54+08:00",
+    "avix_realtime_fetch_time": "2026-08-17T09:56:22+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
-    "avix_percentile_2y": 0.4167,
+    "avix_percentile_2y": 0.4544,
     "quality": "OK"
   },
   "official_close": {
@@ -86,15 +86,15 @@
   },
   "nowcast": {
     "trade_date": "2026-08-17",
-    "risk_temperature": 53.7,
+    "risk_temperature": 55.4,
     "regime": "CAUTION",
     "regime_cn": "警戒",
     "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY",
     "baseline_trade_date": "2026-08-14",
     "official_risk_temperature": 51.6,
-    "realtime_avix": 18.1422,
+    "realtime_avix": 18.4528,
     "realtime_avix_quality": "WARN_NOT_BRACKET_30D",
-    "realtime_valuation_time": "2026-08-17T09:35:54+08:00",
+    "realtime_valuation_time": "2026-08-17T09:56:22+08:00",
     "qvix_close": null,
     "qvix_source": null,
     "qvix_quote_time": null,
@@ -107,8 +107,8 @@
     "active": true
   },
   "interpretation": {
-    "headline": "市场风险温度 53.7，处于警戒",
-    "summary": "QVIX确认、实现波动率、回撤压力是当前风险温度的主要驱动；多因子合成后给出 53.7/100。",
+    "headline": "市场风险温度 55.4，处于警戒",
+    "summary": "QVIX确认、实现波动率、回撤压力是当前风险温度的主要驱动；多因子合成后给出 55.4/100。",
     "posture": "降低追高倾向",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
