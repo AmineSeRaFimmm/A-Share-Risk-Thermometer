@@ -2,7 +2,14 @@
   "status": "no_estimates",
   "official_latest_date": "2026-08-14",
   "rows": [],
-  "gaps": [],
+  "gaps": [
+    {
+      "date": "2026-08-17",
+      "official_status": "缺失",
+      "estimate_status": "不可用",
+      "reason": "实时AVIX仅可盘中: WARN_NOT_BRACKET_30D"
+    }
+  ],
   "methodology": {
     "official_series": "risk_temperature.csv remains official close only and is not backfilled with weak daily option data.",
     "estimated_series": "Estimated rows use OK realtime AVIX when official daily AVIX is missing or rejected; missing QVIX may use exact-date realtime 300 index QVIX, else 300ETF QVIX proxy, then the clearly marked 15-minute delayed Eastmoney CFFEX 300-index option replica.",

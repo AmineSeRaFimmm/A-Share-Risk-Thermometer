@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-08-17",
-  "update_time": "2026-08-17T16:00:22+08:00",
+  "update_time": "2026-08-17T16:26:08+08:00",
   "risk_temperature": 52.2,
   "regime": "CAUTION",
   "regime_cn": "警戒",
@@ -55,7 +55,7 @@
     "avix_realtime_usable_gap_fill": false,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
     "avix_realtime_source_quote_time": null,
-    "avix_realtime_fetch_time": "2026-08-17T16:00:17+08:00",
+    "avix_realtime_fetch_time": "2026-08-17T16:25:01+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
     "avix_percentile_2y": 0.379,
     "quality": "OK"
@@ -94,7 +94,7 @@
     "official_risk_temperature": 51.6,
     "realtime_avix": 17.8906,
     "realtime_avix_quality": "WARN_NOT_BRACKET_30D",
-    "realtime_valuation_time": "2026-08-17T16:00:17+08:00",
+    "realtime_valuation_time": "2026-08-17T16:25:01+08:00",
     "qvix_close": null,
     "qvix_source": null,
     "qvix_quote_time": null,
