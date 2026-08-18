@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "1b7f6a4cbf7100daa39a6f17ca064c76a7ce6c3fbf1495f1b4c6858758702545",
-  "built_at": "2026-08-18T09:38:39+08:00",
+  "revision": "e2bd91a52479a420abc736435e5841d37521364771195e99f644a61a7f40d43e",
+  "built_at": "2026-08-18T09:46:07+08:00",
   "strategy_as_of": "2026-08-17",
   "marks_as_of": "2026-08-17",
   "marks_quality": "OK",
@@ -20248,7 +20248,7 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-08-17",
+    "as_of": "2026-08-18",
     "marks_as_of": "2026-08-17",
     "status": "HOLD",
     "headline_cn": "今日无新动作，维持策略持仓",
@@ -20309,7 +20309,7 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-08-17",
+      "report_as_of": "2026-08-18",
       "strategy_as_of": "2026-08-17",
       "marks_as_of": "2026-08-17",
       "marks_quality": "OK",
