@@ -37,26 +37,24 @@
   },
   "as_of": "2026-08-18",
   "data_quality": {
-    "risk_source": "OFFICIAL_PLUS_NOWCAST_BRIDGE",
-    "official_as_of": "2026-08-17",
-    "bridged": true,
-    "bridged_dates": [
-      "2026-08-18"
-    ],
-    "bridge_source": "NOWCAST_RT",
-    "note_cn": "策略日期已用指数日历和盘中估算桥接正式风险因子缺口；正式温度历史不受影响。"
+    "risk_source": "OFFICIAL_CLOSE",
+    "official_as_of": "2026-08-18",
+    "bridged": false,
+    "bridged_dates": [],
+    "bridge_source": null,
+    "note_cn": "策略日期与正式风险因子日期一致。"
   },
   "market_state": {
     "trade_date": "2026-08-18",
-    "rt": 52.5,
+    "rt": 51.1,
     "prev_rt": 42.4,
-    "rt_d1": 10.100000000000001,
-    "rt_d5": -9.299999999999997,
+    "rt_d1": 8.700000000000003,
+    "rt_d5": -10.699999999999996,
     "rt_rollmax_10": 66.3,
-    "hs300_dd60": -0.06645468922998354,
+    "hs300_dd60": -0.0659817323621478,
     "regime": "CAUTION",
     "regime_cn": "警戒",
-    "quality": "WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D|NOWCAST_BRIDGE",
+    "quality": "WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D",
     "model_confidence": 88.7
   },
   "active_stage_ids": [
@@ -794,10 +792,10 @@
       }
     },
     "market_state": {
-      "rt": 52.5,
-      "rt_d1": 10.100000000000001,
-      "rt_d5": -9.299999999999997,
-      "hs300_dd60": -0.06645468922998354,
+      "rt": 51.1,
+      "rt_d1": 8.700000000000003,
+      "rt_d5": -10.699999999999996,
+      "hs300_dd60": -0.0659817323621478,
       "model_confidence": 88.7,
       "regime_cn": "警戒"
     },

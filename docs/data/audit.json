@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-08-18",
-  "temperature_mode": "NOWCAST",
+  "temperature_mode": "OFFICIAL_CLOSE",
   "data_health": {
     "options_history": "OK",
     "options_realtime": "WARN",
@@ -18,11 +18,8 @@
     "avix_mid": 18.1837
   },
   "nowcast": {
-    "active": true,
-    "quality": "OK_NOWCAST|WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D",
-    "risk_temperature": 44.8,
-    "baseline_trade_date": "2026-08-17",
-    "method": "Realtime AVIX factors + previous official close non-AVIX factors"
+    "active": false,
+    "reason_cn": "盘中 nowcast 未激活；正式收盘优先官方 AVIX"
   },
   "model_confidence": {
     "score": 88.7,
@@ -32,10 +29,9 @@
     "missing_components": "QVIX_PROXY"
   },
   "warnings": [
-    "OK_NOWCAST",
     "WARN_NOT_BRACKET_30D",
     "WARN_QVIX_REALTIME_PROXY",
     "WARN_ROLLOVER_SINGLE_TERM_30D"
   ],
-  "last_successful_update": "2026-08-18T15:53:00+08:00"
+  "last_successful_update": "2026-08-18T16:58:57+08:00"
 }

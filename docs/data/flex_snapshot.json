@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "7decda40a67e0047c5e9d6a7b6de006b7190074fb028f8f009536d89e82d12f4",
-  "built_at": "2026-08-18T16:40:19+08:00",
+  "revision": "a484bf25ee552bb9cbbe843ed3644b4c026d9cd3679c429b37b69ec94742b34b",
+  "built_at": "2026-08-18T16:59:59+08:00",
   "strategy_as_of": "2026-08-18",
   "marks_as_of": "2026-08-18",
   "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
@@ -45,26 +45,24 @@
     },
     "as_of": "2026-08-18",
     "data_quality": {
-      "risk_source": "OFFICIAL_PLUS_NOWCAST_BRIDGE",
-      "official_as_of": "2026-08-17",
-      "bridged": true,
-      "bridged_dates": [
-        "2026-08-18"
-      ],
-      "bridge_source": "NOWCAST_RT",
-      "note_cn": "策略日期已用指数日历和盘中估算桥接正式风险因子缺口；正式温度历史不受影响。"
+      "risk_source": "OFFICIAL_CLOSE",
+      "official_as_of": "2026-08-18",
+      "bridged": false,
+      "bridged_dates": [],
+      "bridge_source": null,
+      "note_cn": "策略日期与正式风险因子日期一致。"
     },
     "market_state": {
       "trade_date": "2026-08-18",
-      "rt": 52.5,
+      "rt": 51.1,
       "prev_rt": 42.4,
-      "rt_d1": 10.100000000000001,
-      "rt_d5": -9.299999999999997,
+      "rt_d1": 8.700000000000003,
+      "rt_d5": -10.699999999999996,
       "rt_rollmax_10": 66.3,
-      "hs300_dd60": -0.06645468922998354,
+      "hs300_dd60": -0.0659817323621478,
       "regime": "CAUTION",
       "regime_cn": "警戒",
-      "quality": "WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D|NOWCAST_BRIDGE",
+      "quality": "WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D",
       "model_confidence": 88.7
     },
     "active_stage_ids": [
@@ -802,10 +800,10 @@
         }
       },
       "market_state": {
-        "rt": 52.5,
-        "rt_d1": 10.100000000000001,
-        "rt_d5": -9.299999999999997,
-        "hs300_dd60": -0.06645468922998354,
+        "rt": 51.1,
+        "rt_d1": 8.700000000000003,
+        "rt_d5": -10.699999999999996,
+        "hs300_dd60": -0.0659817323621478,
         "model_confidence": 88.7,
         "regime_cn": "警戒"
       },
@@ -2144,7 +2142,7 @@
     "as_of": "2026-08-18",
     "start": "2026-04-20",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 1,
+    "fetch_workers": 4,
     "not_broker_feed": true,
     "required_codes": [
       "159745",
@@ -7006,10 +7004,7 @@
         "bar_count": 88,
         "first": "2026-04-13",
         "last": "2026-08-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-08-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "510300": {
         "etf_code": "510300",
@@ -7546,10 +7541,7 @@
         "bar_count": 88,
         "first": "2026-04-13",
         "last": "2026-08-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-08-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "512010": {
         "etf_code": "512010",
@@ -17695,55 +17687,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-08-18T08:08:19+00:00",
-    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
-    "final_quote_fallback": {
-      "trade_date": "2026-08-18",
-      "status": "complete",
-      "code_count": 10,
-      "quotes": {
-        "159745": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:07:24+08:00"
-        },
-        "159928": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:08:12+08:00"
-        },
-        "159998": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:07:18+08:00"
-        },
-        "510300": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:08:05+08:00"
-        },
-        "512400": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:08:15+08:00"
-        },
-        "512980": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:08:12+08:00"
-        },
-        "513180": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:08:01+08:00"
-        },
-        "515220": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:07:59+08:00"
-        },
-        "516020": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:08:06+08:00"
-        },
-        "516850": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-08-18T16:07:56+08:00"
-        }
-      }
-    },
+    "updated_at": "2026-08-18T08:59:59+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-08-18",
@@ -17805,7 +17749,8 @@
           "2026-04-14",
           "2026-04-15",
           "2026-04-16",
-          "2026-04-17"
+          "2026-04-17",
+          "2026-08-18"
         ],
         "159766": [
           "2026-04-13",
@@ -17826,7 +17771,8 @@
           "2026-04-14",
           "2026-04-15",
           "2026-04-16",
-          "2026-04-17"
+          "2026-04-17",
+          "2026-08-18"
         ],
         "159995": [
           "2026-04-13",
@@ -17870,7 +17816,8 @@
           "2026-04-14",
           "2026-04-15",
           "2026-04-16",
-          "2026-04-17"
+          "2026-04-17",
+          "2026-08-18"
         ],
         "512430": [
           "2026-08-18"
@@ -17912,14 +17859,16 @@
           "2026-04-14",
           "2026-04-15",
           "2026-04-16",
-          "2026-04-17"
+          "2026-04-17",
+          "2026-08-18"
         ],
         "513180": [
           "2026-04-13",
           "2026-04-14",
           "2026-04-15",
           "2026-04-16",
-          "2026-04-17"
+          "2026-04-17",
+          "2026-08-18"
         ],
         "515210": [
           "2026-04-13",
@@ -17934,7 +17883,8 @@
           "2026-04-14",
           "2026-04-15",
           "2026-04-16",
-          "2026-04-17"
+          "2026-04-17",
+          "2026-08-18"
         ],
         "515710": [
           "2026-04-13",
@@ -17957,7 +17907,8 @@
           "2026-04-14",
           "2026-04-15",
           "2026-04-16",
-          "2026-04-17"
+          "2026-04-17",
+          "2026-08-18"
         ],
         "516110": [
           "2026-04-13",
@@ -17980,7 +17931,8 @@
           "2026-04-14",
           "2026-04-15",
           "2026-04-16",
-          "2026-04-17"
+          "2026-04-17",
+          "2026-08-18"
         ],
         "560620": [
           "2026-04-13",
@@ -17990,6 +17942,54 @@
           "2026-04-17",
           "2026-08-18"
         ]
+      }
+    },
+    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
+    "final_quote_fallback": {
+      "trade_date": "2026-08-18",
+      "status": "complete",
+      "code_count": 10,
+      "quotes": {
+        "159745": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:07:24+08:00"
+        },
+        "159928": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:08:12+08:00"
+        },
+        "159998": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:07:18+08:00"
+        },
+        "510300": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:08:05+08:00"
+        },
+        "512400": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:08:15+08:00"
+        },
+        "512980": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:08:12+08:00"
+        },
+        "513180": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:08:01+08:00"
+        },
+        "515220": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:07:59+08:00"
+        },
+        "516020": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:08:06+08:00"
+        },
+        "516850": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-08-18T16:07:56+08:00"
+        }
       }
     }
   },
