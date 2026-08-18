@@ -1,21 +1,5 @@
 [
   {
-    "date": "2022-11-29",
-    "risk_temperature": 59.3,
-    "regime": "CAUTION",
-    "avix_clean": 22.8973,
-    "qvix": 23.05,
-    "qvix_source": "OPTBBS_PARSE_300INDEX_QVIX",
-    "qvix_quality": "OK",
-    "qvix_is_proxy": false,
-    "qvix_replica": 23.0463,
-    "qvix_replica_quality": "OK_REPLICA_ROLLING_MEDIAN_BASIS",
-    "hs300_close": 3848.422,
-    "drawdown_pressure": 47.7571,
-    "breadth_pressure": 0.0,
-    "model_confidence": 100.0
-  },
-  {
     "date": "2022-11-30",
     "risk_temperature": 63.1,
     "regime": "HIGH_RISK",
@@ -157,7 +141,7 @@
     "hs300_close": 3953.443,
     "drawdown_pressure": 30.1628,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2022-12-13",
@@ -173,7 +157,7 @@
     "hs300_close": 3945.681,
     "drawdown_pressure": 22.8449,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2022-12-14",
@@ -189,7 +173,7 @@
     "hs300_close": 3954.886,
     "drawdown_pressure": 13.8256,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2022-12-15",
@@ -205,7 +189,7 @@
     "hs300_close": 3951.989,
     "drawdown_pressure": 10.8467,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2022-12-16",
@@ -221,7 +205,7 @@
     "hs300_close": 3954.227,
     "drawdown_pressure": 10.5939,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2022-12-19",
@@ -237,7 +221,7 @@
     "hs300_close": 3893.221,
     "drawdown_pressure": 25.167,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2022-12-20",
@@ -253,7 +237,7 @@
     "hs300_close": 3829.017,
     "drawdown_pressure": 37.6484,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2022-12-21",
@@ -541,7 +525,7 @@
     "hs300_close": 4137.964,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-01-17",
@@ -557,7 +541,7 @@
     "hs300_close": 4137.242,
     "drawdown_pressure": 0.4129,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-01-18",
@@ -781,7 +765,7 @@
     "hs300_close": 4143.574,
     "drawdown_pressure": 8.1591,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-02-14",
@@ -797,7 +781,7 @@
     "hs300_close": 4145.29,
     "drawdown_pressure": 7.7829,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-02-15",
@@ -1101,7 +1085,7 @@
     "hs300_close": 4008.686,
     "drawdown_pressure": 32.1303,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-03-14",
@@ -1117,7 +1101,7 @@
     "hs300_close": 3984.696,
     "drawdown_pressure": 37.5689,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-03-15",
@@ -1133,7 +1117,7 @@
     "hs300_close": 3986.902,
     "drawdown_pressure": 35.6399,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-03-16",
@@ -1149,7 +1133,7 @@
     "hs300_close": 3939.151,
     "drawdown_pressure": 45.5529,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-03-17",
@@ -1165,7 +1149,7 @@
     "hs300_close": 3958.819,
     "drawdown_pressure": 40.69,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-03-20",
@@ -1181,7 +1165,7 @@
     "hs300_close": 3939.077,
     "drawdown_pressure": 44.8404,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-03-21",
@@ -1197,7 +1181,7 @@
     "hs300_close": 3982.378,
     "drawdown_pressure": 36.9588,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-03-22",
@@ -1485,7 +1469,7 @@
     "hs300_close": 4149.384,
     "drawdown_pressure": 7.2145,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-04-18",
@@ -1501,7 +1485,7 @@
     "hs300_close": 4162.032,
     "drawdown_pressure": 5.4584,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-04-19",
@@ -1757,7 +1741,7 @@
     "hs300_close": 3998.887,
     "drawdown_pressure": 30.312,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-05-16",
@@ -1773,7 +1757,7 @@
     "hs300_close": 3978.205,
     "drawdown_pressure": 34.9559,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-05-17",
@@ -2077,7 +2061,7 @@
     "hs300_close": 3844.432,
     "drawdown_pressure": 59.1971,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-06-13",
@@ -2093,7 +2077,7 @@
     "hs300_close": 3864.907,
     "drawdown_pressure": 55.8999,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-06-14",
@@ -2109,7 +2093,7 @@
     "hs300_close": 3864.025,
     "drawdown_pressure": 56.4374,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-06-15",
@@ -2125,7 +2109,7 @@
     "hs300_close": 3925.499,
     "drawdown_pressure": 45.7019,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-06-16",
@@ -2141,7 +2125,7 @@
     "hs300_close": 3963.351,
     "drawdown_pressure": 38.5977,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-06-19",
@@ -2157,7 +2141,7 @@
     "hs300_close": 3930.908,
     "drawdown_pressure": 44.6936,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-06-20",
@@ -2173,7 +2157,7 @@
     "hs300_close": 3924.238,
     "drawdown_pressure": 46.9929,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-06-21",
@@ -2445,7 +2429,7 @@
     "hs300_close": 3867.175,
     "drawdown_pressure": 57.7065,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-07-18",
@@ -2461,7 +2445,7 @@
     "hs300_close": 3854.939,
     "drawdown_pressure": 55.5563,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-07-19",
@@ -2765,7 +2749,7 @@
     "hs300_close": 3855.906,
     "drawdown_pressure": 34.6346,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-08-15",
@@ -2781,7 +2765,7 @@
     "hs300_close": 3846.536,
     "drawdown_pressure": 36.1989,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-08-16",
@@ -3085,7 +3069,7 @@
     "hs300_close": 3767.537,
     "drawdown_pressure": 50.228,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-09-12",
@@ -3101,7 +3085,7 @@
     "hs300_close": 3760.605,
     "drawdown_pressure": 51.7552,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-09-13",
@@ -3117,7 +3101,7 @@
     "hs300_close": 3736.651,
     "drawdown_pressure": 56.5061,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-09-14",
@@ -3133,7 +3117,7 @@
     "hs300_close": 3733.508,
     "drawdown_pressure": 56.6445,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-09-15",
@@ -3149,7 +3133,7 @@
     "hs300_close": 3708.777,
     "drawdown_pressure": 61.0355,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-09-18",
@@ -3165,7 +3149,7 @@
     "hs300_close": 3727.711,
     "drawdown_pressure": 57.542,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-09-19",
@@ -3181,7 +3165,7 @@
     "hs300_close": 3720.502,
     "drawdown_pressure": 58.6768,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-09-20",
@@ -3389,7 +3373,7 @@
     "hs300_close": 3626.597,
     "drawdown_pressure": 76.9633,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-10-17",
@@ -3405,7 +3389,7 @@
     "hs300_close": 3639.402,
     "drawdown_pressure": 74.2228,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-10-18",
@@ -3709,7 +3693,7 @@
     "hs300_close": 3579.414,
     "drawdown_pressure": 54.2775,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-11-14",
@@ -3725,7 +3709,7 @@
     "hs300_close": 3582.058,
     "drawdown_pressure": 51.8742,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-11-15",
@@ -4029,7 +4013,7 @@
     "hs300_close": 3419.455,
     "drawdown_pressure": 68.3405,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-12-12",
@@ -4045,7 +4029,7 @@
     "hs300_close": 3426.803,
     "drawdown_pressure": 64.5566,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-12-13",
@@ -4061,7 +4045,7 @@
     "hs300_close": 3369.605,
     "drawdown_pressure": 73.2962,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-12-14",
@@ -4077,7 +4061,7 @@
     "hs300_close": 3351.964,
     "drawdown_pressure": 76.9847,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-12-15",
@@ -4093,7 +4077,7 @@
     "hs300_close": 3341.552,
     "drawdown_pressure": 80.1825,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-12-18",
@@ -4109,7 +4093,7 @@
     "hs300_close": 3329.366,
     "drawdown_pressure": 83.2094,
     "breadth_pressure": 50.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2023-12-19",
@@ -4125,7 +4109,7 @@
     "hs300_close": 3334.041,
     "drawdown_pressure": 82.328,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2023-12-20",
@@ -4413,7 +4397,7 @@
     "hs300_close": 3280.92,
     "drawdown_pressure": 74.6872,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-01-16",
@@ -4429,7 +4413,7 @@
     "hs300_close": 3300.876,
     "drawdown_pressure": 70.731,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-01-17",
@@ -4445,7 +4429,7 @@
     "hs300_close": 3229.082,
     "drawdown_pressure": 88.1542,
     "breadth_pressure": 62.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-01-18",
@@ -4461,7 +4445,7 @@
     "hs300_close": 3274.729,
     "drawdown_pressure": 79.636,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-01-19",
@@ -4477,7 +4461,7 @@
     "hs300_close": 3269.776,
     "drawdown_pressure": 81.7499,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-01-22",
@@ -4957,7 +4941,7 @@
     "hs300_close": 3589.264,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-03-12",
@@ -4973,7 +4957,7 @@
     "hs300_close": 3597.494,
     "drawdown_pressure": 1.2241,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-03-13",
@@ -4989,7 +4973,7 @@
     "hs300_close": 3572.361,
     "drawdown_pressure": 6.4824,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-03-14",
@@ -5005,7 +4989,7 @@
     "hs300_close": 3562.223,
     "drawdown_pressure": 8.6739,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-03-15",
@@ -5021,7 +5005,7 @@
     "hs300_close": 3569.993,
     "drawdown_pressure": 5.8104,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-03-18",
@@ -5037,7 +5021,7 @@
     "hs300_close": 3603.528,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-03-19",
@@ -5053,7 +5037,7 @@
     "hs300_close": 3577.63,
     "drawdown_pressure": 6.3483,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-03-20",
@@ -5325,7 +5309,7 @@
     "hs300_close": 3549.076,
     "drawdown_pressure": 11.4936,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-04-16",
@@ -5341,7 +5325,7 @@
     "hs300_close": 3511.115,
     "drawdown_pressure": 22.5311,
     "breadth_pressure": 62.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-04-17",
@@ -5597,7 +5581,7 @@
     "hs300_close": 3664.691,
     "drawdown_pressure": 0.873,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-05-14",
@@ -5613,7 +5597,7 @@
     "hs300_close": 3657.045,
     "drawdown_pressure": 2.3032,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-05-15",
@@ -5629,7 +5613,7 @@
     "hs300_close": 3626.056,
     "drawdown_pressure": 9.6942,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-05-16",
@@ -5645,7 +5629,7 @@
     "hs300_close": 3640.359,
     "drawdown_pressure": 7.1809,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-05-17",
@@ -5661,7 +5645,7 @@
     "hs300_close": 3677.97,
     "drawdown_pressure": 0.0495,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-05-20",
@@ -5677,7 +5661,7 @@
     "hs300_close": 3690.962,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 0.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2024-05-21",
@@ -5693,7 +5677,7 @@
     "hs300_close": 3676.161,
     "drawdown_pressure": 3.586,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-05-22",
@@ -5981,7 +5965,7 @@
     "hs300_close": 3536.199,
     "drawdown_pressure": 39.1468,
     "breadth_pressure": 30.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2024-06-18",
@@ -5997,7 +5981,7 @@
     "hs300_close": 3545.59,
     "drawdown_pressure": 36.3046,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-06-19",
@@ -6301,7 +6285,7 @@
     "hs300_close": 3476.247,
     "drawdown_pressure": 52.5838,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-07-16",
@@ -6317,7 +6301,7 @@
     "hs300_close": 3498.283,
     "drawdown_pressure": 48.8843,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-07-17",
@@ -6621,7 +6605,7 @@
     "hs300_close": 3325.865,
     "drawdown_pressure": 87.3064,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-08-13",
@@ -6637,7 +6621,7 @@
     "hs300_close": 3334.39,
     "drawdown_pressure": 83.0235,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-08-14",
@@ -6653,7 +6637,7 @@
     "hs300_close": 3309.239,
     "drawdown_pressure": 88.6479,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-08-15",
@@ -6669,7 +6653,7 @@
     "hs300_close": 3341.953,
     "drawdown_pressure": 71.7165,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-08-16",
@@ -6685,7 +6669,7 @@
     "hs300_close": 3345.634,
     "drawdown_pressure": 70.0311,
     "breadth_pressure": 30.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2024-08-19",
@@ -6701,7 +6685,7 @@
     "hs300_close": 3356.968,
     "drawdown_pressure": 66.8448,
     "breadth_pressure": 10.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2024-08-20",
@@ -6717,7 +6701,7 @@
     "hs300_close": 3332.703,
     "drawdown_pressure": 69.2163,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-08-21",
@@ -7229,7 +7213,7 @@
     "hs300_close": 3961.342,
     "drawdown_pressure": 58.0603,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-10-15",
@@ -7245,7 +7229,7 @@
     "hs300_close": 3855.995,
     "drawdown_pressure": 79.6367,
     "breadth_pressure": 62.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-10-16",
@@ -7549,7 +7533,7 @@
     "hs300_close": 4131.131,
     "drawdown_pressure": 18.8218,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-11-12",
@@ -7565,7 +7549,7 @@
     "hs300_close": 4085.743,
     "drawdown_pressure": 29.1772,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-11-13",
@@ -7581,7 +7565,7 @@
     "hs300_close": 4110.89,
     "drawdown_pressure": 24.2427,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-11-14",
@@ -7597,7 +7581,7 @@
     "hs300_close": 4039.619,
     "drawdown_pressure": 39.1207,
     "breadth_pressure": 74.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-11-15",
@@ -7613,7 +7597,7 @@
     "hs300_close": 3968.831,
     "drawdown_pressure": 53.0448,
     "breadth_pressure": 62.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-11-18",
@@ -7629,7 +7613,7 @@
     "hs300_close": 3950.381,
     "drawdown_pressure": 56.1647,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-11-19",
@@ -7645,7 +7629,7 @@
     "hs300_close": 3976.891,
     "drawdown_pressure": 50.6262,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-11-20",
@@ -7949,7 +7933,7 @@
     "hs300_close": 3911.842,
     "drawdown_pressure": 56.0755,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-12-17",
@@ -7965,7 +7949,7 @@
     "hs300_close": 3922.033,
     "drawdown_pressure": 56.8146,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2024-12-18",
@@ -8253,7 +8237,7 @@
     "hs300_close": 3722.513,
     "drawdown_pressure": 86.3331,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-01-14",
@@ -8269,7 +8253,7 @@
     "hs300_close": 3820.54,
     "drawdown_pressure": 65.6088,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-01-15",
@@ -8285,7 +8269,7 @@
     "hs300_close": 3796.026,
     "drawdown_pressure": 70.253,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-01-16",
@@ -8301,7 +8285,7 @@
     "hs300_close": 3800.384,
     "drawdown_pressure": 68.8692,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-01-17",
@@ -8317,7 +8301,7 @@
     "hs300_close": 3812.343,
     "drawdown_pressure": 66.686,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-01-20",
@@ -8333,7 +8317,7 @@
     "hs300_close": 3829.676,
     "drawdown_pressure": 64.0261,
     "breadth_pressure": 0.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2025-01-21",
@@ -8349,7 +8333,7 @@
     "hs300_close": 3832.615,
     "drawdown_pressure": 63.7643,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-01-22",
@@ -8557,7 +8541,7 @@
     "hs300_close": 3947.398,
     "drawdown_pressure": 20.9026,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-02-18",
@@ -8573,7 +8557,7 @@
     "hs300_close": 3912.783,
     "drawdown_pressure": 28.631,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-02-19",
@@ -8877,7 +8861,7 @@
     "hs300_close": 3996.788,
     "drawdown_pressure": 1.4223,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-03-18",
@@ -8893,7 +8877,7 @@
     "hs300_close": 4007.723,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-03-19",
@@ -9181,7 +9165,7 @@
     "hs300_close": 3759.142,
     "drawdown_pressure": 51.1183,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-04-15",
@@ -9197,7 +9181,7 @@
     "hs300_close": 3761.235,
     "drawdown_pressure": 50.3893,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-04-16",
@@ -9453,7 +9437,7 @@
     "hs300_close": 3890.61,
     "drawdown_pressure": 22.6845,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-05-13",
@@ -9469,7 +9453,7 @@
     "hs300_close": 3896.258,
     "drawdown_pressure": 21.3708,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-05-14",
@@ -9485,7 +9469,7 @@
     "hs300_close": 3943.211,
     "drawdown_pressure": 11.9975,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-05-15",
@@ -9501,7 +9485,7 @@
     "hs300_close": 3907.199,
     "drawdown_pressure": 19.2588,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-05-16",
@@ -9517,7 +9501,7 @@
     "hs300_close": 3889.085,
     "drawdown_pressure": 23.0623,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-05-19",
@@ -9533,7 +9517,7 @@
     "hs300_close": 3877.145,
     "drawdown_pressure": 24.7885,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-05-20",
@@ -9549,7 +9533,7 @@
     "hs300_close": 3898.171,
     "drawdown_pressure": 20.6021,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-05-21",
@@ -9837,7 +9821,7 @@
     "hs300_close": 3873.795,
     "drawdown_pressure": 23.4262,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-06-17",
@@ -9853,7 +9837,7 @@
     "hs300_close": 3870.379,
     "drawdown_pressure": 23.7509,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-06-18",
@@ -10157,7 +10141,7 @@
     "hs300_close": 4017.668,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-07-15",
@@ -10173,7 +10157,7 @@
     "hs300_close": 4019.064,
     "drawdown_pressure": 1.2488,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-07-16",
@@ -10477,7 +10461,7 @@
     "hs300_close": 4122.511,
     "drawdown_pressure": 4.1465,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-08-12",
@@ -10493,7 +10477,7 @@
     "hs300_close": 4143.825,
     "drawdown_pressure": 1.152,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-08-13",
@@ -10509,7 +10493,7 @@
     "hs300_close": 4176.578,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-08-14",
@@ -10525,7 +10509,7 @@
     "hs300_close": 4173.313,
     "drawdown_pressure": 1.8424,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-08-15",
@@ -10541,7 +10525,7 @@
     "hs300_close": 4202.353,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-08-18",
@@ -10557,7 +10541,7 @@
     "hs300_close": 4239.413,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 0.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2025-08-19",
@@ -10573,7 +10557,7 @@
     "hs300_close": 4223.374,
     "drawdown_pressure": 2.2664,
     "breadth_pressure": 40.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2025-08-20",
@@ -10877,7 +10861,7 @@
     "hs300_close": 4533.056,
     "drawdown_pressure": 3.7024,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-09-16",
@@ -10893,7 +10877,7 @@
     "hs300_close": 4523.337,
     "drawdown_pressure": 4.8438,
     "breadth_pressure": 10.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-09-17",
@@ -11101,7 +11085,7 @@
     "hs300_close": 4593.979,
     "drawdown_pressure": 17.6978,
     "breadth_pressure": 50.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2025-10-14",
@@ -11117,7 +11101,7 @@
     "hs300_close": 4539.064,
     "drawdown_pressure": 26.3508,
     "breadth_pressure": 62.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-10-15",
@@ -11133,7 +11117,7 @@
     "hs300_close": 4606.288,
     "drawdown_pressure": 14.4415,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-10-16",
@@ -11149,7 +11133,7 @@
     "hs300_close": 4618.422,
     "drawdown_pressure": 12.6322,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-10-17",
@@ -11165,7 +11149,7 @@
     "hs300_close": 4514.235,
     "drawdown_pressure": 31.3689,
     "breadth_pressure": 62.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2025-10-20",
@@ -11181,7 +11165,7 @@
     "hs300_close": 4538.22,
     "drawdown_pressure": 26.5573,
     "breadth_pressure": 0.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2025-10-21",
@@ -11197,7 +11181,7 @@
     "hs300_close": 4607.872,
     "drawdown_pressure": 13.931,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-10-22",
@@ -11501,7 +11485,7 @@
     "hs300_close": 4598.053,
     "drawdown_pressure": 22.6814,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-11-18",
@@ -11517,7 +11501,7 @@
     "hs300_close": 4568.193,
     "drawdown_pressure": 28.7491,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-11-19",
@@ -11821,7 +11805,7 @@
     "hs300_close": 4552.06,
     "drawdown_pressure": 36.0836,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-12-16",
@@ -11837,7 +11821,7 @@
     "hs300_close": 4497.555,
     "drawdown_pressure": 45.9898,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2025-12-17",
@@ -12109,7 +12093,7 @@
     "hs300_close": 4789.916,
     "drawdown_pressure": 0.0947,
     "breadth_pressure": 0.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2026-01-13",
@@ -12125,7 +12109,7 @@
     "hs300_close": 4761.032,
     "drawdown_pressure": 5.5224,
     "breadth_pressure": 50.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2026-01-14",
@@ -12141,7 +12125,7 @@
     "hs300_close": 4741.931,
     "drawdown_pressure": 8.7605,
     "breadth_pressure": 20.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2026-01-15",
@@ -12157,7 +12141,7 @@
     "hs300_close": 4751.429,
     "drawdown_pressure": 8.5757,
     "breadth_pressure": 30.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2026-01-16",
@@ -12173,7 +12157,7 @@
     "hs300_close": 4731.873,
     "drawdown_pressure": 11.7267,
     "breadth_pressure": 40.0,
-    "model_confidence": 100.0
+    "model_confidence": 95.0
   },
   {
     "date": "2026-01-19",
@@ -12189,7 +12173,7 @@
     "hs300_close": 4734.456,
     "drawdown_pressure": 10.5416,
     "breadth_pressure": 10.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-01-20",
@@ -12205,7 +12189,7 @@
     "hs300_close": 4718.878,
     "drawdown_pressure": 12.4638,
     "breadth_pressure": 50.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-01-21",
@@ -12221,7 +12205,7 @@
     "hs300_close": 4723.069,
     "drawdown_pressure": 11.7164,
     "breadth_pressure": 0.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-01-22",
@@ -12237,7 +12221,7 @@
     "hs300_close": 4723.709,
     "drawdown_pressure": 11.2326,
     "breadth_pressure": 0.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-01-23",
@@ -12253,7 +12237,7 @@
     "hs300_close": 4702.497,
     "drawdown_pressure": 12.8368,
     "breadth_pressure": 10.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-01-26",
@@ -12733,7 +12717,7 @@
     "hs300_close": 4671.559,
     "drawdown_pressure": 21.5215,
     "breadth_pressure": 30.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-03-17",
@@ -12749,7 +12733,7 @@
     "hs300_close": 4637.439,
     "drawdown_pressure": 28.1778,
     "breadth_pressure": 50.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-03-18",
@@ -13037,7 +13021,7 @@
     "hs300_close": 4646.155,
     "drawdown_pressure": 31.4249,
     "breadth_pressure": 10.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-04-14",
@@ -13053,7 +13037,7 @@
     "hs300_close": 4701.284,
     "drawdown_pressure": 21.9807,
     "breadth_pressure": 0.0,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-04-15",
@@ -13309,7 +13293,7 @@
     "hs300_close": 4951.837,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 29.184,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-12",
@@ -13325,7 +13309,7 @@
     "hs300_close": 4948.047,
     "drawdown_pressure": 1.1943,
     "breadth_pressure": 45.9746,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-13",
@@ -13341,7 +13325,7 @@
     "hs300_close": 4998.342,
     "drawdown_pressure": 0.0,
     "breadth_pressure": 25.0952,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-14",
@@ -13357,7 +13341,7 @@
     "hs300_close": 4914.597,
     "drawdown_pressure": 14.3453,
     "breadth_pressure": 52.4751,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-15",
@@ -13373,7 +13357,7 @@
     "hs300_close": 4859.593,
     "drawdown_pressure": 23.7719,
     "breadth_pressure": 47.9971,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-18",
@@ -13389,7 +13373,7 @@
     "hs300_close": 4833.524,
     "drawdown_pressure": 27.0873,
     "breadth_pressure": 42.1861,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-19",
@@ -13405,7 +13389,7 @@
     "hs300_close": 4852.883,
     "drawdown_pressure": 22.1402,
     "breadth_pressure": 23.7905,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-20",
@@ -13421,7 +13405,7 @@
     "hs300_close": 4850.7,
     "drawdown_pressure": 22.9149,
     "breadth_pressure": 45.3751,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-21",
@@ -13437,7 +13421,7 @@
     "hs300_close": 4783.098,
     "drawdown_pressure": 36.8084,
     "breadth_pressure": 60.8308,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-22",
@@ -13453,7 +13437,7 @@
     "hs300_close": 4845.096,
     "drawdown_pressure": 27.054,
     "breadth_pressure": 19.9475,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-05-25",
@@ -13725,7 +13709,7 @@
     "hs300_close": 4884.232,
     "drawdown_pressure": 23.9721,
     "breadth_pressure": 28.0436,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-06-17",
@@ -14013,7 +13997,7 @@
     "hs300_close": 4695.383,
     "drawdown_pressure": 65.2461,
     "breadth_pressure": 75.4385,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-07-14",
@@ -14029,7 +14013,7 @@
     "hs300_close": 4796.502,
     "drawdown_pressure": 49.8168,
     "breadth_pressure": 32.1147,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-07-15",
@@ -14045,7 +14029,7 @@
     "hs300_close": 4786.783,
     "drawdown_pressure": 51.7539,
     "breadth_pressure": 75.9223,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-07-16",
@@ -14061,7 +14045,7 @@
     "hs300_close": 4698.434,
     "drawdown_pressure": 67.1134,
     "breadth_pressure": 37.5972,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-07-17",
@@ -14077,7 +14061,7 @@
     "hs300_close": 4529.095,
     "drawdown_pressure": 91.1692,
     "breadth_pressure": 95.6616,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-07-20",
@@ -14093,7 +14077,7 @@
     "hs300_close": 4598.321,
     "drawdown_pressure": 83.188,
     "breadth_pressure": 72.3738,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-07-21",
@@ -14109,7 +14093,7 @@
     "hs300_close": 4739.229,
     "drawdown_pressure": 63.6862,
     "breadth_pressure": 29.1147,
-    "model_confidence": 95.2
+    "model_confidence": 90.2
   },
   {
     "date": "2026-07-22",
@@ -14398,5 +14382,21 @@
     "drawdown_pressure": 62.3998,
     "breadth_pressure": 45.5662,
     "model_confidence": 93.7
+  },
+  {
+    "date": "2026-08-17",
+    "risk_temperature": 42.4,
+    "regime": "CAUTION",
+    "avix_clean": 17.7895,
+    "qvix": 17.92,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
+    "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
+    "qvix_is_proxy": true,
+    "qvix_replica": 18.1158,
+    "qvix_replica_quality": "OK_REPLICA_ROLLING_MEDIAN_BASIS",
+    "hs300_close": 4741.098,
+    "drawdown_pressure": 49.7302,
+    "breadth_pressure": 14.9962,
+    "model_confidence": 88.7
   }
 ]

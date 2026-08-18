@@ -1,10 +1,10 @@
 {
-  "build_time": "2026-08-18T07:35:24+08:00",
+  "build_time": "2026-08-18T10:18:16+08:00",
   "etf_marks_as_of": "2026-08-17",
-  "etf_marks_quality": "OK",
-  "etf_marks_revision": "2026-08-17|OK",
-  "flex_snapshot_revision": "e2bd91a52479a420abc736435e5841d37521364771195e99f644a61a7f40d43e",
-  "flex_snapshot_strategy_as_of": "2026-08-17",
+  "etf_marks_quality": "WARN_INCOMPLETE_AS_OF",
+  "etf_marks_revision": "2026-08-17|WARN_INCOMPLETE_AS_OF",
+  "flex_snapshot_revision": "b7cf9001b9c4c6593500d0d3de8c8023e720dd9d0f11e2b65585abe53091ad04",
+  "flex_snapshot_strategy_as_of": "2026-08-18",
   "flex_snapshot_marks_as_of": "2026-08-17",
   "revision_reason": "SITE_BUILD"
 }

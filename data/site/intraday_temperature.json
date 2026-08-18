@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "trade_date": "2026-08-18",
-  "sample_count": 3,
-  "eligible_count": 2,
+  "sample_count": 4,
+  "eligible_count": 3,
   "excluded_count": 1,
   "has_final": false,
   "first_sample_at": "2026-08-18T07:34:17+08:00",
-  "last_sample_at": "2026-08-18T09:46:06+08:00",
+  "last_sample_at": "2026-08-18T10:17:40+08:00",
   "rows": [
     {
       "sampled_at": "2026-08-18T07:34:17+08:00",
@@ -91,6 +91,34 @@
       "core_tail_degraded": false,
       "core_tail_actionable_at_sample": false,
       "core_tail_uncertainty": null
+    },
+    {
+      "sampled_at": "2026-08-18T10:17:40+08:00",
+      "time": "10:17",
+      "risk_temperature": 52.5,
+      "temperature_mode": "NOWCAST",
+      "temperature_mode_cn": "盘中估算",
+      "is_final": false,
+      "quality": "OK_NOWCAST|OK_REALTIME_AVIX_ESTIMATE|WARN_NOT_BRACKET_30D|WARN_QVIX_REALTIME_PROXY|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
+      "model_confidence": 77.8,
+      "model_coverage_score": 100.0,
+      "model_data_quality_score": 77.8,
+      "model_missing_components": "QVIX_PROXY",
+      "hs300_drawdown_60d": -0.067,
+      "breadth_mode": "STOCK_A",
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU",
+      "breadth_observed": true,
+      "plot_eligible": true,
+      "core_tail_status": "DATA_WAIT",
+      "core_tail_status_cn": "本次数据无法量化，已跳过（数据质量不足）",
+      "core_tail_sample_state": "INVALID",
+      "core_tail_sample_state_cn": "数据结构无效",
+      "core_tail_consecutive_samples": 0,
+      "core_tail_stable": false,
+      "core_tail_degraded": false,
+      "core_tail_actionable_at_sample": false,
+      "core_tail_uncertainty": null
     }
   ],
   "available_dates": [
@@ -116,14 +144,14 @@
     "actionable": false,
     "consecutive_samples": 0,
     "stability_span_minutes": 0,
-    "invalid_samples_skipped": 3,
+    "invalid_samples_skipped": 4,
     "degraded_samples_in_streak": 0,
     "degraded": false,
     "degraded_uncertainty": null,
     "latest_sample_state": "INVALID",
     "latest_sample_state_cn": "数据结构无效",
-    "last_sample_at": "2026-08-18T09:46:06+08:00",
-    "valid_until": "2026-08-18T10:01:06+08:00",
+    "last_sample_at": "2026-08-18T10:17:40+08:00",
+    "valid_until": "2026-08-18T10:32:40+08:00",
     "conditions": {
       "state": "INVALID",
       "eligible": false,
@@ -136,7 +164,7 @@
       "conditions_pass": false,
       "checks": {
         "risk_temperature": false,
-        "hs300_drawdown_60d": false,
+        "hs300_drawdown_60d": true,
         "confidence_present": true,
         "coverage": true,
         "data_quality": false,
@@ -154,17 +182,17 @@
       },
       "strategy_checks": {
         "risk_temperature": false,
-        "hs300_drawdown_60d": false
+        "hs300_drawdown_60d": true
       },
       "invalid_reasons": [
         "data_quality"
       ],
       "values": {
-        "risk_temperature": 52.6,
-        "hs300_drawdown_60d": -0.0647,
-        "model_confidence": 77.1,
+        "risk_temperature": 52.5,
+        "hs300_drawdown_60d": -0.067,
+        "model_confidence": 77.8,
         "model_coverage_score": 100.0,
-        "model_data_quality_score": 77.1,
+        "model_data_quality_score": 77.8,
         "model_missing_components": "QVIX_PROXY",
         "disallowed_missing_components": "",
         "breadth_mode": "STOCK_A",
@@ -172,7 +200,7 @@
         "temperature_mode": "NOWCAST"
       },
       "model_coverage_score": 100.0,
-      "model_data_quality_score": 77.1,
+      "model_data_quality_score": 77.8,
       "model_missing_components": "QVIX_PROXY",
       "breadth_mode": "STOCK_A",
       "breadth_quality": "OK",
@@ -236,6 +264,7 @@
     "sampling": "One point per backend temperature calculation refresh; browser polling never creates points.",
     "deduplication": "Intraday refreshes are idempotent within one Beijing-time minute.",
     "official_close": "Official close is stored as the single final endpoint for each trade date.",
+    "official_backfill": "A delayed official close is anchored at 15:00 on its own trade date before the current-day sample is recorded.",
     "stale_guard": "A rebuild is recorded only when its Beijing calendar date equals the market trade date.",
     "chart_quality": "Samples with missing A-share breadth remain in the audit history but are excluded from the connected trend line.",
     "signal_states": "PASS/DEGRADED_PASS increment; FAIL/DEGRADED_FAIL reset; INDETERMINATE/INVALID are audited and skipped without resetting."

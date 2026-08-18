@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-08-17",
+  "as_of": "2026-08-18",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-08-11",
     "entry_date": "2026-08-12",
     "exit_due_date": "2026-08-18",
-    "days_held": 4,
-    "days_remaining": 1,
+    "days_held": 5,
+    "days_remaining": 0,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -25,8 +25,8 @@
     "entry_signal_date": "2026-08-11",
     "entry_date": "2026-08-12",
     "exit_due_date": "2026-08-21",
-    "days_held": 4,
-    "days_remaining": 4,
+    "days_held": 5,
+    "days_remaining": 3,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "恒生科技",
