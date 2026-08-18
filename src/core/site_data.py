@@ -198,6 +198,7 @@ def latest_payload(
     nowcast_history: dict | None = None,
 ) -> dict:
     row = risk.sort_values("trade_date").iloc[-1]
+    official_comps = _official_components(row)
     raw = avix_raw[avix_raw["trade_date"] == row.trade_date].iloc[-1] if not avix_raw.empty and row.trade_date in set(avix_raw["trade_date"]) else None
     realtime_row = _latest_realtime(realtime)
     realtime_quality = "LOW_NO_REALTIME_CHAIN" if realtime_row is None else str(realtime_row.get("quality", "OK"))
@@ -298,10 +299,22 @@ def latest_payload(
         },
         "official_close": {
             "trade_date": row.trade_date,
+            "update_time": f"{row.trade_date}T15:00:00+08:00",
             "risk_temperature": finite(row.risk_temperature),
             "regime": row.regime,
             "regime_cn": row.regime_cn,
             "quality": row.quality,
+            "temperature_mode": "OFFICIAL_CLOSE",
+            "temperature_mode_cn": "收盘正式",
+            "is_final": True,
+            "components": _latest_component_summary(official_comps),
+            "market": {
+                "hs300_drawdown_60d": finite(row.get("sh000300_dd60")),
+                "breadth_pressure": finite(row.get("market_breadth_pressure")),
+                "breadth_source": row.get("source"),
+                "breadth_mode": _breadth_mode(row),
+                "breadth_quality": str(row.get("breadth_quality") or ""),
+            },
             "avix_clean": finite(row.get("avix_clean")),
             "qvix_close": finite(row.get("qvix_close")),
             "qvix_source": row.get("qvix_source"),

@@ -10,6 +10,13 @@ from src.utils.config import load_thresholds
 
 _THRESHOLDS = load_thresholds()
 MIN_OPTIONS_PER_TERM = int(_THRESHOLDS["min_options_per_term"])
+TARGET_DTE = 30
+MAX_OFFICIAL_ROLLOVER_SINGLE_TERM_DTE = int(
+    _THRESHOLDS["max_official_rollover_single_term_dte"]
+)
+EXTENDED_ROLLOVER_SINGLE_TERM_DTE = int(
+    _THRESHOLDS["extended_rollover_single_term_dte"]
+)
 
 def black76_price(f: float, k: float, t: float, r: float, sigma: float, cp: str) -> float:
     if min(f, k, t, sigma) <= 0:
@@ -118,21 +125,30 @@ def calculate_avix_for_date(chain: pd.DataFrame, rate_curve: pd.DataFrame, trade
     if not terms:
         return {"trade_date": trade_date, "quality": "BAD_NO_TERM"}
     terms = sorted(terms, key=lambda x: x["dte"])
-    exact = next((x for x in terms if x["dte"] == 30), None)
+    exact = next((x for x in terms if x["dte"] == TARGET_DTE), None)
     quality = "OK"
     if exact:
         var30 = exact["variance"]
         near = next_ = exact
     else:
-        below = [x for x in terms if x["dte"] < 30]
-        above = [x for x in terms if x["dte"] > 30]
+        below = [x for x in terms if x["dte"] < TARGET_DTE]
+        above = [x for x in terms if x["dte"] > TARGET_DTE]
         if below and above:
             near, next_ = below[-1], above[0]
-            var30 = (near["t"] * near["variance"] * (next_["dte"] - 30) / (next_["dte"] - near["dte"]) + next_["t"] * next_["variance"] * (30 - near["dte"]) / (next_["dte"] - near["dte"])) * 365 / 30
+            var30 = (near["t"] * near["variance"] * (next_["dte"] - TARGET_DTE) / (next_["dte"] - near["dte"]) + next_["t"] * next_["variance"] * (TARGET_DTE - near["dte"]) / (next_["dte"] - near["dte"])) * 365 / TARGET_DTE
         else:
-            near = next_ = min(terms, key=lambda x: abs(x["dte"] - 30))
+            near = next_ = min(terms, key=lambda x: abs(x["dte"] - TARGET_DTE))
             var30 = near["variance"]
-            quality = "WARN_NOT_BRACKET_30D"
+            rollover_single_term = (
+                not below
+                and TARGET_DTE < near["dte"] <= MAX_OFFICIAL_ROLLOVER_SINGLE_TERM_DTE
+            )
+            if rollover_single_term:
+                quality = "WARN_ROLLOVER_SINGLE_TERM_30D"
+                if near["dte"] > EXTENDED_ROLLOVER_SINGLE_TERM_DTE:
+                    quality += "|WARN_ROLLOVER_EXTENDED_DTE"
+            else:
+                quality = "WARN_NOT_BRACKET_30D"
     flags = [quality, near.get("quality"), next_.get("quality")] + rate_flags
     if var30 <= 0:
         flags.append("BAD_NEGATIVE_VARIANCE")

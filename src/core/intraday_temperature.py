@@ -587,7 +587,14 @@ def record_intraday_temperature(
     latest: dict[str, Any],
     history_path: Path,
 ) -> tuple[dict[str, Any], bool]:
-    history, changed = update_intraday_temperature_history(read_csv(history_path), latest)
+    history = read_csv(history_path)
+    changed = False
+    official = latest.get("official_close")
+    if isinstance(official, dict):
+        history, official_changed = update_intraday_temperature_history(history, official)
+        changed = changed or official_changed
+    history, latest_changed = update_intraday_temperature_history(history, latest)
+    changed = changed or latest_changed
     if changed or not history_path.exists():
         write_csv(history, history_path)
     return intraday_temperature_payload(history, latest.get("trade_date")), changed
@@ -598,6 +605,7 @@ def _methodology() -> dict[str, str]:
         "sampling": "One point per backend temperature calculation refresh; browser polling never creates points.",
         "deduplication": "Intraday refreshes are idempotent within one Beijing-time minute.",
         "official_close": "Official close is stored as the single final endpoint for each trade date.",
+        "official_backfill": "A delayed official close is anchored at 15:00 on its own trade date before the current-day sample is recorded.",
         "stale_guard": "A rebuild is recorded only when its Beijing calendar date equals the market trade date.",
         "chart_quality": "Samples with missing A-share breadth remain in the audit history but are excluded from the connected trend line.",
         "signal_states": "PASS/DEGRADED_PASS increment; FAIL/DEGRADED_FAIL reset; INDETERMINATE/INVALID are audited and skipped without resetting.",

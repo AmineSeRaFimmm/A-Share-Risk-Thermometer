@@ -94,6 +94,12 @@ def load_thresholds() -> dict[str, Any]:
     return {
         "min_options_per_term": int(quality.get("min_options_per_term", 8)),
         "preferred_options_per_term": int(quality.get("preferred_options_per_term", 12)),
+        "max_official_rollover_single_term_dte": int(
+            quality.get("max_official_rollover_single_term_dte", 46)
+        ),
+        "extended_rollover_single_term_dte": int(
+            quality.get("extended_rollover_single_term_dte", 39)
+        ),
         "max_raw_clean_diff": float(quality.get("max_raw_clean_diff", 2.0)),
         "min_qvix_corr_60": float(quality.get("min_qvix_corr_60", 0.60)),
         "min_qvix_eod_etf_points": int(quality.get("min_qvix_eod_etf_points", 180)),

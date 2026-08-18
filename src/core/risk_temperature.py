@@ -132,7 +132,12 @@ def _model_confidence_details(row: pd.Series) -> dict[str, object]:
     avix_quality = str(row.get("avix_quality", ""))
     avix_observed = _observed(row, "avix", "avix_clean")
     avix_usable = avix_observed and not avix_quality.startswith(("LOW", "BAD"))
-    avix_flags = str(row.get("avix_quality_flags", "OK"))
+    avix_flags_value = row.get("avix_quality_flags")
+    avix_flags = (
+        str(avix_flags_value)
+        if avix_flags_value is not None and not pd.isna(avix_flags_value)
+        else avix_quality or "OK"
+    )
     avix_score = observation_quality_score(
         observed=avix_usable,
         quality_flags=avix_flags,

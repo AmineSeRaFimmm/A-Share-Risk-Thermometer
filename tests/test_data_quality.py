@@ -1,6 +1,9 @@
 from __future__ import annotations
 
+import pandas as pd
+
 from src.core.data_quality import observation_quality_score, quality_metadata
+from src.core.risk_temperature import _model_confidence_details
 
 
 def test_quality_metadata_distinguishes_quote_time_from_fetch_time():
@@ -46,6 +49,29 @@ def test_unbracketed_avix_terms_reduce_observation_quality():
         observed=True,
         quality_flags="WARN_NOT_BRACKET_30D",
     ) == 0.9
+
+
+def test_rollover_avix_quality_reaches_model_confidence():
+    details = _model_confidence_details(pd.Series({
+        "avix_clean": 18.0,
+        "avix_quality": "WARN_ROLLOVER_SINGLE_TERM_30D",
+        "avix_is_final": True,
+        "qvix_close": 18.1,
+        "qvix_quality_flags": "OK",
+        "is_final": True,
+        "realized_vol_percentile": 50.0,
+        "drawdown_pressure": 50.0,
+        "breadth_pressure": 50.0,
+        "breadth_quality_flags": "OK",
+        "breadth_is_final": True,
+        "turnover_stress": 50.0,
+        "index_quality_flags": "OK",
+        "index_is_final": True,
+    }))
+
+    assert details["coverage_score"] == 100.0
+    assert details["data_quality_score"] == 95.0
+    assert details["score"] == 95.0
 
 
 def test_final_close_does_not_become_stale_after_market():

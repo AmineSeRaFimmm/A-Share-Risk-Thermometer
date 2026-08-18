@@ -56,6 +56,32 @@ def test_single_term_fault_is_not_official_ready():
     assert "TERM_STRUCTURE_NOT_30D" in assessment.reasons
 
 
+def test_bounded_rollover_single_term_is_official_ready():
+    assert official_avix_ready(
+        _row(
+            quality="WARN_ROLLOVER_SINGLE_TERM_30D",
+            near_expiry="2026-09-18",
+            next_expiry="2026-09-18",
+            near_dte=32,
+            next_dte=32,
+        )
+    )
+
+
+def test_rollover_single_term_outside_bound_is_rejected():
+    assessment = assess_official_avix(
+        _row(
+            quality="WARN_ROLLOVER_SINGLE_TERM_30D|WARN_ROLLOVER_EXTENDED_DTE",
+            near_expiry="2026-09-18",
+            next_expiry="2026-09-18",
+            near_dte=47,
+            next_dte=47,
+        )
+    )
+    assert not assessment.ready
+    assert "ROLLOVER_TERM_OUT_OF_RANGE" in assessment.reasons
+
+
 def test_sparse_term_is_not_official_ready():
     assessment = assess_official_avix(_row(near_n_options=7))
     assert not assessment.ready
@@ -80,6 +106,22 @@ def test_trim_removes_only_trailing_incomplete_tip():
     )
     trimmed = _trim_unusable_official_avix_tip(rows)
     assert trimmed["trade_date"].tolist() == ["2026-08-07"]
+
+
+def test_trim_keeps_bounded_rollover_tip():
+    rows = pd.DataFrame([
+        _row(trade_date="2026-08-14", near_dte=7, next_dte=35),
+        _row(
+            trade_date="2026-08-17",
+            quality="WARN_ROLLOVER_SINGLE_TERM_30D",
+            near_expiry="2026-09-18",
+            next_expiry="2026-09-18",
+            near_dte=32,
+            next_dte=32,
+        ),
+    ])
+    trimmed = _trim_unusable_official_avix_tip(rows)
+    assert trimmed["trade_date"].tolist() == ["2026-08-14", "2026-08-17"]
 
 
 def test_daily_update_does_not_early_exit_on_incomplete_tip():

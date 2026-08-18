@@ -232,6 +232,34 @@ def test_record_creates_empty_history_contract_for_stale_build(tmp_path) -> None
     assert history_path.exists()
 
 
+def test_record_backfills_delayed_official_endpoint_before_current_sample(tmp_path) -> None:
+    history_path = tmp_path / "intraday.csv"
+    latest = _latest(
+        "2026-08-18T09:46:00+08:00",
+        52.6,
+        trade_date="2026-08-18",
+    )
+    latest["official_close"] = _latest(
+        "2026-08-17T15:00:00+08:00",
+        51.9,
+        trade_date="2026-08-17",
+        mode="OFFICIAL_CLOSE",
+        final=True,
+    )
+
+    payload, changed = record_intraday_temperature(latest, history_path)
+    history = pd.read_csv(history_path)
+
+    assert changed
+    assert payload["trade_date"] == "2026-08-18"
+    assert payload["sample_count"] == 1
+    prior_final = history[
+        history["trade_date"].eq("2026-08-17") & history["is_final"]
+    ]
+    assert len(prior_final) == 1
+    assert prior_final.iloc[0]["sampled_at"] == "2026-08-17T15:00:00+08:00"
+
+
 def test_core_tail_signal_requires_three_consecutive_strict_samples() -> None:
     history = pd.DataFrame()
     for timestamp in [

@@ -9,7 +9,11 @@ from src.utils.config import load_thresholds
 
 
 TARGET_DTE = 30
-MIN_OPTIONS_PER_TERM = int(load_thresholds()["min_options_per_term"])
+_THRESHOLDS = load_thresholds()
+MIN_OPTIONS_PER_TERM = int(_THRESHOLDS["min_options_per_term"])
+MAX_ROLLOVER_SINGLE_TERM_DTE = int(
+    _THRESHOLDS["max_official_rollover_single_term_dte"]
+)
 
 
 @dataclass(frozen=True)
@@ -59,7 +63,15 @@ def assess_official_avix(row: Mapping[str, Any]) -> OfficialAvixAssessment:
             and near_dte < TARGET_DTE
             and next_dte > TARGET_DTE
         )
-        if not (exact_target or bracketed_target):
+        rollover_single_term = (
+            "WARN_ROLLOVER_SINGLE_TERM_30D" in flags
+            and near_expiry == next_expiry
+            and near_dte == next_dte
+            and TARGET_DTE < near_dte <= MAX_ROLLOVER_SINGLE_TERM_DTE
+        )
+        if "WARN_ROLLOVER_SINGLE_TERM_30D" in flags and not rollover_single_term:
+            reasons.append("ROLLOVER_TERM_OUT_OF_RANGE")
+        if not (exact_target or bracketed_target or rollover_single_term):
             reasons.append("TERM_STRUCTURE_NOT_30D")
 
     near_count = _number(row, "near_n_options")

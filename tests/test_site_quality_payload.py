@@ -105,6 +105,9 @@ def test_latest_and_components_preserve_state_and_quality_audit():
     assert latest["official_close"]["qvix_secondary_source"] == "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED"
     assert latest["official_close"]["qvix_secondary_close"] == 19.42
     assert latest["official_close"]["qvix_source_agreement"] == 0.956
+    assert latest["official_close"]["temperature_mode"] == "OFFICIAL_CLOSE"
+    assert latest["official_close"]["update_time"] == "2026-07-29T15:00:00+08:00"
+    assert latest["official_close"]["components"]["qvix_confirmation"] == 100.0
 
     qvix = next(item for item in components["components"] if item["key"] == "qvix_confirmation")
     assert qvix["raw_value"] == 24.84
