@@ -1,43 +1,43 @@
 {
   "trade_date": "2026-08-19",
-  "temperature_mode": "CLOSE_PENDING",
+  "temperature_mode": "ESTIMATED_CLOSE",
   "components": [
     {
       "key": "avix_percentile_2y",
       "name": "AVIX两年分位",
-      "score": 68.5885,
+      "score": 67.7932,
       "weight": 0.28,
-      "contribution": 19.2048,
+      "contribution": 18.9821,
       "observed": true,
-      "raw_value": 19.9844,
+      "raw_value": 19.9182,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-19T15:01:41+08:00",
+      "quote_time": "2026-08-19T15:53:42+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
     {
       "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 56.9497,
+      "score": 56.3564,
       "weight": 0.14,
-      "contribution": 7.973,
+      "contribution": 7.8899,
       "observed": true,
-      "raw_value": 19.9844,
+      "raw_value": 19.9182,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-19T15:01:41+08:00",
+      "quote_time": "2026-08-19T15:53:42+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
     {
       "key": "avix_5d_change",
       "name": "AVIX 5日变化",
-      "score": 65.2527,
+      "score": 64.5391,
       "weight": 0.08,
-      "contribution": 5.2202,
+      "contribution": 5.1631,
       "observed": true,
-      "raw_value": 19.9844,
+      "raw_value": 19.9182,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-19T15:01:41+08:00",
+      "quote_time": "2026-08-19T15:53:42+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -62,9 +62,9 @@
       "contribution": 9.381,
       "observed": true,
       "raw_value": 20.6188,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
+      "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-19T15:01:46+08:00",
+      "fetch_time": "2026-08-19T15:53:44+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -75,9 +75,9 @@
       "contribution": 8.839,
       "observed": true,
       "raw_value": -0.0931,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
+      "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-19T15:01:46+08:00",
+      "fetch_time": "2026-08-19T15:53:44+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -101,9 +101,9 @@
       "contribution": 0.8944,
       "observed": true,
       "raw_value": 1.0683,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
+      "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-19T15:01:46+08:00",
+      "fetch_time": "2026-08-19T15:53:44+08:00",
       "quality": "SESSION_NORMALIZED"
     }
   ]
