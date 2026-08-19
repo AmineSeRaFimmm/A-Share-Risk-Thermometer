@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-08-18",
+  "as_of": "2026-08-19",
   "mode": "aggressive",
   "core": {
     "status": "open",
-    "entry_signal_date": "2026-08-11",
-    "entry_date": "2026-08-12",
-    "exit_due_date": "2026-08-18",
-    "days_held": 5,
-    "days_remaining": 0,
+    "entry_signal_date": "2026-08-19",
+    "entry_date": "2026-08-19",
+    "exit_due_date": "2026-08-26",
+    "days_held": 0,
+    "days_remaining": 6,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -16,17 +16,17 @@
       "沪深300": 1.0
     },
     "etf_code": "510300",
-    "execution_mode": "T_PLUS_1_OPEN",
-    "entry_price_type": "open",
-    "planned_hold_days": 5
+    "execution_mode": "T_TAIL_1450",
+    "entry_price_type": "tail_1450",
+    "planned_hold_days": 6
   },
   "satellite": {
     "status": "open",
     "entry_signal_date": "2026-08-11",
     "entry_date": "2026-08-12",
     "exit_due_date": "2026-08-21",
-    "days_held": 5,
-    "days_remaining": 3,
+    "days_held": 6,
+    "days_remaining": 2,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "恒生科技",

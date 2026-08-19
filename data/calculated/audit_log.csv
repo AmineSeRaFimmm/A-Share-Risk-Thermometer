@@ -1,2 +1,2 @@
 trade_date,event,quality,time
-2026-08-18,update_daily_qvix_refresh,WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D,2026-08-18T18:46:22+08:00
+2026-08-19,bootstrap_history,WARN_QVIX_MISSING,2026-08-19T16:59:37+08:00
