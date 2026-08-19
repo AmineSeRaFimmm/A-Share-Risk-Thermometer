@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "b603b3a1f9de3114cc686b0fa231428636594f6b968ea004d6b66152f0c4effd",
-  "built_at": "2026-08-19T14:49:34+08:00",
+  "revision": "52c486787d6564fdf427a6add9a333bde723620823e90ac118b1b86c3ef0a7b6",
+  "built_at": "2026-08-19T14:53:12+08:00",
   "strategy_as_of": "2026-08-18",
   "marks_as_of": "2026-08-18",
   "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
@@ -20528,7 +20528,7 @@
     "as_of": "2026-08-19",
     "marks_as_of": "2026-08-18",
     "status": "ACTION",
-    "headline_cn": "2026-08-19 有 1 项处于执行窗口的策略动作",
+    "headline_cn": "2026-08-19 有 2 项处于执行窗口的策略动作",
     "items": [
       {
         "id": "2026-08-18:EXIT:core:CORE_MAX_HOLD",
@@ -20552,6 +20552,30 @@
         "execution_date": "2026-08-19",
         "execution_window_cn": "下一交易日开盘",
         "execution_status": "PENDING"
+      },
+      {
+        "id": "2026-08-19:ENTRY:core:CORE_STRICT_TAIL_V2",
+        "event_type": "ENTRY",
+        "sleeve": "core",
+        "action_cn": "CORE 严格尾盘买入",
+        "title_cn": "核心 CORE 严格尾盘买入信号",
+        "signal_date": "2026-08-19",
+        "execution_date": "2026-08-19",
+        "execution_mode": "T_TAIL_1450",
+        "execution_window_cn": "T 日 14:50-15:00",
+        "execution_status": "SIGNAL_RECORDED",
+        "close_code": null,
+        "reason_cn": "完整通过或缺失因子全范围下仍稳健通过时，仅沪深300核心仓在 T 日 14:50-15:00 买入；卫星及其他信号仍为 T+1 开盘",
+        "instruments": [
+          {
+            "name": "沪深300",
+            "etf_code": "510300",
+            "etf_name": "沪深300ETF华泰柏瑞",
+            "weight_in_sleeve": null,
+            "portfolio_weight": 0.6
+          }
+        ],
+        "signal_source": "intraday_temperature.core_tail_day_summary"
       }
     ],
     "satellite_risk_event": {
