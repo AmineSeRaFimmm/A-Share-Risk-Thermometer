@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-08-20",
-  "temperature_mode": "CLOSE_PENDING",
+  "temperature_mode": "ESTIMATED_CLOSE",
   "components": [
     {
       "key": "avix_percentile_2y",
@@ -11,7 +11,7 @@
       "observed": true,
       "raw_value": 19.256,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-20T15:02:42+08:00",
+      "quote_time": "2026-08-20T15:55:52+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -24,7 +24,7 @@
       "observed": true,
       "raw_value": 19.256,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-20T15:02:42+08:00",
+      "quote_time": "2026-08-20T15:55:52+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -37,7 +37,7 @@
       "observed": true,
       "raw_value": 19.256,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-20T15:02:42+08:00",
+      "quote_time": "2026-08-20T15:55:52+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -62,9 +62,9 @@
       "contribution": 9.3333,
       "observed": true,
       "raw_value": 20.592,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
+      "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-20T15:02:46+08:00",
+      "fetch_time": "2026-08-20T15:55:55+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -75,9 +75,9 @@
       "contribution": 8.7026,
       "observed": true,
       "raw_value": -0.0923,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
+      "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-20T15:02:46+08:00",
+      "fetch_time": "2026-08-20T15:55:55+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -101,9 +101,9 @@
       "contribution": 0.2943,
       "observed": true,
       "raw_value": 0.8883,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
+      "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-20T15:02:46+08:00",
+      "fetch_time": "2026-08-20T15:55:55+08:00",
       "quality": "SESSION_NORMALIZED"
     }
   ]
