@@ -1,45 +1,45 @@
 {
-  "trade_date": "2026-08-19",
-  "temperature_mode": "OFFICIAL_CLOSE",
+  "trade_date": "2026-08-20",
+  "temperature_mode": "NOWCAST",
   "components": [
     {
       "key": "avix_percentile_2y",
       "name": "AVIX两年分位",
-      "score": 67.7932,
+      "score": 70.3777,
       "weight": 0.28,
-      "contribution": 18.9821,
+      "contribution": 19.7058,
       "observed": true,
-      "raw_value": 19.9186,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-08-19",
+      "raw_value": 20.1637,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-08-20T09:21:15+08:00",
       "fetch_time": null,
-      "quality": "WARN_QVIX_MISSING"
+      "quality": "TIME_UNVERIFIED"
     },
     {
       "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 56.3607,
+      "score": 58.4729,
       "weight": 0.14,
-      "contribution": 7.8905,
+      "contribution": 8.1862,
       "observed": true,
-      "raw_value": 19.9186,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-08-19",
+      "raw_value": 20.1637,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-08-20T09:21:15+08:00",
       "fetch_time": null,
-      "quality": "WARN_QVIX_MISSING"
+      "quality": "TIME_UNVERIFIED"
     },
     {
       "key": "avix_5d_change",
       "name": "AVIX 5日变化",
-      "score": 64.5442,
+      "score": 73.5219,
       "weight": 0.08,
-      "contribution": 5.1635,
+      "contribution": 5.8818,
       "observed": true,
-      "raw_value": 19.9186,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-08-19",
+      "raw_value": 20.1637,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-08-20T09:21:15+08:00",
       "fetch_time": null,
-      "quality": "WARN_QVIX_MISSING"
+      "quality": "TIME_UNVERIFIED"
     },
     {
       "key": "qvix_confirmation",
@@ -52,59 +52,59 @@
       "source": null,
       "quote_time": null,
       "fetch_time": null,
-      "quality": null
+      "quality": "TIME_UNVERIFIED"
     },
     {
       "key": "realized_vol_percentile",
       "name": "实现波动率",
-      "score": 78.1746,
+      "score": 77.7778,
       "weight": 0.12,
-      "contribution": 9.381,
+      "contribution": 9.3333,
       "observed": true,
-      "raw_value": null,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-08-19",
-      "fetch_time": null,
-      "quality": "WARN_QVIX_MISSING"
+      "raw_value": 20.5809,
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-08-20T09:21:17+08:00",
+      "quality": "REALTIME_INDEX"
     },
     {
       "key": "drawdown_pressure",
       "name": "回撤压力",
-      "score": 73.6589,
+      "score": 73.679,
       "weight": 0.12,
-      "contribution": 8.8391,
+      "contribution": 8.8415,
       "observed": true,
-      "raw_value": null,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-08-19",
-      "fetch_time": null,
-      "quality": "WARN_QVIX_MISSING"
+      "raw_value": -0.0931,
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-08-20T09:21:17+08:00",
+      "quality": "REALTIME_INDEX"
     },
     {
       "key": "market_breadth_pressure",
       "name": "市场宽度",
-      "score": 95.9888,
+      "score": 50.0,
       "weight": 0.1,
-      "contribution": 9.5989,
-      "observed": true,
+      "contribution": 5.0,
+      "observed": false,
       "raw_value": null,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-08-19",
+      "source": null,
+      "quote_time": null,
       "fetch_time": null,
-      "quality": "WARN_QVIX_MISSING"
+      "quality": "SINGLE_SOURCE"
     },
     {
       "key": "turnover_stress",
       "name": "成交压力",
-      "score": 22.3604,
+      "score": 50.0,
       "weight": 0.04,
-      "contribution": 0.8944,
+      "contribution": 2.0,
       "observed": true,
       "raw_value": null,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-08-19",
-      "fetch_time": null,
-      "quality": "WARN_QVIX_MISSING"
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-08-20T09:21:17+08:00",
+      "quality": "SESSION_NORMALIZED"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "abedd3bd8968a7da827ab39566d4d334d8d799d7a4c7573802d643e5cf6fa0ad",
-  "built_at": "2026-08-19T19:35:59+08:00",
+  "revision": "5effc6baa6a9545a5acf4e68e3ffea3ad7fb51e26ad8508db5f61dfc66264a8b",
+  "built_at": "2026-08-20T09:21:59+08:00",
   "strategy_as_of": "2026-08-19",
   "marks_as_of": "2026-08-19",
   "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
@@ -21556,10 +21556,10 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-08-19",
+    "as_of": "2026-08-20",
     "marks_as_of": "2026-08-19",
     "status": "ACTION",
-    "headline_cn": "2026-08-19 有 2 项处于执行窗口的策略动作",
+    "headline_cn": "2026-08-20 有 1 项处于执行窗口的策略动作",
     "items": [
       {
         "id": "2026-08-19:STOP_LOSS:satellite",
@@ -21611,30 +21611,6 @@
             "entry_open": 0.68
           }
         ]
-      },
-      {
-        "id": "2026-08-19:ENTRY:core:CORE_STRICT_TAIL_V2",
-        "event_type": "ENTRY",
-        "sleeve": "core",
-        "action_cn": "CORE 严格尾盘买入",
-        "title_cn": "核心 CORE 严格尾盘买入信号",
-        "signal_date": "2026-08-19",
-        "execution_date": "2026-08-19",
-        "execution_mode": "T_TAIL_1450",
-        "execution_window_cn": "T 日 14:50-15:00",
-        "execution_status": "SIGNAL_RECORDED",
-        "close_code": null,
-        "reason_cn": "完整通过或缺失因子全范围下仍稳健通过时，仅沪深300核心仓在 T 日 14:50-15:00 买入；卫星及其他信号仍为 T+1 开盘",
-        "instruments": [
-          {
-            "name": "沪深300",
-            "etf_code": "510300",
-            "etf_name": "沪深300ETF华泰柏瑞",
-            "weight_in_sleeve": null,
-            "portfolio_weight": 0.6
-          }
-        ],
-        "signal_source": "intraday_temperature.core_tail_day_summary"
       }
     ],
     "satellite_risk_event": {
@@ -21701,7 +21677,7 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-08-19",
+      "report_as_of": "2026-08-20",
       "strategy_as_of": "2026-08-19",
       "marks_as_of": "2026-08-19",
       "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
