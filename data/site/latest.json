@@ -1,18 +1,18 @@
 {
   "trade_date": "2026-08-20",
-  "update_time": "2026-08-20T16:21:27+08:00",
-  "risk_temperature": 56.1,
-  "regime": "CAUTION",
-  "regime_cn": "警戒",
-  "quality": "WARN_QVIX_MISSING",
+  "update_time": "2026-08-20T17:00:08+08:00",
+  "risk_temperature": 62.1,
+  "regime": "HIGH_RISK",
+  "regime_cn": "高风险",
+  "quality": "WARN_QVIX_REALTIME_PROXY",
   "model_confidence": {
-    "score": 86.5,
-    "coverage_score": 88.0,
-    "data_quality_score": 98.3,
-    "grade": "MEDIUM",
-    "missing_components": "QVIX"
+    "score": 93.7,
+    "coverage_score": 100.0,
+    "data_quality_score": 93.7,
+    "grade": "HIGH",
+    "missing_components": "QVIX_PROXY"
   },
-  "model_confidence_label": "86.5 / 中",
+  "model_confidence_label": "93.7 / 高",
   "temperature_mode": "OFFICIAL_CLOSE",
   "temperature_mode_cn": "收盘正式",
   "is_final": true,
@@ -20,7 +20,7 @@
     "avix_percentile_2y": 58.6481,
     "avix_zscore_1y": 50.0361,
     "avix_5d_change": 63.0935,
-    "qvix_confirmation": 50.0,
+    "qvix_confirmation": 100.0,
     "realized_vol": 77.7778,
     "drawdown_pressure": 72.5214,
     "breadth_pressure": 32.8304,
@@ -63,10 +63,10 @@
   "official_close": {
     "trade_date": "2026-08-20",
     "update_time": "2026-08-20T15:00:00+08:00",
-    "risk_temperature": 56.1,
-    "regime": "CAUTION",
-    "regime_cn": "警戒",
-    "quality": "WARN_QVIX_MISSING",
+    "risk_temperature": 62.1,
+    "regime": "HIGH_RISK",
+    "regime_cn": "高风险",
+    "quality": "WARN_QVIX_REALTIME_PROXY",
     "temperature_mode": "OFFICIAL_CLOSE",
     "temperature_mode_cn": "收盘正式",
     "is_final": true,
@@ -74,7 +74,7 @@
       "avix_percentile_2y": 58.6481,
       "avix_zscore_1y": 50.0361,
       "avix_5d_change": 63.0935,
-      "qvix_confirmation": 50.0,
+      "qvix_confirmation": 100.0,
       "realized_vol": 77.7778,
       "drawdown_pressure": 72.5214,
       "breadth_pressure": 32.8304,
@@ -88,32 +88,32 @@
       "breadth_quality": "OK"
     },
     "avix_clean": 19.2229,
-    "qvix_close": null,
-    "qvix_source": null,
+    "qvix_close": 19.57,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
     "qvix_quote_time": null,
     "qvix_delay_minutes": null,
-    "qvix_quality": "WARN_QVIX_MISSING",
-    "qvix_quality_flags": null,
+    "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
+    "qvix_quality_flags": "PROXY",
     "qvix_secondary_source": null,
     "qvix_secondary_close": null,
     "qvix_source_agreement": null,
     "model_confidence": {
-      "score": 86.5,
-      "coverage_score": 88.0,
-      "data_quality_score": 98.3,
-      "grade": "MEDIUM",
-      "missing_components": "QVIX"
+      "score": 93.7,
+      "coverage_score": 100.0,
+      "data_quality_score": 93.7,
+      "grade": "HIGH",
+      "missing_components": "QVIX_PROXY"
     }
   },
   "nowcast": {
     "active": false,
-    "official_risk_temperature": 56.1,
+    "official_risk_temperature": 62.1,
     "reason_cn": "已有正式收盘，优先官方 AVIX"
   },
   "interpretation": {
-    "headline": "市场风险温度 56.1，处于警戒",
-    "summary": "实现波动率、回撤压力、AVIX短期变化是当前风险温度的主要驱动；多因子合成后给出 56.1/100。",
-    "posture": "降低追高倾向",
+    "headline": "市场风险温度 62.1，处于高风险",
+    "summary": "QVIX确认、实现波动率、回撤压力是当前风险温度的主要驱动；多因子合成后给出 62.1/100。",
+    "posture": "防守 + 等待风险释放",
     "do_not_interpret_as": "这不是买卖建议，也不是官方波动率指数。"
   }
 }
