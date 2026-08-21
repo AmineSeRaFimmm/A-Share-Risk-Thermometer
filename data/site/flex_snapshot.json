@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "e3eb3decc0633d7b590810561c0fe48c2d6533d982fb59fbbabcb4be1b9286c0",
-  "built_at": "2026-08-20T19:37:39+08:00",
+  "revision": "4f1e0b3a522907da9159ca79d70d757b8e50fa00510d17e7dfd126cd2e231d1b",
+  "built_at": "2026-08-21T09:29:48+08:00",
   "strategy_as_of": "2026-08-20",
   "marks_as_of": "2026-08-20",
   "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
@@ -21725,63 +21725,11 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-08-20",
+    "as_of": "2026-08-21",
     "marks_as_of": "2026-08-20",
-    "status": "ACTION",
-    "headline_cn": "2026-08-20 有 1 项处于执行窗口的策略动作",
-    "items": [
-      {
-        "id": "2026-08-19:STOP_LOSS:satellite",
-        "event_type": "STOP_LOSS",
-        "sleeve": "satellite",
-        "action_cn": "卫星篮子止损",
-        "title_cn": "卫星篮子止损已执行",
-        "signal_date": "2026-08-19",
-        "execution_date": "2026-08-20",
-        "execution_mode": "T_PLUS_1_OPEN",
-        "execution_window_cn": "下一交易日开盘整篮平仓",
-        "execution_status": "EXECUTED",
-        "close_code": "LOCAL_STOP_LOSS",
-        "trigger_return": -0.03553905161423698,
-        "trigger_threshold": -0.03,
-        "days_held": 6,
-        "reason_cn": "固定卫星篮子持有第 6 日 EOD 收益首次低于止损线",
-        "instruments": [
-          {
-            "name": "恒生科技",
-            "etf_code": "513180",
-            "etf_name": "恒生科技ETF华夏",
-            "weight_in_sleeve": 0.3584,
-            "portfolio_weight": 0.14336000000000002,
-            "entry_open": 0.605
-          },
-          {
-            "name": "建筑材料",
-            "etf_code": "159745",
-            "etf_name": "建材ETF国泰",
-            "weight_in_sleeve": 0.2366,
-            "portfolio_weight": 0.09464,
-            "entry_open": 0.541
-          },
-          {
-            "name": "传媒",
-            "etf_code": "512980",
-            "etf_name": "传媒ETF广发",
-            "weight_in_sleeve": 0.2366,
-            "portfolio_weight": 0.09464,
-            "entry_open": 0.87
-          },
-          {
-            "name": "商贸零售",
-            "etf_code": "159928",
-            "etf_name": "消费ETF汇添富",
-            "weight_in_sleeve": 0.1684,
-            "portfolio_weight": 0.06736,
-            "entry_open": 0.68
-          }
-        ]
-      }
-    ],
+    "status": "HOLD",
+    "headline_cn": "今日无新动作，维持策略持仓",
+    "items": [],
     "satellite_risk_event": {
       "signal_id": "2026-08-11",
       "entry_date": "2026-08-12",
@@ -21846,7 +21794,7 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-08-20",
+      "report_as_of": "2026-08-21",
       "strategy_as_of": "2026-08-20",
       "marks_as_of": "2026-08-20",
       "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
