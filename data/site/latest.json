@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-08-21",
-  "update_time": "2026-08-21T15:04:09+08:00",
+  "update_time": "2026-08-21T15:06:04+08:00",
   "risk_temperature": 62.9,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
@@ -55,7 +55,7 @@
     "avix_realtime_usable_gap_fill": true,
     "avix_realtime_source": "SINA_AKSHARE_REALTIME_MONTH_MID",
     "avix_realtime_source_quote_time": null,
-    "avix_realtime_fetch_time": "2026-08-21T15:03:31+08:00",
+    "avix_realtime_fetch_time": "2026-08-21T15:05:42+08:00",
     "avix_realtime_quality_flags": "TIME_UNVERIFIED",
     "avix_percentile_2y": 0.5487,
     "quality": "OK"
@@ -115,14 +115,14 @@
     "official_risk_temperature": 62.1,
     "realtime_avix": 19.0088,
     "realtime_avix_quality": null,
-    "realtime_valuation_time": "2026-08-21T15:03:35+08:00",
+    "realtime_valuation_time": "2026-08-21T15:05:47+08:00",
     "qvix_close": 19.21,
     "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
     "qvix_quote_time": null,
     "qvix_delay_minutes": null,
     "realtime_index_source": "EASTMONEY_INDEX_QUOTE_RT",
     "realtime_index_quote_time": null,
-    "realtime_index_fetch_time": "2026-08-21T15:03:39+08:00",
+    "realtime_index_fetch_time": "2026-08-21T15:05:51+08:00",
     "realtime_index_symbols": "sh000001,sh000300",
     "method": "收盘确认中 from realtime volatility and index factors; official close history remains separate",
     "active": true
