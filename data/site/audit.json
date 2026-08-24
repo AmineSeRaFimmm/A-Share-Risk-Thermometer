@@ -1,37 +1,44 @@
 {
-  "trade_date": "2026-08-21",
-  "temperature_mode": "OFFICIAL_CLOSE",
+  "trade_date": "2026-08-24",
+  "temperature_mode": "NOWCAST",
   "data_health": {
-    "options_history": "OK",
-    "options_realtime": "LOW",
+    "options_history": "WARN",
+    "options_realtime": "WARN",
     "qvix": "WARN",
     "indices": "OK",
     "breadth": "OK",
     "shibor": "OK"
   },
   "realtime_avix": {
-    "quality": "LOW_SINGLE_TERM|LOW_TOO_FEW_MONTHS",
-    "usable": false,
-    "usable_nowcast": false,
+    "quality": "WARN_TERM_DROPPED",
+    "usable": true,
+    "usable_nowcast": true,
     "usable_gap_fill": false,
-    "note": "single term approximation",
-    "avix_mid": 20.0984
+    "note": "2026-11-20:2026-11-20 has too few selected OTM options: 4;normal two-term interpolation",
+    "avix_mid": 19.1888
   },
   "nowcast": {
-    "active": false,
-    "reason_cn": "盘中 nowcast 未激活；正式收盘优先官方 AVIX"
+    "active": true,
+    "quality": "OK_NOWCAST|OK_REALTIME_AVIX_ESTIMATE|WARN_TERM_DROPPED|WARN_QVIX_REALTIME_PROXY|WARN_INDEX_CROSSCHECKED|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
+    "risk_temperature": 66.4,
+    "baseline_trade_date": "2026-08-21",
+    "method": "Estimated close from realtime volatility and index factors; official close history remains separate"
   },
   "model_confidence": {
-    "score": 93.7,
+    "score": 80.9,
     "coverage_score": 100.0,
-    "data_quality_score": 93.7,
-    "grade": "HIGH",
+    "data_quality_score": 80.9,
+    "grade": "MEDIUM",
     "missing_components": "QVIX_PROXY"
   },
   "warnings": [
-    "LOW_SINGLE_TERM",
-    "LOW_TOO_FEW_MONTHS",
-    "WARN_QVIX_REALTIME_PROXY"
+    "OK_NOWCAST",
+    "OK_REALTIME_AVIX_ESTIMATE",
+    "WARN_INDEX_CROSSCHECKED",
+    "WARN_INDEX_TIME_UNVERIFIED",
+    "WARN_OFFICIAL_AVIX_MISSING",
+    "WARN_QVIX_REALTIME_PROXY",
+    "WARN_TERM_DROPPED"
   ],
-  "last_successful_update": "2026-08-24T09:31:03+08:00"
+  "last_successful_update": "2026-08-24T09:41:14+08:00"
 }
