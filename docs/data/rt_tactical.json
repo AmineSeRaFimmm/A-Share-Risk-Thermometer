@@ -8,9 +8,9 @@
   "source": "research/output/csi300_risk_temp_strategy_report.md",
   "disclaimer": "研究观察信号，来自历史回测（推荐区间 60-75 + 60日回撤确认）。不是买卖建议，也不是生产交易指令；与 S3/S4（AVIX 规则）相互独立。",
   "latest": {
-    "trade_date": "2026-08-21",
-    "risk_temperature": 62.3,
-    "drawdown_60d": -0.0871,
+    "trade_date": "2026-08-24",
+    "risk_temperature": 72.7,
+    "drawdown_60d": -0.0981,
     "in_band": true,
     "drawdown_confirmed": true,
     "active": true,
