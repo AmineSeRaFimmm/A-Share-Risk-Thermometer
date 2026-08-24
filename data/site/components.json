@@ -48,11 +48,11 @@
       "weight": 0.12,
       "contribution": 12.0,
       "observed": true,
-      "raw_value": 20.44,
-      "source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
-      "quote_time": "2026-08-24T14:56:14+08:00",
+      "raw_value": 20.52,
+      "source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
+      "quote_time": null,
       "fetch_time": null,
-      "quality": "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY"
+      "quality": "PROXY"
     },
     {
       "key": "realized_vol_percentile",
