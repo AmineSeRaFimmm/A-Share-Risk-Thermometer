@@ -1,9 +1,9 @@
 {
-  "build_time": "2026-08-25T17:07:21+08:00",
+  "build_time": "2026-08-25T18:52:12+08:00",
   "etf_marks_as_of": "2026-08-25",
   "etf_marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
   "etf_marks_revision": "2026-08-25|OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
-  "flex_snapshot_revision": "11b4c493b9139892b12317910c7a264288d9ff658f5c20c248d0004590888c3a",
+  "flex_snapshot_revision": "c9a8dc5bab127f1e3b1983da25aabb3497cbc01ac3b9ff6642e9a2b3de065000",
   "flex_snapshot_strategy_as_of": "2026-08-25",
   "flex_snapshot_marks_as_of": "2026-08-25",
   "revision_reason": "SITE_BUILD"
