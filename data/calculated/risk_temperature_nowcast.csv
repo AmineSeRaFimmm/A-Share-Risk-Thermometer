@@ -1,2 +1,1 @@
 trade_date,risk_temperature_estimated,regime,regime_cn,quality,baseline_trade_date,gap_reason,avix_realtime_mid,model_confidence
-2026-08-27,51.9,CAUTION,警戒,OK_CLOSE_PENDING|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_REALTIME_PROXY|WARN_INDEX_CROSSCHECKED|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING,2026-08-26,市场已收盘；等待15:16最终网页快照,18.5811,81.6
