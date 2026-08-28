@@ -1,32 +1,28 @@
 {
-  "as_of": "2026-08-27",
+  "as_of": "2026-08-28",
   "mode": "aggressive",
   "core": {
-    "status": "open",
-    "entry_signal_date": "2026-08-19",
-    "entry_date": "2026-08-19",
-    "exit_due_date": "2026-08-26",
-    "days_held": 6,
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
     "days_remaining": 0,
-    "stage_id": "CSI300_CORE_BUY",
-    "names": [
-      "沪深300"
-    ],
-    "weights": {
-      "沪深300": 1.0
-    },
-    "etf_code": "510300",
-    "execution_mode": "T_TAIL_1450",
-    "entry_price_type": "tail_1450",
-    "planned_hold_days": 6
+    "stage_id": null,
+    "names": [],
+    "weights": {},
+    "etf_code": null,
+    "execution_mode": "T_PLUS_1_OPEN",
+    "entry_price_type": "open",
+    "planned_hold_days": null
   },
   "satellite": {
     "status": "open",
     "entry_signal_date": "2026-08-21",
     "entry_date": "2026-08-24",
     "exit_due_date": "2026-09-02",
-    "days_held": 4,
-    "days_remaining": 4,
+    "days_held": 5,
+    "days_remaining": 3,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "通信",

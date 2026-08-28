@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-08-28",
-  "temperature_mode": "CLOSE_PENDING",
+  "temperature_mode": "ESTIMATED_CLOSE",
   "components": [
     {
       "key": "avix_percentile_2y",
@@ -11,33 +11,33 @@
       "observed": true,
       "raw_value": 17.9996,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-28T15:04:10+08:00",
+      "quote_time": "2026-08-28T15:29:25+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
     {
       "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 38.6397,
+      "score": 38.6396,
       "weight": 0.14,
-      "contribution": 5.4096,
+      "contribution": 5.4095,
       "observed": true,
       "raw_value": 17.9996,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-28T15:04:10+08:00",
+      "quote_time": "2026-08-28T15:29:25+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
     {
       "key": "avix_5d_change",
       "name": "AVIX 5日变化",
-      "score": 40.2064,
+      "score": 40.2062,
       "weight": 0.08,
       "contribution": 3.2165,
       "observed": true,
       "raw_value": 17.9996,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-08-28T15:04:10+08:00",
+      "quote_time": "2026-08-28T15:29:25+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -64,7 +64,7 @@
       "raw_value": 16.76,
       "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-28T15:04:13+08:00",
+      "fetch_time": "2026-08-28T15:29:27+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -77,7 +77,7 @@
       "raw_value": -0.089,
       "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-28T15:04:13+08:00",
+      "fetch_time": "2026-08-28T15:29:27+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -103,7 +103,7 @@
       "raw_value": 0.8627,
       "source": "TENCENT_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-08-28T15:04:13+08:00",
+      "fetch_time": "2026-08-28T15:29:27+08:00",
       "quality": "SESSION_NORMALIZED"
     }
   ]
