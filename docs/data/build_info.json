@@ -1,10 +1,10 @@
 {
-  "build_time": "2026-08-31T23:23:31+08:00",
+  "build_time": "2026-08-31T23:28:14+08:00",
   "etf_marks_as_of": "2026-08-31",
   "etf_marks_quality": "OK",
   "etf_marks_revision": "2026-08-31|OK",
-  "flex_snapshot_revision": "54f5ee6d18d4ad29c97d96230f51836ae759ccfc45dee0cd74a99096d6cee723",
+  "flex_snapshot_revision": "bdd4b20a3168e38aab70f8c7ce2ac77bdf30f1f424e21a97971126af3458a864",
   "flex_snapshot_strategy_as_of": "2026-08-31",
-  "flex_snapshot_marks_as_of": "2026-08-28",
-  "revision_reason": "ETF_EOD_MARKS"
+  "flex_snapshot_marks_as_of": "2026-08-31",
+  "revision_reason": "SITE_BUILD"
 }
