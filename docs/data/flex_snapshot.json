@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "revision": "321c98c33ca58757a3b8f33f4c0c6675238a333718282f7f5bcb654187e2ed47",
-  "built_at": "2026-09-01T15:01:52+08:00",
-  "strategy_as_of": "2026-08-31",
+  "revision": "60e28b2d67874307ed200d544b9f30cc79b93c2c830e695d323884233e4b92c8",
+  "built_at": "2026-09-01T16:29:38+08:00",
+  "strategy_as_of": "2026-09-01",
   "marks_as_of": "2026-08-31",
-  "marks_quality": "OK",
+  "marks_quality": "WARN_INCOMPLETE_AS_OF",
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -43,23 +43,23 @@
         "research/output/core_plus_sectors/core_plus_sectors_report.md"
       ]
     },
-    "as_of": "2026-08-31",
+    "as_of": "2026-09-01",
     "data_quality": {
       "risk_source": "OFFICIAL_CLOSE",
-      "official_as_of": "2026-08-31",
+      "official_as_of": "2026-09-01",
       "bridged": false,
       "bridged_dates": [],
       "bridge_source": null,
       "note_cn": "策略日期与正式风险因子日期一致。"
     },
     "market_state": {
-      "trade_date": "2026-08-31",
-      "rt": 50.0,
-      "prev_rt": 50.5,
-      "rt_d1": -0.5,
-      "rt_d5": -22.700000000000003,
+      "trade_date": "2026-09-01",
+      "rt": 48.7,
+      "prev_rt": 50.0,
+      "rt_d1": -1.2999999999999972,
+      "rt_d5": -14.099999999999994,
       "rt_rollmax_10": 72.7,
-      "hs300_dd60": -0.0858895996527828,
+      "hs300_dd60": -0.0885868175279831,
       "regime": "CAUTION",
       "regime_cn": "警戒",
       "quality": "WARN_QVIX_REALTIME_PROXY",
@@ -194,10 +194,10 @@
         "weight_target": 0.2328,
         "weight_hint": "23%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 6,
-        "days_remaining": 2,
+        "days_held": 7,
+        "days_remaining": 1,
         "entry": "—",
-        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "通信",
         "etf_code": "515880",
         "etf_name": "通信ETF国泰",
@@ -219,10 +219,10 @@
         "weight_target": 0.1897,
         "weight_hint": "19%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 6,
-        "days_remaining": 2,
+        "days_held": 7,
+        "days_remaining": 1,
         "entry": "—",
-        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "恒生科技",
         "etf_code": "513180",
         "etf_name": "恒生科技ETF华夏",
@@ -244,10 +244,10 @@
         "weight_target": 0.1281,
         "weight_hint": "13%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 6,
-        "days_remaining": 2,
+        "days_held": 7,
+        "days_remaining": 1,
         "entry": "—",
-        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "机械设备",
         "etf_code": "159886",
         "etf_name": "机械ETF富国",
@@ -269,10 +269,10 @@
         "weight_target": 0.1252,
         "weight_hint": "13%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 6,
-        "days_remaining": 2,
+        "days_held": 7,
+        "days_remaining": 1,
         "entry": "—",
-        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "建筑材料",
         "etf_code": "159745",
         "etf_name": "建材ETF国泰",
@@ -294,10 +294,10 @@
         "weight_target": 0.1252,
         "weight_hint": "13%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 6,
-        "days_remaining": 2,
+        "days_held": 7,
+        "days_remaining": 1,
         "entry": "—",
-        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "传媒",
         "etf_code": "512980",
         "etf_name": "传媒ETF广发",
@@ -319,10 +319,10 @@
         "weight_target": 0.1099,
         "weight_hint": "11%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 6,
-        "days_remaining": 2,
+        "days_held": 7,
+        "days_remaining": 1,
         "entry": "—",
-        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "国防军工",
         "etf_code": "512660",
         "etf_name": "军工ETF国泰",
@@ -344,10 +344,10 @@
         "weight_target": 0.0891,
         "weight_hint": "9%",
         "why": "卫星持仓中，不重叠新开",
-        "days_held": 6,
-        "days_remaining": 2,
+        "days_held": 7,
+        "days_remaining": 1,
         "entry": "—",
-        "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
         "sector": "商贸零售",
         "etf_code": "159928",
         "etf_name": "消费ETF汇添富",
@@ -587,7 +587,7 @@
       "status": "持有",
       "status_code": "SAT_ONLY",
       "headline": "组合 Flex v2：持仓管理（无新开）",
-      "as_of": "2026-08-31",
+      "as_of": "2026-09-01",
       "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
       "core_tail_policy": {
         "id": "CORE_STRICT_TAIL_V2",
@@ -872,10 +872,10 @@
         }
       },
       "market_state": {
-        "rt": 50.0,
-        "rt_d1": -0.5,
-        "rt_d5": -22.700000000000003,
-        "hs300_dd60": -0.0858895996527828,
+        "rt": 48.7,
+        "rt_d1": -1.2999999999999972,
+        "rt_d5": -14.099999999999994,
+        "hs300_dd60": -0.0885868175279831,
         "model_confidence": 92.2,
         "regime_cn": "警戒"
       },
@@ -897,7 +897,7 @@
       ],
       "merge_note_cn": "多阶段合并：FALLING_HARD；被门控压制：无",
       "position_state": {
-        "as_of": "2026-08-31",
+        "as_of": "2026-09-01",
         "mode": "aggressive",
         "core": {
           "status": "flat",
@@ -919,8 +919,8 @@
           "entry_signal_date": "2026-08-21",
           "entry_date": "2026-08-24",
           "exit_due_date": "2026-09-02",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
             "通信",
@@ -948,7 +948,7 @@
         "last_actions": []
       },
       "exit_plan": {
-        "as_of": "2026-08-31",
+        "as_of": "2026-09-01",
         "core": {
           "status": "flat",
           "entry_signal_date": null,
@@ -963,7 +963,7 @@
           "status": "open",
           "entry_signal_date": "2026-08-21",
           "entry_date": "2026-08-24",
-          "days_held": 6,
+          "days_held": 7,
           "stage_id": "CSI300_CORE_BUY",
           "rules": {
             "min_hold": 3,
@@ -982,7 +982,7 @@
           },
           "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。",
           "exit_due_date": "2026-09-02",
-          "days_to_max": 2
+          "days_to_max": 1
         },
         "guarantee_cn": "日更成功且 as_of=当日时：任一 close_code 触发必写入 close_list；执行台必须展示策略平仓提示（本机未点买也可看，点买后可记账平仓）。日更失败则页面不会刷新——需看 Actions。"
       },
@@ -1231,8 +1231,8 @@
           "entry_signal_date": "2026-08-21",
           "entry_date": "2026-08-24",
           "exit_due_date": "2026-09-02",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
             "通信",
@@ -1272,10 +1272,10 @@
           "weight_target": 0.2328,
           "weight_hint": "23%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "通信",
           "etf_code": "515880",
           "etf_name": "通信ETF国泰",
@@ -1297,10 +1297,10 @@
           "weight_target": 0.1897,
           "weight_hint": "19%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "恒生科技",
           "etf_code": "513180",
           "etf_name": "恒生科技ETF华夏",
@@ -1322,10 +1322,10 @@
           "weight_target": 0.1281,
           "weight_hint": "13%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "机械设备",
           "etf_code": "159886",
           "etf_name": "机械ETF富国",
@@ -1347,10 +1347,10 @@
           "weight_target": 0.1252,
           "weight_hint": "13%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "建筑材料",
           "etf_code": "159745",
           "etf_name": "建材ETF国泰",
@@ -1372,10 +1372,10 @@
           "weight_target": 0.1252,
           "weight_hint": "13%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "传媒",
           "etf_code": "512980",
           "etf_name": "传媒ETF广发",
@@ -1397,10 +1397,10 @@
           "weight_target": 0.1099,
           "weight_hint": "11%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "国防军工",
           "etf_code": "512660",
           "etf_name": "军工ETF国泰",
@@ -1422,10 +1422,10 @@
           "weight_target": 0.0891,
           "weight_hint": "9%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "商贸零售",
           "etf_code": "159928",
           "etf_name": "消费ETF汇添富",
@@ -1518,10 +1518,10 @@
           "weight_target": 0.2328,
           "weight_hint": "23%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "通信",
           "etf_code": "515880",
           "etf_name": "通信ETF国泰",
@@ -1543,10 +1543,10 @@
           "weight_target": 0.1897,
           "weight_hint": "19%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "恒生科技",
           "etf_code": "513180",
           "etf_name": "恒生科技ETF华夏",
@@ -1568,10 +1568,10 @@
           "weight_target": 0.1281,
           "weight_hint": "13%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "机械设备",
           "etf_code": "159886",
           "etf_name": "机械ETF富国",
@@ -1593,10 +1593,10 @@
           "weight_target": 0.1252,
           "weight_hint": "13%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "建筑材料",
           "etf_code": "159745",
           "etf_name": "建材ETF国泰",
@@ -1618,10 +1618,10 @@
           "weight_target": 0.1252,
           "weight_hint": "13%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "传媒",
           "etf_code": "512980",
           "etf_name": "传媒ETF广发",
@@ -1643,10 +1643,10 @@
           "weight_target": 0.1099,
           "weight_hint": "11%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "国防军工",
           "etf_code": "512660",
           "etf_name": "军工ETF国泰",
@@ -1668,10 +1668,10 @@
           "weight_target": 0.0891,
           "weight_hint": "9%",
           "why": "卫星持仓中，不重叠新开",
-          "days_held": 6,
-          "days_remaining": 2,
+          "days_held": 7,
+          "days_remaining": 1,
           "entry": "—",
-          "exit": "约剩 2 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "exit": "约剩 1 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
           "sector": "商贸零售",
           "etf_code": "159928",
           "etf_name": "消费ETF汇添富",
@@ -2273,8 +2273,8 @@
     "title": "Flex ETF daily marks (EOD)",
     "policy": "SIM_ENTRY_OPEN_MARK_CLOSE",
     "policy_cn": "模拟仓专业口径：入场价=入场日开盘价；盯市价=as_of收盘价；不做盘中轮询；与策略/回测日频一致。",
-    "as_of": "2026-08-31",
-    "start": "2026-05-03",
+    "as_of": "2026-09-01",
+    "start": "2026-05-04",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
     "fetch_workers": 4,
     "not_broker_feed": true,
@@ -2326,12 +2326,56 @@
     ],
     "code_count": 29,
     "missing_codes": [],
-    "stale_codes": [],
+    "stale_codes": [
+      "159745",
+      "159886",
+      "159928",
+      "159998",
+      "510300",
+      "512400",
+      "512660",
+      "512980",
+      "513180",
+      "515220",
+      "515880",
+      "516020",
+      "516850"
+    ],
     "complete_as_of": "2026-08-31",
     "coverage_missing_codes": [],
-    "coverage_stale_codes": [],
+    "coverage_stale_codes": [
+      "159666",
+      "159697",
+      "159730",
+      "159745",
+      "159766",
+      "159886",
+      "159928",
+      "159995",
+      "159998",
+      "510300",
+      "512010",
+      "512200",
+      "512400",
+      "512430",
+      "512580",
+      "512660",
+      "512800",
+      "512880",
+      "512980",
+      "513180",
+      "515210",
+      "515220",
+      "515710",
+      "515880",
+      "516020",
+      "516110",
+      "516670",
+      "516850",
+      "560620"
+    ],
     "coverage_complete_as_of": "2026-08-31",
-    "quality": "OK",
+    "quality": "WARN_INCOMPLETE_AS_OF",
     "by_code": {
       "159666": {
         "etf_code": "159666",
@@ -2922,7 +2966,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159697": {
         "etf_code": "159697",
@@ -3513,7 +3557,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159730": {
         "etf_code": "159730",
@@ -4104,7 +4148,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159745": {
         "etf_code": "159745",
@@ -4695,7 +4739,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159766": {
         "etf_code": "159766",
@@ -5286,7 +5330,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159886": {
         "etf_code": "159886",
@@ -5877,7 +5921,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159928": {
         "etf_code": "159928",
@@ -6468,7 +6512,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159995": {
         "etf_code": "159995",
@@ -7059,7 +7103,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159998": {
         "etf_code": "159998",
@@ -7650,7 +7694,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "510300": {
         "etf_code": "510300",
@@ -8241,7 +8285,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512010": {
         "etf_code": "512010",
@@ -8832,7 +8876,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512200": {
         "etf_code": "512200",
@@ -9423,7 +9467,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512400": {
         "etf_code": "512400",
@@ -10014,7 +10058,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512430": {
         "etf_code": "512430",
@@ -10527,7 +10571,7 @@
         "bar_count": 84,
         "first": "2026-04-30",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512580": {
         "etf_code": "512580",
@@ -11118,7 +11162,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512660": {
         "etf_code": "512660",
@@ -11709,7 +11753,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512800": {
         "etf_code": "512800",
@@ -12300,7 +12344,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512880": {
         "etf_code": "512880",
@@ -12891,7 +12935,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512980": {
         "etf_code": "512980",
@@ -13482,7 +13526,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "513180": {
         "etf_code": "513180",
@@ -14073,7 +14117,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "515210": {
         "etf_code": "515210",
@@ -14664,7 +14708,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "515220": {
         "etf_code": "515220",
@@ -15255,7 +15299,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "515710": {
         "etf_code": "515710",
@@ -15846,7 +15890,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "515880": {
         "etf_code": "515880",
@@ -16437,7 +16481,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "516020": {
         "etf_code": "516020",
@@ -17028,7 +17072,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "516110": {
         "etf_code": "516110",
@@ -17619,7 +17663,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "516670": {
         "etf_code": "516670",
@@ -18210,7 +18254,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "516850": {
         "etf_code": "516850",
@@ -18801,7 +18845,7 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "560620": {
         "etf_code": "560620",
@@ -19392,13 +19436,13 @@
         "bar_count": 97,
         "first": "2026-04-13",
         "last": "2026-08-31",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       }
     },
-    "updated_at": "2026-08-31T17:38:30+00:00",
+    "updated_at": "2026-09-01T08:29:38+00:00",
     "published_bar_preservation": {
       "status": "used",
-      "candidate_as_of": "2026-08-31",
+      "candidate_as_of": "2026-09-01",
       "codes": [
         "159666",
         "159697",
@@ -22491,9 +22535,9 @@
     },
     "data_quality": {
       "report_as_of": "2026-09-01",
-      "strategy_as_of": "2026-08-31",
+      "strategy_as_of": "2026-09-01",
       "marks_as_of": "2026-08-31",
-      "marks_quality": "OK",
+      "marks_quality": "WARN_INCOMPLETE_AS_OF",
       "risk_check_status": "CLEAR",
       "complete": true
     },
