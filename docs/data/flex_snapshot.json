@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "5a394ed4e17dd33f84ae3c23cb13475cc8ad4a24701ab2da6b41f74de9477843",
-  "built_at": "2026-09-01T21:13:15+08:00",
+  "revision": "265847a61f22cb620b4a90b841de4d18cde0b84e872c438f2bd6a47e8e92b241",
+  "built_at": "2026-09-01T21:34:23+08:00",
   "strategy_as_of": "2026-09-01",
   "marks_as_of": "2026-09-01",
   "marks_quality": "OK",
@@ -63,7 +63,7 @@
       "regime": "CAUTION",
       "regime_cn": "警戒",
       "quality": "WARN_QVIX_REALTIME_PROXY",
-      "model_confidence": 92.2
+      "model_confidence": 93.7
     },
     "active_stage_ids": [
       "FALLING_HARD"
@@ -876,7 +876,7 @@
         "rt_d1": -1.2999999999999972,
         "rt_d5": -14.099999999999994,
         "hs300_dd60": -0.0885868175279831,
-        "model_confidence": 92.2,
+        "model_confidence": 93.7,
         "regime_cn": "警戒"
       },
       "active_stages": [
@@ -2276,7 +2276,7 @@
     "as_of": "2026-09-01",
     "start": "2026-05-04",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 1,
+    "fetch_workers": 4,
     "not_broker_feed": true,
     "required_codes": [
       "159745",
@@ -19569,7 +19569,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-09-01T13:13:15+00:00",
+    "updated_at": "2026-09-01T13:34:23+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-09-01",

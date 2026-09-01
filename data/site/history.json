@@ -14372,8 +14372,8 @@
     "risk_temperature": 50.0,
     "regime": "CAUTION",
     "avix_clean": 18.089,
-    "qvix": 18.27,
-    "qvix_source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
+    "qvix": 18.33,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
     "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
     "qvix_is_proxy": true,
     "qvix_replica": 18.391,
@@ -14381,15 +14381,15 @@
     "hs300_close": 4625.086,
     "drawdown_pressure": 62.8427,
     "breadth_pressure": 39.4207,
-    "model_confidence": 92.2
+    "model_confidence": 93.7
   },
   {
     "date": "2026-09-01",
     "risk_temperature": 48.7,
     "regime": "CAUTION",
     "avix_clean": 17.7887,
-    "qvix": 18.01,
-    "qvix_source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
+    "qvix": 18.04,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
     "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
     "qvix_is_proxy": true,
     "qvix_replica": 18.0816,
@@ -14397,6 +14397,6 @@
     "hs300_close": 4611.439,
     "drawdown_pressure": 64.878,
     "breadth_pressure": 46.6604,
-    "model_confidence": 92.2
+    "model_confidence": 93.7
   }
 ]

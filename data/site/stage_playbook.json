@@ -55,7 +55,7 @@
     "regime": "CAUTION",
     "regime_cn": "警戒",
     "quality": "WARN_QVIX_REALTIME_PROXY",
-    "model_confidence": 92.2
+    "model_confidence": 93.7
   },
   "active_stage_ids": [
     "FALLING_HARD"
@@ -868,7 +868,7 @@
       "rt_d1": -1.2999999999999972,
       "rt_d5": -14.099999999999994,
       "hs300_dd60": -0.0885868175279831,
-      "model_confidence": 92.2,
+      "model_confidence": 93.7,
       "regime_cn": "警戒"
     },
     "active_stages": [
