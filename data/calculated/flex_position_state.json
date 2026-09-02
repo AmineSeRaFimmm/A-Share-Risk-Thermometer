@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-01",
+  "as_of": "2026-09-02",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -21,8 +21,8 @@
     "entry_signal_date": "2026-08-21",
     "entry_date": "2026-08-24",
     "exit_due_date": "2026-09-02",
-    "days_held": 7,
-    "days_remaining": 1,
+    "days_held": 8,
+    "days_remaining": 0,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "通信",
