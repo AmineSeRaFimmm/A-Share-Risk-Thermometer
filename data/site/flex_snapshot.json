@@ -1,10 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "b7df527dade7d9f196cd583dfe9aba36643a4547b3547fce96a5d6cfab5bb3a9",
-  "built_at": "2026-09-03T14:19:53+08:00",
+  "revision": "a568236c541d4d886b0fbd032e4c8a3ce4c8fe00496795b2e2d7baf2aa1109d8",
+  "built_at": "2026-09-03T14:27:30+08:00",
   "strategy_as_of": "2026-09-02",
   "marks_as_of": "2026-09-02",
   "marks_quality": "OK",
+  "strategy_publication_status": "OFFICIAL_PENDING",
+  "official_strategy_pending": true,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -22568,10 +22570,13 @@
     "data_quality": {
       "report_as_of": "2026-09-03",
       "strategy_as_of": "2026-09-02",
+      "strategy_publication_status": "OFFICIAL_PENDING",
+      "official_strategy_pending": true,
+      "strategy_provisional": false,
       "marks_as_of": "2026-09-02",
       "marks_quality": "OK",
       "risk_check_status": "CLEAR",
-      "complete": true
+      "complete": false
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",
