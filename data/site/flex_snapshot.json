@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "d9ef31f50af321e8a2bbb35e28fe644e5072754e08a35cdd1bd46d5ea6d1bae4",
-  "built_at": "2026-09-02T23:02:40+08:00",
+  "revision": "b7df527dade7d9f196cd583dfe9aba36643a4547b3547fce96a5d6cfab5bb3a9",
+  "built_at": "2026-09-03T09:31:28+08:00",
   "strategy_as_of": "2026-09-02",
   "marks_as_of": "2026-09-02",
   "marks_quality": "OK",
@@ -22415,10 +22415,10 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-09-02",
+    "as_of": "2026-09-03",
     "marks_as_of": "2026-09-02",
     "status": "ACTION",
-    "headline_cn": "2026-09-02 有 1 项处于执行窗口的策略动作",
+    "headline_cn": "2026-09-03 有 1 项处于执行窗口的策略动作",
     "items": [
       {
         "id": "2026-09-02:EXIT:satellite:MAX_HOLD",
@@ -22566,7 +22566,7 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-09-02",
+      "report_as_of": "2026-09-03",
       "strategy_as_of": "2026-09-02",
       "marks_as_of": "2026-09-02",
       "marks_quality": "OK",
