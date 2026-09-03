@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "revision": "f11ef06ebc2f734f9003caceeef10088b77ad6ed1018764e81150597318b3629",
-  "built_at": "2026-09-03T16:15:49+08:00",
+  "revision": "2d99776a2c04e992c525f14c310b4dd8d9a965e312f7e4040689998efbe921c6",
+  "built_at": "2026-09-03T16:20:39+08:00",
   "strategy_as_of": "2026-09-03",
-  "marks_as_of": "2026-09-02",
-  "marks_quality": "WARN_INCOMPLETE_AS_OF",
+  "marks_as_of": "2026-09-03",
+  "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
   "strategy_publication_status": "CURRENT",
   "official_strategy_pending": false,
   "calendar_coverage_through": "2026-12-31",
@@ -1115,7 +1115,7 @@
     "as_of": "2026-09-03",
     "start": "2026-05-06",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 4,
+    "fetch_workers": 1,
     "not_broker_feed": true,
     "required_codes": [
       "510300"
@@ -1153,10 +1153,8 @@
     ],
     "code_count": 29,
     "missing_codes": [],
-    "stale_codes": [
-      "510300"
-    ],
-    "complete_as_of": "2026-09-02",
+    "stale_codes": [],
+    "complete_as_of": "2026-09-03",
     "coverage_missing_codes": [],
     "coverage_stale_codes": [
       "159666",
@@ -1168,7 +1166,6 @@
       "159928",
       "159995",
       "159998",
-      "510300",
       "512010",
       "512200",
       "512400",
@@ -1190,7 +1187,7 @@
       "560620"
     ],
     "coverage_complete_as_of": "2026-09-02",
-    "quality": "WARN_INCOMPLETE_AS_OF",
+    "quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
     "by_code": {
       "159666": {
         "etf_code": "159666",
@@ -7215,12 +7212,21 @@
             "close": 4.62,
             "high": 4.654,
             "low": 4.601
+          },
+          "2026-09-03": {
+            "open": 4.631,
+            "close": 4.621,
+            "high": 4.65,
+            "low": 4.605
           }
         },
-        "bar_count": 99,
+        "bar_count": 100,
         "first": "2026-04-13",
-        "last": "2026-09-02",
-        "fresh_for_as_of": false
+        "last": "2026-09-03",
+        "fresh_for_as_of": true,
+        "bar_sources": {
+          "2026-09-03": "TENCENT_ETF_FINAL_QUOTE"
+        }
       },
       "512010": {
         "etf_code": "512010",
@@ -18602,7 +18608,19 @@
         "fresh_for_as_of": false
       }
     },
-    "updated_at": "2026-09-03T08:15:49+00:00",
+    "updated_at": "2026-09-03T08:20:39+00:00",
+    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
+    "final_quote_fallback": {
+      "trade_date": "2026-09-03",
+      "status": "complete",
+      "code_count": 1,
+      "quotes": {
+        "510300": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-03T16:14:32+08:00"
+        }
+      }
+    },
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-09-03",
@@ -21613,7 +21631,7 @@
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
     "as_of": "2026-09-03",
-    "marks_as_of": "2026-09-02",
+    "marks_as_of": "2026-09-03",
     "status": "NO_ACTION",
     "headline_cn": "今日没有处于执行窗口的 Flex 策略动作",
     "items": [],
@@ -21635,8 +21653,8 @@
       "strategy_publication_status": "CURRENT",
       "official_strategy_pending": false,
       "strategy_provisional": false,
-      "marks_as_of": "2026-09-02",
-      "marks_quality": "WARN_INCOMPLETE_AS_OF",
+      "marks_as_of": "2026-09-03",
+      "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
       "risk_check_status": "NOT_APPLICABLE",
       "complete": true
     },
