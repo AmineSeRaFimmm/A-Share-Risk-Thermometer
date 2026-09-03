@@ -765,6 +765,7 @@ dd[data-freshness="stale"] { color: var(--red); }
 }
 
 .daily-flex-brief-summary[data-status="blocked"] strong { color: var(--red); }
+.daily-flex-brief-summary[data-status="official-pending"] strong { color: var(--amber); }
 .daily-flex-brief-items { display: grid; }
 
 .daily-flex-brief-item {
@@ -860,6 +861,7 @@ dd[data-freshness="stale"] { color: var(--red); }
 }
 
 .daily-flex-brief-quality[data-status="blocked"] { color: var(--red); }
+.daily-flex-brief-quality[data-status="official-pending"] { color: var(--amber); }
 
 .chart-grid {
   display: grid;

@@ -7,7 +7,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>A股风险温度计</title>
-    <link rel="stylesheet" href="./assets/app.css?v=20260719-magazine">
+    <link rel="stylesheet" href="./assets/app.css?v=20260903-flex-publication-v1">
   </head>
   <body class="app-shell">
     <header class="topbar">
@@ -135,7 +135,7 @@
         </div>
 
         <p class="flex-trust" id="flexTrustLine">
-          <strong>使用提示</strong>：策略信号日更（约 15:40 后）；真实仓仅本机点买；模拟仓自动跟纸面。收益展示为<strong>涨跌幅%</strong>。非投资建议，不会自动下单。
+          <strong>使用提示</strong>：策略信号在正式收盘数据发布后更新；真实仓仅本机点买；模拟仓自动跟纸面。收益展示为<strong>涨跌幅%</strong>。非投资建议，不会自动下单。
         </p>
 
         <div class="flex-strip" id="flexExecDesk">
@@ -230,7 +230,7 @@
             </section>
             <div id="flexSignalEmpty" class="flex-empty-state" hidden>
               <strong id="flexSignalEmptyTitle">今日无行动信号</strong>
-              <p id="flexSignalEmptyBody">当前没有可买 / 须平提示。可切换「持仓」查看账本，或等待日更（约 15:40 后）。</p>
+              <p id="flexSignalEmptyBody">当前没有可买 / 须平提示。可切换「持仓」查看账本，或等待正式日更发布。</p>
             </div>
             <div id="flexCapitalHint" class="flex-empty-state soft" hidden>
               <strong>建议先保存全仓金额</strong>
@@ -402,6 +402,6 @@
 
     <script src="./vendor/echarts.min.js"></script>
     <script src="./assets/charts.js?v=20260719-magazine"></script>
-    <script src="./assets/app.js?v=20260719-magazine"></script>
+    <script src="./assets/app.js?v=20260903-flex-publication-v1"></script>
   </body>
 </html>

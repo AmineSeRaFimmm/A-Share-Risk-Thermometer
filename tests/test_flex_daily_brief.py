@@ -155,6 +155,8 @@ def test_intraday_trade_date_advances_report_and_expires_old_action() -> None:
 
     assert execution_day["as_of"] == "2026-08-12"
     assert execution_day["data_quality"]["strategy_as_of"] == "2026-08-11"
+    assert execution_day["data_quality"]["official_strategy_pending"] is True
+    assert execution_day["status"] == "ACTION"
     assert [item["event_type"] for item in execution_day["items"]] == ["EXIT"]
 
     next_session = build_daily_flex_brief(
@@ -166,6 +168,44 @@ def test_intraday_trade_date_advances_report_and_expires_old_action() -> None:
 
     assert next_session["as_of"] == "2026-08-13"
     assert next_session["items"] == []
+    assert next_session["status"] == "OFFICIAL_PENDING"
+    assert next_session["headline_cn"] == "2026-08-13 正式 Flex 策略待生成"
+    assert next_session["data_quality"]["complete"] is False
+
+
+def test_intraday_refresh_does_not_describe_stale_hold_as_today_decision() -> None:
+    brief = build_daily_flex_brief(
+        _playbook(),
+        _marks({"2026-08-10": 1.0}),
+        _calendar(),
+        {"trade_date": "2026-08-11"},
+    )
+
+    assert brief["as_of"] == "2026-08-11"
+    assert brief["items"] == []
+    assert brief["status"] == "OFFICIAL_PENDING"
+    assert brief["data_quality"]["strategy_publication_status"] == "OFFICIAL_PENDING"
+    assert brief["headline_cn"] != "今日无新动作，维持策略持仓"
+
+
+def test_bridged_playbook_is_not_described_as_formal_strategy() -> None:
+    playbook = _playbook()
+    playbook["data_quality"] = {
+        "risk_source": "NOWCAST_BRIDGE",
+        "official_as_of": "2026-08-07",
+        "bridged": True,
+        "bridged_dates": ["2026-08-10"],
+    }
+
+    brief = build_daily_flex_brief(
+        playbook,
+        _marks({"2026-08-10": 1.0}),
+        _calendar(),
+    )
+
+    assert brief["status"] == "OFFICIAL_PENDING"
+    assert brief["data_quality"]["official_strategy_pending"] is True
+    assert brief["data_quality"]["strategy_provisional"] is True
 
 
 def test_missing_common_eod_blocks_first_crossing_instead_of_skipping_gap() -> None:

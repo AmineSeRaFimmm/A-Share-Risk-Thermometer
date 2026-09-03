@@ -1017,6 +1017,11 @@ function dailyFlexDateLabel(value) {
   return `${day.slice(5, 7)}月${day.slice(8, 10)}日`;
 }
 
+function dailyFlexOfficialPending(brief) {
+  return brief?.data_quality?.official_strategy_pending === true
+    || brief?.data_quality?.strategy_publication_status === 'OFFICIAL_PENDING';
+}
+
 function dailyFlexEventMeta(item) {
   const signal = dailyFlexDateLabel(item?.signal_date);
   const execution = dailyFlexDateLabel(item?.execution_date);
@@ -1064,15 +1069,24 @@ function renderDailyFlexBrief(brief) {
   const risk = brief.satellite_risk_event || {};
   const dq = brief.data_quality || {};
   const blocked = risk.status === 'BLOCKED';
+  const officialPending = dailyFlexOfficialPending(brief);
   meta.textContent = `日报 ${reportDay} · 策略 ${strategyDay} · 行情 ${marksDay}`;
-  summary.dataset.status = blocked ? 'blocked' : String(brief.status || '').toLowerCase();
+  summary.dataset.status = blocked
+    ? 'blocked'
+    : (officialPending ? 'official-pending' : String(brief.status || '').toLowerCase());
   summary.innerHTML = [
     `<strong>${escapeHtml(brief.headline_cn || '今日没有 Flex 策略动作')}</strong>`,
-    `<span>${blocked ? escapeHtml(risk.reason_cn || '卫星风控数据不完整') : '唯一口径 · Flex 进取策略'}</span>`,
+    `<span>${blocked
+      ? escapeHtml(risk.reason_cn || '卫星风控数据不完整')
+      : (officialPending
+        ? `当前正式策略截至 ${escapeHtml(strategyDay)}；已有 T+1 动作仍保持有效`
+        : '唯一口径 · Flex 进取策略')}</span>`,
   ].join('');
 
   if (!brief.items.length) {
-    items.innerHTML = '<div class="daily-flex-brief-empty">维持当前策略状态，无新增入场、离场或止盈止损动作。</div>';
+    items.innerHTML = officialPending
+      ? '<div class="daily-flex-brief-empty">今日正式收盘策略尚未生成，暂不把上一交易日状态表述为“今日无动作”。</div>'
+      : '<div class="daily-flex-brief-empty">维持当前策略状态，无新增入场、离场或止盈止损动作。</div>';
   } else {
     items.innerHTML = brief.items.map(item => {
       const [badgeText, badgeClass] = dailyFlexEventBadge(item.event_type);
@@ -1110,10 +1124,10 @@ function renderDailyFlexBrief(brief) {
     }).join('');
   }
 
-  quality.dataset.status = blocked ? 'blocked' : 'ok';
+  quality.dataset.status = blocked ? 'blocked' : (officialPending ? 'official-pending' : 'ok');
   quality.textContent = blocked
     ? `数据核验未通过：${risk.reason_cn || '固定卫星篮子行情不完整'}`
-    : `日报窗口 ${brief.visibility_policy?.label_cn || '信号交易日至执行交易日收盘'} · 行情质量 ${dq.marks_quality || '—'} · 卫星风控 ${risk.status || '—'}`;
+    : `${officialPending ? '今日正式策略待生成 · ' : ''}日报窗口 ${brief.visibility_policy?.label_cn || '信号交易日至执行交易日收盘'} · 行情质量 ${dq.marks_quality || '—'} · 卫星风控 ${risk.status || '—'}`;
 }
 
 function renderIntradayTemperaturePanel(payload) {
@@ -4957,6 +4971,7 @@ function renderFlexSignalList(flex, options = {}) {
       const body = document.getElementById('flexSignalEmptyBody');
       const asOf = String(flex?.as_of || '').slice(0, 10);
       const lag = flexBookLagDays(asOf);
+      const officialPending = dailyFlexOfficialPending(flex?.daily_strategy_brief);
       const completedRisk = isFlexSimBook()
         ? flexCurrentSatelliteRiskExit(flex, loadFlexLedgerForBook('sim'))
         : null;
@@ -4965,10 +4980,13 @@ function renderFlexSignalList(flex, options = {}) {
           const stop = completedRisk.close_code === 'LOCAL_STOP_LOSS';
           title.textContent = `卫星${stop ? '止损' : '止盈'}已执行`;
           body.textContent = `EOD ${completedRisk.signal_date || '—'} 触发，${completedRisk.execution_date || '—'} 开盘整篮平仓；当前信号区无待办，明细见「流水」。`;
+        } else if (officialPending) {
+          title.textContent = '今日正式策略待生成';
+          body.textContent = `当前正式策略截至 ${asOf || '—'}；既有 T+1 执行动作仍有效，但不能据此判断今日收盘后的新买卖信号。`;
         } else if (isFlexSimBook()) {
           title.textContent = '模拟仓：暂无新开/平仓动作';
           body.textContent = asOf
-            ? `策略 as_of=${asOf}。若袖标已 open，请到「持仓」查看自动同步仓位；日更约 15:40 后刷新。`
+            ? `策略 as_of=${asOf}。若袖标已 open，请到「持仓」查看自动同步仓位。`
             : '设置全仓后，模拟仓将按策略纸面自动铺仓。';
         } else if (lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS) {
           title.textContent = '买入窗口已过';
@@ -5454,9 +5472,11 @@ function renderFlexTradePanel(playbook) {
     asOfEl.hidden = !asOf;
     const lag = flexBookLagDays(asOf);
     const dq = flex.data_quality || {};
+    const officialPending = dailyFlexOfficialPending(flex.daily_strategy_brief);
     let label = asOf ? asOf.slice(5) : '';
     if (dq.bridged) label = `${label}·桥`;
-    else if (lag === 1) label = `${label}·EOD`;
+    else if (officialPending) label = `${label}·待正式`;
+    else if (lag === 1) label = `${label}·T+1`;
     else if (lag != null && lag > 1) label = `${label}·滞${lag}d`;
     asOfEl.textContent = label;
     const session = flexSessionTradeDate();
@@ -5465,10 +5485,13 @@ function renderFlexTradePanel(playbook) {
       `当前交易日=${session}`,
       dq.official_as_of ? `正式 RT=${dq.official_as_of}` : '',
       dq.bridged ? `桥接日 ${(dq.bridged_dates || []).join(',')}` : '',
+      officialPending ? '今日正式 Flex 策略尚未生成' : '',
       lag != null && lag > 0 ? `落后 ${lag} 个交易日` : '与当前交易日对齐',
     ].filter(Boolean).join(' · ');
     // lag 1 = still T+1 trade window; only warn when past next trading session
-    asOfEl.classList.toggle('warn', !!(lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS));
+    asOfEl.classList.toggle('warn', !!(
+      officialPending || (lag != null && lag > FLEX_OPEN_SIGNAL_MAX_LAG_DAYS)
+    ));
   }
   const satRule = flexSatelliteRiskRule(flex);
   setText('flexHold', `核心${flex.hold_days || 5}日 · 卫星满${FLEX_SAT_MIN_HOLD_DAYS}日查 ${flexFormatSignedPct(satRule.stopLoss, 0)}/${flexFormatSignedPct(satRule.takeProfit, 0)} · 最长${flex.hold_days_sat || flex.satellite?.hold_days || 8}日`);
@@ -6130,8 +6153,11 @@ async function dispatchGithubActionsWorkflow(mode, { baselineTime = null } = {})
 }
 
 async function waitForPagesDataRefresh({
+  mode = 'realtime',
   beforeBuildTime = null,
   beforeUpdateTime = null,
+  beforeFlexRevision = null,
+  notBeforeMs = Date.now(),
   maxWaitMs = 15 * 60 * 1000,
   intervalMs = 12000,
   onTick = null,
@@ -6143,18 +6169,34 @@ async function waitForPagesDataRefresh({
     if (onTick) onTick(attempt, Math.round((Date.now() - started) / 1000));
     await new Promise(r => setTimeout(r, intervalMs));
     try {
-      const [info, latest] = await Promise.all([
+      const [info, latest, flexSnapshot] = await Promise.all([
         loadJSON('./data/build_info.json', { fresh: true }).catch(() => null),
         loadJSON('./data/latest.json', { fresh: true }).catch(() => null),
+        loadJSON('./data/flex_snapshot.json', { fresh: true }).catch(() => null),
       ]);
       const buildTime = info?.build_time || null;
       const updateTime = latest?.update_time || latest?.as_of || null;
+      const flexRevision = flexSnapshot?.revision || null;
       const buildChanged = beforeBuildTime && buildTime && buildTime !== beforeBuildTime;
       const updateChanged = beforeUpdateTime && updateTime && updateTime !== beforeUpdateTime;
-      // If we had no baseline, accept first successful load after grace period
-      const graceOk = !beforeBuildTime && !beforeUpdateTime && attempt >= 2 && (buildTime || updateTime);
-      if (buildChanged || updateChanged || graceOk) {
-        return { buildTime, updateTime, latest, info };
+      const flexChanged = beforeFlexRevision && flexRevision && flexRevision !== beforeFlexRevision;
+      const buildAfterRequest = Date.parse(buildTime || '') >= notBeforeMs - 5000;
+      const updateAfterRequest = Date.parse(updateTime || '') >= notBeforeMs - 5000;
+      const flexAfterRequest = Date.parse(flexSnapshot?.built_at || '') >= notBeforeMs - 5000;
+      const coherentFlex = Boolean(
+        flexRevision
+        && info?.flex_snapshot_revision === flexRevision
+        && info?.flex_snapshot_strategy_as_of === flexSnapshot?.strategy_as_of
+      );
+      const fullPublished = mode === 'full'
+        && info?.revision_reason === 'SITE_BUILD'
+        && coherentFlex
+        && (buildChanged || (!beforeBuildTime && buildAfterRequest));
+      const realtimePublished = mode === 'realtime'
+        && (updateChanged || (!beforeUpdateTime && updateAfterRequest))
+        && (flexChanged || flexAfterRequest);
+      if (fullPublished || realtimePublished) {
+        return { mode, buildTime, updateTime, flexRevision, latest, info };
       }
     } catch (_) {
       /* keep polling */
@@ -6165,8 +6207,12 @@ async function waitForPagesDataRefresh({
 
 function dashboardMatchesPublishedRevision(result) {
   if (!result) return true;
-  if (result.updateTime && dashboardState.lastUpdateTime !== result.updateTime) return false;
-  if (!result.updateTime && result.buildTime && dashboardState.lastBuildTime !== result.buildTime) return false;
+  if (result.mode === 'full') {
+    if (result.buildTime && dashboardState.lastBuildTime !== result.buildTime) return false;
+  } else if (result.updateTime && dashboardState.lastUpdateTime !== result.updateTime) {
+    return false;
+  }
+  if (result.flexRevision && dashboardState.flexSnapshotRevision !== result.flexRevision) return false;
   return true;
 }
 
@@ -6209,16 +6255,15 @@ async function requestDataPlaneRefresh(mode) {
     const metaEl = document.getElementById('dataPlaneMeta');
     const label = mode === 'full' ? '日更' : '实时';
     try {
-      let beforeBuildTime = null;
-      let beforeUpdateTime = null;
-      try {
-        const info = await loadJSON('./data/build_info.json', { fresh: true });
-        beforeBuildTime = info?.build_time || null;
-      } catch (_) { /* ignore */ }
-      try {
-        const latest = await loadJSON('./data/latest.json', { fresh: true });
-        beforeUpdateTime = latest?.update_time || null;
-      } catch (_) { /* ignore */ }
+      const baseline = await Promise.all([
+        loadJSON('./data/build_info.json', { fresh: true }).catch(() => null),
+        loadJSON('./data/latest.json', { fresh: true }).catch(() => null),
+        loadJSON('./data/flex_snapshot.json', { fresh: true }).catch(() => null),
+      ]);
+      const beforeBuildTime = baseline[0]?.build_time || null;
+      const beforeUpdateTime = baseline[1]?.update_time || null;
+      const beforeFlexRevision = baseline[2]?.revision || null;
+      const requestStartedAt = Date.now();
 
       paintStaticPagesPlaneMeta(null, { busy: true, note: `触发 ${label} Actions…` });
       const dispatch = await dispatchGithubActionsWorkflow(mode, {
@@ -6232,8 +6277,11 @@ async function requestDataPlaneRefresh(mode) {
       });
 
       const result = await waitForPagesDataRefresh({
+        mode,
         beforeBuildTime,
         beforeUpdateTime,
+        beforeFlexRevision,
+        notBeforeMs: requestStartedAt,
         onTick: (n, sec) => {
           paintStaticPagesPlaneMeta(null, {
             busy: true,
@@ -6301,8 +6349,10 @@ async function requestDataPlaneRefresh(mode) {
       throw new Error(payload.error || payload.detail || ('refresh failed ' + res.status));
     }
     const targetRevision = {
+      mode,
       updateTime: refreshStatus?.latest?.update_time || null,
       buildTime: refreshStatus?.build_info?.build_time || null,
+      flexRevision: refreshStatus?.build_info?.flex_snapshot_revision || null,
     };
     const synced = await syncDashboardToPublishedRevision(targetRevision);
     const finalStatus = await fetchDataPlaneStatus();

@@ -372,11 +372,20 @@ def build_daily_flex_brief(
         else None
     )
     trade_dates = _trade_dates(trade_calendar)
+    playbook_quality = stage_playbook.get("data_quality") or {}
     report_candidate = max(
         [day for day in (strategy_as_of, intraday_date, tail_date) if day is not None],
         default=None,
     )
     as_of = _latest_trade_date(report_candidate, trade_dates) or report_candidate
+    official_strategy_pending = bool(
+        playbook_quality.get("bridged")
+        or (
+            strategy_as_of
+            and as_of
+            and strategy_as_of < as_of
+        )
+    )
     risk_event = evaluate_satellite_risk_event(flex, etf_daily_marks, trade_calendar)
     risk_triggered = risk_event.get("status") == "TRIGGERED"
     items = _group_strategy_actions(
@@ -463,6 +472,9 @@ def build_daily_flex_brief(
     if items:
         status = "ACTION"
         headline = f"{as_of} 有 {len(items)} 项处于执行窗口的策略动作"
+    elif official_strategy_pending:
+        status = "OFFICIAL_PENDING"
+        headline = f"{as_of} 正式 Flex 策略待生成"
     elif any(
         str(((flex.get("position_state") or {}).get(sleeve) or {}).get("status") or "").lower()
         == "open"
@@ -499,10 +511,18 @@ def build_daily_flex_brief(
         "data_quality": {
             "report_as_of": as_of,
             "strategy_as_of": strategy_as_of,
+            "strategy_publication_status": (
+                "OFFICIAL_PENDING" if official_strategy_pending else "CURRENT"
+            ),
+            "official_strategy_pending": official_strategy_pending,
+            "strategy_provisional": bool(playbook_quality.get("bridged")),
             "marks_as_of": marks_as_of,
             "marks_quality": etf_daily_marks.get("quality"),
             "risk_check_status": risk_event.get("status"),
-            "complete": risk_event.get("status") != "BLOCKED",
+            "complete": (
+                risk_event.get("status") != "BLOCKED"
+                and not official_strategy_pending
+            ),
         },
         "provenance": {
             "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",

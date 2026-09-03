@@ -21,6 +21,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
   pages: write
   id-token: write
 
@@ -75,6 +76,30 @@ jobs:
           git add data docs
           git diff --cached --quiet || git commit -m "Update risk thermometer data"
           git push
+      - name: Queue Flex ETF close confirmation
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          target="$(jq -r '.strategy_as_of // empty' docs/data/flex_snapshot.json)"
+          if [[ -z "${target}" ]]; then
+            echo "No Flex strategy date was published; skip ETF close confirmation."
+            exit 0
+          fi
+          active="$(gh run list \
+            --workflow update-etf-eod-marks.yml \
+            --branch main \
+            --limit 20 \
+            --json status \
+            --jq '[.[] | select(.status != "completed")] | length')"
+          if [[ "${active}" != "0" ]]; then
+            echo "ETF close confirmation already queued or running; reuse it."
+            exit 0
+          fi
+          gh workflow run update-etf-eod-marks.yml \
+            --ref main \
+            --field trade_date="${target}"
+          echo "Queued ETF close confirmation for ${target}."
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:

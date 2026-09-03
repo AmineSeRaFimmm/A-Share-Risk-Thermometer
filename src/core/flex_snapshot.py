@@ -41,6 +41,8 @@ def build_flex_snapshot(
     digest = hashlib.sha256(
         dumps_json(content, indent=None).encode("utf-8")
     ).hexdigest()
+    daily_brief = content["daily_strategy_brief"]
+    brief_quality = daily_brief.get("data_quality") or {}
     return {
         "schema_version": FLEX_SNAPSHOT_SCHEMA_VERSION,
         "revision": digest,
@@ -51,6 +53,12 @@ def build_flex_snapshot(
         )[:10]
         or None,
         "marks_quality": etf_daily_marks.get("quality"),
+        "strategy_publication_status": brief_quality.get(
+            "strategy_publication_status"
+        ),
+        "official_strategy_pending": bool(
+            brief_quality.get("official_strategy_pending")
+        ),
         "calendar_coverage_through": trade_calendar.get("coverage_through"),
         **content,
     }

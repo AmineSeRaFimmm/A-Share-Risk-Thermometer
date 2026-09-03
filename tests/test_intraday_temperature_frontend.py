@@ -81,7 +81,8 @@ def test_pages_refresh_coalesces_active_workflows_and_waits_for_slow_publish() -
 def test_refresh_renders_the_published_revision_without_stale_cache_or_lost_force_reload() -> None:
     html = (ROOT / "web/index.html").read_text(encoding="utf-8")
     app = (ROOT / "web/assets/app.js").read_text(encoding="utf-8")
-    assert "./assets/app.js?v=20260817-realtime-qvix-v1" in html
+    assert "./assets/app.js?v=20260903-flex-publication-v1" in html
+    assert "./assets/app.css?v=20260903-flex-publication-v1" in html
     assert "function dashboardDataRevision(" in app
     assert "return [updateTime, buildTime, tradeDate]" in app
     assert "fetch(url, fresh ? { cache: 'no-store' } : undefined)" in app
@@ -89,6 +90,13 @@ def test_refresh_renders_the_published_revision_without_stale_cache_or_lost_forc
     assert "dashboardState.forceRefreshQueued = true" in app
     assert "do {" in app and "while (dashboardState.forceRefreshQueued)" in app
     assert "function dashboardMatchesPublishedRevision(" in app
+    assert "beforeFlexRevision" in app
+    assert "info?.revision_reason === 'SITE_BUILD'" in app
+    assert "info?.flex_snapshot_revision === flexRevision" in app
+    assert "info?.flex_snapshot_strategy_as_of === flexSnapshot?.strategy_as_of" in app
+    assert "dashboardState.flexSnapshotRevision !== result.flexRevision" in app
+    assert "dailyFlexOfficialPending" in app
+    assert "今日正式策略待生成" in app
     assert "syncDashboardToPublishedRevision(result)" in app
     assert "页面已同步最新数据" in app
 

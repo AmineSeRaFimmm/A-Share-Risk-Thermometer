@@ -157,3 +157,24 @@ jobs:
             exit 1
           fi
           echo "Realtime AVIX completed successfully."
+      - name: Queue official close update
+        if: >-
+          steps.gate.outputs.should_run == 'true'
+          && github.event_name == 'schedule'
+          && github.event.schedule == '16,26,46 7 * * 1-5'
+        run: |
+          set -euo pipefail
+          active="$(gh run list \
+            --workflow update-data.yml \
+            --branch main \
+            --limit 20 \
+            --json status \
+            --jq '[.[] | select(.status != "completed")] | length')"
+          if [[ "${active}" != "0" ]]; then
+            echo "Official close update already queued or running; reuse it."
+            exit 0
+          fi
+          gh workflow run update-data.yml \
+            --ref main \
+            --field mode=daily
+          echo "Queued official close update after the close snapshot."

@@ -49,6 +49,21 @@ def test_workflow_starts_at_1530_and_retries() -> None:
     assert "docs/data/build_info.json" in workflow
 
 
+def test_daily_and_close_workflows_chain_without_duplicate_active_runs() -> None:
+    daily = (ROOT / ".github/workflows/update-data.yml").read_text(encoding="utf-8")
+    realtime = (ROOT / ".github/workflows/update-realtime-avix.yml").read_text(
+        encoding="utf-8"
+    )
+
+    assert "actions: write" in daily
+    assert "Queue Flex ETF close confirmation" in daily
+    assert "update-etf-eod-marks.yml" in daily
+    assert "Queue official close update" in realtime
+    assert "update-data.yml" in realtime
+    assert 'select(.status != "completed")' in daily
+    assert 'select(.status != "completed")' in realtime
+
+
 def test_recovery_fetch_is_serial_to_avoid_embedded_v8_crashes() -> None:
     script = (ROOT / "scripts/update_etf_eod_marks.py").read_text(encoding="utf-8")
     assert "max_workers=1" in script
