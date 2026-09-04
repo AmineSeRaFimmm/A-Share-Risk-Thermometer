@@ -15,19 +15,19 @@
     "usable_nowcast": true,
     "usable_gap_fill": true,
     "note": "normal two-term interpolation",
-    "avix_mid": 17.9844
+    "avix_mid": 17.6912
   },
   "nowcast": {
     "active": true,
     "quality": "OK_NOWCAST|OK_REALTIME_AVIX_ESTIMATE|WARN_QVIX_REALTIME_PROXY|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
-    "risk_temperature": 49.7,
+    "risk_temperature": 47.5,
     "baseline_trade_date": "2026-09-03",
     "method": "Estimated close from realtime volatility and index factors; official close history remains separate"
   },
   "model_confidence": {
-    "score": 82.0,
+    "score": 81.7,
     "coverage_score": 100.0,
-    "data_quality_score": 82.0,
+    "data_quality_score": 81.7,
     "grade": "MEDIUM",
     "missing_components": "QVIX_PROXY"
   },
@@ -38,5 +38,5 @@
     "WARN_OFFICIAL_AVIX_MISSING",
     "WARN_QVIX_REALTIME_PROXY"
   ],
-  "last_successful_update": "2026-09-04T11:35:14+08:00"
+  "last_successful_update": "2026-09-04T13:04:37+08:00"
 }
