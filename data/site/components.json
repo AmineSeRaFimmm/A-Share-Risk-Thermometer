@@ -11,7 +11,7 @@
       "observed": true,
       "raw_value": 17.9561,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-09-07T15:06:12+08:00",
+      "quote_time": "2026-09-07T15:11:24+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -24,7 +24,7 @@
       "observed": true,
       "raw_value": 17.9561,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-09-07T15:06:12+08:00",
+      "quote_time": "2026-09-07T15:11:24+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -37,7 +37,7 @@
       "observed": true,
       "raw_value": 17.9561,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-09-07T15:06:12+08:00",
+      "quote_time": "2026-09-07T15:11:24+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -62,9 +62,9 @@
       "contribution": 6.0952,
       "observed": true,
       "raw_value": 15.5864,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-09-07T15:06:14+08:00",
+      "fetch_time": "2026-09-07T15:11:28+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -75,9 +75,9 @@
       "contribution": 8.6973,
       "observed": true,
       "raw_value": -0.0958,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-09-07T15:06:14+08:00",
+      "fetch_time": "2026-09-07T15:11:28+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -101,9 +101,9 @@
       "contribution": 0.4281,
       "observed": true,
       "raw_value": 0.9284,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-09-07T15:06:14+08:00",
+      "fetch_time": "2026-09-07T15:11:28+08:00",
       "quality": "SESSION_NORMALIZED"
     }
   ]
