@@ -47,7 +47,7 @@ class FlexFrontendContractTests(unittest.TestCase):
     def test_marking_is_not_capped_by_strategy_as_of(self) -> None:
         self.assertIn("function flexEffectiveMarkDate(positionCodes = [])", self.web)
         self.assertNotIn("function flexEffectiveMarkDate(preferredAsOf)", self.web)
-        self.assertIn("const markAsOf = flexEffectiveMarkDate(relevantCodes);", self.web)
+        self.assertIn("const markDate = coverage.session;", self.web)
         self.assertIn("const marked = flexApplyEodMarksToLedger(ledger);", self.web)
         self.assertIn("complete_as_of", (ROOT / "src/core/etf_marks.py").read_text(encoding="utf-8"))
 
@@ -82,9 +82,9 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("strictExecutionReady", self.web)
         self.assertIn("const marked = flexApplyEodMarksToLedger(ledger);", self.web)
         self.assertIn("kind: 'rebalance'", self.web)
-        self.assertIn("function flexSimExecutePendingRebalance", self.web)
-        self.assertIn("pending_rebalance", self.web)
-        self.assertIn("type_cn: '模拟调仓减'", self.web)
+        self.assertIn("FlexExecutionCore.allocationBatch", self.web)
+        self.assertIn("ledger.pending_allocation = order", self.web)
+        self.assertIn("HISTORICAL_FUNDING_UNVERIFIED", self.web)
 
     def test_satellite_risk_exit_is_basket_level_and_persistent(self) -> None:
         self.assertIn("function flexSatelliteBasketRiskStatus", self.web)
@@ -93,18 +93,18 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("satellite_risk_basis:", self.web)
         self.assertIn("fixedBasis: true", self.web)
         self.assertIn("risk_exits:", self.web)
-        self.assertIn("ledger.risk_exits[satSignalId]", self.web)
+        self.assertIn("ledger.execution_events", self.web)
         self.assertIn("status: 'PENDING'", self.web)
         self.assertIn("下一交易日开盘整篮平仓", self.web)
         rebuild = self.web.split("function rebuildSimLedgerFromStrategy(flex) {", 1)[1].split(
             "function flexPositionKey(item)", 1
         )[0]
         self.assertLess(
-            rebuild.index("flexSimEnsurePaperPositions(ledger, targets, asOf)"),
-            rebuild.index("flexAuthoritativeSatelliteRisk(f) || flexSatelliteBasketFirstRiskTrigger(ledger, f)"),
+            rebuild.index("flexSimConsumeEvents(ledger, f)"),
+            rebuild.index("flexSimEnsurePaperPositions(ledger, targets, asOf, f)"),
         )
-        self.assertIn("function flexSimExecuteSatelliteRisk", self.web)
-        self.assertIn("function flexSimCloseRemovedPositions", self.web)
+        self.assertNotIn("function flexSimExecuteSatelliteRisk", self.web)
+        self.assertNotIn("function flexSimCloseRemovedPositions", self.web)
         self.assertIn("function flexAuthoritativeSatelliteRisk", self.web)
         self.assertIn("daily_strategy_brief: dashboardState.dailyFlexBrief", self.web)
         self.assertIn("const satRiskExecuted = satRisk.status === 'TRIGGERED'", self.web)
@@ -114,7 +114,8 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("模拟仓为只读账本", self.web)
         self.assertIn("reset.disabled = sim", self.web)
         self.assertIn("version: 6", self.web)
-        self.assertIn("storedVersion >= 6", self.web)
+        self.assertIn("ledger.version = 7", self.web)
+        self.assertIn("ARCHIVED_NOT_RECONSTRUCTED", self.web)
         self.assertNotIn("version: 3,\n      book: 'sim'", self.web)
 
     def test_real_orders_are_durable_and_exit_actions_take_priority(self) -> None:
@@ -135,7 +136,7 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn("function flexEodDecisionGate", self.web)
         self.assertIn("if (!flexEodDecisionGate(marked, flex).ok)", self.web)
         self.assertIn("function flexSatelliteBasketFirstRiskTrigger", self.web)
-        self.assertIn("const signalDate = basket.triggerDate || ledger.mark_as_of;", self.web)
+        self.assertIn("flexSimEventMatchesPosition(record.event, target)", self.web)
         self.assertIn("const mode = 'aggressive';", self.web)
         self.assertIn("flex = applyFlexModeOverlay(flex, 'aggressive');", self.web)
 
@@ -155,7 +156,7 @@ class FlexFrontendContractTests(unittest.TestCase):
         self.assertIn('id="flexExecTotalReturn"', index)
         self.assertIn("const totalRet = capital > 0 ? (equity - capital) / capital : null", self.web)
         self.assertIn("row.note || '—'", self.web)
-        self.assertIn("历史EOD首次越线补记", self.web)
+        self.assertIn("等待匹配原入场周期的权威退出事件；不推断成交", self.web)
 
     def test_pending_exit_rows_use_execution_date_and_block_holding_add(self) -> None:
         self.assertIn("execution_date: executionDate", self.web)

@@ -1,6 +1,6 @@
 const { test, expect } = require('@playwright/test');
 
-test('Flex renders one coherent snapshot without browser errors', async ({ page }) => {
+test('Flex renders one coherent snapshot without browser errors', async ({ page }, testInfo) => {
   const errors = [];
   page.on('console', message => {
     if (message.type() !== 'error') return;
@@ -47,6 +47,7 @@ test('Flex renders one coherent snapshot without browser errors', async ({ page 
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth + 1);
   expect(overflow).toBe(false);
   expect(errors).toEqual([]);
+  await page.screenshot({ path: testInfo.outputPath('flex.png'), fullPage: true });
 });
 
 test('refresh completion requires the publication revision for its own mode', async ({ page }) => {

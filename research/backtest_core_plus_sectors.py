@@ -100,7 +100,7 @@ def max_dd(equity: np.ndarray) -> float:
     return float(np.nanmin(equity / peak - 1))
 
 
-def load_aligned() -> tuple[pd.DataFrame, pd.DataFrame]:
+def load_aligned(*, allow_price_imputation: bool = True) -> tuple[pd.DataFrame, dict]:
     risk = pd.read_csv(ROOT / "data/calculated/risk_components.csv")
     risk["trade_date"] = pd.to_datetime(risk["trade_date"])
     risk["risk_temperature"] = pd.to_numeric(risk["risk_temperature"], errors="coerce")
@@ -115,7 +115,7 @@ def load_aligned() -> tuple[pd.DataFrame, pd.DataFrame]:
     df = risk.merge(
         idx.rename(columns={"date": "trade_date", "open": "csi_open", "close": "csi_close", "high": "csi_high", "low": "csi_low"}),
         on="trade_date",
-        how="inner",
+        how="inner" if allow_price_imputation else "left",
     ).sort_values("trade_date").reset_index(drop=True)
 
     df["csi_open"] = pd.to_numeric(df["csi_open"], errors="coerce")
@@ -138,9 +138,9 @@ def load_aligned() -> tuple[pd.DataFrame, pd.DataFrame]:
     sec["date"] = pd.to_datetime(sec["date"])
     sec["close"] = pd.to_numeric(sec["close"], errors="coerce")
     sec["open"] = pd.to_numeric(sec.get("open"), errors="coerce")
-    if sec["open"].isna().all():
+    if allow_price_imputation and sec["open"].isna().all():
         sec["open"] = sec["close"]  # fallback
-    sec = sec.dropna(subset=["date", "name", "close"])
+    sec = sec.dropna(subset=["date", "name", "close"] if allow_price_imputation else ["date", "name"])
 
     hstech_path = ROOT / "data/raw/indices/hstech.csv"
     if hstech_path.exists():
@@ -148,7 +148,7 @@ def load_aligned() -> tuple[pd.DataFrame, pd.DataFrame]:
         hs["date"] = pd.to_datetime(hs["date"])
         hs["close"] = pd.to_numeric(hs["close"], errors="coerce")
         hs["open"] = pd.to_numeric(hs.get("open"), errors="coerce")
-        if "open" not in hs.columns or hs["open"].isna().all():
+        if allow_price_imputation and hs["open"].isna().all():
             hs["open"] = hs["close"]
         hs["name"] = "恒生科技"
         hs["symbol"] = "HSTECH"
@@ -167,13 +167,14 @@ def load_aligned() -> tuple[pd.DataFrame, pd.DataFrame]:
     for name, g in sec.groupby("name"):
         g = g.sort_values("date").drop_duplicates("date")
         g = g.set_index("date").reindex(dates)
-        # ffill limited for open gaps (HSTECH holidays) — only 1 day
-        o = g["open"].ffill(limit=1).to_numpy(dtype=float)
-        c = g["close"].ffill(limit=1).to_numpy(dtype=float)
+        # Strict execution research must not invent an executable holiday/open price.
+        o = (g["open"].ffill(limit=1) if allow_price_imputation else g["open"]).to_numpy(dtype=float)
+        c = (g["close"].ffill(limit=1) if allow_price_imputation else g["close"]).to_numpy(dtype=float)
         sector_open[str(name)] = o
         sector_close[str(name)] = c
 
     meta = {
+        "price_imputation": allow_price_imputation,
         "sector_open": sector_open,
         "sector_close": sector_close,
         "names": sorted(sector_open.keys()),

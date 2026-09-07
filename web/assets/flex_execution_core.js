@@ -16,6 +16,67 @@
     return { qty, gross, fee, cash_required: gross + fee };
   }
 
+  function executionPrice({ day, phase = 'open', bar, evidence, code, executionAt } = {}) {
+    if (phase === 'open') {
+      const price = Number(bar?.open);
+      return bar?.trade_date === day && Number.isFinite(price) && price > 0 ? price : null;
+    }
+    const stamp = Date.parse(evidence?.timestamp || '');
+    const local = Number.isFinite(stamp) ? new Date(stamp + 8 * 3600000).toISOString() : '';
+    const price = Number(evidence?.price);
+    if (phase !== 'tail_1450' || evidence?.price_type !== phase || !evidence?.source
+      || String(evidence.etf_code) !== String(code) || local.slice(0, 10) !== day
+      || local.slice(11, 16) < '14:50' || local.slice(11, 16) >= '15:00'
+      || stamp !== Date.parse(executionAt || '') || !Number.isFinite(price) || !(price > 0)) return null;
+    return price;
+  }
+
+  // Pure, all-or-nothing batch: mark the entire account at one instant, sell
+  // first, then buy from the resulting cash. No EOD marks enter this calculation.
+  function allocationBatch({ cash, positions = {}, targets = [], prices = {} } = {}) {
+    const keys = new Set([...Object.keys(positions), ...targets.map(target => target.key)]);
+    if (!Number.isFinite(Number(cash)) || Number(cash) < 0) return { ok: false, code: 'INVALID_CASH' };
+    if ([...keys].some(key => !Number.isFinite(Number(prices[key])) || !(Number(prices[key]) > 0))) {
+      return { ok: false, code: 'MISSING_EXECUTION_PRICE' };
+    }
+    if (Object.values(positions).some(pos => pos.pending_entry || Number(pos.reserved_amount) > 0)) {
+      return { ok: false, code: 'LEGACY_RESERVED_CAPITAL' };
+    }
+    if (targets.some(target => !Number.isFinite(Number(target.weight)) || Number(target.weight) < 0)
+      || targets.reduce((sum, target) => sum + Number(target.weight), 0) > 1.000001) {
+      return { ok: false, code: 'INVALID_TARGET_WEIGHTS' };
+    }
+    const nav = Number(cash) + Object.entries(positions).reduce((sum, [key, pos]) =>
+      sum + (Number(pos.qty) || 0) * Number(prices[key]), 0);
+    let available = Number(cash);
+    const trades = [];
+    const desired = new Map(targets.map(target => [target.key,
+      Math.floor(nav * Number(target.weight) / (Number(prices[target.key]) * ETF_LOT_SIZE)) * ETF_LOT_SIZE]));
+    const quantities = Object.fromEntries([...keys].map(key => [key, Number(positions[key]?.qty) || 0]));
+    for (const key of keys) {
+      // Removal requires a separate authoritative exit, never a missing target.
+      if (!desired.has(key)) continue;
+      const qty = Math.max(0, quantities[key] - desired.get(key));
+      if (!qty) continue;
+      const price = Number(prices[key]);
+      const fee = qty * price * ONE_WAY_COST_RATE;
+      trades.push({ key, side: 'SELL', qty, price, fee });
+      available += qty * price - fee;
+      quantities[key] -= qty;
+    }
+    for (const target of targets) {
+      const key = target.key;
+      const price = Number(prices[key]);
+      const gap = Math.max(0, desired.get(key) - quantities[key]);
+      const buy = buyOrderFromBudget(gap * price * (1 + ONE_WAY_COST_RATE), price, available);
+      if (!buy.qty) continue;
+      trades.push({ key, side: 'BUY', qty: buy.qty, price, fee: buy.fee });
+      available -= buy.cash_required;
+      quantities[key] += buy.qty;
+    }
+    return { ok: true, nav, cash: available, trades };
+  }
+
   function sellQuantity(positionQty, price, { amount = null, pct = null } = {}) {
     const held = Number(positionQty) || 0;
     const px = Number(price);
@@ -148,6 +209,8 @@
     ONE_WAY_COST_RATE,
     ETF_LOT_SIZE,
     buyOrderFromBudget,
+    executionPrice,
+    allocationBatch,
     sellQuantity,
     quoteTimestampIsUsable,
     sortJournalNewestFirst,

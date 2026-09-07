@@ -5,6 +5,9 @@ from pathlib import Path
 from typing import Any
 
 from src.core.flex_daily_brief import build_daily_flex_brief
+from src.core.flex_engine import (
+    load_position_state, position_state_from_dict, refresh_published_flex_execution,
+)
 from src.storage.json_store import dumps_json, read_json, write_json
 from src.storage.paths import DOCS, SITE
 from src.utils.dates import now_cn
@@ -68,15 +71,43 @@ def publish_flex_snapshot(
     *,
     site_dir: Path = SITE,
     docs_dir: Path = DOCS,
+    position_state_path: Path | None = None,
 ) -> dict[str, Any]:
+    from src.core.flex_engine import POSITION_STATE_PATH
+
+    playbook = read_json(site_dir / "stage_playbook.json", default={}) or {}
+    marks = read_json(site_dir / "etf_daily_marks.json", default={}) or {}
+    calendar = read_json(site_dir / "trade_calendar.json", default={}) or {}
+    state_path = position_state_path or POSITION_STATE_PATH
+    saved = load_position_state(state_path)
+    panel = playbook.get("flex_panel") or {}
+    raw_state = panel.get("position_state")
+    if isinstance(raw_state, dict) and saved.as_of and saved.as_of == raw_state.get("as_of"):
+        # A previous publish may have saved fills before replacing the snapshot.
+        # Never replace that durable history with an older same-day panel.
+        saved_events = {e.get("event_id"): e for e in saved.execution_events}
+        published_events = raw_state.get("execution_events") or []
+        if all(e.get("event_id") in saved_events and not (
+            e.get("execution_status") == "EXECUTED"
+            and saved_events[e.get("event_id")].get("execution_status") != "EXECUTED"
+        ) for e in published_events):
+            panel["position_state"] = saved.to_dict()
+    playbook = refresh_published_flex_execution(playbook, marks, calendar)
     snapshot = build_flex_snapshot(
-        read_json(site_dir / "stage_playbook.json", default={}) or {},
-        read_json(site_dir / "etf_daily_marks.json", default={}) or {},
-        read_json(site_dir / "trade_calendar.json", default={}) or {},
+        playbook,
+        marks,
+        calendar,
         read_json(site_dir / "intraday_temperature.json", default={}) or {},
     )
+    raw_state = (playbook.get("flex_panel") or {}).get("position_state")
+    if isinstance(raw_state, dict):
+        state = position_state_from_dict(raw_state)
+        if str(state.as_of or "") >= str(saved.as_of or ""):
+            write_json(state.to_dict(), state_path)
+    write_json(playbook, site_dir / "stage_playbook.json")
     write_json(snapshot, site_dir / FLEX_SNAPSHOT_NAME)
     docs_data = docs_dir / "data"
     if docs_dir.exists():
+        write_json(playbook, docs_data / "stage_playbook.json")
         write_json(snapshot, docs_data / FLEX_SNAPSHOT_NAME)
     return snapshot

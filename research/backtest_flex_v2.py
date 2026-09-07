@@ -3,20 +3,19 @@
 
 This is the source for data/calculated/flex_backtest_stats.json.
 The production contract is:
-  - strict CORE enters in the T-day tail (T close proxy); all other signals use T+1 open
+  - strict evidence is required for tail entries; absent evidence uses T+1 open
   - daily mark path uses the real open/close path, not endpoint smoothing
   - portfolio costs are charged from target-weight turnover, including rebalances
   - observe-only satellite sleeves use the same 0.25 size scale as production
-  - proxy ETF realism discounts gains and amplifies losses
+  - raw industry-index proxies are the baseline, not executable ETF performance
+  - proxy return adjustment and T close tail fills are separate assumption scenarios
   - the historical split is a retrospective holdout, not parameter-independent OOS
   - expanding fixed-policy windows test temporal stability without relabeling it independence
-  - prospective validation is frozen from 2026-08-12 onward
+  - prospective validation is blocked until a point-in-time archive exists
 """
 from __future__ import annotations
 
 import json
-import hashlib
-import inspect
 import math
 import sys
 import warnings
@@ -63,14 +62,23 @@ from src.core.core_tail_policy import (  # noqa: E402
 )
 from src.core.sector_etf_map import map_sector  # noqa: E402
 from src.storage.paths import CALCULATED  # noqa: E402
+from src.core.flex_validation import (  # noqa: E402
+    SCHEMA_VERSION,
+    blocked_prospective,
+    build_input_versions,
+    build_policy_manifest,
+    build_run_manifest,
+    fingerprint,
+    json_safe,
+)
 
 OUT = ROOT / "research/output/core_plus_sectors"
 OBSERVE_SCALE = 0.25
 WALK_FORWARD_MIN_TRAIN = 504
 WALK_FORWARD_TEST_DAYS = 252
 WALK_FORWARD_MIN_TEST = 126
-PROSPECTIVE_START = pd.Timestamp("2026-08-12")
-FROZEN_POLICY_FINGERPRINT = "764ec74d1e8aeb2ec0a9610d36b04e4844c59220b22d1872646477360e276d46"
+# No historical freeze is inherited by this corrected execution contract.
+FROZEN_POLICY_FINGERPRINT = None
 
 
 @dataclass
@@ -90,7 +98,7 @@ def quality_of(name: str) -> str:
 
 def _safe_ret(a: float, b: float) -> float:
     if not (np.isfinite(a) and np.isfinite(b) and a > 0 and b > 0):
-        return 0.0
+        raise ValueError("unobservable price return; missing is not zero")
     return float(b / a - 1.0)
 
 
@@ -108,6 +116,9 @@ def instrument_path_returns(
     if entry_i >= n or exit_i >= n or entry_i < 0 or exit_i <= entry_i:
         return None
     if not (np.isfinite(opens[entry_i]) and opens[entry_i] > 0):
+        return None
+    required = np.r_[opens[entry_i], closes[entry_i:exit_i], opens[exit_i]]
+    if not np.isfinite(required).all() or (required <= 0).any():
         return None
     path: dict[int, float] = {}
     path[entry_i] = _safe_ret(float(opens[entry_i]), float(closes[entry_i]))
@@ -132,7 +143,9 @@ def instrument_next_open_returns(
 ) -> dict[int, float]:
     """Candidate close-to-next-open returns for EOD-triggered exits."""
     gaps = {
-        j: _safe_ret(float(closes[j - 1]), float(opens[j]))
+        j: (float(opens[j]) / float(closes[j - 1]) - 1.0)
+        if np.isfinite(closes[j - 1]) and np.isfinite(opens[j]) and closes[j - 1] > 0 and opens[j] > 0
+        else float("nan")
         for j in range(entry_i + 1, min(exit_i, len(opens) - 1) + 1)
     }
     if apply_proxy_adjustment and name:
@@ -153,6 +166,9 @@ def instrument_tail_close_path_returns(
     entry = float(closes[signal_i])
     if not np.isfinite(entry) or entry <= 0:
         return None
+    required = np.r_[closes[signal_i:exit_i], opens[exit_i]]
+    if not np.isfinite(required).all() or (required <= 0).any():
+        return None
     path: dict[int, float] = {signal_i: 0.0}
     for j in range(signal_i + 1, exit_i):
         path[j] = _safe_ret(float(closes[j - 1]), float(closes[j]))
@@ -171,6 +187,8 @@ def sleeve_stats(daily: np.ndarray, trades: list[Trade], label: str, start_i: in
     equity = np.cumprod(1.0 + d) if len(d) else np.array([])
     total = float(equity[-1] - 1.0) if len(equity) else 0.0
     rets = [t.ret for t in trades if t.entry_i >= start_i]
+    gross_rets = [getattr(t, "gross_ret", None) for t in trades if t.entry_i >= start_i]
+    gross_rets = [r for r in gross_rets if r is not None and np.isfinite(r)]
     return {
         "label": label,
         "total_return": total,
@@ -178,6 +196,11 @@ def sleeve_stats(daily: np.ndarray, trades: list[Trade], label: str, start_i: in
         "max_dd": max_dd(equity) if len(equity) else float("nan"),
         "trade_count": len(rets),
         "win_rate": float(np.mean([r > 0 for r in rets])) if rets else float("nan"),
+        "net_win_rate": float(np.mean([r > 0 for r in rets])) if rets else None,
+        "gross_win_rate": float(np.mean([r > 0 for r in gross_rets])) if gross_rets else None,
+        "closed_trade_count": len(rets),
+        "win_rate_unit": "sleeve_round_trip",
+        "return_basis": "net_account_pnl_over_cumulative_purchase_cash",
         "avg_trade": float(np.mean(rets)) if rets else float("nan"),
         "exposure_ratio": float(np.mean(np.abs(d) > 1e-12)) if len(d) else 0.0,
         "sharpe": float(np.mean(d) / np.std(d, ddof=1) * math.sqrt(TRADING_DAYS))
@@ -230,14 +253,16 @@ def _apply_sat_risk_exit(
     """Detect on an EOD close and execute at the next available open."""
     cum = 1.0
     for j in range(entry_i, planned_exit_i):
-        cum *= 1.0 + path.get(j, 0.0)
+        if j not in path or not np.isfinite(path[j]):
+            raise ValueError("incomplete satellite close path")
+        cum *= 1.0 + path[j]
         held = j - entry_i + 1
         if held < SAT_MIN_HOLD:
             continue
         ret = cum - 1.0
         if ret <= SAT_STOP_LOSS or ret >= SAT_TAKE_PROFIT:
             execution_i = j + 1
-            if execution_i not in next_open_path:
+            if execution_i not in next_open_path or not np.isfinite(next_open_path[execution_i]):
                 continue
             realized = {k: v for k, v in path.items() if k <= j}
             realized[execution_i] = next_open_path[execution_i]
@@ -254,172 +279,17 @@ def _simulate(
     apply_proxy_adjustment: bool,
     event_exit: bool,
     start_i: int,
+    tail_mode: str = "strict_evidence",
+    enabled_sleeves: tuple[str, ...] = ("core", "satellite"),
 ) -> dict:
-    n = len(df)
-    dates = df["trade_date"]
-    csi_open = df["csi_open"].to_numpy(dtype=float)
-    csi_close = df["csi_close"].to_numpy(dtype=float)
-    sector_open = meta["sector_open"]
-    sector_close = meta["sector_close"]
+    from research.flex_event_backtest import simulate_execution
 
-    core_daily = np.zeros(n, dtype=float)
-    sat_daily = np.zeros(n, dtype=float)
-    core_active = np.zeros(n, dtype=bool)
-    sat_active = np.zeros(n, dtype=bool)
-    sat_observe = np.zeros(n, dtype=bool)
-    core_trades: list[Trade] = []
-    sat_trades: list[Trade] = []
-
-    next_free = start_i
-    for i in range(start_i, n - 2):
-        if i < next_free:
-            continue
-        if not core_signal(df.iloc[i]):
-            continue
-        entry_i = i + 1
-        exit_i = entry_i + CORE_HOLD_DAYS
-        if exit_i >= n:
-            # Do not turn a still-open tail position into a completed trade.
-            continue
-        row = df.iloc[i]
-        tail_entry = core_tail_strict_values_eligible(
-            risk_temperature=row.get("rt"),
-            hs300_drawdown_60d=row.get("dd60"),
-            model_confidence=row.get("model_confidence"),
-        )
-        actual_entry_i = i if tail_entry else entry_i
-        path = (
-            instrument_tail_close_path_returns(csi_open, csi_close, i, exit_i)
-            if tail_entry
-            else instrument_path_returns(csi_open, csi_close, entry_i, exit_i)
-        )
-        if not path:
-            continue
-        for j, r in path.items():
-            core_daily[j] = r
-            core_active[j] = True
-        core_trades.append(
-            Trade(
-                "core",
-                actual_entry_i,
-                exit_i,
-                pd.Timestamp(dates.iloc[actual_entry_i]),
-                pd.Timestamp(dates.iloc[exit_i]),
-                _path_total(path),
-            )
-        )
-        next_free = exit_i + 1
-
-    i = start_i
-    while i < n - 2:
-        stages = detect_stages_row(df.iloc[i])
-        rising = "RISING_HARD" in stages
-        longs, _av, _sup = merge_satellite_targets(list(stages), rising_hard=rising)
-        high = [s for s in stages if STAGE_TIER.get(s) == "high"]
-        obs = [s for s in stages if STAGE_TIER.get(s) == "observe"]
-        if not longs or (not high and not obs):
-            i += 1
-            continue
-        observe_only = not high and bool(obs)
-        if observe_only:
-            longs = longs[:1]
-        use = [x for x in longs if x["name"] in sector_open and QUALITY_WEIGHT.get(quality_of(x["name"]), 0) > 0]
-        if not use:
-            i += 1
-            continue
-        primary = next(
-            (s for s in ["CSI300_CORE_BUY", "HIGH_COOLING", "ENTER_70_BOUNCE", "RISING_HARD", "FALLING_HARD"] if s in stages),
-            stages[0],
-        )
-        entry_i = i + 1
-        if entry_i + SAT_MAX_HOLD >= n:
-            # Require the complete policy window; otherwise the trade is
-            # right-censored and cannot enter return/win-rate statistics.
-            i += 1
-            continue
-        exit_i = _sat_exit_i(df, entry_i, primary, n, event_exit)
-
-        paths = []
-        next_open_paths = []
-        weights = []
-        for x in use:
-            p = instrument_path_returns(
-                sector_open[x["name"]],
-                sector_close[x["name"]],
-                entry_i,
-                exit_i,
-                name=x["name"],
-                apply_proxy_adjustment=apply_proxy_adjustment,
-            )
-            if p:
-                paths.append(p)
-                next_open_paths.append(
-                    instrument_next_open_returns(
-                        sector_open[x["name"]],
-                        sector_close[x["name"]],
-                        entry_i,
-                        exit_i,
-                        name=x["name"],
-                        apply_proxy_adjustment=apply_proxy_adjustment,
-                    )
-                )
-                weights.append(max(float(x.get("weight_in_sat") or 0.0), 1e-6))
-        if not paths:
-            i += 1
-            continue
-        w = np.asarray(weights, dtype=float)
-        w = w / w.sum()
-        basket_path = {
-            j: float(sum(w[k] * paths[k].get(j, 0.0) for k in range(len(paths))))
-            for j in range(entry_i, exit_i + 1)
-        }
-        basket_next_open = {
-            j: float(sum(w[k] * next_open_paths[k].get(j, 0.0) for k in range(len(next_open_paths))))
-            for j in range(entry_i + 1, exit_i + 1)
-        }
-        basket_path, exit_i = _apply_sat_risk_exit(
-            basket_path, basket_next_open, entry_i, exit_i
-        )
-        for j, r in basket_path.items():
-            sat_daily[j] = r
-            sat_active[j] = True
-            sat_observe[j] = observe_only
-        trade_ret = _path_total(basket_path)
-        sat_trades.append(
-            Trade(
-                "satellite",
-                entry_i,
-                exit_i,
-                pd.Timestamp(dates.iloc[entry_i]),
-                pd.Timestamp(dates.iloc[exit_i]),
-                trade_ret,
-                observe_only,
-            )
-        )
-        i = exit_i + 1
-
-    port = np.zeros(n, dtype=float)
-    prev_core = 0.0
-    prev_sat = 0.0
-    turnover = np.zeros(n, dtype=float)
-    for j in range(start_i, n):
-        w_core, w_sat = _allocation(bool(core_active[j]), bool(sat_active[j]), bool(sat_observe[j]), mode)
-        traded = abs(w_core - prev_core) + abs(w_sat - prev_sat)
-        turnover[j] = traded
-        port[j] = w_core * core_daily[j] + w_sat * sat_daily[j] - traded * cost
-        prev_core, prev_sat = w_core, w_sat
-
-    trades = core_trades + sat_trades
-    return {
-        "core_daily": core_daily,
-        "sat_daily": sat_daily,
-        "portfolio_daily": port,
-        "turnover_daily": turnover,
-        "core_trades": core_trades,
-        "sat_trades": sat_trades,
-        "trades": trades,
-        "start_i": start_i,
-    }
+    return simulate_execution(
+        df, meta, mode=mode, cost=cost,
+        apply_proxy_adjustment=apply_proxy_adjustment,
+        event_exit=event_exit, start_i=start_i,
+        tail_mode=tail_mode, enabled_sleeves=enabled_sleeves,
+    )
 
 
 def _slice_meta(meta: dict, start_i: int, end_i: int) -> dict:
@@ -438,8 +308,11 @@ def _fixed_policy_walk_forward(
     cost: float,
     apply_proxy_adjustment: bool,
     event_exit: bool,
+    tail_mode: str = "strict_evidence",
+    buy_cost: float | None = None,
+    sell_cost: float | None = None,
 ) -> dict:
-    """Expanding-calendar, non-overlapping forward tests of the frozen policy."""
+    """Non-overlapping retrospective stability windows, not independent OOS."""
     folds = []
     stitched_daily: list[float] = []
     stitched_trades: list[Trade] = []
@@ -455,10 +328,12 @@ def _fixed_policy_walk_forward(
             apply_proxy_adjustment=apply_proxy_adjustment,
             event_exit=event_exit,
             start_i=0,
+            tail_mode=tail_mode,
         )
         stats = sleeve_stats(result["portfolio_daily"], result["trades"], "walk_forward_fold", 0)
         folds.append(
             {
+                **stats,
                 "train_through": str(pd.Timestamp(df.iloc[start_i - 1]["trade_date"]).date()),
                 "test_start": str(pd.Timestamp(frame.iloc[0]["trade_date"]).date()),
                 "test_end": str(pd.Timestamp(frame.iloc[-1]["trade_date"]).date()),
@@ -469,6 +344,7 @@ def _fixed_policy_walk_forward(
                 "sharpe": stats["sharpe"],
                 "trade_count": stats["trade_count"],
                 "win_rate": stats["win_rate"],
+                "execution_quality": result.get("execution_quality", {"status": "UNKNOWN", "issues": []}),
             }
         )
         stitched_daily.extend(result["portfolio_daily"].tolist())
@@ -477,13 +353,19 @@ def _fixed_policy_walk_forward(
     aggregate = sleeve_stats(
         np.asarray(stitched_daily, dtype=float), stitched_trades, "walk_forward_fixed_policy", 0
     ) if stitched_daily else {}
+    quality = {
+        "status": "COMPLETE" if folds and all(f["execution_quality"].get("status") == "COMPLETE" for f in folds) else "INCOMPLETE",
+        "issues": [issue for f in folds for issue in f["execution_quality"].get("issues", [])],
+        "tail_mode": tail_mode,
+    }
     return {
-        "protocol": "expanding calendar; frozen production policy; fresh flat state in each non-overlapping test window",
+        "protocol": "fixed current policy replay; fresh flat state in each non-overlapping historical test window",
         "parameter_selection": "none inside folds",
         "independent_parameter_validation": False,
         "purpose": "temporal stability only; stage definitions were researched retrospectively",
-        "folds": folds,
-        "aggregate": aggregate,
+        "folds": [_pack_metric_block(f, f["execution_quality"]) for f in folds],
+        "aggregate": _pack_metric_block(aggregate, quality),
+        "execution_quality": quality,
     }
 
 
@@ -495,66 +377,41 @@ def _prospective_validation(
     cost: float,
     apply_proxy_adjustment: bool,
     event_exit: bool,
+    tail_mode: str = "strict_evidence",
+    buy_cost: float | None = None,
+    sell_cost: float | None = None,
 ) -> dict:
-    start_i = int(np.searchsorted(
-        df["trade_date"].to_numpy(dtype="datetime64[ns]"), np.datetime64(PROSPECTIVE_START)
-    ))
-    actual_fingerprint = _policy_fingerprint()
-    base = {
-        "policy_frozen_through": "2026-08-11",
-        "start": str(PROSPECTIVE_START.date()),
-        "protocol": "append-only future observations; no retrospective parameter changes",
-        "independent_parameter_validation": True,
-        "policy_fingerprint": actual_fingerprint,
-        "expected_policy_fingerprint": FROZEN_POLICY_FINGERPRINT,
-    }
-    if actual_fingerprint != FROZEN_POLICY_FINGERPRINT:
-        return {**base, "status": "BLOCKED_POLICY_CHANGED", "sample_days": 0}
-    if start_i >= len(df):
-        return {**base, "status": "PENDING_NO_FUTURE_SAMPLE", "sample_days": 0}
-    result = _simulate(
-        df,
-        meta,
-        mode=mode,
-        cost=cost,
-        apply_proxy_adjustment=apply_proxy_adjustment,
-        event_exit=event_exit,
-        start_i=start_i,
+    return blocked_prospective(
+        policy_fingerprint=_policy_fingerprint(),
+        scenario={
+            "mode": mode,
+            "buy_cost": cost if buy_cost is None else buy_cost,
+            "sell_cost": cost if sell_cost is None else sell_cost,
+            "apply_proxy_adjustment": apply_proxy_adjustment,
+            "event_exit": event_exit,
+            "tail_mode": tail_mode,
+        },
     )
-    return {
-        **base,
-        "status": "ACTIVE",
-        "sample_days": len(df) - start_i,
-        "stats": sleeve_stats(result["portfolio_daily"], result["trades"], "prospective", start_i),
-    }
 
 
 def _policy_fingerprint() -> str:
-    from src.core.stage_trade_playbook import STAGE_DEFS
+    return build_policy_manifest()["policy_fingerprint"]
 
-    policy = {
-        "core_hold_days": CORE_HOLD_DAYS,
-        "sat_hold_days": [SAT_MIN_HOLD, SAT_DEFAULT_HOLD, SAT_MAX_HOLD],
-        "sat_risk": [SAT_STOP_LOSS, SAT_TAKE_PROFIT],
-        "sizing": SIZING,
-        "stage_tier": STAGE_TIER,
-        "stage_merge_score": STAGE_MERGE_SCORE,
-        "stage_opposites": {key: sorted(value) for key, value in STAGE_OPPOSITES.items()},
-        "sat_long": FLEX_SAT_LONG,
-        "sat_short": FLEX_SAT_SHORT,
-        "stage_definitions": [item for item in STAGE_DEFS if item.get("stage_id") in FLEX_SAT_LONG],
-        "implementation": {
-            "core_signal": inspect.getsource(core_signal),
-            "core_tail_gate": inspect.getsource(core_tail_strict_values_eligible),
-            "stage_detection": inspect.getsource(detect_stages_row),
-            "target_merge": inspect.getsource(merge_satellite_targets),
-            "sat_risk_exit": inspect.getsource(_apply_sat_risk_exit),
-            "allocation": inspect.getsource(_allocation),
-            "simulation": inspect.getsource(_simulate),
-        },
-    }
-    encoded = json.dumps(policy, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
-    return hashlib.sha256(encoded).hexdigest()
+
+def _execution_diagnostics(result: dict) -> dict:
+    equity = result.get("equity_daily", [])
+    return json_safe({
+        "diagnostic_only": True,
+        "valuation_verified": (result.get("execution_quality") or {}).get("status") == "COMPLETE",
+        "ending_equity_diagnostic": equity[-1] if len(equity) else None,
+        "cash": result.get("cash"),
+        "fees_total": result.get("fees_total"),
+        "open_positions": result.get("open_positions", {}),
+        "pending_orders": result.get("pending_orders", {}),
+        "completed_trade_count": len(result.get("trades", [])),
+        "event_count": len(result.get("events", [])),
+        "event_fingerprint": fingerprint({"events": result.get("events", [])}),
+    })
 
 
 def backtest_v2(
@@ -564,11 +421,16 @@ def backtest_v2(
     buy_cost: float,
     sell_cost: float,
     mode: str,
-    apply_haircut: bool = True,
+    apply_haircut: bool = False,
     event_exit: bool = True,
+    tail_mode: str = "strict_evidence",
 ) -> dict:
-    """Run full sample, retrospective holdout, and forward validation protocols."""
-    cost = max(float(buy_cost), float(sell_cost))
+    """Run retrospective replay; strict prospective validation remains blocked."""
+    if not (np.isfinite(buy_cost) and np.isfinite(sell_cost)) or min(buy_cost, sell_cost) < 0:
+        raise ValueError("Trading costs must be finite and non-negative")
+    if float(buy_cost) != float(sell_cost):
+        raise ValueError("The account simulator currently requires equal buy and sell costs")
+    cost = float(buy_cost)
     full = _simulate(
         df,
         meta,
@@ -577,6 +439,7 @@ def backtest_v2(
         apply_proxy_adjustment=apply_haircut,
         event_exit=event_exit,
         start_i=0,
+        tail_mode=tail_mode,
     )
     oos_i = int(np.searchsorted(df["trade_date"].to_numpy(dtype="datetime64[ns]"), np.datetime64(OOS_SPLIT)))
     oos = _simulate(
@@ -587,6 +450,7 @@ def backtest_v2(
         apply_proxy_adjustment=apply_haircut,
         event_exit=event_exit,
         start_i=oos_i,
+        tail_mode=tail_mode,
     )
     walk_forward = _fixed_policy_walk_forward(
         df,
@@ -595,6 +459,9 @@ def backtest_v2(
         cost=cost,
         apply_proxy_adjustment=apply_haircut,
         event_exit=event_exit,
+        tail_mode=tail_mode,
+        buy_cost=buy_cost,
+        sell_cost=sell_cost,
     )
     prospective = _prospective_validation(
         df,
@@ -603,20 +470,30 @@ def backtest_v2(
         cost=cost,
         apply_proxy_adjustment=apply_haircut,
         event_exit=event_exit,
+        tail_mode=tail_mode,
+        buy_cost=buy_cost,
+        sell_cost=sell_cost,
     )
 
+    full_quality = full.get("execution_quality", {"status": "UNKNOWN", "issues": []})
+    oos_quality = oos.get("execution_quality", {"status": "UNKNOWN", "issues": []})
     return {
-        "core": sleeve_stats(full["core_daily"], full["core_trades"], "core", 0),
-        "satellite": sleeve_stats(full["sat_daily"], full["sat_trades"], "satellite", 0),
-        "portfolio": sleeve_stats(full["portfolio_daily"], full["trades"], f"flex_{mode}", 0),
-        "oos_portfolio": sleeve_stats(oos["portfolio_daily"], oos["trades"], "oos", oos_i),
-        "oos_core": sleeve_stats(oos["core_daily"], oos["core_trades"], "oos_core", oos_i),
+        "core": _pack_metric_block(sleeve_stats(full["core_daily"], full["core_trades"], "core", 0), full_quality, contribution=True),
+        "satellite": _pack_metric_block(sleeve_stats(full["sat_daily"], full["sat_trades"], "satellite", 0), full_quality, contribution=True),
+        "portfolio": _pack_metric_block(sleeve_stats(full["portfolio_daily"], full["trades"], f"flex_{mode}", 0), full_quality),
+        "oos_portfolio": _pack_metric_block(sleeve_stats(oos["portfolio_daily"], oos["trades"], "oos", oos_i), oos_quality),
+        "oos_core": _pack_metric_block(sleeve_stats(oos["core_daily"], oos["core_trades"], "oos_core", oos_i), oos_quality, contribution=True),
         "walk_forward": walk_forward,
         "prospective": prospective,
+        "execution_quality": {
+            "full": full_quality,
+            "oos": oos_quality,
+        },
+        "execution_diagnostics": {"full": _execution_diagnostics(full), "oos": _execution_diagnostics(oos)},
         "turnover": {
             "full": float(np.sum(full["turnover_daily"])),
             "oos": float(np.sum(oos["turnover_daily"][oos_i:])),
-            "cost_model": "target_weight_turnover * one_way_cost",
+            "cost_model": "account_fill_notional * side_cost",
         },
         "params": {
             "buy_cost": buy_cost,
@@ -625,106 +502,179 @@ def backtest_v2(
             "mode": mode,
             "apply_proxy_adjustment": apply_haircut,
             "event_exit": event_exit,
-            "path_model": "daily_open_close_path",
+            "tail_mode": tail_mode,
+            "path_model": "event_driven_account_ledger",
+            "instrument_basis": "industry_index_proxy_not_executable_etf",
             "core_tail_policy": core_tail_policy_payload(),
-            "core_tail_price_proxy": "T close proxies the executable 14:50-15:00 fill",
+            "core_tail_price_proxy": (
+                "hypothetical T close fill; not verified executable tail evidence"
+                if tail_mode == "eod_close_proxy" else
+                "strict evidence required; missing historical tail evidence defers to T+1 open"
+            ),
             "oos_protocol": f"retrospective holdout starts flat on {OOS_SPLIT.date()}; parameters are not independent",
         },
     }
 
 
+def _pack_metric_block(stats: dict, quality: dict | None, *, contribution: bool = False) -> dict:
+    quality = quality or {"status": "UNKNOWN", "issues": []}
+    complete = quality.get("status") == "COMPLETE"
+    net_win = stats.get("net_win_rate", stats.get("win_rate"))
+    packed = {
+        **stats,
+        "net_win_rate": net_win,
+        "gross_win_rate": stats.get("gross_win_rate"),
+        "win_rate": net_win,
+        "win_rate_basis": "net_after_costs",
+        "gross_win_rate_basis": "before_costs_after_scenario_proxy_adjustment",
+        "win_rate_unit": "closed_sleeve_round_trip",
+        "trade_return_basis": "net_account_pnl_over_cumulative_purchase_cash",
+        "trade_count_scope": "completed_trades_only; open positions excluded; incomplete replay counts are diagnostic",
+        "return_basis": "net_account_sleeve_contribution" if contribution else "net_account_return",
+        "performance_valid": complete,
+        "validation_status": "EXECUTION_COMPLETE_REPLAY" if complete else "INCOMPLETE_EXECUTION",
+        "independent_parameter_validation": False,
+        "execution_quality": quality,
+    }
+    if contribution:
+        packed["standalone_strategy"] = False
+        # Compounding a sleeve's portfolio contribution is not standalone NAV.
+        for key in ("total_return", "ann_return", "max_dd", "sharpe"):
+            packed[key] = None
+    if not complete:
+        for key in (
+            "total_return", "ann_return", "max_dd", "sharpe", "win_rate",
+            "net_win_rate", "gross_win_rate", "avg_trade", "gross_avg_trade",
+            "net_avg_trade", "exposure_ratio",
+        ):
+            packed[key] = None
+    return json_safe(packed)
+
+
 def pack_stats(r: dict) -> dict:
-    p = r["portfolio"]
-    o = r["oos_portfolio"]
+    qualities = r.get("execution_quality") or {}
+    full_quality = qualities.get("full")
+    oos_quality = qualities.get("oos")
+    walk_forward = dict(r["walk_forward"])
+    walk_forward["aggregate"] = _pack_metric_block(
+        walk_forward.get("aggregate") or {}, walk_forward.get("execution_quality"),
+    )
+    walk_forward["folds"] = [
+        _pack_metric_block(fold, fold.get("execution_quality"))
+        for fold in walk_forward.get("folds", [])
+    ]
     return {
         "full_sample": {
-            "total_return": p["total_return"],
-            "ann_return": p["ann_return"],
-            "max_dd": p["max_dd"],
-            "win_rate": p["win_rate"],
-            "trade_count": p["trade_count"],
-            "sharpe": p.get("sharpe"),
+            **_pack_metric_block(r["portfolio"], full_quality),
             "turnover": r["turnover"]["full"],
         },
         "oos": {
-            "total_return": o["total_return"],
-            "ann_return": o["ann_return"],
-            "max_dd": o["max_dd"],
-            "win_rate": o["win_rate"],
-            "trade_count": o["trade_count"],
+            **_pack_metric_block(r["oos_portfolio"], oos_quality),
             "turnover": r["turnover"]["oos"],
             "label": "retrospective_holdout",
-            "independent_parameter_validation": False,
         },
-        "walk_forward": r["walk_forward"],
+        "walk_forward": walk_forward,
         "prospective": r["prospective"],
-        "core": {
-            "total_return": r["core"]["total_return"],
-            "ann_return": r["core"]["ann_return"],
-            "max_dd": r["core"]["max_dd"],
-            "win_rate": r["core"]["win_rate"],
-            "trade_count": r["core"]["trade_count"],
-        },
-        "satellite": {
-            "total_return": r["satellite"]["total_return"],
-            "ann_return": r["satellite"]["ann_return"],
-            "max_dd": r["satellite"]["max_dd"],
-            "win_rate": r["satellite"]["win_rate"],
-            "trade_count": r["satellite"]["trade_count"],
-        },
+        "execution_diagnostics": r.get("execution_diagnostics", {}),
+        "core": _pack_metric_block(r["core"], full_quality, contribution=True),
+        "satellite": _pack_metric_block(r["satellite"], full_quality, contribution=True),
     }
 
 
 def main() -> None:
-    warnings.filterwarnings("ignore")
     print("Loading aligned data...")
-    df, meta = load_aligned()
+    policy = build_policy_manifest()
+    inputs = build_input_versions()
+    df, meta = load_aligned(allow_price_imputation=False)
     df = df.sort_values("trade_date").reset_index(drop=True)
+    if build_input_versions() != inputs:
+        raise RuntimeError("Backtest inputs changed during loading; retry from a stable snapshot")
+    run_manifest = build_run_manifest(df, meta, policy=policy, inputs=inputs)
     print(f"n={len(df)} {df.trade_date.min().date()} → {df.trade_date.max().date()}")
 
     scenarios = []
+
+    def run_scenario(mode: str, bps: int, label: str, *, tail_mode: str = "strict_evidence", haircut: bool = False) -> None:
+        cost = bps / 10000.0
+        r = backtest_v2(
+            df, meta, buy_cost=cost, sell_cost=cost, mode=mode,
+            apply_haircut=haircut, event_exit=True, tail_mode=tail_mode,
+        )
+        if r["params"].get("tail_mode") != tail_mode:
+            raise RuntimeError("Simulator must report the executed tail_mode")
+        pack = pack_stats(r)
+        scenario = {
+            "mode": mode, "cost_label": label, "bps": bps,
+            "tail_mode": tail_mode,
+            "apply_proxy_adjustment": haircut,
+            "scenario_kind": (
+                "tail_assumption" if tail_mode == "eod_close_proxy" else
+                "proxy_return_stress" if haircut else
+                "baseline" if bps == 1 else "cost_stress"
+            ),
+            "instrument_basis": "industry_index_proxy_not_executable_etf",
+            **pack, "params": r["params"],
+        }
+        scenario["scenario_fingerprint"] = fingerprint({
+            "policy_fingerprint": policy["policy_fingerprint"],
+            "params": r["params"],
+        })
+        scenarios.append(scenario)
+        print(f"{mode} {label}: {pack['full_sample']['validation_status']}; n={pack['full_sample'].get('trade_count')}")
+
     for mode in (MODE_CONSERVATIVE, MODE_AGGRESSIVE):
         for bps, label in ((1, "base_1bps"), (15, "stress_15bps"), (30, "stress_30bps")):
-            cost = bps / 10000.0
-            r = backtest_v2(df, meta, buy_cost=cost, sell_cost=cost, mode=mode, apply_haircut=True, event_exit=True)
-            pack = pack_stats(r)
-            scenarios.append({"mode": mode, "cost_label": label, "bps": bps, **pack, "params": r["params"]})
-            print(
-                f"{mode} {label}: ann={pack['full_sample']['ann_return']:.2%} "
-                f"dd={pack['full_sample']['max_dd']:.2%} win={pack['full_sample']['win_rate']:.1%} "
-                f"n={pack['full_sample']['trade_count']} oos_ann={pack['oos']['ann_return']:.2%}"
-            )
+            run_scenario(mode, bps, label)
+        run_scenario(mode, 1, "proxy_return_stress_1bps", haircut=True)
+        run_scenario(mode, 1, "tail_eod_close_proxy_1bps", tail_mode="eod_close_proxy")
 
     def find(mode: str, label: str) -> dict:
         return next(s for s in scenarios if s["mode"] == mode and s["cost_label"] == label)
 
     cons = find(MODE_CONSERVATIVE, "base_1bps")
     agg = find(MODE_AGGRESSIVE, "base_1bps")
-    core_only = {
-        "total_return": cons["core"]["total_return"],
-        "ann_return": cons["core"]["ann_return"],
-        "max_dd": cons["core"]["max_dd"],
-        "win_rate": cons["core"]["win_rate"],
-        "trade_count": cons["core"]["trade_count"],
-    }
+    execution_complete = all(
+        s[period]["performance_valid"]
+        for s in scenarios for period in ("full_sample", "oos")
+    ) and all(s["walk_forward"]["aggregate"]["performance_valid"] for s in scenarios)
 
     out = {
+        "schema_version": SCHEMA_VERSION,
         "mode": "combined_flex_v2",
-        "validation_status": "GENERATED_VERIFIED",
-        "label_cn": "组合 Flex v2（日度路径+换仓成本+代理亏损惩罚）",
+        "validation_status": (
+            "INCOMPLETE_PROVENANCE" if not policy["complete"] else
+            "GENERATED_REPLAY" if execution_complete else "INCOMPLETE_EXECUTION"
+        ),
+        "validation_kind": "retrospective_replay",
+        "independent_parameter_validation": False,
+        "run_manifest": run_manifest,
+        "generated_at": run_manifest["generated_at"],
+        "run_id": run_manifest["run_id"],
+        "sample": run_manifest["sample"],
+        "policy_fingerprint": policy["policy_fingerprint"],
+        "input_fingerprint": inputs["input_fingerprint"],
+        "label_cn": "组合 Flex v2（行业指数代理回顾重放，非ETF可复制业绩）",
         "default_mode": MODE_AGGRESSIVE,
+        "baseline_tail_mode": "strict_evidence",
+        "instrument_basis": "industry_index_proxy_not_executable_etf",
+        "metric_labels": {
+            "ann_return": "净年化", "max_dd": "净回撤",
+            "gross_win_rate": "费用前胜率", "net_win_rate": "净胜率",
+            "win_rate": "净胜率（兼容字段）",
+        },
         "hold_days_core": CORE_HOLD_DAYS,
         "hold_days_sat": f"{SAT_MIN_HOLD}-{SAT_MAX_HOLD}",
         "satellite_stop_loss": SAT_STOP_LOSS,
         "satellite_take_profit": SAT_TAKE_PROFIT,
-        "execution": "CORE严格条件 T日14:50尾盘；其余信号 T+1开盘",
+        "execution": "默认strict_evidence：无历史尾盘时点证据则T+1开盘；收盘价尾盘代理仅属单独假设场景",
         "backtest_protocol": {
-            "price_path": "entry open → daily close path → exit open; no endpoint smoothing",
-            "right_censoring": "signals without a complete maximum execution window inside the sample are excluded",
-            "core_tail": "strict CORE uses T close as 14:50-15:00 fill proxy; original exit date is unchanged",
-            "core_tail_quality": "live PASS/FAIL/INVALID gate is operational only; historical EOD confidence is not used as a live-quality proxy",
-            "cost": "target-weight turnover × one-way bps; entries, exits and rebalances all counted",
-            "proxy": "proxy gains are discounted; proxy losses are amplified by the same factor",
+            "price_path": "event-driven account ledger; open executions and daily close marks",
+            "right_censoring": "entries follow observed events without inspecting future window completeness; positions still open at sample end retain diagnostic valuation and are excluded from completed trade counts and win rates",
+            "core_tail": "strict_evidence is the default; missing historical tail evidence defers to T+1 open",
+            "core_tail_quality": "historical EOD confidence is not point-in-time tail evidence",
+            "tail_assumption": "eod_close_proxy assumes a T close fill, not a verified executable tail fill",
+            "cost": "account fills charge explicit buy/sell costs, including rebalances",
+            "proxy": "baseline uses raw industry-index proxies, not tradable ETF performance; return haircuts are separate stress scenarios",
             "observe": "observe-only satellite sleeve uses 0.25 production scale",
             "satellite_risk_exit": (
                 f"after {SAT_MIN_HOLD} completed sessions, detect basket return <= {SAT_STOP_LOSS:.0%} "
@@ -732,15 +682,19 @@ def main() -> None:
             ),
             "oos": f"retrospective holdout starts flat on {OOS_SPLIT.date()}; not parameter-independent",
             "walk_forward": "expanding fixed-policy temporal-stability windows; no in-fold tuning",
-            "prospective": "policy frozen through 2026-08-11; independent observations begin 2026-08-12",
+            "prospective": "BLOCKED_REQUIRES_POINT_IN_TIME_ARCHIVE; backfilled observations are retrospective replay, not strict prospective validation",
+            "missing_execution_prices": "incomplete execution suppresses performance; diagnostic counts and issues remain visible",
         },
-        "core_only": core_only,
+        "core_only_status": "NOT_RUN_STANDALONE",
         "conservative": {
             "note": "对照口径；总暴露 capped；同一日度路径与成本模型",
             "full_sample": cons["full_sample"],
             "oos": cons["oos"],
             "walk_forward": cons["walk_forward"],
             "prospective": cons["prospective"],
+            "params": cons["params"],
+            "scenario_fingerprint": cons["scenario_fingerprint"],
+            "execution_diagnostics": cons["execution_diagnostics"],
         },
         "aggressive": {
             "note": "生产进取模式；单仓满仓、双仓60/40；卫星-3%止损/+4%止盈；含换仓成本",
@@ -748,6 +702,9 @@ def main() -> None:
             "oos": agg["oos"],
             "walk_forward": agg["walk_forward"],
             "prospective": agg["prospective"],
+            "params": agg["params"],
+            "scenario_fingerprint": agg["scenario_fingerprint"],
+            "execution_diagnostics": agg["execution_diagnostics"],
         },
         "cost_stress": {
             "base_bps_one_way": 1,
@@ -759,28 +716,28 @@ def main() -> None:
                 MODE_CONSERVATIVE: find(MODE_CONSERVATIVE, "stress_30bps")["full_sample"],
                 MODE_AGGRESSIVE: find(MODE_AGGRESSIVE, "stress_30bps")["full_sample"],
             },
-            "etf_haircut_note": "proxy 正收益折扣、负收益放大 / weak 剔除；行业指数≠ETF",
+            "etf_haircut_note": "费用压力与代理收益折扣独立；行业指数不等于可成交ETF",
         },
-        "caveat_cn": "板块用行业指数代理；弱代理不进默认篮子；卫星按-3%止损/+4%止盈；回测已计入日度路径、换仓成本和代理亏损惩罚。",
-        "scenarios": [
-            {
-                "mode": s["mode"],
-                "cost_label": s["cost_label"],
-                "ann_return": s["full_sample"]["ann_return"],
-                "max_dd": s["full_sample"]["max_dd"],
-                "win_rate": s["full_sample"]["win_rate"],
-                "trade_count": s["full_sample"]["trade_count"],
-                "turnover": s["full_sample"].get("turnover"),
-            }
-            for s in scenarios
-        ],
+        "proxy_return_stress": {
+            mode: find(mode, "proxy_return_stress_1bps")
+            for mode in (MODE_CONSERVATIVE, MODE_AGGRESSIVE)
+        },
+        "tail_assumption": {
+            mode: find(mode, "tail_eod_close_proxy_1bps")
+            for mode in (MODE_CONSERVATIVE, MODE_AGGRESSIVE)
+        },
+        "caveat_cn": "行业指数代理回放非ETF可复制业绩；默认无尾盘时点证据则T+1；费用前胜率与净胜率分列；回填不构成严格前瞻。",
+        "scenarios": scenarios,
     }
 
+    if build_policy_manifest() != policy or build_input_versions() != inputs:
+        raise RuntimeError("Policy or input files changed during the run; artifact not published")
+    encoded = json.dumps(json_safe(out), ensure_ascii=False, indent=2, allow_nan=False)
     CALCULATED.mkdir(parents=True, exist_ok=True)
     path = CALCULATED / "flex_backtest_stats.json"
-    path.write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    path.write_text(encoded, encoding="utf-8")
     OUT.mkdir(parents=True, exist_ok=True)
-    (OUT / "flex_v2_stats.json").write_text(json.dumps(out, ensure_ascii=False, indent=2), encoding="utf-8")
+    (OUT / "flex_v2_stats.json").write_text(encoded, encoding="utf-8")
     print("Wrote", path)
 
 

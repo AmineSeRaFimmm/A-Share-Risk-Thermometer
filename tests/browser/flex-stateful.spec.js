@@ -67,11 +67,16 @@ test('Flex marks unmapped holdings as missing and exposes validation quality', a
 });
 
 test('Flex generic satellite close is not presented as take profit', async ({ page }) => {
-  await seedFlex(page, { book: 'sim' });
+  await seedFlex(page, { book: 'real' });
   await page.goto('/');
   await page.locator('#dockFlex').click();
   const label = await page.evaluate(() => {
     const flex = dashboardState.flexActive;
+    flex.open_list = [];
+    flex.execution_events = [];
+    flex.position_state.satellite = { status: 'open', entry_signal_date: '2026-08-03',
+      entry_date: '2026-08-04', names: ['煤炭'], weights: { 煤炭: 1 } };
+    flex.position_state.satellite_risk_check = { status: 'CLEAR' };
     flex.close_list = [{
       name: '煤炭', sector: '煤炭', etf_code: '515220', sleeve: 'satellite',
       action: 'CLOSE', action_cn: '持有期满卖出', close_code: 'MAX_HOLD',
@@ -80,7 +85,7 @@ test('Flex generic satellite close is not presented as take profit', async ({ pa
     renderFlexTradePanel({ as_of: flex.as_of, flex_panel: flex, data_quality: flex.data_quality });
     return document.querySelector('#flexSatStage')?.textContent;
   });
-  expect(label).toBe('策略待平');
+  expect(label).toBe('纸面待平·未记');
 });
 
 test('Flex buy ledger records the selected trading session', async ({ page }) => {
@@ -109,7 +114,7 @@ test('Flex buy ledger records the selected trading session', async ({ page }) =>
   expect(recorded.journal[0].trade_date).toBe(sessionDate);
 });
 
-test('Flex v6 recovers fixed-basket take profit from the first EOD crossing', async ({ page }) => {
+test('Legacy migration never reconstructs historical fills from a current basket', async ({ page }) => {
   await seedFlex(page, {
     book: 'sim',
     ledger: {
@@ -180,14 +185,15 @@ test('Flex v6 recovers fixed-basket take profit from the first EOD crossing', as
       risk: ledger.risk_exits['2026-07-29'],
       satelliteCount: Object.values(ledger.positions).filter(pos => pos.sleeve === 'satellite').length,
       signal: ledger.journal.find(row => row.type === 'SIGNAL' && row.name === '卫星组合'),
+      migration: ledger.migration,
+      archive: JSON.parse(localStorage.getItem(ledger.migration.archive_key)),
     };
   });
 
-  expect(result.version).toBe(6);
-  expect(result.basis.entry_date).toBe('2026-07-30');
-  expect(result.risk.status).toBe('EXECUTED');
-  expect(result.risk.signal_date).toBe('2026-08-05');
-  expect(result.risk.execution_date).toBe('2026-08-06');
+  expect(result.version).toBe(7);
+  expect(result.migration.history_status).toBe('ARCHIVED_NOT_RECONSTRUCTED');
+  expect(result.archive.positions.corrupted.qty).toBe(1000);
+  expect(result.risk).toBeUndefined();
   expect(result.satelliteCount).toBe(0);
-  expect(result.signal.trade_date).toBe('2026-08-05');
+  expect(result.signal).toBeUndefined();
 });

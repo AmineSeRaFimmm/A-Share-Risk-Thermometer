@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import Any
 
 from src.core.sector_etf_map import map_sector
+from src.core.flex_execution import fixed_basket_return, positive_price, satellite_exit_reason
 
 
 BRIEF_SCHEMA_VERSION = 2
@@ -89,7 +90,7 @@ def _satellite_members(
     state = ((flex.get("position_state") or {}).get("satellite") or {})
     names = [str(name) for name in state.get("names") or [] if str(name)]
     weights = state.get("weights") or {}
-    raw_weights = {name: float(weights.get(name) or 0.0) for name in names}
+    raw_weights = {name: positive_price(weights.get(name)) or 0.0 for name in names}
     total = sum(weight for weight in raw_weights.values() if weight > 0)
     allocation = float((flex.get("allocation") or {}).get("w_sat") or 0.0)
     members: list[dict[str, Any]] = []
@@ -131,7 +132,7 @@ def evaluate_satellite_risk_event(
     min_hold = int(exit_rules.get("min_hold") or DEFAULT_SATELLITE_MIN_HOLD)
     stop_loss = float(rule.get("stop_loss") or DEFAULT_SATELLITE_STOP_LOSS)
     take_profit = float(rule.get("take_profit") or DEFAULT_SATELLITE_TAKE_PROFIT)
-    cost_bps = float(flex.get("transaction_cost_bps_one_way") or 0.0)
+    cost_bps = float(flex.get("transaction_cost_bps_one_way", 1.0))
     cost_rate = cost_bps / 10_000.0
     members, missing_members = _satellite_members(flex)
     base = {
@@ -157,8 +158,8 @@ def evaluate_satellite_risk_event(
     missing_entry: list[str] = []
     for member in members:
         code = str(member["etf_code"])
-        value = float((_bar(etf_daily_marks, code, entry_date) or {}).get("open") or 0.0)
-        if value <= 0:
+        value = positive_price((_bar(etf_daily_marks, code, entry_date) or {}).get("open"))
+        if value is None:
             missing_entry.append(code)
         else:
             entry_open[code] = value
@@ -198,15 +199,15 @@ def evaluate_satellite_risk_event(
     latest_return: float | None = None
     latest_days_held = 0
     for days_held, day in enumerate(sessions, start=1):
-        ratio = 0.0
+        current_prices: dict[str, float] = {}
         missing_close: list[str] = []
         for member in members:
             code = str(member["etf_code"])
-            close = float((_bar(etf_daily_marks, code, day) or {}).get("close") or 0.0)
-            if close <= 0:
+            close = positive_price((_bar(etf_daily_marks, code, day) or {}).get("close"))
+            if close is None:
                 missing_close.append(code)
                 continue
-            ratio += float(member["weight_in_sleeve"] or 0.0) * close / entry_open[code]
+            current_prices[member["name"]] = close
         if missing_close:
             return {
                 **base,
@@ -218,20 +219,24 @@ def evaluate_satellite_risk_event(
                 "latest_return": latest_return,
                 "reason_cn": f"{day} 固定篮子共同 EOD 不完整，不能越过缺口判定首次触发",
             }
-        basket_return = ratio / (1.0 + cost_rate) - 1.0
+        basket_return = fixed_basket_return(
+            {m["name"]: m["weight_in_sleeve"] for m in members},
+            {m["name"]: entry_open[str(m["etf_code"])] for m in members},
+            current_prices, entry_cost_rate=cost_rate,
+        )
+        if basket_return is None:
+            return {**base, "status": "BLOCKED", "blocked_code": "INVALID_FIXED_BASKET", "blocked_on": day}
         latest_return = basket_return
         latest_days_held = days_held
-        if days_held < min_hold:
-            continue
-        if basket_return <= stop_loss or basket_return >= take_profit:
-            stop = basket_return <= stop_loss
+        exit_reason = satellite_exit_reason(days_held, basket_return, min_hold=min_hold, stop_loss=stop_loss, take_profit=take_profit)
+        if exit_reason:
+            stop = exit_reason == "STOP_LOSS"
             execution_date = _next_trade_date(day, trade_dates)
             execution_bar_complete = bool(execution_date) and all(
-                float(
+                positive_price(
                     (_bar(etf_daily_marks, str(member["etf_code"]), execution_date) or {}).get("open")
-                    or 0.0
                 )
-                > 0
+                is not None
                 for member in members
             )
             return {
@@ -386,14 +391,48 @@ def build_daily_flex_brief(
             and strategy_as_of < as_of
         )
     )
-    risk_event = evaluate_satellite_risk_event(flex, etf_daily_marks, trade_calendar)
+    position_state = flex.get("position_state") or {}
+    authoritative = "execution_events" in flex or "execution_events" in position_state
+    execution_events = flex.get("execution_events", position_state.get("execution_events", [])) or []
+    if authoritative:
+        risk_event = position_state.get("satellite_risk_check") or {"status": "NOT_APPLICABLE"}
+        current_satellite = position_state.get("satellite") or {}
+        risk_event = next((e for e in reversed(execution_events)
+                           if e.get("event_type") in {"STOP_LOSS", "TAKE_PROFIT"}
+                           and (current_satellite.get("status") != "open" or (
+                               (e.get("position") or {}).get("entry_date") == current_satellite.get("entry_date")
+                               and (e.get("position") or {}).get("entry_signal_date") == current_satellite.get("entry_signal_date")
+                           ))), risk_event)
+    else:
+        risk_event = evaluate_satellite_risk_event(flex, etf_daily_marks, trade_calendar)
     risk_triggered = risk_event.get("status") == "TRIGGERED"
+    ledger_sleeves = {e.get("sleeve") for e in execution_events if
+                      e.get("execution_status") == "PENDING" or
+                      _is_in_daily_window({**e, "signal_date": e.get("trigger_date")}, as_of)}
     items = _group_strategy_actions(
         flex,
         trade_dates,
-        suppress_satellite_close=risk_triggered,
+        suppress_satellite_close=(risk_triggered and not authoritative) or "satellite" in ledger_sleeves,
     )
-    if risk_triggered:
+    if authoritative:
+        items = [item for item in items if not (
+            item.get("event_type") == "EXIT" and item.get("sleeve") in ledger_sleeves
+        )]
+        for event in execution_events:
+            event_type = event.get("event_type", "EXIT")
+            action_cn = event.get("action_cn") or "策略离场"
+            items.append({
+                **event,
+                "id": event.get("event_id") or event.get("id"),
+                "event_type": event_type,
+                "signal_date": event.get("trigger_date"),
+                "action_cn": action_cn,
+                "title_cn": action_cn,
+                "execution_mode": "T_PLUS_1_OPEN",
+                "execution_window_cn": "下一交易日开盘整篮平仓",
+                "instruments": event.get("members") or [],
+            })
+    if risk_triggered and not authoritative:
         event_type = str(risk_event["event_type"])
         executed = risk_event.get("execution_status") == "EXECUTED"
         action_cn = "卫星篮子止损" if event_type == "STOP_LOSS" else "卫星篮子止盈"
@@ -431,7 +470,7 @@ def build_daily_flex_brief(
         sat_state_open = str(
             (((flex.get("position_state") or {}).get("satellite") or {}).get("status") or "")
         ).lower() == "open"
-        sat_risk_executed = risk_triggered and risk_event.get("execution_status") == "EXECUTED"
+        sat_risk_executed = not authoritative and risk_triggered and risk_event.get("execution_status") == "EXECUTED"
         sat_open = sat_state_open and not sat_risk_executed
         target_weight = 0.6 if sat_open else 1.0
         items.append(
@@ -480,6 +519,7 @@ def build_daily_flex_brief(
         == "open"
         and not (
             sleeve == "satellite"
+            and not authoritative
             and risk_triggered
             and risk_event.get("execution_status") == "EXECUTED"
         )
@@ -500,6 +540,7 @@ def build_daily_flex_brief(
         "status": status,
         "headline_cn": headline,
         "items": items,
+        "execution_events": execution_events,
         "satellite_risk_event": risk_event,
         "visibility_policy": {
             "policy_id": "SIGNAL_THROUGH_EXECUTION_SESSION",

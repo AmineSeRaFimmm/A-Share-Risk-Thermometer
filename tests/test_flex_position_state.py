@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
-from src.core.flex_engine import FlexState, SleevePos, advance_positions
+from src.core.flex_engine import FlexState, SleevePos, advance_positions, _precompute_feature_rows
 
 
 def _risk_through(last: str) -> pd.DataFrame:
@@ -86,3 +86,22 @@ def test_new_session_advances_clocks_without_replaying_entry_or_basket() -> None
     assert state.satellite.names == ["通信", "恒生科技"]
     assert state.satellite.weights == {"通信": 0.55, "恒生科技": 0.45}
     assert state.satellite.days_held == 8
+
+
+def test_missing_dd60_never_uses_future_index_close() -> None:
+    dates = pd.bdate_range("2026-01-01", periods=23).strftime("%Y-%m-%d").tolist()
+    risk = pd.DataFrame({"trade_date": dates, "risk_temperature": 70.0})
+    index = pd.DataFrame({"date": dates, "symbol": "sh000300", "close": [100.] * 20 + [90., 80., 70.]})
+    rows = _precompute_feature_rows(risk, index)
+    assert rows[18]["hs300_dd60"] is None
+    assert rows[19]["hs300_dd60"] == 0.0
+    assert abs(rows[20]["hs300_dd60"] + 0.1) < 1e-12
+    assert rows[:21] == _precompute_feature_rows(risk.iloc[:21], index.iloc[:21])
+
+
+def test_dd60_preserves_supplied_values_and_leaves_unmatched_dates_missing() -> None:
+    risk = pd.DataFrame({"trade_date": ["2026-08-10", "2026-08-11"], "risk_temperature": 70., "sh000300_dd60": [-0.123, None]})
+    index = pd.DataFrame({"date": ["2026-08-10"] * 20, "symbol": "sh000300", "close": 100.})
+    rows = _precompute_feature_rows(risk, index)
+    assert rows[0]["hs300_dd60"] == -0.123
+    assert rows[1]["hs300_dd60"] is None

@@ -22,6 +22,7 @@ from src.core.core_tail_policy import (
     core_tail_strict_values_eligible,
 )
 from src.core.sector_etf_map import attach_etf_fields, map_csi300, map_sector
+from src.core.flex_execution import positive_price
 from src.storage.paths import CALCULATED
 
 # ---------------------------------------------------------------------------
@@ -218,6 +219,9 @@ class FlexState:
     core: SleevePos = field(default_factory=SleevePos)
     satellite: SleevePos = field(default_factory=SleevePos)
     last_actions: list[dict[str, Any]] = field(default_factory=list)
+    execution_events: list[dict[str, Any]] = field(default_factory=list)
+    cooldown_through: dict[str, str] = field(default_factory=dict)
+    satellite_risk_check: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -226,6 +230,9 @@ class FlexState:
             "core": self.core.to_dict(),
             "satellite": self.satellite.to_dict(),
             "last_actions": self.last_actions,
+            "execution_events": deepcopy(self.execution_events),
+            "cooldown_through": dict(self.cooldown_through),
+            "satellite_risk_check": deepcopy(self.satellite_risk_check),
         }
 
 
@@ -237,6 +244,11 @@ def load_position_state(path: Path | None = None) -> FlexState:
         raw = json.loads(p.read_text(encoding="utf-8"))
     except Exception:
         return FlexState()
+    return position_state_from_dict(raw)
+
+
+def position_state_from_dict(raw: dict[str, Any]) -> FlexState:
+    """Decode both legacy state files and published snapshot positions."""
     st = FlexState(as_of=raw.get("as_of"), mode=raw.get("mode") or MODE_CONSERVATIVE)
     for key, attr in (("core", "core"), ("satellite", "satellite")):
         d = raw.get(key) or {}
@@ -264,6 +276,9 @@ def load_position_state(path: Path | None = None) -> FlexState:
             ),
         )
     st.last_actions = list(raw.get("last_actions") or [])
+    st.execution_events = list(raw.get("execution_events") or [])
+    st.cooldown_through = dict(raw.get("cooldown_through") or {})
+    st.satellite_risk_check = dict(raw.get("satellite_risk_check") or {})
     return st
 
 
@@ -508,8 +523,6 @@ def _precompute_feature_rows(
     index_history: pd.DataFrame | None,
 ) -> list[dict[str, Any]]:
     """Vectorized-ish feature panel for walk-forward simulation (O(n))."""
-    from src.core.stage_trade_playbook import _dd60_from_index
-
     df = risk_components.copy().sort_values("trade_date").reset_index(drop=True)
     df["risk_temperature"] = pd.to_numeric(df["risk_temperature"], errors="coerce")
     df = df.dropna(subset=["risk_temperature"]).reset_index(drop=True)
@@ -523,14 +536,20 @@ def _precompute_feature_rows(
         dd_series = pd.to_numeric(df["sh000300_dd60"], errors="coerce")
     else:
         dd_series = pd.Series([np.nan] * len(df))
-    # fill last known dd from index if mostly missing
-    last_dd = _dd60_from_index(index_history) if index_history is not None else None
+    # Only same-session index data can fill a missing historical feature.
+    dd_by_date: dict[str, float] = {}
+    if index_history is not None and not index_history.empty:
+        hs = index_history.loc[index_history["symbol"].astype(str) == "sh000300"].copy()
+        hs = hs.sort_values("date")
+        close = pd.to_numeric(hs["close"], errors="coerce")
+        drawdown = close / close.rolling(60, min_periods=20).max() - 1
+        dd_by_date = dict(zip(hs["date"].astype(str).str[:10], drawdown))
 
     rows: list[dict[str, Any]] = []
     for i in range(len(df)):
         dd = dd_series.iloc[i]
         if pd.isna(dd):
-            dd = last_dd
+            dd = dd_by_date.get(str(df.iloc[i]["trade_date"])[:10])
         rows.append(
             {
                 "trade_date": str(df.iloc[i]["trade_date"])[:10],
@@ -558,6 +577,9 @@ def _walk_position_rows(
     first_row_already_counted: bool = False,
     active_stages_fn=None,
     confirmed_core_tail_dates: set[str] | None = None,
+    etf_daily_marks: dict[str, Any] | None = None,
+    trade_calendar: dict[str, Any] | None = None,
+    transaction_cost_bps_one_way: float = 1.0,
 ) -> FlexState:
     """Advance one state through ordered feature rows without revising prior fills."""
     from src.core.stage_trade_playbook import active_stages
@@ -567,6 +589,7 @@ def _walk_position_rows(
         return state
 
     dates = [r["trade_date"] for r in feat_rows]
+    execution_dates = sorted(set(dates) | set((trade_calendar or {}).get("dates") or []))
     csi = map_csi300()
 
     for i in range(start_index, len(feat_rows)):
@@ -578,6 +601,33 @@ def _walk_position_rows(
             and float(feat["hs300_dd60"]) <= -0.05
         )
         d = dates[i]
+        # Apply recorded open orders before evaluating this session's EOD signals.
+        for event in state.execution_events:
+            if event.get("execution_status") != "PENDING":
+                continue
+            due = event.get("execution_date") or next(
+                (day for day in execution_dates if day > event["trigger_date"]), None
+            )
+            event["execution_date"] = due
+            if not due or due > d:
+                continue
+            from src.core.flex_daily_brief import _bar
+
+            if not event.get("members") or not all(
+                positive_price((_bar(etf_daily_marks or {}, str(m.get("etf_code") or ""), due) or {}).get("open")) is not None
+                for m in event.get("members") or []
+            ):
+                event["execution_blocked_code"] = "MISSING_EXECUTION_OPEN"
+                continue
+            event.pop("execution_blocked_code", None)
+            event["execution_status"] = "EXECUTED"
+            event["execution_bar_complete"] = True
+            event["execution_basis"] = "ETF_OPEN_CONFIRMED"
+            sleeve = event["sleeve"]
+            position = getattr(state, sleeve)
+            if position.entry_date == event["position"].get("entry_date"):
+                setattr(state, sleeve, SleevePos(status="flat"))
+            state.cooldown_through[sleeve] = due
         core_tail_sig = (
             core_sig
             and d in (confirmed_core_tail_dates or set())
@@ -588,7 +638,6 @@ def _walk_position_rows(
             )
         )
         rising = "RISING_HARD" in stages
-        is_last = i == len(feat_rows) - 1
 
         # --- completed holding sessions (entry session is day 1) ---
         update_clock = not (first_row_already_counted and i == start_index)
@@ -627,30 +676,66 @@ def _walk_position_rows(
                 except ValueError:
                     pass
 
-        # --- exits: apply on historical days only; keep open on last bar for panel CLOSE ---
-        if not is_last:
-            if state.core.status == "open" and state.core.days_held >= _core_planned_hold_days(state):
-                state.core = SleevePos(status="flat")
+        # An EOD decision is durable; it is not a fill until the next open.
+        for sleeve in ("core", "satellite"):
+            pos = getattr(state, sleeve)
+            if pos.status != "open" or any(
+                e.get("sleeve") == sleeve and e.get("execution_status") == "PENDING"
+                for e in state.execution_events
+            ):
+                continue
+            event = None
+            if sleeve == "satellite" and etf_daily_marks is None:
+                state.satellite_risk_check = {
+                    "status": "BLOCKED", "blocked_code": "MISSING_ETF_DAILY_MARKS",
+                    "reason_cn": "ETF daily marks are required for fixed-basket risk checks",
+                }
+            if sleeve == "satellite" and etf_daily_marks is not None:
+                from src.core.flex_daily_brief import evaluate_satellite_risk_event
 
-            if state.satellite.status == "open":
-                flip = False
-                open_stage = state.satellite.stage_id or ""
-                opposites = STAGE_OPPOSITES.get(open_stage, set())
-                if state.satellite.days_held >= SAT_MIN_HOLD and opposites.intersection(stages):
-                    flip = True
-                if state.satellite.days_held >= SAT_MAX_HOLD:
-                    flip = True
-                if state.satellite.days_held >= SAT_DEFAULT_HOLD and not any(
-                    STAGE_TIER.get(s) in {"high", "observe"} for s in stages
-                ):
-                    flip = True
-                if flip:
-                    state.satellite = SleevePos(status="flat")
+                check = evaluate_satellite_risk_event(
+                    {"as_of": d, "position_state": {"satellite": pos.to_dict()},
+                     "transaction_cost_bps_one_way": transaction_cost_bps_one_way},
+                    etf_daily_marks, {"dates": execution_dates},
+                )
+                state.satellite_risk_check = check
+                if check.get("status") == "TRIGGERED":
+                    event = deepcopy(check)
+                    if event["trigger_date"] < d:
+                        event["historical_trigger_date"] = event["trigger_date"]
+                        event["migration_policy"] = "ADOPT_AT_CURRENT_EOD_NO_BACKDATED_FILL"
+                    event["requires_open_marks"] = True
+            meta = _sat_close_meta(state, stages) if sleeve == "satellite" else (
+                {"close_code": "CORE_MAX_HOLD", "why": "Core holding period complete"}
+                if _core_should_close(state) else None
+            )
+            if event is None and meta:
+                event = {"event_type": "EXIT", "close_code": meta["close_code"],
+                         "reason_cn": meta.get("why"), "days_held": pos.days_held}
+            if event is not None:
+                event.update({
+                    "id": f"{sleeve}:{pos.entry_signal_date}:{pos.entry_date}:{d}:{event['close_code']}",
+                    "sleeve": sleeve, "trigger_date": d, "signal_date": d,
+                    "execution_date": next((day for day in execution_dates if day > d), None),
+                    "execution_status": "PENDING", "execution_bar_complete": False,
+                    "position": pos.to_dict(),
+                    "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+                })
+                event["event_id"] = event["id"]
+                event["signal_id"] = pos.entry_signal_date
+                event["requires_open_marks"] = True
+                event.setdefault("members", [
+                    {"name": name, "etf_code": (pos.etf_code if sleeve == "core" else map_sector(name).get("etf_code")),
+                     "weight_in_sleeve": pos.weights.get(name)}
+                    for name in pos.names
+                ])
+                state.execution_events.append(event)
 
         # --- core open (signal day = i; entry next session) ---
         if (
             core_sig
             and state.core.status != "open"
+            and d > state.cooldown_through.get("core", "")
             and (core_tail_sig or i + 1 < len(dates))
         ):
             entry_date = d if core_tail_sig else dates[i + 1]
@@ -675,7 +760,7 @@ def _walk_position_rows(
         high_stages = [s for s in stages if STAGE_TIER.get(s) == "high"]
         observe_stages = [s for s in stages if STAGE_TIER.get(s) == "observe"]
         sat_sig = bool(longs) and (bool(high_stages) or bool(observe_stages))
-        if sat_sig and state.satellite.status != "open" and longs and i + 1 < len(dates):
+        if sat_sig and state.satellite.status != "open" and longs and i + 1 < len(dates) and d > state.cooldown_through.get("satellite", ""):
             primary = next(
                 (
                     s
@@ -705,6 +790,10 @@ def _walk_position_rows(
                 names=list(weights.keys()),
                 weights=weights,
             )
+            state.satellite_risk_check = {
+                "status": "NOT_APPLICABLE", "signal_id": d, "entry_date": entry_date,
+                "reason_cn": "新周期待入场，尚无已完成持有日",
+            }
 
         state.as_of = d
 
@@ -719,6 +808,9 @@ def simulate_positions(
     classify_fn=None,
     active_stages_fn=None,
     confirmed_core_tail_dates: set[str] | None = None,
+    etf_daily_marks: dict[str, Any] | None = None,
+    trade_calendar: dict[str, Any] | None = None,
+    transaction_cost_bps_one_way: float = 1.0,
 ) -> FlexState:
     """Walk-forward simulate Flex positions when no durable live state exists."""
     feat_rows = _precompute_feature_rows(risk_components, index_history)
@@ -727,6 +819,9 @@ def simulate_positions(
         FlexState(mode=mode),
         active_stages_fn=active_stages_fn,
         confirmed_core_tail_dates=confirmed_core_tail_dates,
+        etf_daily_marks=etf_daily_marks,
+        trade_calendar=trade_calendar,
+        transaction_cost_bps_one_way=transaction_cost_bps_one_way,
     )
 
 
@@ -738,6 +833,9 @@ def advance_positions(
     mode: str = MODE_CONSERVATIVE,
     active_stages_fn=None,
     confirmed_core_tail_dates: set[str] | None = None,
+    etf_daily_marks: dict[str, Any] | None = None,
+    trade_calendar: dict[str, Any] | None = None,
+    transaction_cost_bps_one_way: float = 1.0,
 ) -> FlexState:
     """Advance a published live state using only sessions after its as_of.
 
@@ -760,7 +858,7 @@ def advance_positions(
 
     state = deepcopy(previous)
     state.mode = mode
-    if latest <= previous_as_of:
+    if latest < previous_as_of or (latest == previous_as_of and etf_daily_marks is None):
         return state
 
     return _walk_position_rows(
@@ -770,7 +868,57 @@ def advance_positions(
         first_row_already_counted=True,
         active_stages_fn=active_stages_fn,
         confirmed_core_tail_dates=confirmed_core_tail_dates,
+        etf_daily_marks=etf_daily_marks,
+        trade_calendar=trade_calendar,
+        transaction_cost_bps_one_way=transaction_cost_bps_one_way,
     )
+
+
+def refresh_published_flex_execution(
+    stage_playbook: dict[str, Any],
+    etf_daily_marks: dict[str, Any],
+    trade_calendar: dict[str, Any],
+) -> dict[str, Any]:
+    """Refresh fills at the published EOD without reclassifying RT or replaying entries.
+
+    Pure snapshot transformation; persistence belongs to the publisher. Legacy
+    snapshots without a feature/state pair are left unchanged, never simulated.
+    """
+    result = deepcopy(stage_playbook)
+    panel = result.get("flex_panel") or {}
+    feat = result.get("market_state") or {}
+    raw_state = panel.get("position_state")
+    if not isinstance(raw_state, dict) or feat.get("rt") is None:
+        return result
+    as_of = str(panel.get("as_of") or result.get("as_of") or "")[:10]
+    state = position_state_from_dict(raw_state)
+    if (not as_of or state.as_of != as_of
+            or str(result.get("as_of") or "")[:10] != as_of
+            or str(feat.get("trade_date") or "")[:10] != as_of):
+        raise ValueError("Flex refresh requires matching strategy, feature and position as_of")
+    stages = list(result.get("active_stage_ids") or [])
+    cost_bps = float(panel.get("transaction_cost_bps_one_way", 1.0))
+    state = _walk_position_rows(
+        [feat], state, first_row_already_counted=True,
+        active_stages_fn=lambda _: stages,
+        etf_daily_marks=etf_daily_marks, trade_calendar=trade_calendar,
+        transaction_cost_bps_one_way=cost_bps,
+    )
+    core_buy = (feat.get("hs300_dd60") is not None
+                and 60 <= float(feat["rt"]) < 80
+                and float(feat["hs300_dd60"]) <= -0.05)
+    refreshed = build_flex_panel_v2(
+        feat, stages, list(result.get("active_stages") or []), core_buy,
+        result.get("primary_stage") or {},
+        mode=panel.get("mode") or state.mode,
+        backtest_stats=panel.get("backtest"),
+        position_state=state, persist_position_state=False,
+        etf_daily_marks=etf_daily_marks, trade_calendar=trade_calendar,
+        transaction_cost_bps_one_way=cost_bps,
+    )
+    result["flex_panel"] = {**panel, **refreshed}
+    result["actionable_instructions"] = refreshed["all_actions"]
+    return result
 
 
 def build_risk_dashboard(
@@ -826,15 +974,22 @@ def build_flex_panel_v2(
     mode: str = MODE_CONSERVATIVE,
     backtest_stats: dict[str, Any] | None = None,
     confirmed_core_tail_dates: set[str] | None = None,
+    etf_daily_marks: dict[str, Any] | None = None,
+    trade_calendar: dict[str, Any] | None = None,
+    transaction_cost_bps_one_way: float = 1.0,
+    position_state: FlexState | None = None,
+    persist_position_state: bool = True,
 ) -> dict[str, Any]:
     """Full Flex panel with state machine, sizing, merge, minimal actions."""
     mode = mode if mode in SIZING else MODE_CONSERVATIVE
     rising = "RISING_HARD" in stages
-    persist_position_state = True
 
     # Durable live state advances from its last published session. Historical
     # input revisions must never rewrite an already-open sleeve's entry/basket.
-    if risk_components is not None and not risk_components.empty:
+    if position_state is not None:
+        state = deepcopy(position_state)
+        state.mode = mode
+    elif risk_components is not None and not risk_components.empty:
         saved_state = load_position_state()
         risk_dates = (
             risk_components.loc[
@@ -853,16 +1008,22 @@ def build_flex_panel_v2(
                 saved_state,
                 mode=mode,
                 confirmed_core_tail_dates=confirmed_core_tail_dates,
+                etf_daily_marks=etf_daily_marks,
+                trade_calendar=trade_calendar,
+                transaction_cost_bps_one_way=transaction_cost_bps_one_way,
             )
         else:
             # Historical research builds may replay an older slice, but must not
             # roll the durable live state backwards.
-            persist_position_state = not saved_date
+            persist_position_state = persist_position_state and not saved_date
             state = simulate_positions(
                 risk_components,
                 index_history,
                 mode=mode,
                 confirmed_core_tail_dates=confirmed_core_tail_dates,
+                etf_daily_marks=etf_daily_marks,
+                trade_calendar=trade_calendar,
+                transaction_cost_bps_one_way=transaction_cost_bps_one_way,
             )
     else:
         state = load_position_state()
@@ -873,6 +1034,12 @@ def build_flex_panel_v2(
     high_stages = [s for s in stages if STAGE_TIER.get(s) == "high"]
     observe_stages = [s for s in stages if STAGE_TIER.get(s) == "observe"]
     sat_signal = bool(longs) and (bool(high_stages) or bool(observe_stages))
+
+    as_of_date = str(feat.get("trade_date") or state.as_of or "")[:10]
+    if as_of_date <= state.cooldown_through.get("core", ""):
+        core_buy_signal = False
+    if as_of_date <= state.cooldown_through.get("satellite", ""):
+        sat_signal = False
 
     # Observe-only → max 1 name, flag
     observe_only = sat_signal and not high_stages and bool(observe_stages)
@@ -1273,6 +1440,7 @@ def build_flex_panel_v2(
             .drop_duplicates()
             .tolist()
         )
+    trade_dates = sorted(set(trade_dates) | set((trade_calendar or {}).get("dates") or []))
     exit_plan = build_sleeve_exit_plan(state, stages, trade_dates=trade_dates)
     # Persist exit_due_date into position state file
     state.as_of = str(feat.get("trade_date") or state.as_of or "")[:10] or state.as_of
@@ -1353,6 +1521,9 @@ def build_flex_panel_v2(
             + ("；升温日不追恒科/电子/计算机（除非 CORE 同步）" if rising else "")
         ),
         "position_state": state.to_dict(),
+        "execution_events": deepcopy(state.execution_events),
+        "cooldown_through": dict(state.cooldown_through),
+        "transaction_cost_bps_one_way": transaction_cost_bps_one_way,
         "exit_plan": exit_plan,
         "core": {
             "sleeve": "core",
@@ -1441,7 +1612,11 @@ def _core_planned_hold_days(state: FlexState) -> int:
 
 
 def _core_should_close(state: FlexState) -> bool:
-    return state.core.status == "open" and state.core.days_held >= _core_planned_hold_days(state)
+    return state.core.status == "open" and (
+        state.core.days_held >= _core_planned_hold_days(state)
+        or any(e.get("sleeve") == "core" and e.get("execution_status") == "PENDING"
+               for e in state.execution_events)
+    )
 
 
 def _sat_close_meta(state: FlexState, stages: list[str]) -> dict[str, Any] | None:
@@ -1454,6 +1629,13 @@ def _sat_close_meta(state: FlexState, stages: list[str]) -> dict[str, Any] | Non
     """
     if state.satellite.status != "open":
         return None
+    pending = next((e for e in reversed(state.execution_events)
+                    if e.get("sleeve") == "satellite" and e.get("execution_status") == "PENDING"), None)
+    if pending:
+        return {"close_code": pending["close_code"], "priority": "P0",
+                "action_cn": pending.get("action_cn") or "策略离场",
+                "why": pending.get("reason_cn") or "Recorded EOD exit awaiting next open",
+                "guaranteed": True}
     held = int(state.satellite.days_held or 0)
     open_stage = state.satellite.stage_id or ""
     opposites = STAGE_OPPOSITES.get(open_stage, set())
@@ -1632,6 +1814,12 @@ def load_backtest_stats_file() -> dict[str, Any]:
         try:
             data = json.loads(path.read_text(encoding="utf-8"))
             if isinstance(data, dict):
+                if data.get("schema_version") == 3:
+                    # Full diagnostics remain in the research artifact. Never
+                    # merge old metrics into a new execution-contract result.
+                    return {key: value for key, value in data.items() if key not in {
+                        "run_manifest", "scenarios", "proxy_return_stress", "tail_assumption",
+                    }}
                 merged = dict(DEFAULT_BACKTEST_STATS)
                 merged.update(data)
                 return merged

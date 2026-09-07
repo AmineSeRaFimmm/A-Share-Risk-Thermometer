@@ -59,8 +59,12 @@ def test_satellite_eod_risk_exit_realizes_next_open_gap():
     assert _path_total(realized) < 0.0
 
 
-def test_prospective_policy_fingerprint_is_frozen():
-    assert _policy_fingerprint() == FROZEN_POLICY_FINGERPRINT
+def test_corrected_policy_does_not_inherit_a_historical_freeze():
+    from src.core.flex_validation import build_policy_manifest
+
+    assert FROZEN_POLICY_FINGERPRINT is None
+    assert _policy_fingerprint() == build_policy_manifest()["policy_fingerprint"]
+    assert len(_policy_fingerprint()) == 64
 
 
 def test_sample_tail_does_not_count_incomplete_core_trade():

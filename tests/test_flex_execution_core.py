@@ -25,6 +25,39 @@ def test_published_execution_core_matches_source() -> None:
     assert WEB_CORE.read_bytes() == DOCS_CORE.read_bytes()
 
 
+def test_allocation_sells_before_buying_and_missing_prices_block_entire_batch():
+    result = _run_core("""
+        const c = require('./web/assets/flex_execution_core.js');
+        const args = {cash: 0, positions: {sat: {qty: 10000}},
+          targets: [{key: 'core', weight: .6}, {key: 'sat', weight: .4}],
+          prices: {sat: 1.1, core: 2}};
+        process.stdout.write(JSON.stringify({good: c.allocationBatch(args),
+          bad: c.allocationBatch({...args, prices: {core: 2}})}));
+    """)
+    batch = result["good"]
+    assert batch["ok"]
+    assert batch["nav"] == 11000
+    assert batch["cash"] >= 0
+    assert batch["trades"][0]["side"] == "SELL"
+    assert batch["trades"][1]["side"] == "BUY"
+    assert result["bad"] == {"ok": False, "code": "MISSING_EXECUTION_PRICE"}
+
+
+def test_tail_execution_never_falls_back_to_daily_open():
+    result = _run_core("""
+        const c = require('./web/assets/flex_execution_core.js');
+        const args = {day: '2026-08-06', phase: 'tail_1450', code: '510300',
+          executionAt: '2026-08-06T14:51:00+08:00',
+          bar: {trade_date: '2026-08-06', open: 100},
+          evidence: {timestamp: '2026-08-06T14:51:00+08:00', price: 105,
+            etf_code: '510300', source: 'fixture', price_type: 'tail_1450'}};
+        process.stdout.write(JSON.stringify({valid: c.executionPrice(args),
+          absent: c.executionPrice({...args, evidence: null}),
+          stale: c.executionPrice({...args, executionAt: '2026-08-06T14:52:00+08:00'})}));
+    """)
+    assert result == {"valid": 105, "absent": None, "stale": None}
+
+
 def test_etf_orders_are_lot_sized_and_cash_bounded() -> None:
     result = _run_core(
         """

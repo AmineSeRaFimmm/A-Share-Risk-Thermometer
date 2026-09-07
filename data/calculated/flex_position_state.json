@@ -31,5 +31,8 @@
     "entry_price_type": "open",
     "planned_hold_days": null
   },
-  "last_actions": []
+  "last_actions": [],
+  "execution_events": [],
+  "cooldown_through": {},
+  "satellite_risk_check": {}
 }

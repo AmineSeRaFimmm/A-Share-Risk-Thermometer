@@ -18,6 +18,8 @@ import pandas as pd
 
 from src.core.flex_engine import MODE_AGGRESSIVE, build_flex_panel_v2, load_backtest_stats_file
 from src.core.sector_etf_map import attach_etf_fields
+from src.storage.json_store import read_json
+from src.storage.paths import SITE
 
 # ---- CSI300 primary rule (strict backtest, balanced IS/OOS) ----
 CSI300_RULE = {
@@ -453,7 +455,13 @@ def build_playbook_payload(
     *,
     bridge_meta: dict[str, Any] | None = None,
     confirmed_core_tail_dates: set[str] | None = None,
+    etf_daily_marks: dict[str, Any] | None = None,
+    trade_calendar: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    if etf_daily_marks is None:
+        etf_daily_marks = read_json(SITE / "etf_daily_marks.json", default={}) or {}
+    if trade_calendar is None:
+        trade_calendar = read_json(SITE / "trade_calendar.json", default={}) or {}
     feat = classify_features(risk_components, index_history)
     stages = active_stages(feat)
     # sort by priority desc
@@ -564,6 +572,8 @@ def build_playbook_payload(
         mode=MODE_AGGRESSIVE,
         backtest_stats=load_backtest_stats_file(),
         confirmed_core_tail_dates=confirmed_core_tail_dates,
+        etf_daily_marks=etf_daily_marks,
+        trade_calendar=trade_calendar,
     )
 
     data_quality: dict[str, Any] = {
