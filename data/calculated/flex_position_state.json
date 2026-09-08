@@ -77,9 +77,9 @@
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
     "status": "CLEAR",
-    "checked_through": "2026-09-07",
-    "latest_return": 0.020785545489004464,
-    "days_held": 1,
+    "checked_through": "2026-09-08",
+    "latest_return": 0.0159674745582139,
+    "days_held": 2,
     "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }

@@ -37,26 +37,24 @@
   },
   "as_of": "2026-09-08",
   "data_quality": {
-    "risk_source": "OFFICIAL_PLUS_NOWCAST_BRIDGE",
-    "official_as_of": "2026-09-07",
-    "bridged": true,
-    "bridged_dates": [
-      "2026-09-08"
-    ],
-    "bridge_source": "NOWCAST_RT",
-    "note_cn": "策略日期已用指数日历和盘中估算桥接正式风险因子缺口；正式温度历史不受影响。"
+    "risk_source": "OFFICIAL_CLOSE",
+    "official_as_of": "2026-09-08",
+    "bridged": false,
+    "bridged_dates": [],
+    "bridge_source": null,
+    "note_cn": "策略日期与正式风险因子日期一致。"
   },
   "market_state": {
     "trade_date": "2026-09-08",
-    "rt": 48.3,
+    "rt": 47.8,
     "prev_rt": 49.1,
-    "rt_d1": -0.8000000000000043,
-    "rt_d5": -0.4000000000000057,
+    "rt_d1": -1.3000000000000043,
+    "rt_d5": -0.9000000000000057,
     "rt_rollmax_10": 56.7,
-    "hs300_dd60": -0.09900293656211556,
+    "hs300_dd60": -0.0990029365621155,
     "regime": "CAUTION",
     "regime_cn": "警戒",
-    "quality": "WARN_QVIX_REALTIME_PROXY|NOWCAST_BRIDGE",
+    "quality": "WARN_QVIX_REALTIME_PROXY",
     "model_confidence": 93.7
   },
   "active_stage_ids": [],
@@ -2383,10 +2381,10 @@
       }
     },
     "market_state": {
-      "rt": 48.3,
-      "rt_d1": -0.8000000000000043,
-      "rt_d5": -0.4000000000000057,
-      "hs300_dd60": -0.09900293656211556,
+      "rt": 47.8,
+      "rt_d1": -1.3000000000000043,
+      "rt_d5": -0.9000000000000057,
+      "hs300_dd60": -0.0990029365621155,
       "model_confidence": 93.7,
       "regime_cn": "警戒"
     },
@@ -2473,9 +2471,9 @@
         "transaction_cost_bps_one_way": 1.0,
         "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
         "status": "CLEAR",
-        "checked_through": "2026-09-07",
-        "latest_return": 0.020785545489004464,
-        "days_held": 1,
+        "checked_through": "2026-09-08",
+        "latest_return": 0.0159674745582139,
+        "days_held": 2,
         "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
       }
     },
