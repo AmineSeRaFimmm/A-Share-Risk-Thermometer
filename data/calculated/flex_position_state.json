@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-07",
+  "as_of": "2026-09-08",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -21,8 +21,8 @@
     "entry_signal_date": "2026-09-04",
     "entry_date": "2026-09-07",
     "exit_due_date": "2026-09-16",
-    "days_held": 1,
-    "days_remaining": 7,
+    "days_held": 2,
+    "days_remaining": 6,
     "stage_id": "RISING_HARD",
     "names": [
       "通信",

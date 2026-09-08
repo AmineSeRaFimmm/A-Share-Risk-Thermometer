@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "revision": "5185ed69ff06c17e0972b9a1c31d4126bab08d25d02acba4dfb623e7aa4def8b",
-  "built_at": "2026-09-08T15:09:30+08:00",
-  "strategy_as_of": "2026-09-07",
+  "revision": "1f952226c3da3d0c94323a87a1338b6f7e96b75efe28a7422b4dd1d4fe3508ee",
+  "built_at": "2026-09-08T16:19:56+08:00",
+  "strategy_as_of": "2026-09-08",
   "marks_as_of": "2026-09-07",
-  "marks_quality": "OK",
+  "marks_quality": "WARN_INCOMPLETE_AS_OF",
   "strategy_publication_status": "OFFICIAL_PENDING",
   "official_strategy_pending": true,
   "calendar_coverage_through": "2026-12-31",
@@ -45,26 +45,28 @@
         "research/output/core_plus_sectors/core_plus_sectors_report.md"
       ]
     },
-    "as_of": "2026-09-07",
+    "as_of": "2026-09-08",
     "data_quality": {
-      "risk_source": "OFFICIAL_CLOSE",
+      "risk_source": "OFFICIAL_PLUS_NOWCAST_BRIDGE",
       "official_as_of": "2026-09-07",
-      "bridged": false,
-      "bridged_dates": [],
-      "bridge_source": null,
-      "note_cn": "策略日期与正式风险因子日期一致。"
+      "bridged": true,
+      "bridged_dates": [
+        "2026-09-08"
+      ],
+      "bridge_source": "NOWCAST_RT",
+      "note_cn": "策略日期已用指数日历和盘中估算桥接正式风险因子缺口；正式温度历史不受影响。"
     },
     "market_state": {
-      "trade_date": "2026-09-07",
-      "rt": 49.1,
-      "prev_rt": 55.5,
-      "rt_d1": -6.399999999999999,
-      "rt_d5": -0.8999999999999986,
-      "rt_rollmax_10": 62.8,
-      "hs300_dd60": -0.0957837466484889,
+      "trade_date": "2026-09-08",
+      "rt": 48.3,
+      "prev_rt": 49.1,
+      "rt_d1": -0.8000000000000043,
+      "rt_d5": -0.4000000000000057,
+      "rt_rollmax_10": 56.7,
+      "hs300_dd60": -0.09900293656211556,
       "regime": "CAUTION",
       "regime_cn": "警戒",
-      "quality": "WARN_QVIX_REALTIME_PROXY",
+      "quality": "WARN_QVIX_REALTIME_PROXY|NOWCAST_BRIDGE",
       "model_confidence": 93.7
     },
     "active_stage_ids": [],
@@ -115,8 +117,8 @@
         "weight_target": 0.4945,
         "weight_hint": "49%",
         "why": "阶段信号减弱但仍在最短/默认持有期内",
-        "days_held": 1,
-        "days_remaining": 7,
+        "days_held": 2,
+        "days_remaining": 6,
         "entry": "—",
         "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
         "sector": "通信",
@@ -140,8 +142,8 @@
         "weight_target": 0.2721,
         "weight_hint": "27%",
         "why": "阶段信号减弱但仍在最短/默认持有期内",
-        "days_held": 1,
-        "days_remaining": 7,
+        "days_held": 2,
+        "days_remaining": 6,
         "entry": "—",
         "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
         "sector": "机械设备",
@@ -165,8 +167,8 @@
         "weight_target": 0.2334,
         "weight_hint": "23%",
         "why": "阶段信号减弱但仍在最短/默认持有期内",
-        "days_held": 1,
-        "days_remaining": 7,
+        "days_held": 2,
+        "days_remaining": 6,
         "entry": "—",
         "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
         "sector": "国防军工",
@@ -186,7 +188,7 @@
       "status": "持有",
       "status_code": "SAT_ONLY",
       "headline": "组合 Flex v2：持仓管理（无新开）",
-      "as_of": "2026-09-07",
+      "as_of": "2026-09-08",
       "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
       "core_tail_policy": {
         "id": "CORE_STRICT_TAIL_V2",
@@ -2391,10 +2393,10 @@
         }
       },
       "market_state": {
-        "rt": 49.1,
-        "rt_d1": -6.399999999999999,
-        "rt_d5": -0.8999999999999986,
-        "hs300_dd60": -0.0957837466484889,
+        "rt": 48.3,
+        "rt_d1": -0.8000000000000043,
+        "rt_d5": -0.4000000000000057,
+        "hs300_dd60": -0.09900293656211556,
         "model_confidence": 93.7,
         "regime_cn": "警戒"
       },
@@ -2403,7 +2405,7 @@
       "suppressed_avoid_conflicts": [],
       "merge_note_cn": "多阶段合并：无；被门控压制：无",
       "position_state": {
-        "as_of": "2026-09-07",
+        "as_of": "2026-09-08",
         "mode": "aggressive",
         "core": {
           "status": "flat",
@@ -2425,8 +2427,8 @@
           "entry_signal_date": "2026-09-04",
           "entry_date": "2026-09-07",
           "exit_due_date": "2026-09-16",
-          "days_held": 1,
-          "days_remaining": 7,
+          "days_held": 2,
+          "days_remaining": 6,
           "stage_id": "RISING_HARD",
           "names": [
             "通信",
@@ -2490,7 +2492,7 @@
       "execution_events": [],
       "cooldown_through": {},
       "exit_plan": {
-        "as_of": "2026-09-07",
+        "as_of": "2026-09-08",
         "core": {
           "status": "flat",
           "entry_signal_date": null,
@@ -2505,7 +2507,7 @@
           "status": "open",
           "entry_signal_date": "2026-09-04",
           "entry_date": "2026-09-07",
-          "days_held": 1,
+          "days_held": 2,
           "stage_id": "RISING_HARD",
           "rules": {
             "min_hold": 3,
@@ -2527,7 +2529,7 @@
           },
           "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。",
           "exit_due_date": "2026-09-16",
-          "days_to_max": 7
+          "days_to_max": 6
         },
         "guarantee_cn": "日更成功且 as_of=当日时：任一 close_code 触发必写入 close_list；执行台必须展示策略平仓提示（本机未点买也可看，点买后可记账平仓）。日更失败则页面不会刷新——需看 Actions。"
       },
@@ -2581,8 +2583,8 @@
           "entry_signal_date": "2026-09-04",
           "entry_date": "2026-09-07",
           "exit_due_date": "2026-09-16",
-          "days_held": 1,
-          "days_remaining": 7,
+          "days_held": 2,
+          "days_remaining": 6,
           "stage_id": "RISING_HARD",
           "names": [
             "通信",
@@ -2614,8 +2616,8 @@
           "weight_target": 0.4945,
           "weight_hint": "49%",
           "why": "阶段信号减弱但仍在最短/默认持有期内",
-          "days_held": 1,
-          "days_remaining": 7,
+          "days_held": 2,
+          "days_remaining": 6,
           "entry": "—",
           "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
           "sector": "通信",
@@ -2639,8 +2641,8 @@
           "weight_target": 0.2721,
           "weight_hint": "27%",
           "why": "阶段信号减弱但仍在最短/默认持有期内",
-          "days_held": 1,
-          "days_remaining": 7,
+          "days_held": 2,
+          "days_remaining": 6,
           "entry": "—",
           "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
           "sector": "机械设备",
@@ -2664,8 +2666,8 @@
           "weight_target": 0.2334,
           "weight_hint": "23%",
           "why": "阶段信号减弱但仍在最短/默认持有期内",
-          "days_held": 1,
-          "days_remaining": 7,
+          "days_held": 2,
+          "days_remaining": 6,
           "entry": "—",
           "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
           "sector": "国防军工",
@@ -2717,8 +2719,8 @@
           "weight_target": 0.4945,
           "weight_hint": "49%",
           "why": "阶段信号减弱但仍在最短/默认持有期内",
-          "days_held": 1,
-          "days_remaining": 7,
+          "days_held": 2,
+          "days_remaining": 6,
           "entry": "—",
           "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
           "sector": "通信",
@@ -2742,8 +2744,8 @@
           "weight_target": 0.2721,
           "weight_hint": "27%",
           "why": "阶段信号减弱但仍在最短/默认持有期内",
-          "days_held": 1,
-          "days_remaining": 7,
+          "days_held": 2,
+          "days_remaining": 6,
           "entry": "—",
           "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
           "sector": "机械设备",
@@ -2767,8 +2769,8 @@
           "weight_target": 0.2334,
           "weight_hint": "23%",
           "why": "阶段信号减弱但仍在最短/默认持有期内",
-          "days_held": 1,
-          "days_remaining": 7,
+          "days_held": 2,
+          "days_remaining": 6,
           "entry": "—",
           "exit": "收益≤-3%止损 / ≥4%止盈；否则最长 8 日或事件翻转",
           "sector": "国防军工",
@@ -5491,8 +5493,8 @@
     "title": "Flex ETF daily marks (EOD)",
     "policy": "SIM_ENTRY_OPEN_MARK_CLOSE",
     "policy_cn": "模拟仓专业口径：入场价=入场日开盘价；盯市价=as_of收盘价；不做盘中轮询；与策略/回测日频一致。",
-    "as_of": "2026-09-07",
-    "start": "2026-05-10",
+    "as_of": "2026-09-08",
+    "start": "2026-05-11",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
     "fetch_workers": 4,
     "not_broker_feed": true,
@@ -5535,12 +5537,47 @@
     ],
     "code_count": 29,
     "missing_codes": [],
-    "stale_codes": [],
+    "stale_codes": [
+      "159886",
+      "510300",
+      "512660",
+      "515880"
+    ],
     "complete_as_of": "2026-09-07",
     "coverage_missing_codes": [],
-    "coverage_stale_codes": [],
+    "coverage_stale_codes": [
+      "159666",
+      "159697",
+      "159730",
+      "159745",
+      "159766",
+      "159886",
+      "159928",
+      "159995",
+      "159998",
+      "510300",
+      "512010",
+      "512200",
+      "512400",
+      "512430",
+      "512580",
+      "512660",
+      "512800",
+      "512880",
+      "512980",
+      "513180",
+      "515210",
+      "515220",
+      "515710",
+      "515880",
+      "516020",
+      "516110",
+      "516670",
+      "516850",
+      "560620"
+    ],
     "coverage_complete_as_of": "2026-09-07",
-    "quality": "OK",
+    "quality": "WARN_INCOMPLETE_AS_OF",
     "by_code": {
       "159666": {
         "etf_code": "159666",
@@ -6161,7 +6198,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159697": {
         "etf_code": "159697",
@@ -6782,7 +6819,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159730": {
         "etf_code": "159730",
@@ -7403,7 +7440,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159745": {
         "etf_code": "159745",
@@ -8024,7 +8061,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159766": {
         "etf_code": "159766",
@@ -8645,7 +8682,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159886": {
         "etf_code": "159886",
@@ -9266,7 +9303,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159928": {
         "etf_code": "159928",
@@ -9887,7 +9924,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159995": {
         "etf_code": "159995",
@@ -10508,7 +10545,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "159998": {
         "etf_code": "159998",
@@ -11129,7 +11166,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "510300": {
         "etf_code": "510300",
@@ -11750,7 +11787,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512010": {
         "etf_code": "512010",
@@ -12371,7 +12408,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512200": {
         "etf_code": "512200",
@@ -12992,7 +13029,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512400": {
         "etf_code": "512400",
@@ -13613,7 +13650,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512430": {
         "etf_code": "512430",
@@ -14156,7 +14193,7 @@
         "bar_count": 89,
         "first": "2026-04-30",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512580": {
         "etf_code": "512580",
@@ -14777,7 +14814,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512660": {
         "etf_code": "512660",
@@ -15398,7 +15435,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512800": {
         "etf_code": "512800",
@@ -16019,7 +16056,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512880": {
         "etf_code": "512880",
@@ -16640,7 +16677,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "512980": {
         "etf_code": "512980",
@@ -17261,7 +17298,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "513180": {
         "etf_code": "513180",
@@ -17882,7 +17919,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "515210": {
         "etf_code": "515210",
@@ -18503,7 +18540,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "515220": {
         "etf_code": "515220",
@@ -19124,7 +19161,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "515710": {
         "etf_code": "515710",
@@ -19745,7 +19782,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "515880": {
         "etf_code": "515880",
@@ -20366,7 +20403,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "516020": {
         "etf_code": "516020",
@@ -20987,7 +21024,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "516110": {
         "etf_code": "516110",
@@ -21608,7 +21645,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "516670": {
         "etf_code": "516670",
@@ -22229,7 +22266,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "516850": {
         "etf_code": "516850",
@@ -22850,7 +22887,7 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       },
       "560620": {
         "etf_code": "560620",
@@ -23471,13 +23508,13 @@
         "bar_count": 102,
         "first": "2026-04-13",
         "last": "2026-09-07",
-        "fresh_for_as_of": true
+        "fresh_for_as_of": false
       }
     },
-    "updated_at": "2026-09-07T15:52:51+00:00",
+    "updated_at": "2026-09-08T08:19:56+00:00",
     "published_bar_preservation": {
       "status": "used",
-      "candidate_as_of": "2026-09-07",
+      "candidate_as_of": "2026-09-08",
       "codes": [
         "159666",
         "159697",
@@ -24057,9 +24094,8 @@
     "authoritative": true,
     "coverage_from": "1990-12-19",
     "coverage_through": "2026-12-31",
-    "generated_for": "2026-09-07",
+    "generated_for": "2026-09-08",
     "dates": [
-      "2016-09-09",
       "2016-09-12",
       "2016-09-13",
       "2016-09-14",
@@ -26622,12 +26658,12 @@
     },
     "data_quality": {
       "report_as_of": "2026-09-08",
-      "strategy_as_of": "2026-09-07",
+      "strategy_as_of": "2026-09-08",
       "strategy_publication_status": "OFFICIAL_PENDING",
       "official_strategy_pending": true,
-      "strategy_provisional": false,
+      "strategy_provisional": true,
       "marks_as_of": "2026-09-07",
-      "marks_quality": "OK",
+      "marks_quality": "WARN_INCOMPLETE_AS_OF",
       "risk_check_status": "CLEAR",
       "complete": false
     },
