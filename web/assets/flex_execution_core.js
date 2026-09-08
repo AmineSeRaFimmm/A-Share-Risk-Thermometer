@@ -6,6 +6,21 @@
   const ONE_WAY_COST_RATE = 0.0001;
   const ETF_LOT_SIZE = 100;
 
+  function buyOrderFromQuantity(quantity, price, cashAvailable) {
+    const qty = Number(quantity);
+    const px = Number(price);
+    if (!Number.isSafeInteger(qty) || qty <= 0 || qty % ETF_LOT_SIZE !== 0) {
+      throw new Error('买入份额须为100份的正整数倍');
+    }
+    if (!Number.isFinite(px) || px <= 0) throw new Error('请输入有效的成本单价');
+    const gross = qty * px;
+    const fee = gross * ONE_WAY_COST_RATE;
+    const required = gross + fee;
+    if (!Number.isFinite(required) || !Number.isFinite(Number(cashAvailable))
+      || required > Number(cashAvailable)) throw new Error('可用现金不足（含1bp费用），请核实份额或现金');
+    return { qty, gross, fee, cash_required: required };
+  }
+
   function buyOrderFromBudget(budget, price, cashAvailable) {
     const px = Number(price);
     const cap = Math.min(Number(budget) || 0, Number(cashAvailable) || 0);
@@ -209,6 +224,7 @@
     ONE_WAY_COST_RATE,
     ETF_LOT_SIZE,
     buyOrderFromBudget,
+    buyOrderFromQuantity,
     executionPrice,
     allocationBatch,
     sellQuantity,

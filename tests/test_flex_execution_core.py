@@ -25,6 +25,20 @@ def test_published_execution_core_matches_source() -> None:
     assert WEB_CORE.read_bytes() == DOCS_CORE.read_bytes()
 
 
+def test_quantity_buy_is_exact_and_rejects_invalid_or_unfunded_orders():
+    result = _run_core("""
+        const c = require('./web/assets/flex_execution_core.js');
+        const valid = c.buyOrderFromQuantity(2500, 4, 10001);
+        const rejected = [[0,4,10001],[150,4,10001],[100.5,4,10001],
+          [2500,4,10000],[100,NaN,10001],[100,Infinity,10001]].map(args => {
+          try { c.buyOrderFromQuantity(...args); return false; } catch (_) { return true; }
+        });
+        process.stdout.write(JSON.stringify({valid, rejected}));
+    """)
+    assert result["valid"] == {"qty": 2500, "gross": 10000, "fee": 1, "cash_required": 10001}
+    assert all(result["rejected"])
+
+
 def test_allocation_sells_before_buying_and_missing_prices_block_entire_batch():
     result = _run_core("""
         const c = require('./web/assets/flex_execution_core.js');

@@ -3302,11 +3302,13 @@ function flexApplyBuy(ledger, draft) {
   ledger = normalizeFlexLedger(ledger);
   const amount = Number(draft.amount);
   const price = Number(draft.price);
-  if (!(amount > 0) || !(price > 0)) {
+  if (draft.qty == null && (!(amount > 0) || !(price > 0))) {
     throw new Error('请输入有效的买入金额和成交价');
   }
   const cash = flexAvailableCash(ledger);
-  const order = flexBuyOrderFromBudget(amount, price, cash);
+  const order = draft.qty != null
+    ? FlexExecutionCore.buyOrderFromQuantity(draft.qty, price, cash)
+    : flexBuyOrderFromBudget(amount, price, cash);
   if (!(order.qty >= FLEX_ETF_LOT_SIZE)) {
     throw new Error(`预算不足一手（${FLEX_ETF_LOT_SIZE}份，含1bp成本）`);
   }
@@ -3787,17 +3789,20 @@ function updateFlexModalPreview() {
   const cash = flexAvailableCash(ledger);
 
   if (state.mode === 'buy' || state.mode === 'add') {
-    if (amount > 0 && price > 0) {
-      const order = flexBuyOrderFromBudget(amount, price, cash);
-      const w = capital > 0 ? pctLabel(order.gross / capital) : '—';
-      const afterCash = cash - order.cash_required;
-      preview.textContent = order.qty > 0
-        ? `${formatShares(order.qty)} 份（整手）· 实际成交 ${formatMoney(order.gross)} · 占全仓 ${w} · 1bp ${formatMoney(order.fee, 2)} · 余现 ${formatMoney(Math.max(0, afterCash))}`
-        : `预算不足 ${FLEX_ETF_LOT_SIZE} 份（含1bp成本）`;
-    } else if (state.defaultAmount) {
-      preview.textContent = `建议金额 ${formatMoney(state.defaultAmount)}（目标权重 × 全仓）；请填写成交价`;
+    const qty = Number(document.getElementById('flexModalQuantity')?.value);
+    if (qty > 0 && price > 0) {
+      try {
+        const order = FlexExecutionCore.buyOrderFromQuantity(qty, price, cash);
+        const error = document.getElementById('flexModalError');
+        if (error) error.hidden = true;
+        const w = capital > 0 ? pctLabel(order.gross / capital) : '—';
+        const afterCash = cash - order.cash_required;
+        preview.textContent = `${formatShares(order.qty)} 份 · 占全仓 ${w} · 1bp ${formatMoney(order.fee, 2)} · 余现 ${formatMoney(afterCash)}`;
+      } catch (error) {
+        preview.textContent = error.message;
+      }
     } else {
-      preview.textContent = cash > 0 ? `可用现金 ${formatMoney(cash)}` : '请填写金额与成交价';
+      preview.textContent = '请填写买入份额和成本单价';
     }
     return;
   }
@@ -3890,12 +3895,16 @@ function openFlexTradeModal(spec) {
   }
 
   const chips = document.getElementById('flexModalAmountChips');
+  const buying = spec.mode === 'buy' || spec.mode === 'add';
+  document.getElementById('flexModalQuantityField').hidden = !buying;
+  document.getElementById('flexModalQuantity').value = '';
+  setText('flexModalPriceLabel', buying ? '成本单价（元/份，未含费用）' : '成交价');
   if (spec.mode === 'buy' || spec.mode === 'add') {
-    if (amountField) amountField.hidden = false;
+    if (amountField) amountField.hidden = true;
     if (priceField) priceField.hidden = false;
     if (pctField) pctField.hidden = true;
     if (reduceMode) reduceMode.hidden = true;
-    if (chips) chips.hidden = false;
+    if (chips) chips.hidden = true;
     if (amountLabel) amountLabel.textContent = '预算上限（元）';
     if (amountEl) amountEl.value = spec.defaultAmount != null ? String(spec.defaultAmount) : '';
     if (priceEl) priceEl.value = spec.defaultPrice != null ? String(spec.defaultPrice) : '';
@@ -3920,7 +3929,7 @@ function openFlexTradeModal(spec) {
 
   modal.hidden = false;
   updateFlexModalPreview();
-  (priceEl || amountEl)?.focus();
+  (buying ? document.getElementById('flexModalQuantity') : priceEl || amountEl)?.focus();
 }
 
 function confirmFlexTradeModal() {
@@ -3942,7 +3951,7 @@ function confirmFlexTradeModal() {
         etf_code: state.etf_code,
         etf_name: state.etf_name,
         sleeve: state.sleeve,
-        amount,
+        qty: Number(document.getElementById('flexModalQuantity')?.value),
         price,
         signal_as_of: state.signal_as_of || '',
         buy_date: actualTradeDate,
@@ -5058,7 +5067,7 @@ function bindFlexExecControls() {
   document.getElementById('flexTradeModal')?.addEventListener('click', (ev) => {
     if (ev.target?.id === 'flexTradeModal') closeFlexTradeModal();
   });
-  ['flexModalAmount', 'flexModalPrice', 'flexModalPct', 'flexModalTradeDate'].forEach(id => {
+  ['flexModalAmount', 'flexModalQuantity', 'flexModalPrice', 'flexModalPct', 'flexModalTradeDate'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateFlexModalPreview);
     document.getElementById(id)?.addEventListener('keydown', (ev) => {
       if (ev.key === 'Enter') {

@@ -88,7 +88,7 @@ test('Flex generic satellite close is not presented as take profit', async ({ pa
   expect(label).toBe('纸面待平·未记');
 });
 
-test('Flex buy ledger records the selected trading session', async ({ page }) => {
+test('Flex buy ledger records the selected trading session', async ({ page }, testInfo) => {
   await seedFlex(page, {
     ledger: {
       version: 5, book: 'real', capital: 100000, cash: 100000,
@@ -108,10 +108,30 @@ test('Flex buy ledger records the selected trading session', async ({ page }) =>
 
   await expect(page.locator('#flexModalTradeDate')).toHaveValue(sessionDate);
   await expect(page.locator('#flexModalTradeDateHint')).toContainText(`计划 ${sessionDate}`);
+  await expect(page.locator('#flexModalAmountField')).toBeHidden();
+  await expect(page.locator('#flexModalAmountChips')).toBeHidden();
+  await page.locator('#flexModalQuantity').fill('150');
+  await page.locator('#flexModalConfirmBtn').click();
+  await expect(page.locator('#flexModalError')).toContainText('100份');
+  await page.locator('#flexModalQuantity').fill('30000');
+  await page.locator('#flexModalConfirmBtn').click();
+  await expect(page.locator('#flexModalError')).toContainText('可用现金不足');
+  expect(await page.evaluate(() => JSON.parse(localStorage.getItem('ashare_flex_exec_ledger_v1')).cash)).toBe(100000);
+  await page.locator('#flexModalQuantity').fill('2500');
+  await expect(page.locator('#flexModalError')).toBeHidden();
+  await page.screenshot({ path: testInfo.outputPath('quantity-buy.png') });
   await page.locator('#flexModalConfirmBtn').click();
   const recorded = await page.evaluate(() => JSON.parse(localStorage.getItem('ashare_flex_exec_ledger_v1')));
   expect(recorded.positions['core:510300'].buy_date).toBe(sessionDate);
   expect(recorded.journal[0].trade_date).toBe(sessionDate);
+  expect(recorded.positions['core:510300'].qty).toBe(2500);
+  expect(recorded.positions['core:510300'].cost_basis).toBe(10001);
+  expect(recorded.cash).toBe(89999);
+  await page.evaluate(() => openFlexTradeModal({ mode: 'reduce', key: 'core:510300',
+    name: '沪深300', defaultAmount: 400, defaultPrice: 4 }));
+  await expect(page.locator('#flexModalQuantityField')).toBeHidden();
+  await expect(page.locator('#flexModalAmountField')).toBeVisible();
+  await expect(page.locator('#flexModalPriceLabel')).toHaveText('成交价');
 });
 
 test('Legacy migration never reconstructs historical fills from a current basket', async ({ page }) => {
