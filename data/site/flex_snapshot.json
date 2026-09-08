@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "d6ba351f3a10e374c52a811fd08a42499966578fd5e8e889d262c9c549b36e13",
-  "built_at": "2026-09-08T21:49:53+08:00",
+  "revision": "a3804ab814188f3832eb1080fdd8eb2b460ccb8dff248c8c6f0b4099ee0ef526",
+  "built_at": "2026-09-08T22:34:45+08:00",
   "strategy_as_of": "2026-09-08",
   "marks_as_of": "2026-09-08",
   "marks_quality": "OK",
@@ -5494,7 +5494,7 @@
     "as_of": "2026-09-08",
     "start": "2026-05-11",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 1,
+    "fetch_workers": 4,
     "not_broker_feed": true,
     "required_codes": [
       "159886",
@@ -23648,7 +23648,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-09-08T13:49:53+00:00",
+    "updated_at": "2026-09-08T14:34:45+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-09-08",
