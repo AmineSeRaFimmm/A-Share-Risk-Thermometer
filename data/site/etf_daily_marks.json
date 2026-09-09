@@ -5,7 +5,7 @@
   "as_of": "2026-09-09",
   "start": "2026-05-12",
   "source": "AKSHARE_FUND_ETF_HIST_EM",
-  "fetch_workers": 4,
+  "fetch_workers": 1,
   "not_broker_feed": true,
   "required_codes": [
     "159886",
@@ -53,20 +53,8 @@
   ],
   "code_count": 29,
   "missing_codes": [],
-  "stale_codes": [
-    "159886",
-    "159928",
-    "159998",
-    "510300",
-    "512400",
-    "512660",
-    "512980",
-    "515220",
-    "515880",
-    "516020",
-    "516850"
-  ],
-  "complete_as_of": "2026-09-08",
+  "stale_codes": [],
+  "complete_as_of": "2026-09-09",
   "coverage_missing_codes": [],
   "coverage_stale_codes": [
     "159666",
@@ -74,33 +62,22 @@
     "159730",
     "159745",
     "159766",
-    "159886",
-    "159928",
     "159995",
-    "159998",
-    "510300",
     "512010",
     "512200",
-    "512400",
     "512430",
     "512580",
-    "512660",
     "512800",
     "512880",
-    "512980",
     "513180",
     "515210",
-    "515220",
     "515710",
-    "515880",
-    "516020",
     "516110",
     "516670",
-    "516850",
     "560620"
   ],
   "coverage_complete_as_of": "2026-09-08",
-  "quality": "WARN_INCOMPLETE_AS_OF",
+  "quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
   "by_code": {
     "159666": {
       "etf_code": "159666",
@@ -3857,12 +3834,21 @@
           "close": 0.868,
           "high": 0.876,
           "low": 0.865
+        },
+        "2026-09-09": {
+          "open": 0.868,
+          "close": 0.871,
+          "high": 0.871,
+          "low": 0.861
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "159928": {
       "etf_code": "159928",
@@ -4484,12 +4470,21 @@
           "close": 0.683,
           "high": 0.687,
           "low": 0.68
+        },
+        "2026-09-09": {
+          "open": 0.681,
+          "close": 0.679,
+          "high": 0.682,
+          "low": 0.674
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "159995": {
       "etf_code": "159995",
@@ -5738,12 +5733,21 @@
           "close": 0.954,
           "high": 0.965,
           "low": 0.95
+        },
+        "2026-09-09": {
+          "open": 0.953,
+          "close": 0.943,
+          "high": 0.955,
+          "low": 0.937
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "510300": {
       "etf_code": "510300",
@@ -6365,12 +6369,21 @@
           "close": 4.624,
           "high": 4.657,
           "low": 4.61
+        },
+        "2026-09-09": {
+          "open": 4.638,
+          "close": 4.637,
+          "high": 4.648,
+          "low": 4.613
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "512010": {
       "etf_code": "512010",
@@ -8246,12 +8259,21 @@
           "close": 1.901,
           "high": 1.918,
           "low": 1.888
+        },
+        "2026-09-09": {
+          "open": 1.829,
+          "close": 1.853,
+          "high": 1.856,
+          "low": 1.82
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "512430": {
       "etf_code": "512430",
@@ -10049,12 +10071,21 @@
           "close": 1.162,
           "high": 1.165,
           "low": 1.145
+        },
+        "2026-09-09": {
+          "open": 1.161,
+          "close": 1.18,
+          "high": 1.189,
+          "low": 1.159
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "512800": {
       "etf_code": "512800",
@@ -11930,12 +11961,21 @@
           "close": 0.868,
           "high": 0.882,
           "low": 0.856
+        },
+        "2026-09-09": {
+          "open": 0.861,
+          "close": 0.844,
+          "high": 0.862,
+          "low": 0.838
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "513180": {
       "etf_code": "513180",
@@ -13811,12 +13851,21 @@
           "close": 1.302,
           "high": 1.302,
           "low": 1.269
+        },
+        "2026-09-09": {
+          "open": 1.297,
+          "close": 1.341,
+          "high": 1.347,
+          "low": 1.29
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "515710": {
       "etf_code": "515710",
@@ -15065,12 +15114,21 @@
           "close": 0.671,
           "high": 0.69,
           "low": 0.668
+        },
+        "2026-09-09": {
+          "open": 0.685,
+          "close": 0.677,
+          "high": 0.692,
+          "low": 0.671
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "516020": {
       "etf_code": "516020",
@@ -15692,12 +15750,21 @@
           "close": 0.866,
           "high": 0.866,
           "low": 0.847
+        },
+        "2026-09-09": {
+          "open": 0.866,
+          "close": 0.872,
+          "high": 0.872,
+          "low": 0.858
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "516110": {
       "etf_code": "516110",
@@ -17573,12 +17640,21 @@
           "close": 0.868,
           "high": 0.873,
           "low": 0.865
+        },
+        "2026-09-09": {
+          "open": 0.868,
+          "close": 0.87,
+          "high": 0.87,
+          "low": 0.861
         }
       },
-      "bar_count": 103,
+      "bar_count": 104,
       "first": "2026-04-13",
-      "last": "2026-09-08",
-      "fresh_for_as_of": false
+      "last": "2026-09-09",
+      "fresh_for_as_of": true,
+      "bar_sources": {
+        "2026-09-09": "TENCENT_ETF_FINAL_QUOTE"
+      }
     },
     "560620": {
       "etf_code": "560620",
@@ -18208,7 +18284,59 @@
       "fresh_for_as_of": false
     }
   },
-  "updated_at": "2026-09-09T11:29:47+00:00",
+  "updated_at": "2026-09-09T11:35:10+00:00",
+  "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
+  "final_quote_fallback": {
+    "trade_date": "2026-09-09",
+    "status": "complete",
+    "code_count": 11,
+    "quotes": {
+      "159886": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:39+08:00"
+      },
+      "159928": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:15:00+08:00"
+      },
+      "159998": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:18+08:00"
+      },
+      "510300": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:52+08:00"
+      },
+      "512400": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:31+08:00"
+      },
+      "512660": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:51+08:00"
+      },
+      "512980": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:31+08:00"
+      },
+      "515220": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:45+08:00"
+      },
+      "515880": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:34+08:00"
+      },
+      "516020": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:52+08:00"
+      },
+      "516850": {
+        "source": "TENCENT_ETF_FINAL_QUOTE",
+        "quote_time": "2026-09-09T16:14:53+08:00"
+      }
+    }
+  },
   "published_bar_preservation": {
     "status": "used",
     "candidate_as_of": "2026-09-09",
