@@ -17,23 +17,15 @@
     "planned_hold_days": null
   },
   "satellite": {
-    "status": "open",
-    "entry_signal_date": "2026-09-04",
-    "entry_date": "2026-09-07",
-    "exit_due_date": "2026-09-16",
-    "days_held": 4,
-    "days_remaining": 4,
-    "stage_id": "RISING_HARD",
-    "names": [
-      "通信",
-      "机械设备",
-      "国防军工"
-    ],
-    "weights": {
-      "通信": 0.4945,
-      "机械设备": 0.2721,
-      "国防军工": 0.2334
-    },
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
+    "days_remaining": 0,
+    "stage_id": null,
+    "names": [],
+    "weights": {},
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -51,8 +43,8 @@
       "trigger_date": "2026-09-09",
       "signal_date": "2026-09-09",
       "execution_date": "2026-09-10",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "position": {
         "status": "open",
         "entry_signal_date": "2026-09-04",
@@ -97,10 +89,12 @@
           "weight_in_sleeve": 0.2334
         }
       ],
-      "execution_blocked_code": "MISSING_EXECUTION_OPEN"
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     }
   ],
-  "cooldown_through": {},
+  "cooldown_through": {
+    "satellite": "2026-09-10"
+  },
   "satellite_risk_check": {
     "signal_id": "2026-09-04",
     "entry_date": "2026-09-07",

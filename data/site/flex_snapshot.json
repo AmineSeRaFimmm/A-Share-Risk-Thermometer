@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "b4fc2aba9601a29aa07e718cf1835aa34e4ec29cfc575c86deee5eef7c38702b",
-  "built_at": "2026-09-10T15:49:16+08:00",
+  "revision": "6b97554805b5f80947f8aed56f8453c279de033acd136e79f95b871ad2b02c1f",
+  "built_at": "2026-09-10T16:47:47+08:00",
   "strategy_as_of": "2026-09-10",
   "marks_as_of": "2026-09-10",
   "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
-  "strategy_publication_status": "OFFICIAL_PENDING",
-  "official_strategy_pending": true,
+  "strategy_publication_status": "CURRENT",
+  "official_strategy_pending": false,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -47,26 +47,24 @@
     },
     "as_of": "2026-09-10",
     "data_quality": {
-      "risk_source": "OFFICIAL_PLUS_NOWCAST_BRIDGE",
-      "official_as_of": "2026-09-09",
-      "bridged": true,
-      "bridged_dates": [
-        "2026-09-10"
-      ],
-      "bridge_source": "NOWCAST_RT",
-      "note_cn": "策略日期已用指数日历和盘中估算桥接正式风险因子缺口；正式温度历史不受影响。"
+      "risk_source": "OFFICIAL_CLOSE",
+      "official_as_of": "2026-09-10",
+      "bridged": false,
+      "bridged_dates": [],
+      "bridge_source": null,
+      "note_cn": "策略日期与正式风险因子日期一致。"
     },
     "market_state": {
       "trade_date": "2026-09-10",
-      "rt": 54.9,
+      "rt": 54.7,
       "prev_rt": 43.4,
-      "rt_d1": 11.5,
-      "rt_d5": 2.0,
+      "rt_d1": 11.300000000000004,
+      "rt_d5": 1.8000000000000043,
       "rt_rollmax_10": 55.5,
-      "hs300_dd60": -0.10104793644155396,
+      "hs300_dd60": -0.1010479364415539,
       "regime": "CAUTION",
       "regime_cn": "警戒",
-      "quality": "WARN_QVIX_REALTIME_PROXY|NOWCAST_BRIDGE",
+      "quality": "WARN_QVIX_REALTIME_PROXY",
       "model_confidence": 93.7
     },
     "active_stage_ids": [],
@@ -2318,10 +2316,10 @@
         }
       },
       "market_state": {
-        "rt": 54.9,
-        "rt_d1": 11.5,
-        "rt_d5": 2.0,
-        "hs300_dd60": -0.10104793644155396,
+        "rt": 54.7,
+        "rt_d1": 11.300000000000004,
+        "rt_d5": 1.8000000000000043,
+        "hs300_dd60": -0.1010479364415539,
         "model_confidence": 93.7,
         "regime_cn": "警戒"
       },
@@ -5364,13 +5362,10 @@
     "as_of": "2026-09-10",
     "start": "2026-05-13",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 1,
+    "fetch_workers": 4,
     "not_broker_feed": true,
     "required_codes": [
-      "159886",
-      "510300",
-      "512660",
-      "515880"
+      "510300"
     ],
     "coverage_codes": [
       "159666",
@@ -23754,31 +23749,7 @@
         "fresh_for_as_of": false
       }
     },
-    "updated_at": "2026-09-10T07:49:16+00:00",
-    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
-    "final_quote_fallback": {
-      "trade_date": "2026-09-10",
-      "status": "complete",
-      "code_count": 4,
-      "quotes": {
-        "159886": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-10T15:49:06+08:00"
-        },
-        "510300": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-10T15:49:04+08:00"
-        },
-        "512660": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-10T15:49:03+08:00"
-        },
-        "515880": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-10T15:49:15+08:00"
-        }
-      }
-    },
+    "updated_at": "2026-09-10T08:47:47+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-09-10",
@@ -23938,7 +23909,8 @@
           "2026-05-07",
           "2026-05-08",
           "2026-05-11",
-          "2026-05-12"
+          "2026-05-12",
+          "2026-09-10"
         ],
         "159928": [
           "2026-04-13",
@@ -24022,7 +23994,8 @@
           "2026-05-07",
           "2026-05-08",
           "2026-05-11",
-          "2026-05-12"
+          "2026-05-12",
+          "2026-09-10"
         ],
         "512010": [
           "2026-04-13",
@@ -24135,7 +24108,8 @@
           "2026-05-07",
           "2026-05-08",
           "2026-05-11",
-          "2026-05-12"
+          "2026-05-12",
+          "2026-09-10"
         ],
         "512800": [
           "2026-04-13",
@@ -24303,7 +24277,8 @@
           "2026-05-07",
           "2026-05-08",
           "2026-05-11",
-          "2026-05-12"
+          "2026-05-12",
+          "2026-09-10"
         ],
         "516020": [
           "2026-04-13",
@@ -24410,6 +24385,30 @@
           "2026-05-11",
           "2026-05-12"
         ]
+      }
+    },
+    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
+    "final_quote_fallback": {
+      "trade_date": "2026-09-10",
+      "status": "complete",
+      "code_count": 4,
+      "quotes": {
+        "159886": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-10T15:49:06+08:00"
+        },
+        "510300": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-10T15:49:04+08:00"
+        },
+        "512660": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-10T15:49:03+08:00"
+        },
+        "515880": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-10T15:49:15+08:00"
+        }
       }
     }
   },
@@ -27123,13 +27122,13 @@
     "data_quality": {
       "report_as_of": "2026-09-10",
       "strategy_as_of": "2026-09-10",
-      "strategy_publication_status": "OFFICIAL_PENDING",
-      "official_strategy_pending": true,
-      "strategy_provisional": true,
+      "strategy_publication_status": "CURRENT",
+      "official_strategy_pending": false,
+      "strategy_provisional": false,
       "marks_as_of": "2026-09-10",
       "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
       "risk_check_status": "CLEAR",
-      "complete": false
+      "complete": true
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",
