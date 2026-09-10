@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-09",
+  "as_of": "2026-09-10",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -21,8 +21,8 @@
     "entry_signal_date": "2026-09-04",
     "entry_date": "2026-09-07",
     "exit_due_date": "2026-09-16",
-    "days_held": 3,
-    "days_remaining": 5,
+    "days_held": 4,
+    "days_remaining": 4,
     "stage_id": "RISING_HARD",
     "names": [
       "通信",
@@ -96,7 +96,8 @@
           "etf_code": "512660",
           "weight_in_sleeve": 0.2334
         }
-      ]
+      ],
+      "execution_blocked_code": "MISSING_EXECUTION_OPEN"
     }
   ],
   "cooldown_through": {},

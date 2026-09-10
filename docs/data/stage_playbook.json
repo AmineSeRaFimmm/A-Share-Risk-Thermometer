@@ -35,122 +35,43 @@
       "research/output/core_plus_sectors/core_plus_sectors_report.md"
     ]
   },
-  "as_of": "2026-09-09",
+  "as_of": "2026-09-10",
   "data_quality": {
-    "risk_source": "OFFICIAL_CLOSE",
+    "risk_source": "OFFICIAL_PLUS_NOWCAST_BRIDGE",
     "official_as_of": "2026-09-09",
-    "bridged": false,
-    "bridged_dates": [],
-    "bridge_source": null,
-    "note_cn": "策略日期与正式风险因子日期一致。"
+    "bridged": true,
+    "bridged_dates": [
+      "2026-09-10"
+    ],
+    "bridge_source": "NOWCAST_RT",
+    "note_cn": "策略日期已用指数日历和盘中估算桥接正式风险因子缺口；正式温度历史不受影响。"
   },
   "market_state": {
-    "trade_date": "2026-09-09",
-    "rt": 43.4,
-    "prev_rt": 47.8,
-    "rt_d1": -4.399999999999999,
-    "rt_d5": -11.700000000000003,
+    "trade_date": "2026-09-10",
+    "rt": 54.9,
+    "prev_rt": 43.4,
+    "rt_d1": 11.5,
+    "rt_d5": 2.0,
     "rt_rollmax_10": 55.5,
-    "hs300_dd60": -0.0962630280544653,
+    "hs300_dd60": -0.10104793644155396,
     "regime": "CAUTION",
     "regime_cn": "警戒",
-    "quality": "WARN_QVIX_REALTIME_PROXY",
+    "quality": "WARN_QVIX_REALTIME_PROXY|NOWCAST_BRIDGE",
     "model_confidence": 93.7
   },
-  "active_stage_ids": [
-    "FALLING_HARD"
-  ],
+  "active_stage_ids": [],
   "primary_stage": {
-    "stage_id": "FALLING_HARD",
-    "name_cn": "降温（ΔRT_5≤-5）",
+    "stage_id": "NEUTRAL",
+    "name_cn": "中性观望",
     "csi300": {
-      "action": "NO_NEW_LONG_UNLESS_CORE",
-      "action_cn": "除非仍满足主策略持仓中，否则不新开指数多单",
-      "detail": "降温阶段指数边沿取决于是否仍在60-80且回撤条件；默认观望。",
-      "confidence": "MEDIUM"
+      "action": "WATCH",
+      "action_cn": "观望",
+      "detail": "未命中高置信事件。",
+      "confidence": "LOW"
     },
-    "notes": [
-      "降温≠全面做多；偏资源/中游相对强，TMT相对弱。"
-    ]
+    "notes": []
   },
-  "active_stages": [
-    {
-      "stage_id": "FALLING_HARD",
-      "name_cn": "降温（ΔRT_5≤-5）",
-      "priority": 50,
-      "csi300": {
-        "action": "NO_NEW_LONG_UNLESS_CORE",
-        "action_cn": "除非仍满足主策略持仓中，否则不新开指数多单",
-        "detail": "降温阶段指数边沿取决于是否仍在60-80且回撤条件；默认观望。",
-        "confidence": "MEDIUM"
-      },
-      "sectors_long": [
-        {
-          "name": "有色金属",
-          "why": "降温后5日超额显著为正",
-          "win_rate": 0.53,
-          "n": 477,
-          "horizon": "5D",
-          "mean_excess": 0.0063
-        },
-        {
-          "name": "煤炭",
-          "why": "降温后5日超额显著为正",
-          "win_rate": 0.52,
-          "n": 339,
-          "horizon": "5D",
-          "mean_excess": 0.0061
-        },
-        {
-          "name": "基础化工",
-          "why": "降温后5日超额显著、胜率57%",
-          "win_rate": 0.57,
-          "n": 477,
-          "horizon": "5D",
-          "mean_excess": 0.002979
-        },
-        {
-          "name": "电力设备",
-          "why": "降温后5日超额显著",
-          "win_rate": 0.53,
-          "n": 477,
-          "horizon": "5D",
-          "mean_excess": 0.003273
-        }
-      ],
-      "sectors_short": [
-        {
-          "name": "计算机",
-          "why": "降温后显著跑输",
-          "win_rate": 0.43,
-          "n": 477,
-          "horizon": "5D",
-          "mean_excess": -0.003997
-        },
-        {
-          "name": "传媒",
-          "why": "降温后显著跑输",
-          "win_rate": 0.44,
-          "n": 477,
-          "horizon": "5D",
-          "mean_excess": -0.003221
-        },
-        {
-          "name": "美容护理",
-          "why": "降温后显著跑输",
-          "win_rate": 0.42,
-          "n": 339,
-          "horizon": "5D",
-          "mean_excess": -0.003069
-        }
-      ],
-      "hold_days": 5,
-      "notes": [
-        "降温≠全面做多；偏资源/中游相对强，TMT相对弱。"
-      ],
-      "same_day_note": null
-    }
-  ],
+  "active_stages": [],
   "actionable_instructions": [
     {
       "sleeve": "core",
@@ -190,7 +111,7 @@
       "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
       "close_code": "EVENT_FLIP",
       "guaranteed": true,
-      "days_held": 3,
+      "days_held": 4,
       "sector": "通信",
       "etf_code": "515880",
       "etf_name": "通信ETF国泰",
@@ -216,7 +137,7 @@
       "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
       "close_code": "EVENT_FLIP",
       "guaranteed": true,
-      "days_held": 3,
+      "days_held": 4,
       "sector": "机械设备",
       "etf_code": "159886",
       "etf_name": "机械ETF富国",
@@ -242,7 +163,7 @@
       "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
       "close_code": "EVENT_FLIP",
       "guaranteed": true,
-      "days_held": 3,
+      "days_held": 4,
       "sector": "国防军工",
       "etf_code": "512660",
       "etf_name": "军工ETF国泰",
@@ -252,321 +173,15 @@
       "etf_note": "",
       "etf_display": "国防军工 → 512660 军工ETF国泰",
       "instrument_display": "国防军工（512660 军工ETF国泰）"
-    },
-    {
-      "name": "计算机",
-      "side": "AVOID",
-      "side_cn": "回避（若持有则减配）",
-      "stages": [
-        "FALLING_HARD"
-      ],
-      "stage_evidence": [
-        {
-          "stage_id": "FALLING_HARD",
-          "score": 0.026276,
-          "why": "降温后显著跑输",
-          "win_rate": 0.43,
-          "n": 477,
-          "mean_excess": -0.003997,
-          "horizon": "5D"
-        }
-      ],
-      "why": "降温后显著跑输",
-      "win_rate": 0.43,
-      "n": 477,
-      "mean_excess": -0.003997,
-      "conditional": true,
-      "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
-      "conflict_resolution": null,
-      "action": "AVOID",
-      "action_cn": "回避/条件减配",
-      "priority": "P2",
-      "weight_target": 0.0,
-      "weight_hint": "0%（若持有）",
-      "entry": "—",
-      "exit": "—",
-      "sector": "计算机",
-      "etf_code": "159998",
-      "etf_name": "计算机ETF天弘",
-      "etf_label": "159998 计算机ETF天弘",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "计算机 → 159998 计算机ETF天弘",
-      "instrument_display": "计算机（159998 计算机ETF天弘）"
-    },
-    {
-      "name": "传媒",
-      "side": "AVOID",
-      "side_cn": "回避（若持有则减配）",
-      "stages": [
-        "FALLING_HARD"
-      ],
-      "stage_evidence": [
-        {
-          "stage_id": "FALLING_HARD",
-          "score": 0.021667,
-          "why": "降温后显著跑输",
-          "win_rate": 0.44,
-          "n": 477,
-          "mean_excess": -0.003221,
-          "horizon": "5D"
-        }
-      ],
-      "why": "降温后显著跑输",
-      "win_rate": 0.44,
-      "n": 477,
-      "mean_excess": -0.003221,
-      "conditional": true,
-      "condition_cn": "仅当已持有「传媒」映射 ETF 时减至 0；无持仓则无需操作",
-      "conflict_resolution": null,
-      "action": "AVOID",
-      "action_cn": "回避/条件减配",
-      "priority": "P2",
-      "weight_target": 0.0,
-      "weight_hint": "0%（若持有）",
-      "entry": "—",
-      "exit": "—",
-      "sector": "传媒",
-      "etf_code": "512980",
-      "etf_name": "传媒ETF广发",
-      "etf_label": "512980 传媒ETF广发",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "传媒 → 512980 传媒ETF广发",
-      "instrument_display": "传媒（512980 传媒ETF广发）"
-    },
-    {
-      "name": "美容护理",
-      "side": "AVOID",
-      "side_cn": "回避（若持有则减配）",
-      "stages": [
-        "FALLING_HARD"
-      ],
-      "stage_evidence": [
-        {
-          "stage_id": "FALLING_HARD",
-          "score": 0.0,
-          "why": "降温后显著跑输",
-          "win_rate": 0.42,
-          "n": 339,
-          "mean_excess": -0.003069,
-          "horizon": "5D"
-        }
-      ],
-      "why": "降温后显著跑输",
-      "win_rate": 0.42,
-      "n": 339,
-      "mean_excess": -0.003069,
-      "conditional": true,
-      "condition_cn": "仅当已持有「美容护理」映射 ETF 时减至 0；无持仓则无需操作",
-      "conflict_resolution": null,
-      "action": "AVOID",
-      "action_cn": "回避/条件减配",
-      "priority": "P2",
-      "weight_target": 0.0,
-      "weight_hint": "0%（若持有）",
-      "entry": "—",
-      "exit": "—",
-      "sector": "美容护理",
-      "etf_code": "159928",
-      "etf_name": "消费ETF汇添富",
-      "etf_label": "159928 消费ETF汇添富",
-      "etf_quality": "weak",
-      "etf_quality_cn": "弱代理",
-      "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
-      "etf_display": "美容护理 → 159928 消费ETF汇添富",
-      "instrument_display": "美容护理（159928 消费ETF汇添富）"
     }
   ],
-  "stage_observations": [
-    {
-      "rank": 10,
-      "market": "SECTOR",
-      "side": "OVERWEIGHT_RELATIVE",
-      "name": "有色金属",
-      "instrument": "有色金属",
-      "stage": "降温（ΔRT_5≤-5）",
-      "trigger": "rt_d5 <= -5",
-      "entry": "事件确认后 T+1",
-      "exit": "持有约5个交易日",
-      "priority": "P1",
-      "win_rate": 0.53,
-      "n": 477,
-      "why": "降温后5日超额显著为正",
-      "size_note": "相对收益指令，按映射 ETF 交易",
-      "disclaimer": "超额收益代理资金偏好，非官方资金流",
-      "sector": "有色金属",
-      "etf_code": "512400",
-      "etf_name": "有色金属ETF南方",
-      "etf_label": "512400 有色金属ETF南方",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "有色金属 → 512400 有色金属ETF南方",
-      "instrument_display": "有色金属（512400 有色金属ETF南方）"
-    },
-    {
-      "rank": 11,
-      "market": "SECTOR",
-      "side": "OVERWEIGHT_RELATIVE",
-      "name": "煤炭",
-      "instrument": "煤炭",
-      "stage": "降温（ΔRT_5≤-5）",
-      "trigger": "rt_d5 <= -5",
-      "entry": "事件确认后 T+1",
-      "exit": "持有约5个交易日",
-      "priority": "P1",
-      "win_rate": 0.52,
-      "n": 339,
-      "why": "降温后5日超额显著为正",
-      "size_note": "相对收益指令，按映射 ETF 交易",
-      "disclaimer": "超额收益代理资金偏好，非官方资金流",
-      "sector": "煤炭",
-      "etf_code": "515220",
-      "etf_name": "煤炭ETF国泰",
-      "etf_label": "515220 煤炭ETF国泰",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "煤炭 → 515220 煤炭ETF国泰",
-      "instrument_display": "煤炭（515220 煤炭ETF国泰）"
-    },
-    {
-      "rank": 12,
-      "market": "SECTOR",
-      "side": "OVERWEIGHT_RELATIVE",
-      "name": "基础化工",
-      "instrument": "基础化工",
-      "stage": "降温（ΔRT_5≤-5）",
-      "trigger": "rt_d5 <= -5",
-      "entry": "事件确认后 T+1",
-      "exit": "持有约5个交易日",
-      "priority": "P1",
-      "win_rate": 0.57,
-      "n": 477,
-      "why": "降温后5日超额显著、胜率57%",
-      "size_note": "相对收益指令，按映射 ETF 交易",
-      "disclaimer": "超额收益代理资金偏好，非官方资金流",
-      "sector": "基础化工",
-      "etf_code": "516020",
-      "etf_name": "化工ETF华宝",
-      "etf_label": "516020 化工ETF华宝",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "基础化工 → 516020 化工ETF华宝",
-      "instrument_display": "基础化工（516020 化工ETF华宝）"
-    },
-    {
-      "rank": 13,
-      "market": "SECTOR",
-      "side": "OVERWEIGHT_RELATIVE",
-      "name": "电力设备",
-      "instrument": "电力设备",
-      "stage": "降温（ΔRT_5≤-5）",
-      "trigger": "rt_d5 <= -5",
-      "entry": "事件确认后 T+1",
-      "exit": "持有约5个交易日",
-      "priority": "P1",
-      "win_rate": 0.53,
-      "n": 477,
-      "why": "降温后5日超额显著",
-      "size_note": "相对收益指令，按映射 ETF 交易",
-      "disclaimer": "超额收益代理资金偏好，非官方资金流",
-      "sector": "电力设备",
-      "etf_code": "516850",
-      "etf_name": "新能源ETF华夏",
-      "etf_label": "516850 新能源ETF华夏",
-      "etf_quality": "proxy",
-      "etf_quality_cn": "主题代理",
-      "etf_note": "电力设备≈新能源主题",
-      "etf_display": "电力设备 → 516850 新能源ETF华夏",
-      "instrument_display": "电力设备（516850 新能源ETF华夏）"
-    },
-    {
-      "rank": 50,
-      "market": "SECTOR",
-      "side": "UNDERWEIGHT_RELATIVE",
-      "name": "计算机",
-      "instrument": "计算机",
-      "stage": "降温（ΔRT_5≤-5）",
-      "trigger": "rt_d5 <= -5",
-      "entry": "事件确认后减配/回避",
-      "exit": "约5个交易日窗口",
-      "priority": "P1",
-      "win_rate": 0.43,
-      "n": 477,
-      "why": "降温后显著跑输",
-      "disclaimer": "相对减配，不是裸空指令",
-      "sector": "计算机",
-      "etf_code": "159998",
-      "etf_name": "计算机ETF天弘",
-      "etf_label": "159998 计算机ETF天弘",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "计算机 → 159998 计算机ETF天弘",
-      "instrument_display": "计算机（159998 计算机ETF天弘）"
-    },
-    {
-      "rank": 51,
-      "market": "SECTOR",
-      "side": "UNDERWEIGHT_RELATIVE",
-      "name": "传媒",
-      "instrument": "传媒",
-      "stage": "降温（ΔRT_5≤-5）",
-      "trigger": "rt_d5 <= -5",
-      "entry": "事件确认后减配/回避",
-      "exit": "约5个交易日窗口",
-      "priority": "P1",
-      "win_rate": 0.44,
-      "n": 477,
-      "why": "降温后显著跑输",
-      "disclaimer": "相对减配，不是裸空指令",
-      "sector": "传媒",
-      "etf_code": "512980",
-      "etf_name": "传媒ETF广发",
-      "etf_label": "512980 传媒ETF广发",
-      "etf_quality": "good",
-      "etf_quality_cn": "贴合",
-      "etf_note": "",
-      "etf_display": "传媒 → 512980 传媒ETF广发",
-      "instrument_display": "传媒（512980 传媒ETF广发）"
-    },
-    {
-      "rank": 52,
-      "market": "SECTOR",
-      "side": "UNDERWEIGHT_RELATIVE",
-      "name": "美容护理",
-      "instrument": "美容护理",
-      "stage": "降温（ΔRT_5≤-5）",
-      "trigger": "rt_d5 <= -5",
-      "entry": "事件确认后减配/回避",
-      "exit": "约5个交易日窗口",
-      "priority": "P1",
-      "win_rate": 0.42,
-      "n": 339,
-      "why": "降温后显著跑输",
-      "disclaimer": "相对减配，不是裸空指令",
-      "sector": "美容护理",
-      "etf_code": "159928",
-      "etf_name": "消费ETF汇添富",
-      "etf_label": "159928 消费ETF汇添富",
-      "etf_quality": "weak",
-      "etf_quality_cn": "弱代理",
-      "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
-      "etf_display": "美容护理 → 159928 消费ETF汇添富",
-      "instrument_display": "美容护理（159928 消费ETF汇添富）"
-    }
-  ],
+  "stage_observations": [],
   "flex_panel": {
     "version": "flex_v2",
     "status": "平仓",
     "status_code": "FLAT",
     "headline": "组合 Flex v2：执行平仓",
-    "as_of": "2026-09-09",
+    "as_of": "2026-09-10",
     "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
     "core_tail_policy": {
       "id": "CORE_STRICT_TAIL_V2",
@@ -2771,21 +2386,19 @@
       }
     },
     "market_state": {
-      "rt": 43.4,
-      "rt_d1": -4.399999999999999,
-      "rt_d5": -11.700000000000003,
-      "hs300_dd60": -0.0962630280544653,
+      "rt": 54.9,
+      "rt_d1": 11.5,
+      "rt_d5": 2.0,
+      "hs300_dd60": -0.10104793644155396,
       "model_confidence": 93.7,
       "regime_cn": "警戒"
     },
-    "active_stages": [
-      "FALLING_HARD"
-    ],
+    "active_stages": [],
     "suppressed_stages": [],
     "suppressed_avoid_conflicts": [],
-    "merge_note_cn": "多阶段合并：FALLING_HARD；被门控压制：无",
+    "merge_note_cn": "多阶段合并：无；被门控压制：无",
     "position_state": {
-      "as_of": "2026-09-09",
+      "as_of": "2026-09-10",
       "mode": "aggressive",
       "core": {
         "status": "flat",
@@ -2807,8 +2420,8 @@
         "entry_signal_date": "2026-09-04",
         "entry_date": "2026-09-07",
         "exit_due_date": "2026-09-16",
-        "days_held": 3,
-        "days_remaining": 5,
+        "days_held": 4,
+        "days_remaining": 4,
         "stage_id": "RISING_HARD",
         "names": [
           "通信",
@@ -2882,7 +2495,8 @@
               "etf_code": "512660",
               "weight_in_sleeve": 0.2334
             }
-          ]
+          ],
+          "execution_blocked_code": "MISSING_EXECUTION_OPEN"
         }
       ],
       "cooldown_through": {},
@@ -2983,12 +2597,13 @@
             "etf_code": "512660",
             "weight_in_sleeve": 0.2334
           }
-        ]
+        ],
+        "execution_blocked_code": "MISSING_EXECUTION_OPEN"
       }
     ],
     "cooldown_through": {},
     "exit_plan": {
-      "as_of": "2026-09-09",
+      "as_of": "2026-09-10",
       "core": {
         "status": "flat",
         "entry_signal_date": null,
@@ -3003,7 +2618,7 @@
         "status": "open",
         "entry_signal_date": "2026-09-04",
         "entry_date": "2026-09-07",
-        "days_held": 3,
+        "days_held": 4,
         "stage_id": "RISING_HARD",
         "rules": {
           "min_hold": 3,
@@ -3031,7 +2646,7 @@
         },
         "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。",
         "exit_due_date": "2026-09-16",
-        "days_to_max": 5
+        "days_to_max": 4
       },
       "guarantee_cn": "日更成功且 as_of=当日时：任一 close_code 触发必写入 close_list；执行台必须展示策略平仓提示（本机未点买也可看，点买后可记账平仓）。日更失败则页面不会刷新——需看 Actions。"
     },
@@ -3072,284 +2687,10 @@
       "status_cn": "退出",
       "tone": "sell",
       "stage_id": "RISING_HARD",
-      "stage_cn": "降温（ΔRT_5≤-5）",
-      "stage_ids": [
-        "FALLING_HARD"
-      ],
-      "buy": [
-        {
-          "name": "有色金属",
-          "score": 0.051047,
-          "weight_in_sat": 0.3741,
-          "quality": "good",
-          "quality_weight": 1.0,
-          "win_rate": 0.53,
-          "n": 477,
-          "mean_excess": 0.0063,
-          "stages": [
-            "FALLING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "FALLING_HARD",
-              "score": 0.051047,
-              "why": "降温后5日超额显著为正",
-              "win_rate": 0.53,
-              "n": 477,
-              "mean_excess": 0.0063,
-              "horizon": "5D"
-            }
-          ],
-          "why": "降温后5日超额显著为正",
-          "tier": "high",
-          "conflict_resolution": null,
-          "sector": "有色金属",
-          "etf_code": "512400",
-          "etf_name": "有色金属ETF南方",
-          "etf_label": "512400 有色金属ETF南方",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "有色金属 → 512400 有色金属ETF南方",
-          "instrument_display": "有色金属（512400 有色金属ETF南方）"
-        },
-        {
-          "name": "煤炭",
-          "score": 0.040882,
-          "weight_in_sat": 0.2996,
-          "quality": "good",
-          "quality_weight": 1.0,
-          "win_rate": 0.52,
-          "n": 339,
-          "mean_excess": 0.0061,
-          "stages": [
-            "FALLING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "FALLING_HARD",
-              "score": 0.040882,
-              "why": "降温后5日超额显著为正",
-              "win_rate": 0.52,
-              "n": 339,
-              "mean_excess": 0.0061,
-              "horizon": "5D"
-            }
-          ],
-          "why": "降温后5日超额显著为正",
-          "tier": "high",
-          "conflict_resolution": null,
-          "sector": "煤炭",
-          "etf_code": "515220",
-          "etf_name": "煤炭ETF国泰",
-          "etf_label": "515220 煤炭ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "煤炭 → 515220 煤炭ETF国泰",
-          "instrument_display": "煤炭（515220 煤炭ETF国泰）"
-        },
-        {
-          "name": "基础化工",
-          "score": 0.02596,
-          "weight_in_sat": 0.1902,
-          "quality": "good",
-          "quality_weight": 1.0,
-          "win_rate": 0.57,
-          "n": 477,
-          "mean_excess": 0.002979,
-          "stages": [
-            "FALLING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "FALLING_HARD",
-              "score": 0.02596,
-              "why": "降温后5日超额显著、胜率57%",
-              "win_rate": 0.57,
-              "n": 477,
-              "mean_excess": 0.002979,
-              "horizon": "5D"
-            }
-          ],
-          "why": "降温后5日超额显著、胜率57%",
-          "tier": "high",
-          "conflict_resolution": null,
-          "sector": "基础化工",
-          "etf_code": "516020",
-          "etf_name": "化工ETF华宝",
-          "etf_label": "516020 化工ETF华宝",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "基础化工 → 516020 化工ETF华宝",
-          "instrument_display": "基础化工（516020 化工ETF华宝）"
-        },
-        {
-          "name": "电力设备",
-          "score": 0.018564,
-          "weight_in_sat": 0.136,
-          "quality": "proxy",
-          "quality_weight": 0.7,
-          "win_rate": 0.53,
-          "n": 477,
-          "mean_excess": 0.003273,
-          "stages": [
-            "FALLING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "FALLING_HARD",
-              "score": 0.018564,
-              "why": "降温后5日超额显著",
-              "win_rate": 0.53,
-              "n": 477,
-              "mean_excess": 0.003273,
-              "horizon": "5D"
-            }
-          ],
-          "why": "降温后5日超额显著",
-          "tier": "high",
-          "conflict_resolution": null,
-          "sector": "电力设备",
-          "etf_code": "516850",
-          "etf_name": "新能源ETF华夏",
-          "etf_label": "516850 新能源ETF华夏",
-          "etf_quality": "proxy",
-          "etf_quality_cn": "主题代理",
-          "etf_note": "电力设备≈新能源主题",
-          "etf_display": "电力设备 → 516850 新能源ETF华夏",
-          "instrument_display": "电力设备（516850 新能源ETF华夏）"
-        }
-      ],
-      "avoid": [
-        {
-          "name": "计算机",
-          "side": "AVOID",
-          "side_cn": "回避（若持有则减配）",
-          "stages": [
-            "FALLING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "FALLING_HARD",
-              "score": 0.026276,
-              "why": "降温后显著跑输",
-              "win_rate": 0.43,
-              "n": 477,
-              "mean_excess": -0.003997,
-              "horizon": "5D"
-            }
-          ],
-          "why": "降温后显著跑输",
-          "win_rate": 0.43,
-          "n": 477,
-          "mean_excess": -0.003997,
-          "conditional": true,
-          "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
-          "conflict_resolution": null,
-          "action": "AVOID",
-          "action_cn": "回避/条件减配",
-          "priority": "P2",
-          "weight_target": 0.0,
-          "weight_hint": "0%（若持有）",
-          "entry": "—",
-          "exit": "—",
-          "sector": "计算机",
-          "etf_code": "159998",
-          "etf_name": "计算机ETF天弘",
-          "etf_label": "159998 计算机ETF天弘",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "计算机 → 159998 计算机ETF天弘",
-          "instrument_display": "计算机（159998 计算机ETF天弘）"
-        },
-        {
-          "name": "传媒",
-          "side": "AVOID",
-          "side_cn": "回避（若持有则减配）",
-          "stages": [
-            "FALLING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "FALLING_HARD",
-              "score": 0.021667,
-              "why": "降温后显著跑输",
-              "win_rate": 0.44,
-              "n": 477,
-              "mean_excess": -0.003221,
-              "horizon": "5D"
-            }
-          ],
-          "why": "降温后显著跑输",
-          "win_rate": 0.44,
-          "n": 477,
-          "mean_excess": -0.003221,
-          "conditional": true,
-          "condition_cn": "仅当已持有「传媒」映射 ETF 时减至 0；无持仓则无需操作",
-          "conflict_resolution": null,
-          "action": "AVOID",
-          "action_cn": "回避/条件减配",
-          "priority": "P2",
-          "weight_target": 0.0,
-          "weight_hint": "0%（若持有）",
-          "entry": "—",
-          "exit": "—",
-          "sector": "传媒",
-          "etf_code": "512980",
-          "etf_name": "传媒ETF广发",
-          "etf_label": "512980 传媒ETF广发",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "传媒 → 512980 传媒ETF广发",
-          "instrument_display": "传媒（512980 传媒ETF广发）"
-        },
-        {
-          "name": "美容护理",
-          "side": "AVOID",
-          "side_cn": "回避（若持有则减配）",
-          "stages": [
-            "FALLING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "FALLING_HARD",
-              "score": 0.0,
-              "why": "降温后显著跑输",
-              "win_rate": 0.42,
-              "n": 339,
-              "mean_excess": -0.003069,
-              "horizon": "5D"
-            }
-          ],
-          "why": "降温后显著跑输",
-          "win_rate": 0.42,
-          "n": 339,
-          "mean_excess": -0.003069,
-          "conditional": true,
-          "condition_cn": "仅当已持有「美容护理」映射 ETF 时减至 0；无持仓则无需操作",
-          "conflict_resolution": null,
-          "action": "AVOID",
-          "action_cn": "回避/条件减配",
-          "priority": "P2",
-          "weight_target": 0.0,
-          "weight_hint": "0%（若持有）",
-          "entry": "—",
-          "exit": "—",
-          "sector": "美容护理",
-          "etf_code": "159928",
-          "etf_name": "消费ETF汇添富",
-          "etf_label": "159928 消费ETF汇添富",
-          "etf_quality": "weak",
-          "etf_quality_cn": "弱代理",
-          "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
-          "etf_display": "美容护理 → 159928 消费ETF汇添富",
-          "instrument_display": "美容护理（159928 消费ETF汇添富）"
-        }
-      ],
+      "stage_cn": "无",
+      "stage_ids": [],
+      "buy": [],
+      "avoid": [],
       "detail": "高置信阶段全量；小样本为观察仓；按得分×映射质量加权；弱代理不进默认篮子；收益≤-3%止损，≥4%止盈；long-only 不做空。",
       "weights": {},
       "weight_target": 0.0,
@@ -3359,8 +2700,8 @@
         "entry_signal_date": "2026-09-04",
         "entry_date": "2026-09-07",
         "exit_due_date": "2026-09-16",
-        "days_held": 3,
-        "days_remaining": 5,
+        "days_held": 4,
+        "days_remaining": 4,
         "stage_id": "RISING_HARD",
         "names": [
           "通信",
@@ -3395,7 +2736,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "通信",
         "etf_code": "515880",
         "etf_name": "通信ETF国泰",
@@ -3421,7 +2762,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "机械设备",
         "etf_code": "159886",
         "etf_name": "机械ETF富国",
@@ -3447,7 +2788,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "国防军工",
         "etf_code": "512660",
         "etf_name": "军工ETF国泰",
@@ -3460,134 +2801,7 @@
       }
     ],
     "hold_list": [],
-    "avoid_list": [
-      {
-        "name": "计算机",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "FALLING_HARD"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "FALLING_HARD",
-            "score": 0.026276,
-            "why": "降温后显著跑输",
-            "win_rate": 0.43,
-            "n": 477,
-            "mean_excess": -0.003997,
-            "horizon": "5D"
-          }
-        ],
-        "why": "降温后显著跑输",
-        "win_rate": 0.43,
-        "n": 477,
-        "mean_excess": -0.003997,
-        "conditional": true,
-        "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "计算机",
-        "etf_code": "159998",
-        "etf_name": "计算机ETF天弘",
-        "etf_label": "159998 计算机ETF天弘",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "计算机 → 159998 计算机ETF天弘",
-        "instrument_display": "计算机（159998 计算机ETF天弘）"
-      },
-      {
-        "name": "传媒",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "FALLING_HARD"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "FALLING_HARD",
-            "score": 0.021667,
-            "why": "降温后显著跑输",
-            "win_rate": 0.44,
-            "n": 477,
-            "mean_excess": -0.003221,
-            "horizon": "5D"
-          }
-        ],
-        "why": "降温后显著跑输",
-        "win_rate": 0.44,
-        "n": 477,
-        "mean_excess": -0.003221,
-        "conditional": true,
-        "condition_cn": "仅当已持有「传媒」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "传媒",
-        "etf_code": "512980",
-        "etf_name": "传媒ETF广发",
-        "etf_label": "512980 传媒ETF广发",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "传媒 → 512980 传媒ETF广发",
-        "instrument_display": "传媒（512980 传媒ETF广发）"
-      },
-      {
-        "name": "美容护理",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "FALLING_HARD"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "FALLING_HARD",
-            "score": 0.0,
-            "why": "降温后显著跑输",
-            "win_rate": 0.42,
-            "n": 339,
-            "mean_excess": -0.003069,
-            "horizon": "5D"
-          }
-        ],
-        "why": "降温后显著跑输",
-        "win_rate": 0.42,
-        "n": 339,
-        "mean_excess": -0.003069,
-        "conditional": true,
-        "condition_cn": "仅当已持有「美容护理」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "美容护理",
-        "etf_code": "159928",
-        "etf_name": "消费ETF汇添富",
-        "etf_label": "159928 消费ETF汇添富",
-        "etf_quality": "weak",
-        "etf_quality_cn": "弱代理",
-        "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
-        "etf_display": "美容护理 → 159928 消费ETF汇添富",
-        "instrument_display": "美容护理（159928 消费ETF汇添富）"
-      }
-    ],
+    "avoid_list": [],
     "close_list": [
       {
         "sleeve": "satellite",
@@ -3604,7 +2818,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "通信",
         "etf_code": "515880",
         "etf_name": "通信ETF国泰",
@@ -3630,7 +2844,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "机械设备",
         "etf_code": "159886",
         "etf_name": "机械ETF富国",
@@ -3656,7 +2870,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "国防军工",
         "etf_code": "512660",
         "etf_name": "军工ETF国泰",
@@ -3684,7 +2898,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "通信",
         "etf_code": "515880",
         "etf_name": "通信ETF国泰",
@@ -3710,7 +2924,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "机械设备",
         "etf_code": "159886",
         "etf_name": "机械ETF富国",
@@ -3761,7 +2975,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "通信",
         "etf_code": "515880",
         "etf_name": "通信ETF国泰",
@@ -3787,7 +3001,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "机械设备",
         "etf_code": "159886",
         "etf_name": "机械ETF富国",
@@ -3813,7 +3027,7 @@
         "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
         "close_code": "EVENT_FLIP",
         "guaranteed": true,
-        "days_held": 3,
+        "days_held": 4,
         "sector": "国防军工",
         "etf_code": "512660",
         "etf_name": "军工ETF国泰",
@@ -3823,132 +3037,6 @@
         "etf_note": "",
         "etf_display": "国防军工 → 512660 军工ETF国泰",
         "instrument_display": "国防军工（512660 军工ETF国泰）"
-      },
-      {
-        "name": "计算机",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "FALLING_HARD"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "FALLING_HARD",
-            "score": 0.026276,
-            "why": "降温后显著跑输",
-            "win_rate": 0.43,
-            "n": 477,
-            "mean_excess": -0.003997,
-            "horizon": "5D"
-          }
-        ],
-        "why": "降温后显著跑输",
-        "win_rate": 0.43,
-        "n": 477,
-        "mean_excess": -0.003997,
-        "conditional": true,
-        "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "计算机",
-        "etf_code": "159998",
-        "etf_name": "计算机ETF天弘",
-        "etf_label": "159998 计算机ETF天弘",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "计算机 → 159998 计算机ETF天弘",
-        "instrument_display": "计算机（159998 计算机ETF天弘）"
-      },
-      {
-        "name": "传媒",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "FALLING_HARD"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "FALLING_HARD",
-            "score": 0.021667,
-            "why": "降温后显著跑输",
-            "win_rate": 0.44,
-            "n": 477,
-            "mean_excess": -0.003221,
-            "horizon": "5D"
-          }
-        ],
-        "why": "降温后显著跑输",
-        "win_rate": 0.44,
-        "n": 477,
-        "mean_excess": -0.003221,
-        "conditional": true,
-        "condition_cn": "仅当已持有「传媒」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "传媒",
-        "etf_code": "512980",
-        "etf_name": "传媒ETF广发",
-        "etf_label": "512980 传媒ETF广发",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "传媒 → 512980 传媒ETF广发",
-        "instrument_display": "传媒（512980 传媒ETF广发）"
-      },
-      {
-        "name": "美容护理",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "FALLING_HARD"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "FALLING_HARD",
-            "score": 0.0,
-            "why": "降温后显著跑输",
-            "win_rate": 0.42,
-            "n": 339,
-            "mean_excess": -0.003069,
-            "horizon": "5D"
-          }
-        ],
-        "why": "降温后显著跑输",
-        "win_rate": 0.42,
-        "n": 339,
-        "mean_excess": -0.003069,
-        "conditional": true,
-        "condition_cn": "仅当已持有「美容护理」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "美容护理",
-        "etf_code": "159928",
-        "etf_name": "消费ETF汇添富",
-        "etf_label": "159928 消费ETF汇添富",
-        "etf_quality": "weak",
-        "etf_quality_cn": "弱代理",
-        "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
-        "etf_display": "美容护理 → 159928 消费ETF汇添富",
-        "instrument_display": "美容护理（159928 消费ETF汇添富）"
       }
     ],
     "risk_dashboard": {
@@ -6541,7 +5629,7 @@
       "FLAT": "空仓观望"
     },
     "disclaimer": "研究回测指令，非投资建议。默认展示进取仓位；弱代理已剔除；超额≠绝对收益；ETF 映射见 config/sector_etf_map.yml。",
-    "primary_stage_cn": "降温（ΔRT_5≤-5）"
+    "primary_stage_cn": "中性观望"
   },
   "all_stage_catalog": [
     {
