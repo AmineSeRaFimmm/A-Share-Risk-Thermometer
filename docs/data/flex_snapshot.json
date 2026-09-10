@@ -1,10 +1,10 @@
 {
   "schema_version": 2,
-  "revision": "e5adb78b78c3bdc2fcc068080041dcd7d26be58dd33371e01c310e02894ac46b",
-  "built_at": "2026-09-10T15:44:22+08:00",
+  "revision": "b4fc2aba9601a29aa07e718cf1835aa34e4ec29cfc575c86deee5eef7c38702b",
+  "built_at": "2026-09-10T15:49:16+08:00",
   "strategy_as_of": "2026-09-10",
-  "marks_as_of": "2026-09-09",
-  "marks_quality": "WARN_INCOMPLETE_AS_OF",
+  "marks_as_of": "2026-09-10",
+  "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
   "strategy_publication_status": "OFFICIAL_PENDING",
   "official_strategy_pending": true,
   "calendar_coverage_through": "2026-12-31",
@@ -105,92 +105,14 @@
         "etf_note": "核心指数仓默认标的；备选 510310/159919",
         "etf_display": "沪深300 → 510300 沪深300ETF华泰柏瑞",
         "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
-      },
-      {
-        "sleeve": "satellite",
-        "name": "通信",
-        "action": "CLOSE",
-        "action_cn": "策略离场",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
-        "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-        "close_code": "EVENT_FLIP",
-        "guaranteed": true,
-        "days_held": 4,
-        "sector": "通信",
-        "etf_code": "515880",
-        "etf_name": "通信ETF国泰",
-        "etf_label": "515880 通信ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "通信 → 515880 通信ETF国泰",
-        "instrument_display": "通信（515880 通信ETF国泰）"
-      },
-      {
-        "sleeve": "satellite",
-        "name": "机械设备",
-        "action": "CLOSE",
-        "action_cn": "策略离场",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
-        "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-        "close_code": "EVENT_FLIP",
-        "guaranteed": true,
-        "days_held": 4,
-        "sector": "机械设备",
-        "etf_code": "159886",
-        "etf_name": "机械ETF富国",
-        "etf_label": "159886 机械ETF富国",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "机械设备 → 159886 机械ETF富国",
-        "instrument_display": "机械设备（159886 机械ETF富国）"
-      },
-      {
-        "sleeve": "satellite",
-        "name": "国防军工",
-        "action": "CLOSE",
-        "action_cn": "策略离场",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
-        "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-        "close_code": "EVENT_FLIP",
-        "guaranteed": true,
-        "days_held": 4,
-        "sector": "国防军工",
-        "etf_code": "512660",
-        "etf_name": "军工ETF国泰",
-        "etf_label": "512660 军工ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "国防军工 → 512660 军工ETF国泰",
-        "instrument_display": "国防军工（512660 军工ETF国泰）"
       }
     ],
     "stage_observations": [],
     "flex_panel": {
       "version": "flex_v2",
-      "status": "平仓",
+      "status": "观望",
       "status_code": "FLAT",
-      "headline": "组合 Flex v2：执行平仓",
+      "headline": "组合 Flex v2：暂无开仓信号",
       "as_of": "2026-09-10",
       "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
       "core_tail_policy": {
@@ -2426,23 +2348,15 @@
           "planned_hold_days": null
         },
         "satellite": {
-          "status": "open",
-          "entry_signal_date": "2026-09-04",
-          "entry_date": "2026-09-07",
-          "exit_due_date": "2026-09-16",
-          "days_held": 4,
-          "days_remaining": 4,
-          "stage_id": "RISING_HARD",
-          "names": [
-            "通信",
-            "机械设备",
-            "国防军工"
-          ],
-          "weights": {
-            "通信": 0.4945,
-            "机械设备": 0.2721,
-            "国防军工": 0.2334
-          },
+          "status": "flat",
+          "entry_signal_date": null,
+          "entry_date": null,
+          "exit_due_date": null,
+          "days_held": 0,
+          "days_remaining": 0,
+          "stage_id": null,
+          "names": [],
+          "weights": {},
           "etf_code": null,
           "execution_mode": "T_PLUS_1_OPEN",
           "entry_price_type": "open",
@@ -2460,8 +2374,8 @@
             "trigger_date": "2026-09-09",
             "signal_date": "2026-09-09",
             "execution_date": "2026-09-10",
-            "execution_status": "PENDING",
-            "execution_bar_complete": false,
+            "execution_status": "EXECUTED",
+            "execution_bar_complete": true,
             "position": {
               "status": "open",
               "entry_signal_date": "2026-09-04",
@@ -2506,10 +2420,12 @@
                 "weight_in_sleeve": 0.2334
               }
             ],
-            "execution_blocked_code": "MISSING_EXECUTION_OPEN"
+            "execution_basis": "ETF_OPEN_CONFIRMED"
           }
         ],
-        "cooldown_through": {},
+        "cooldown_through": {
+          "satellite": "2026-09-10"
+        },
         "satellite_risk_check": {
           "signal_id": "2026-09-04",
           "entry_date": "2026-09-07",
@@ -2562,8 +2478,8 @@
           "trigger_date": "2026-09-09",
           "signal_date": "2026-09-09",
           "execution_date": "2026-09-10",
-          "execution_status": "PENDING",
-          "execution_bar_complete": false,
+          "execution_status": "EXECUTED",
+          "execution_bar_complete": true,
           "position": {
             "status": "open",
             "entry_signal_date": "2026-09-04",
@@ -2608,10 +2524,12 @@
               "weight_in_sleeve": 0.2334
             }
           ],
-          "execution_blocked_code": "MISSING_EXECUTION_OPEN"
+          "execution_basis": "ETF_OPEN_CONFIRMED"
         }
       ],
-      "cooldown_through": {},
+      "cooldown_through": {
+        "satellite": "2026-09-10"
+      },
       "exit_plan": {
         "as_of": "2026-09-10",
         "core": {
@@ -2625,38 +2543,20 @@
           "triggered_close": null
         },
         "satellite": {
-          "status": "open",
-          "entry_signal_date": "2026-09-04",
-          "entry_date": "2026-09-07",
-          "days_held": 4,
-          "stage_id": "RISING_HARD",
+          "status": "flat",
+          "entry_signal_date": null,
+          "entry_date": null,
+          "days_held": 0,
+          "stage_id": null,
           "rules": {
             "min_hold": 3,
             "default_hold": 5,
             "max_hold": 8,
-            "opposites": [
-              "FALLING_HARD",
-              "HIGH_COOLING"
-            ]
+            "opposites": []
           },
-          "triggered_close": {
-            "close_code": "EVENT_FLIP",
-            "priority": "P0",
-            "action_cn": "策略离场",
-            "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-            "guaranteed": true
-          },
-          "paths": {
-            "event_earliest_signal_date": "2026-09-09",
-            "default_signal_date": "2026-09-11",
-            "max_signal_date": "2026-09-16",
-            "max_exec_next_open": "2026-09-17",
-            "default_exec_next_open": "2026-09-14",
-            "event_exec_next_open": "2026-09-10"
-          },
-          "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。",
-          "exit_due_date": "2026-09-16",
-          "days_to_max": 4
+          "triggered_close": null,
+          "paths": {},
+          "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。"
         },
         "guarantee_cn": "日更成功且 as_of=当日时：任一 close_code 触发必写入 close_list；执行台必须展示策略平仓提示（本机未点买也可看，点买后可记账平仓）。日更失败则页面不会刷新——需看 Actions。"
       },
@@ -2694,9 +2594,9 @@
         "sleeve": "satellite",
         "name": "板块超配卫星",
         "active": false,
-        "status_cn": "退出",
-        "tone": "sell",
-        "stage_id": "RISING_HARD",
+        "status_cn": "未激活",
+        "tone": "wait",
+        "stage_id": null,
         "stage_cn": "无",
         "stage_ids": [],
         "buy": [],
@@ -2706,23 +2606,15 @@
         "weight_target": 0.0,
         "observe_only": false,
         "position": {
-          "status": "open",
-          "entry_signal_date": "2026-09-04",
-          "entry_date": "2026-09-07",
-          "exit_due_date": "2026-09-16",
-          "days_held": 4,
-          "days_remaining": 4,
-          "stage_id": "RISING_HARD",
-          "names": [
-            "通信",
-            "机械设备",
-            "国防军工"
-          ],
-          "weights": {
-            "通信": 0.4945,
-            "机械设备": 0.2721,
-            "国防军工": 0.2334
-          },
+          "status": "flat",
+          "entry_signal_date": null,
+          "entry_date": null,
+          "exit_due_date": null,
+          "days_held": 0,
+          "days_remaining": 0,
+          "stage_id": null,
+          "names": [],
+          "weights": {},
           "etf_code": null,
           "execution_mode": "T_PLUS_1_OPEN",
           "entry_price_type": "open",
@@ -2730,222 +2622,11 @@
         }
       },
       "buy_list": [],
-      "sell_list": [
-        {
-          "sleeve": "satellite",
-          "name": "通信",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "通信",
-          "etf_code": "515880",
-          "etf_name": "通信ETF国泰",
-          "etf_label": "515880 通信ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "通信 → 515880 通信ETF国泰",
-          "instrument_display": "通信（515880 通信ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "机械设备",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "机械设备",
-          "etf_code": "159886",
-          "etf_name": "机械ETF富国",
-          "etf_label": "159886 机械ETF富国",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "机械设备 → 159886 机械ETF富国",
-          "instrument_display": "机械设备（159886 机械ETF富国）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "国防军工",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "国防军工",
-          "etf_code": "512660",
-          "etf_name": "军工ETF国泰",
-          "etf_label": "512660 军工ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "国防军工 → 512660 军工ETF国泰",
-          "instrument_display": "国防军工（512660 军工ETF国泰）"
-        }
-      ],
+      "sell_list": [],
       "hold_list": [],
       "avoid_list": [],
-      "close_list": [
-        {
-          "sleeve": "satellite",
-          "name": "通信",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "通信",
-          "etf_code": "515880",
-          "etf_name": "通信ETF国泰",
-          "etf_label": "515880 通信ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "通信 → 515880 通信ETF国泰",
-          "instrument_display": "通信（515880 通信ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "机械设备",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "机械设备",
-          "etf_code": "159886",
-          "etf_name": "机械ETF富国",
-          "etf_label": "159886 机械ETF富国",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "机械设备 → 159886 机械ETF富国",
-          "instrument_display": "机械设备（159886 机械ETF富国）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "国防军工",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "国防军工",
-          "etf_code": "512660",
-          "etf_name": "军工ETF国泰",
-          "etf_label": "512660 军工ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "国防军工 → 512660 军工ETF国泰",
-          "instrument_display": "国防军工（512660 军工ETF国泰）"
-        }
-      ],
-      "minimal_actions": [
-        {
-          "sleeve": "satellite",
-          "name": "通信",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "通信",
-          "etf_code": "515880",
-          "etf_name": "通信ETF国泰",
-          "etf_label": "515880 通信ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "通信 → 515880 通信ETF国泰",
-          "instrument_display": "通信（515880 通信ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "机械设备",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "机械设备",
-          "etf_code": "159886",
-          "etf_name": "机械ETF富国",
-          "etf_label": "159886 机械ETF富国",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "机械设备 → 159886 机械ETF富国",
-          "instrument_display": "机械设备（159886 机械ETF富国）"
-        }
-      ],
+      "close_list": [],
+      "minimal_actions": [],
       "all_actions": [
         {
           "sleeve": "core",
@@ -2969,84 +2650,6 @@
           "etf_note": "核心指数仓默认标的；备选 510310/159919",
           "etf_display": "沪深300 → 510300 沪深300ETF华泰柏瑞",
           "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "通信",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "通信",
-          "etf_code": "515880",
-          "etf_name": "通信ETF国泰",
-          "etf_label": "515880 通信ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "通信 → 515880 通信ETF国泰",
-          "instrument_display": "通信（515880 通信ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "机械设备",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "机械设备",
-          "etf_code": "159886",
-          "etf_name": "机械ETF富国",
-          "etf_label": "159886 机械ETF富国",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "机械设备 → 159886 机械ETF富国",
-          "instrument_display": "机械设备（159886 机械ETF富国）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "国防军工",
-          "action": "CLOSE",
-          "action_cn": "策略离场",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-          "close_code": "EVENT_FLIP",
-          "guaranteed": true,
-          "days_held": 4,
-          "sector": "国防军工",
-          "etf_code": "512660",
-          "etf_name": "军工ETF国泰",
-          "etf_label": "512660 军工ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "国防军工 → 512660 军工ETF国泰",
-          "instrument_display": "国防军工（512660 军工ETF国泰）"
         }
       ],
       "risk_dashboard": {
@@ -5761,7 +5364,7 @@
     "as_of": "2026-09-10",
     "start": "2026-05-13",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 4,
+    "fetch_workers": 1,
     "not_broker_feed": true,
     "required_codes": [
       "159886",
@@ -5802,13 +5405,8 @@
     ],
     "code_count": 29,
     "missing_codes": [],
-    "stale_codes": [
-      "159886",
-      "510300",
-      "512660",
-      "515880"
-    ],
-    "complete_as_of": "2026-09-09",
+    "stale_codes": [],
+    "complete_as_of": "2026-09-10",
     "coverage_missing_codes": [],
     "coverage_stale_codes": [
       "159666",
@@ -5816,17 +5414,14 @@
       "159730",
       "159745",
       "159766",
-      "159886",
       "159928",
       "159995",
       "159998",
-      "510300",
       "512010",
       "512200",
       "512400",
       "512430",
       "512580",
-      "512660",
       "512800",
       "512880",
       "512980",
@@ -5834,7 +5429,6 @@
       "515210",
       "515220",
       "515710",
-      "515880",
       "516020",
       "516110",
       "516670",
@@ -5842,7 +5436,7 @@
       "560620"
     ],
     "coverage_complete_as_of": "2026-09-09",
-    "quality": "WARN_INCOMPLETE_AS_OF",
+    "quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
     "by_code": {
       "159666": {
         "etf_code": "159666",
@@ -9635,12 +9229,21 @@
             "close": 0.871,
             "high": 0.871,
             "low": 0.861
+          },
+          "2026-09-10": {
+            "open": 0.869,
+            "close": 0.863,
+            "high": 0.875,
+            "low": 0.859
           }
         },
-        "bar_count": 104,
+        "bar_count": 105,
         "first": "2026-04-13",
-        "last": "2026-09-09",
-        "fresh_for_as_of": false
+        "last": "2026-09-10",
+        "fresh_for_as_of": true,
+        "bar_sources": {
+          "2026-09-10": "TENCENT_ETF_FINAL_QUOTE"
+        }
       },
       "159928": {
         "etf_code": "159928",
@@ -12167,12 +11770,21 @@
             "close": 4.637,
             "high": 4.648,
             "low": 4.613
+          },
+          "2026-09-10": {
+            "open": 4.617,
+            "close": 4.617,
+            "high": 4.64,
+            "low": 4.599
           }
         },
-        "bar_count": 104,
+        "bar_count": 105,
         "first": "2026-04-13",
-        "last": "2026-09-09",
-        "fresh_for_as_of": false
+        "last": "2026-09-10",
+        "fresh_for_as_of": true,
+        "bar_sources": {
+          "2026-09-10": "TENCENT_ETF_FINAL_QUOTE"
+        }
       },
       "512010": {
         "etf_code": "512010",
@@ -15887,12 +15499,21 @@
             "close": 1.18,
             "high": 1.189,
             "low": 1.159
+          },
+          "2026-09-10": {
+            "open": 1.171,
+            "close": 1.18,
+            "high": 1.19,
+            "low": 1.169
           }
         },
-        "bar_count": 104,
+        "bar_count": 105,
         "first": "2026-04-13",
-        "last": "2026-09-09",
-        "fresh_for_as_of": false
+        "last": "2026-09-10",
+        "fresh_for_as_of": true,
+        "bar_sources": {
+          "2026-09-10": "TENCENT_ETF_FINAL_QUOTE"
+        }
       },
       "512800": {
         "etf_code": "512800",
@@ -20951,12 +20572,21 @@
             "close": 0.677,
             "high": 0.692,
             "low": 0.671
+          },
+          "2026-09-10": {
+            "open": 0.666,
+            "close": 0.671,
+            "high": 0.681,
+            "low": 0.665
           }
         },
-        "bar_count": 104,
+        "bar_count": 105,
         "first": "2026-04-13",
-        "last": "2026-09-09",
-        "fresh_for_as_of": false
+        "last": "2026-09-10",
+        "fresh_for_as_of": true,
+        "bar_sources": {
+          "2026-09-10": "TENCENT_ETF_FINAL_QUOTE"
+        }
       },
       "516020": {
         "etf_code": "516020",
@@ -24124,7 +23754,31 @@
         "fresh_for_as_of": false
       }
     },
-    "updated_at": "2026-09-10T07:44:22+00:00",
+    "updated_at": "2026-09-10T07:49:16+00:00",
+    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
+    "final_quote_fallback": {
+      "trade_date": "2026-09-10",
+      "status": "complete",
+      "code_count": 4,
+      "quotes": {
+        "159886": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-10T15:49:06+08:00"
+        },
+        "510300": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-10T15:49:04+08:00"
+        },
+        "512660": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-10T15:49:03+08:00"
+        },
+        "515880": {
+          "source": "TENCENT_ETF_FINAL_QUOTE",
+          "quote_time": "2026-09-10T15:49:15+08:00"
+        }
+      }
+    },
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-09-10",
@@ -27275,7 +26929,7 @@
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
     "as_of": "2026-09-10",
-    "marks_as_of": "2026-09-09",
+    "marks_as_of": "2026-09-10",
     "status": "ACTION",
     "headline_cn": "2026-09-10 有 1 项处于执行窗口的策略动作",
     "items": [
@@ -27289,8 +26943,8 @@
         "trigger_date": "2026-09-09",
         "signal_date": "2026-09-09",
         "execution_date": "2026-09-10",
-        "execution_status": "PENDING",
-        "execution_bar_complete": false,
+        "execution_status": "EXECUTED",
+        "execution_bar_complete": true,
         "position": {
           "status": "open",
           "entry_signal_date": "2026-09-04",
@@ -27335,7 +26989,7 @@
             "weight_in_sleeve": 0.2334
           }
         ],
-        "execution_blocked_code": "MISSING_EXECUTION_OPEN",
+        "execution_basis": "ETF_OPEN_CONFIRMED",
         "action_cn": "策略离场",
         "title_cn": "策略离场",
         "execution_mode": "T_PLUS_1_OPEN",
@@ -27370,8 +27024,8 @@
         "trigger_date": "2026-09-09",
         "signal_date": "2026-09-09",
         "execution_date": "2026-09-10",
-        "execution_status": "PENDING",
-        "execution_bar_complete": false,
+        "execution_status": "EXECUTED",
+        "execution_bar_complete": true,
         "position": {
           "status": "open",
           "entry_signal_date": "2026-09-04",
@@ -27416,7 +27070,7 @@
             "weight_in_sleeve": 0.2334
           }
         ],
-        "execution_blocked_code": "MISSING_EXECUTION_OPEN"
+        "execution_basis": "ETF_OPEN_CONFIRMED"
       }
     ],
     "satellite_risk_event": {
@@ -27472,8 +27126,8 @@
       "strategy_publication_status": "OFFICIAL_PENDING",
       "official_strategy_pending": true,
       "strategy_provisional": true,
-      "marks_as_of": "2026-09-09",
-      "marks_quality": "WARN_INCOMPLETE_AS_OF",
+      "marks_as_of": "2026-09-10",
+      "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
       "risk_check_status": "CLEAR",
       "complete": false
     },
