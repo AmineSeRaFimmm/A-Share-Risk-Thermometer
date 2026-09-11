@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "e3afe5c992fec6a66d91e46d1c9a49550a7076921e682604ccf48f5c2ddbee7f",
-  "built_at": "2026-09-10T22:57:06+08:00",
+  "revision": "b162896b9eab5836a0a3c1f1774ae4604a355cec83555f4210e867c6279746b6",
+  "built_at": "2026-09-11T13:58:59+08:00",
   "strategy_as_of": "2026-09-10",
   "marks_as_of": "2026-09-10",
   "marks_quality": "OK",
-  "strategy_publication_status": "CURRENT",
-  "official_strategy_pending": false,
+  "strategy_publication_status": "OFFICIAL_PENDING",
+  "official_strategy_pending": true,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -27011,91 +27011,11 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-09-10",
+    "as_of": "2026-09-11",
     "marks_as_of": "2026-09-10",
-    "status": "ACTION",
-    "headline_cn": "2026-09-10 有 1 项处于执行窗口的策略动作",
-    "items": [
-      {
-        "event_type": "EXIT",
-        "close_code": "EVENT_FLIP",
-        "reason_cn": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
-        "days_held": 3,
-        "id": "satellite:2026-09-04:2026-09-07:2026-09-09:EVENT_FLIP",
-        "sleeve": "satellite",
-        "trigger_date": "2026-09-09",
-        "signal_date": "2026-09-09",
-        "execution_date": "2026-09-10",
-        "execution_status": "EXECUTED",
-        "execution_bar_complete": true,
-        "position": {
-          "status": "open",
-          "entry_signal_date": "2026-09-04",
-          "entry_date": "2026-09-07",
-          "exit_due_date": "2026-09-16",
-          "days_held": 3,
-          "days_remaining": 5,
-          "stage_id": "RISING_HARD",
-          "names": [
-            "通信",
-            "机械设备",
-            "国防军工"
-          ],
-          "weights": {
-            "通信": 0.4945,
-            "机械设备": 0.2721,
-            "国防军工": 0.2334
-          },
-          "etf_code": null,
-          "execution_mode": "T_PLUS_1_OPEN",
-          "entry_price_type": "open",
-          "planned_hold_days": null
-        },
-        "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-        "event_id": "satellite:2026-09-04:2026-09-07:2026-09-09:EVENT_FLIP",
-        "signal_id": "2026-09-04",
-        "requires_open_marks": true,
-        "members": [
-          {
-            "name": "通信",
-            "etf_code": "515880",
-            "weight_in_sleeve": 0.4945
-          },
-          {
-            "name": "机械设备",
-            "etf_code": "159886",
-            "weight_in_sleeve": 0.2721
-          },
-          {
-            "name": "国防军工",
-            "etf_code": "512660",
-            "weight_in_sleeve": 0.2334
-          }
-        ],
-        "execution_basis": "ETF_OPEN_CONFIRMED",
-        "action_cn": "策略离场",
-        "title_cn": "策略离场",
-        "execution_mode": "T_PLUS_1_OPEN",
-        "execution_window_cn": "下一交易日开盘整篮平仓",
-        "instruments": [
-          {
-            "name": "通信",
-            "etf_code": "515880",
-            "weight_in_sleeve": 0.4945
-          },
-          {
-            "name": "机械设备",
-            "etf_code": "159886",
-            "weight_in_sleeve": 0.2721
-          },
-          {
-            "name": "国防军工",
-            "etf_code": "512660",
-            "weight_in_sleeve": 0.2334
-          }
-        ]
-      }
-    ],
+    "status": "OFFICIAL_PENDING",
+    "headline_cn": "2026-09-11 正式 Flex 策略待生成",
+    "items": [],
     "execution_events": [
       {
         "event_type": "EXIT",
@@ -27204,15 +27124,15 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-09-10",
+      "report_as_of": "2026-09-11",
       "strategy_as_of": "2026-09-10",
-      "strategy_publication_status": "CURRENT",
-      "official_strategy_pending": false,
+      "strategy_publication_status": "OFFICIAL_PENDING",
+      "official_strategy_pending": true,
       "strategy_provisional": false,
       "marks_as_of": "2026-09-10",
       "marks_quality": "OK",
       "risk_check_status": "CLEAR",
-      "complete": true
+      "complete": false
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",
