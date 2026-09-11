@@ -35,23 +35,23 @@
       "research/output/core_plus_sectors/core_plus_sectors_report.md"
     ]
   },
-  "as_of": "2026-09-10",
+  "as_of": "2026-09-11",
   "data_quality": {
     "risk_source": "OFFICIAL_CLOSE",
-    "official_as_of": "2026-09-10",
+    "official_as_of": "2026-09-11",
     "bridged": false,
     "bridged_dates": [],
     "bridge_source": null,
     "note_cn": "策略日期与正式风险因子日期一致。"
   },
   "market_state": {
-    "trade_date": "2026-09-10",
-    "rt": 54.7,
-    "prev_rt": 43.4,
-    "rt_d1": 11.300000000000004,
-    "rt_d5": 1.8000000000000043,
-    "rt_rollmax_10": 55.5,
-    "hs300_dd60": -0.1010479364415539,
+    "trade_date": "2026-09-11",
+    "rt": 56.5,
+    "prev_rt": 54.7,
+    "rt_d1": 1.7999999999999972,
+    "rt_d5": 1.0,
+    "rt_rollmax_10": 56.5,
+    "hs300_dd60": -0.1086047713106301,
     "regime": "CAUTION",
     "regime_cn": "警戒",
     "quality": "WARN_QVIX_REALTIME_PROXY",
@@ -101,7 +101,7 @@
     "status": "观望",
     "status_code": "FLAT",
     "headline": "组合 Flex v2：暂无开仓信号",
-    "as_of": "2026-09-10",
+    "as_of": "2026-09-11",
     "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
     "core_tail_policy": {
       "id": "CORE_STRICT_TAIL_V2",
@@ -2306,10 +2306,10 @@
       }
     },
     "market_state": {
-      "rt": 54.7,
-      "rt_d1": 11.300000000000004,
-      "rt_d5": 1.8000000000000043,
-      "hs300_dd60": -0.1010479364415539,
+      "rt": 56.5,
+      "rt_d1": 1.7999999999999972,
+      "rt_d5": 1.0,
+      "hs300_dd60": -0.1086047713106301,
       "model_confidence": 93.7,
       "regime_cn": "警戒"
     },
@@ -2318,7 +2318,7 @@
     "suppressed_avoid_conflicts": [],
     "merge_note_cn": "多阶段合并：无；被门控压制：无",
     "position_state": {
-      "as_of": "2026-09-10",
+      "as_of": "2026-09-11",
       "mode": "aggressive",
       "core": {
         "status": "flat",
@@ -2519,7 +2519,7 @@
       "satellite": "2026-09-10"
     },
     "exit_plan": {
-      "as_of": "2026-09-10",
+      "as_of": "2026-09-11",
       "core": {
         "status": "flat",
         "entry_signal_date": null,
