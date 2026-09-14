@@ -5,7 +5,7 @@
   "as_of": "2026-09-14",
   "start": "2026-05-17",
   "source": "AKSHARE_FUND_ETF_HIST_EM",
-  "fetch_workers": 1,
+  "fetch_workers": 4,
   "not_broker_feed": true,
   "required_codes": [
     "510300"
@@ -18852,7 +18852,7 @@
       "fresh_for_as_of": true
     }
   },
-  "updated_at": "2026-09-14T14:26:15+00:00",
+  "updated_at": "2026-09-14T15:07:20+00:00",
   "published_bar_preservation": {
     "status": "used",
     "candidate_as_of": "2026-09-14",

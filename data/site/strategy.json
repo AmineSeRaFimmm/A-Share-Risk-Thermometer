@@ -1,16 +1,16 @@
 {
   "status": "ready",
   "latest": {
-    "trade_date": "2026-09-11",
+    "trade_date": "2026-09-14",
     "execution_trade_date": null,
     "execution_sse_open": null,
-    "avix": 17.8759,
-    "sse_open": 3910.923,
-    "sse_close": 3888.111,
-    "sse_ret1": -0.0118,
-    "sse_ret10": -0.0162,
-    "sse_ma5": 3929.4544,
-    "sse_ma10": 3942.7048,
+    "avix": 18.176,
+    "sse_open": 3867.022,
+    "sse_close": 3885.333,
+    "sse_ret1": -0.0007,
+    "sse_ret10": -0.0253,
+    "sse_ma5": 3919.9812,
+    "sse_ma10": 3932.6083,
     "s3_signal": false,
     "s4_signal": false,
     "s3_s4_signal": false,
@@ -23,7 +23,7 @@
     "s3_sell_reason": "",
     "s4_sell_reason": "",
     "s3_s4_sell_reason": "",
-    "signal_quality": "OK"
+    "signal_quality": "WARN_ROLLOVER_SINGLE_TERM_30D"
   },
   "recent_buy": [
     {

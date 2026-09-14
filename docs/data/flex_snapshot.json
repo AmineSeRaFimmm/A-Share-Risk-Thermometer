@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "cc3e0b5b6c2d4dc07817ed16e7da01f854772c30432fbf51f1d78b91d7934d69",
-  "built_at": "2026-09-14T22:46:23+08:00",
-  "strategy_as_of": "2026-09-11",
+  "revision": "5d77048a0a12aec7f4ddc4658651796b73cca05a6cc1797e4fc6e4931b2b308b",
+  "built_at": "2026-09-14T23:07:20+08:00",
+  "strategy_as_of": "2026-09-14",
   "marks_as_of": "2026-09-14",
   "marks_quality": "OK",
-  "strategy_publication_status": "OFFICIAL_PENDING",
-  "official_strategy_pending": true,
+  "strategy_publication_status": "CURRENT",
+  "official_strategy_pending": false,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -45,27 +45,27 @@
         "research/output/core_plus_sectors/core_plus_sectors_report.md"
       ]
     },
-    "as_of": "2026-09-11",
+    "as_of": "2026-09-14",
     "data_quality": {
       "risk_source": "OFFICIAL_CLOSE",
-      "official_as_of": "2026-09-11",
+      "official_as_of": "2026-09-14",
       "bridged": false,
       "bridged_dates": [],
       "bridge_source": null,
       "note_cn": "策略日期与正式风险因子日期一致。"
     },
     "market_state": {
-      "trade_date": "2026-09-11",
-      "rt": 56.5,
-      "prev_rt": 54.7,
-      "rt_d1": 1.7999999999999972,
-      "rt_d5": 1.0,
+      "trade_date": "2026-09-14",
+      "rt": 51.2,
+      "prev_rt": 56.5,
+      "rt_d1": -5.299999999999997,
+      "rt_d5": 2.1000000000000014,
       "rt_rollmax_10": 56.5,
-      "hs300_dd60": -0.1086047713106301,
+      "hs300_dd60": -0.10757187500498,
       "regime": "CAUTION",
       "regime_cn": "警戒",
-      "quality": "WARN_QVIX_REALTIME_PROXY",
-      "model_confidence": 93.7
+      "quality": "WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D",
+      "model_confidence": 88.7
     },
     "active_stage_ids": [],
     "primary_stage": {
@@ -111,7 +111,7 @@
       "status": "观望",
       "status_code": "FLAT",
       "headline": "组合 Flex v2：暂无开仓信号",
-      "as_of": "2026-09-11",
+      "as_of": "2026-09-14",
       "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
       "core_tail_policy": {
         "id": "CORE_STRICT_TAIL_V2",
@@ -2316,11 +2316,11 @@
         }
       },
       "market_state": {
-        "rt": 56.5,
-        "rt_d1": 1.7999999999999972,
-        "rt_d5": 1.0,
-        "hs300_dd60": -0.1086047713106301,
-        "model_confidence": 93.7,
+        "rt": 51.2,
+        "rt_d1": -5.299999999999997,
+        "rt_d5": 2.1000000000000014,
+        "hs300_dd60": -0.10757187500498,
+        "model_confidence": 88.7,
         "regime_cn": "警戒"
       },
       "active_stages": [],
@@ -2328,7 +2328,7 @@
       "suppressed_avoid_conflicts": [],
       "merge_note_cn": "多阶段合并：无；被门控压制：无",
       "position_state": {
-        "as_of": "2026-09-11",
+        "as_of": "2026-09-14",
         "mode": "aggressive",
         "core": {
           "status": "flat",
@@ -2529,7 +2529,7 @@
         "satellite": "2026-09-10"
       },
       "exit_plan": {
-        "as_of": "2026-09-11",
+        "as_of": "2026-09-14",
         "core": {
           "status": "flat",
           "entry_signal_date": null,
@@ -5362,7 +5362,7 @@
     "as_of": "2026-09-14",
     "start": "2026-05-17",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 1,
+    "fetch_workers": 4,
     "not_broker_feed": true,
     "required_codes": [
       "510300"
@@ -24209,7 +24209,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-09-14T14:26:15+00:00",
+    "updated_at": "2026-09-14T15:07:20+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-09-14",
@@ -24937,10 +24937,8 @@
     "authoritative": true,
     "coverage_from": "1990-12-19",
     "coverage_through": "2026-12-31",
-    "generated_for": "2026-09-11",
+    "generated_for": "2026-09-14",
     "dates": [
-      "2016-09-13",
-      "2016-09-14",
       "2016-09-19",
       "2016-09-20",
       "2016-09-21",
@@ -27447,8 +27445,8 @@
     "mode": "aggressive",
     "as_of": "2026-09-14",
     "marks_as_of": "2026-09-14",
-    "status": "OFFICIAL_PENDING",
-    "headline_cn": "2026-09-14 正式 Flex 策略待生成",
+    "status": "NO_ACTION",
+    "headline_cn": "今日没有处于执行窗口的 Flex 策略动作",
     "items": [],
     "execution_events": [
       {
@@ -27559,14 +27557,14 @@
     },
     "data_quality": {
       "report_as_of": "2026-09-14",
-      "strategy_as_of": "2026-09-11",
-      "strategy_publication_status": "OFFICIAL_PENDING",
-      "official_strategy_pending": true,
+      "strategy_as_of": "2026-09-14",
+      "strategy_publication_status": "CURRENT",
+      "official_strategy_pending": false,
       "strategy_provisional": false,
       "marks_as_of": "2026-09-14",
       "marks_quality": "OK",
       "risk_check_status": "CLEAR",
-      "complete": false
+      "complete": true
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",
