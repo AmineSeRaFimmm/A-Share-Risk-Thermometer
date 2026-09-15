@@ -5,10 +5,16 @@
   "as_of": "2026-09-15",
   "start": "2026-05-18",
   "source": "AKSHARE_FUND_ETF_HIST_EM",
-  "fetch_workers": 1,
+  "fetch_workers": 4,
   "not_broker_feed": true,
   "required_codes": [
-    "510300"
+    "159886",
+    "159928",
+    "510300",
+    "512200",
+    "512660",
+    "515210",
+    "515880"
   ],
   "coverage_codes": [
     "159666",
@@ -46,15 +52,8 @@
   "stale_codes": [],
   "complete_as_of": "2026-09-15",
   "coverage_missing_codes": [],
-  "coverage_stale_codes": [
-    "159745",
-    "159766",
-    "159886",
-    "159928",
-    "159995",
-    "159998"
-  ],
-  "coverage_complete_as_of": "2026-09-14",
+  "coverage_stale_codes": [],
+  "coverage_complete_as_of": "2026-09-15",
   "quality": "OK",
   "by_code": {
     "159666": {
@@ -2672,12 +2671,18 @@
           "close": 0.522,
           "high": 0.523,
           "low": 0.516
+        },
+        "2026-09-15": {
+          "open": 0.52,
+          "close": 0.513,
+          "high": 0.522,
+          "low": 0.513
         }
       },
-      "bar_count": 107,
+      "bar_count": 108,
       "first": "2026-04-13",
-      "last": "2026-09-14",
-      "fresh_for_as_of": false
+      "last": "2026-09-15",
+      "fresh_for_as_of": true
     },
     "159766": {
       "etf_code": "159766",
@@ -3323,12 +3328,18 @@
           "close": 0.555,
           "high": 0.563,
           "low": 0.553
+        },
+        "2026-09-15": {
+          "open": 0.555,
+          "close": 0.543,
+          "high": 0.555,
+          "low": 0.542
         }
       },
-      "bar_count": 107,
+      "bar_count": 108,
       "first": "2026-04-13",
-      "last": "2026-09-14",
-      "fresh_for_as_of": false
+      "last": "2026-09-15",
+      "fresh_for_as_of": true
     },
     "159886": {
       "etf_code": "159886",
@@ -3974,12 +3985,18 @@
           "close": 0.852,
           "high": 0.857,
           "low": 0.845
+        },
+        "2026-09-15": {
+          "open": 0.853,
+          "close": 0.839,
+          "high": 0.854,
+          "low": 0.837
         }
       },
-      "bar_count": 107,
+      "bar_count": 108,
       "first": "2026-04-13",
-      "last": "2026-09-14",
-      "fresh_for_as_of": false
+      "last": "2026-09-15",
+      "fresh_for_as_of": true
     },
     "159928": {
       "etf_code": "159928",
@@ -4625,12 +4642,18 @@
           "close": 0.657,
           "high": 0.661,
           "low": 0.654
+        },
+        "2026-09-15": {
+          "open": 0.659,
+          "close": 0.654,
+          "high": 0.66,
+          "low": 0.653
         }
       },
-      "bar_count": 107,
+      "bar_count": 108,
       "first": "2026-04-13",
-      "last": "2026-09-14",
-      "fresh_for_as_of": false
+      "last": "2026-09-15",
+      "fresh_for_as_of": true
     },
     "159995": {
       "etf_code": "159995",
@@ -5276,12 +5299,18 @@
           "close": 1.056,
           "high": 1.07,
           "low": 1.049
+        },
+        "2026-09-15": {
+          "open": 1.048,
+          "close": 1.077,
+          "high": 1.096,
+          "low": 1.048
         }
       },
-      "bar_count": 107,
+      "bar_count": 108,
       "first": "2026-04-13",
-      "last": "2026-09-14",
-      "fresh_for_as_of": false
+      "last": "2026-09-15",
+      "fresh_for_as_of": true
     },
     "159998": {
       "etf_code": "159998",
@@ -5927,12 +5956,18 @@
           "close": 0.923,
           "high": 0.932,
           "low": 0.909
+        },
+        "2026-09-15": {
+          "open": 0.921,
+          "close": 0.922,
+          "high": 0.929,
+          "low": 0.918
         }
       },
-      "bar_count": 107,
+      "bar_count": 108,
       "first": "2026-04-13",
-      "last": "2026-09-14",
-      "fresh_for_as_of": false
+      "last": "2026-09-15",
+      "fresh_for_as_of": true
     },
     "510300": {
       "etf_code": "510300",
@@ -18997,7 +19032,7 @@
       "fresh_for_as_of": true
     }
   },
-  "updated_at": "2026-09-15T12:54:24+00:00",
+  "updated_at": "2026-09-15T13:50:10+00:00",
   "published_bar_preservation": {
     "status": "used",
     "candidate_as_of": "2026-09-15",
