@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-15",
+  "as_of": "2026-09-16",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -17,15 +17,23 @@
     "planned_hold_days": null
   },
   "satellite": {
-    "status": "flat",
-    "entry_signal_date": null,
-    "entry_date": null,
-    "exit_due_date": null,
-    "days_held": 0,
-    "days_remaining": 0,
-    "stage_id": null,
-    "names": [],
-    "weights": {},
+    "status": "open",
+    "entry_signal_date": "2026-09-15",
+    "entry_date": "2026-09-16",
+    "exit_due_date": "2026-09-28",
+    "days_held": 1,
+    "days_remaining": 7,
+    "stage_id": "RISING_HARD",
+    "names": [
+      "通信",
+      "机械设备",
+      "国防军工"
+    ],
+    "weights": {
+      "通信": 0.4945,
+      "机械设备": 0.2721,
+      "国防军工": 0.2334
+    },
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -96,8 +104,8 @@
     "satellite": "2026-09-10"
   },
   "satellite_risk_check": {
-    "signal_id": "2026-09-04",
-    "entry_date": "2026-09-07",
+    "signal_id": "2026-09-15",
+    "entry_date": "2026-09-16",
     "members": [
       {
         "name": "通信",
@@ -105,7 +113,7 @@
         "etf_name": "通信ETF国泰",
         "weight_in_sleeve": 0.4945,
         "portfolio_weight": null,
-        "entry_open": 0.651
+        "entry_open": 0.653
       },
       {
         "name": "机械设备",
@@ -113,7 +121,7 @@
         "etf_name": "机械ETF富国",
         "weight_in_sleeve": 0.2721,
         "portfolio_weight": null,
-        "entry_open": 0.873
+        "entry_open": 0.84
       },
       {
         "name": "国防军工",
@@ -121,7 +129,7 @@
         "etf_name": "军工ETF国泰",
         "weight_in_sleeve": 0.2334,
         "portfolio_weight": null,
-        "entry_open": 1.15
+        "entry_open": 1.139
       }
     ],
     "min_hold_days": 3,
@@ -130,9 +138,9 @@
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
     "status": "CLEAR",
-    "checked_through": "2026-09-08",
-    "latest_return": 0.0159674745582139,
-    "days_held": 2,
+    "checked_through": "2026-09-16",
+    "latest_return": 0.02314525411119539,
+    "days_held": 1,
     "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }

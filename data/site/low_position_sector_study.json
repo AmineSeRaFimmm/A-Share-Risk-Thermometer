@@ -49,11 +49,11 @@
       "return_5y": -0.5878,
       "benchmark_return_5y": -0.1188,
       "relative_return_5y": -0.4691,
-      "pe_ttm": 25.4,
-      "pb": 2.27,
-      "dividend_yield": 2.57,
-      "valuation_low_score": 0.4516,
-      "low_position_score": 94.8865,
+      "pe_ttm": 25.64,
+      "pb": 2.3,
+      "dividend_yield": 2.54,
+      "valuation_low_score": 0.4355,
+      "low_position_score": 94.8059,
       "relationship_type": "关系偏弱或样本不足"
     },
     {
@@ -72,11 +72,11 @@
       "return_5y": -0.5215,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.3918,
-      "pe_ttm": 19.71,
-      "pb": 3.53,
-      "dividend_yield": 4.91,
-      "valuation_low_score": 0.543,
-      "low_position_score": 92.2091,
+      "pe_ttm": 19.61,
+      "pb": 3.52,
+      "dividend_yield": 4.94,
+      "valuation_low_score": 0.5591,
+      "low_position_score": 92.2897,
       "relationship_type": "关系偏弱或样本不足"
     },
     {
@@ -95,11 +95,11 @@
       "return_5y": -0.4832,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.3536,
-      "pe_ttm": 8.3,
+      "pe_ttm": 8.34,
       "pb": 0.92,
-      "dividend_yield": 2.13,
-      "valuation_low_score": 0.7473,
-      "low_position_score": 88.6366,
+      "dividend_yield": 2.12,
+      "valuation_low_score": 0.7527,
+      "low_position_score": 88.6635,
       "relationship_type": "高温回落修复观察"
     },
     {
@@ -118,11 +118,11 @@
       "return_5y": -0.4268,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.2971,
-      "pe_ttm": 29.14,
-      "pb": 2.29,
-      "dividend_yield": 1.9,
-      "valuation_low_score": 0.3011,
-      "low_position_score": 77.9999,
+      "pe_ttm": 29.29,
+      "pb": 2.3,
+      "dividend_yield": 1.88,
+      "valuation_low_score": 0.3172,
+      "low_position_score": 78.0805,
       "relationship_type": "关系偏弱或样本不足"
     },
     {
@@ -141,11 +141,11 @@
       "return_5y": -0.4119,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.2822,
-      "pe_ttm": 21.13,
+      "pe_ttm": 21.21,
       "pb": 1.8,
       "dividend_yield": 2.1,
-      "valuation_low_score": 0.5108,
-      "low_position_score": 77.8603,
+      "valuation_low_score": 0.5269,
+      "low_position_score": 77.9409,
       "relationship_type": "关系偏弱或样本不足"
     }
   ],
@@ -166,11 +166,11 @@
       "return_5y": -0.5878,
       "benchmark_return_5y": -0.1188,
       "relative_return_5y": -0.4691,
-      "pe_ttm": 25.4,
-      "pb": 2.27,
-      "dividend_yield": 2.57,
-      "valuation_low_score": 0.4516,
-      "low_position_score": 94.8865
+      "pe_ttm": 25.64,
+      "pb": 2.3,
+      "dividend_yield": 2.54,
+      "valuation_low_score": 0.4355,
+      "low_position_score": 94.8059
     },
     {
       "symbol": 801120.0,
@@ -188,11 +188,11 @@
       "return_5y": -0.5215,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.3918,
-      "pe_ttm": 19.71,
-      "pb": 3.53,
-      "dividend_yield": 4.91,
-      "valuation_low_score": 0.543,
-      "low_position_score": 92.2091
+      "pe_ttm": 19.61,
+      "pb": 3.52,
+      "dividend_yield": 4.94,
+      "valuation_low_score": 0.5591,
+      "low_position_score": 92.2897
     },
     {
       "symbol": 801180.0,
@@ -210,11 +210,11 @@
       "return_5y": -0.4832,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.3536,
-      "pe_ttm": 8.3,
+      "pe_ttm": 8.34,
       "pb": 0.92,
-      "dividend_yield": 2.13,
-      "valuation_low_score": 0.7473,
-      "low_position_score": 88.6366
+      "dividend_yield": 2.12,
+      "valuation_low_score": 0.7527,
+      "low_position_score": 88.6635
     },
     {
       "symbol": 801210.0,
@@ -232,11 +232,11 @@
       "return_5y": -0.4268,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.2971,
-      "pe_ttm": 29.14,
-      "pb": 2.29,
-      "dividend_yield": 1.9,
-      "valuation_low_score": 0.3011,
-      "low_position_score": 77.9999
+      "pe_ttm": 29.29,
+      "pb": 2.3,
+      "dividend_yield": 1.88,
+      "valuation_low_score": 0.3172,
+      "low_position_score": 78.0805
     },
     {
       "symbol": 801200.0,
@@ -254,11 +254,11 @@
       "return_5y": -0.4119,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.2822,
-      "pe_ttm": 21.13,
+      "pe_ttm": 21.21,
       "pb": 1.8,
       "dividend_yield": 2.1,
-      "valuation_low_score": 0.5108,
-      "low_position_score": 77.8603
+      "valuation_low_score": 0.5269,
+      "low_position_score": 77.9409
     },
     {
       "symbol": 801040.0,
@@ -276,9 +276,9 @@
       "return_5y": -0.2139,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.0842,
-      "pe_ttm": 20.24,
-      "pb": 0.99,
-      "dividend_yield": 2.49,
+      "pe_ttm": 20.12,
+      "pb": 0.98,
+      "dividend_yield": 2.5,
       "valuation_low_score": 0.6667,
       "low_position_score": 66.0698
     },
@@ -298,9 +298,9 @@
       "return_5y": -0.4131,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.2834,
-      "pe_ttm": 27.2,
-      "pb": 2.61,
-      "dividend_yield": 1.78,
+      "pe_ttm": 27.34,
+      "pb": 2.63,
+      "dividend_yield": 1.77,
       "valuation_low_score": 0.2796,
       "low_position_score": 63.4003
     },
@@ -320,11 +320,11 @@
       "return_5y": -0.2619,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.1322,
-      "pe_ttm": 32.45,
-      "pb": 1.95,
-      "dividend_yield": 2.22,
-      "valuation_low_score": 0.4086,
-      "low_position_score": 59.9708
+      "pe_ttm": 32.36,
+      "pb": 1.94,
+      "dividend_yield": 2.25,
+      "valuation_low_score": 0.414,
+      "low_position_score": 59.9976
     },
     {
       "symbol": 801140.0,
@@ -342,9 +342,9 @@
       "return_5y": -0.2578,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.1282,
-      "pe_ttm": 21.65,
-      "pb": 2.01,
-      "dividend_yield": 2.81,
+      "pe_ttm": 21.85,
+      "pb": 2.03,
+      "dividend_yield": 2.78,
       "valuation_low_score": 0.5484,
       "low_position_score": 58.9925
     },
@@ -364,9 +364,9 @@
       "return_5y": -0.167,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.0374,
-      "pe_ttm": 39.89,
-      "pb": 3.72,
-      "dividend_yield": 1.18,
+      "pe_ttm": 40.21,
+      "pb": 3.75,
+      "dividend_yield": 1.17,
       "valuation_low_score": 0.0753,
       "low_position_score": 57.1723
     },
@@ -386,9 +386,9 @@
       "return_5y": -0.2108,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": -0.0812,
-      "pe_ttm": 19.4,
-      "pb": 1.62,
-      "dividend_yield": 4.08,
+      "pe_ttm": 19.56,
+      "pb": 1.63,
+      "dividend_yield": 4.05,
       "valuation_low_score": 0.7312,
       "low_position_score": 56.7142
     },
@@ -408,9 +408,9 @@
       "return_5y": -0.0236,
       "benchmark_return_5y": -0.1296,
       "relative_return_5y": 0.1061,
-      "pe_ttm": 10.5,
+      "pe_ttm": 10.52,
       "pb": 0.62,
-      "dividend_yield": 3.32,
+      "dividend_yield": 3.31,
       "valuation_low_score": 0.8602,
       "low_position_score": 54.3546
     }
