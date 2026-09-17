@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-16",
+  "as_of": "2026-09-17",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -21,8 +21,8 @@
     "entry_signal_date": "2026-09-15",
     "entry_date": "2026-09-16",
     "exit_due_date": "2026-09-28",
-    "days_held": 1,
-    "days_remaining": 7,
+    "days_held": 2,
+    "days_remaining": 6,
     "stage_id": "RISING_HARD",
     "names": [
       "通信",
@@ -138,9 +138,9 @@
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
     "status": "CLEAR",
-    "checked_through": "2026-09-16",
-    "latest_return": 0.02314525411119539,
-    "days_held": 1,
+    "checked_through": "2026-09-17",
+    "latest_return": 0.02193938749785218,
+    "days_held": 2,
     "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
