@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-17",
+  "as_of": "2026-09-18",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -21,8 +21,8 @@
     "entry_signal_date": "2026-09-15",
     "entry_date": "2026-09-16",
     "exit_due_date": "2026-09-28",
-    "days_held": 2,
-    "days_remaining": 6,
+    "days_held": 3,
+    "days_remaining": 5,
     "stage_id": "RISING_HARD",
     "names": [
       "通信",
@@ -98,6 +98,83 @@
         }
       ],
       "execution_basis": "ETF_OPEN_CONFIRMED"
+    },
+    {
+      "signal_id": "2026-09-15",
+      "entry_date": "2026-09-16",
+      "members": [
+        {
+          "name": "通信",
+          "etf_code": "515880",
+          "etf_name": "通信ETF国泰",
+          "weight_in_sleeve": 0.4945,
+          "portfolio_weight": null,
+          "entry_open": 0.653
+        },
+        {
+          "name": "机械设备",
+          "etf_code": "159886",
+          "etf_name": "机械ETF富国",
+          "weight_in_sleeve": 0.2721,
+          "portfolio_weight": null,
+          "entry_open": 0.84
+        },
+        {
+          "name": "国防军工",
+          "etf_code": "512660",
+          "etf_name": "军工ETF国泰",
+          "weight_in_sleeve": 0.2334,
+          "portfolio_weight": null,
+          "entry_open": 1.139
+        }
+      ],
+      "min_hold_days": 3,
+      "stop_loss": -0.03,
+      "take_profit": 0.04,
+      "transaction_cost_bps_one_way": 1.0,
+      "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
+      "status": "TRIGGERED",
+      "event_type": "TAKE_PROFIT",
+      "close_code": "LOCAL_TAKE_PROFIT",
+      "action_cn": "卫星篮子止盈",
+      "trigger_date": "2026-09-18",
+      "execution_date": "2026-09-21",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "trigger_return": 0.04314384274260252,
+      "trigger_threshold": 0.04,
+      "days_held": 3,
+      "checked_through": "2026-09-18",
+      "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+      "requires_open_marks": true,
+      "id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
+      "sleeve": "satellite",
+      "signal_date": "2026-09-18",
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-09-15",
+        "entry_date": "2026-09-16",
+        "exit_due_date": "2026-09-28",
+        "days_held": 3,
+        "days_remaining": 5,
+        "stage_id": "RISING_HARD",
+        "names": [
+          "通信",
+          "机械设备",
+          "国防军工"
+        ],
+        "weights": {
+          "通信": 0.4945,
+          "机械设备": 0.2721,
+          "国防军工": 0.2334
+        },
+        "etf_code": null,
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": null
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT"
     }
   ],
   "cooldown_through": {
@@ -137,10 +214,18 @@
     "take_profit": 0.04,
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-    "status": "CLEAR",
-    "checked_through": "2026-09-17",
-    "latest_return": 0.02193938749785218,
-    "days_held": 2,
-    "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
+    "status": "TRIGGERED",
+    "event_type": "TAKE_PROFIT",
+    "close_code": "LOCAL_TAKE_PROFIT",
+    "action_cn": "卫星篮子止盈",
+    "trigger_date": "2026-09-18",
+    "execution_date": "2026-09-21",
+    "execution_status": "PENDING",
+    "execution_bar_complete": false,
+    "trigger_return": 0.04314384274260252,
+    "trigger_threshold": 0.04,
+    "days_held": 3,
+    "checked_through": "2026-09-18",
+    "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线"
   }
 }

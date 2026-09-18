@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "5a5a74c1fabdce7e2ffe85a9887a4573425762eb74615e7bc10765e7335c0308",
-  "built_at": "2026-09-18T20:50:25+08:00",
-  "strategy_as_of": "2026-09-17",
+  "revision": "586eaa5d3ff43f116b9a204ff3b91ace0fa4e10f6f6094421e7e83112157e6c0",
+  "built_at": "2026-09-18T21:03:50+08:00",
+  "strategy_as_of": "2026-09-18",
   "marks_as_of": "2026-09-18",
-  "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
-  "strategy_publication_status": "OFFICIAL_PENDING",
-  "official_strategy_pending": true,
+  "marks_quality": "OK",
+  "strategy_publication_status": "CURRENT",
+  "official_strategy_pending": false,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -45,29 +45,30 @@
         "research/output/core_plus_sectors/core_plus_sectors_report.md"
       ]
     },
-    "as_of": "2026-09-17",
+    "as_of": "2026-09-18",
     "data_quality": {
       "risk_source": "OFFICIAL_CLOSE",
-      "official_as_of": "2026-09-17",
+      "official_as_of": "2026-09-18",
       "bridged": false,
       "bridged_dates": [],
       "bridge_source": null,
       "note_cn": "策略日期与正式风险因子日期一致。"
     },
     "market_state": {
-      "trade_date": "2026-09-17",
-      "rt": 43.9,
-      "prev_rt": 51.3,
-      "rt_d1": -7.399999999999999,
-      "rt_d5": -10.800000000000004,
+      "trade_date": "2026-09-18",
+      "rt": 37.2,
+      "prev_rt": 43.9,
+      "rt_d1": -6.699999999999996,
+      "rt_d5": -19.299999999999997,
       "rt_rollmax_10": 56.5,
-      "hs300_dd60": -0.1042843632999982,
-      "regime": "CAUTION",
-      "regime_cn": "警戒",
+      "hs300_dd60": -0.0947979418540223,
+      "regime": "NORMAL",
+      "regime_cn": "正常",
       "quality": "WARN_QVIX_REALTIME_PROXY",
       "model_confidence": 93.7
     },
     "active_stage_ids": [
+      "CALM",
       "FALLING_HARD"
     ],
     "primary_stage": {
@@ -159,6 +160,68 @@
           "降温≠全面做多；偏资源/中游相对强，TMT相对弱。"
         ],
         "same_day_note": null
+      },
+      {
+        "stage_id": "CALM",
+        "name_cn": "平静 / 低波动",
+        "priority": 10,
+        "csi300": {
+          "action": "HOLD_CASH_OR_SKIP",
+          "action_cn": "不做 RT 主动做多沪深300",
+          "detail": "历史低分段 20 日均收益接近 0 且胜率偏低；主策略不在此开仓。",
+          "confidence": "HIGH"
+        },
+        "sectors_long": [
+          {
+            "name": "有色金属",
+            "why": "平静区间未来5日超额均值约+0.65%，显著",
+            "win_rate": 0.53,
+            "n": 735,
+            "horizon": "5D"
+          },
+          {
+            "name": "煤炭",
+            "why": "平静区间相对偏强（显著）",
+            "win_rate": 0.49,
+            "n": 509,
+            "horizon": "5D"
+          },
+          {
+            "name": "石油石化",
+            "why": "平静区间相对偏强（显著）",
+            "win_rate": 0.53,
+            "n": 509,
+            "horizon": "5D"
+          }
+        ],
+        "sectors_short": [
+          {
+            "name": "美容护理",
+            "why": "平静区间显著跑输大盘",
+            "win_rate": 0.36,
+            "n": 509,
+            "horizon": "5D"
+          },
+          {
+            "name": "恒生科技",
+            "why": "平静区间显著跑输（非主升环境）",
+            "win_rate": 0.4,
+            "n": 679,
+            "horizon": "5D"
+          },
+          {
+            "name": "商贸零售",
+            "why": "平静区间显著跑输",
+            "win_rate": 0.42,
+            "n": 735,
+            "horizon": "5D"
+          }
+        ],
+        "hold_days": 5,
+        "notes": [
+          "低风险环境避免用「恐慌博弈」思路做多弹性资产。"
+        ],
+        "same_day_note": null
       }
     ],
     "actionable_instructions": [
@@ -188,18 +251,19 @@
       {
         "sleeve": "satellite",
         "name": "通信",
-        "action": "HOLD",
-        "action_cn": "持有（忽略重复开仓）",
-        "side": "HOLD",
-        "side_cn": "持有",
-        "priority": "P1",
-        "weight_target": 0.4945,
-        "weight_hint": "49%",
-        "why": "卫星持仓中，不重叠新开",
-        "days_held": 2,
-        "days_remaining": 6,
-        "entry": "—",
-        "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "action": "CLOSE",
+        "action_cn": "卫星篮子止盈",
+        "side": "CLOSE",
+        "side_cn": "卖出",
+        "priority": "P0",
+        "entry": "下一交易日开盘",
+        "exit": "平仓",
+        "weight_target": 0.0,
+        "weight_hint": "0%",
+        "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+        "close_code": "LOCAL_TAKE_PROFIT",
+        "guaranteed": true,
+        "days_held": 3,
         "sector": "通信",
         "etf_code": "515880",
         "etf_name": "通信ETF国泰",
@@ -213,18 +277,19 @@
       {
         "sleeve": "satellite",
         "name": "机械设备",
-        "action": "HOLD",
-        "action_cn": "持有（忽略重复开仓）",
-        "side": "HOLD",
-        "side_cn": "持有",
-        "priority": "P1",
-        "weight_target": 0.2721,
-        "weight_hint": "27%",
-        "why": "卫星持仓中，不重叠新开",
-        "days_held": 2,
-        "days_remaining": 6,
-        "entry": "—",
-        "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "action": "CLOSE",
+        "action_cn": "卫星篮子止盈",
+        "side": "CLOSE",
+        "side_cn": "卖出",
+        "priority": "P0",
+        "entry": "下一交易日开盘",
+        "exit": "平仓",
+        "weight_target": 0.0,
+        "weight_hint": "0%",
+        "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+        "close_code": "LOCAL_TAKE_PROFIT",
+        "guaranteed": true,
+        "days_held": 3,
         "sector": "机械设备",
         "etf_code": "159886",
         "etf_name": "机械ETF富国",
@@ -238,18 +303,19 @@
       {
         "sleeve": "satellite",
         "name": "国防军工",
-        "action": "HOLD",
-        "action_cn": "持有（忽略重复开仓）",
-        "side": "HOLD",
-        "side_cn": "持有",
-        "priority": "P1",
-        "weight_target": 0.2334,
-        "weight_hint": "23%",
-        "why": "卫星持仓中，不重叠新开",
-        "days_held": 2,
-        "days_remaining": 6,
-        "entry": "—",
-        "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+        "action": "CLOSE",
+        "action_cn": "卫星篮子止盈",
+        "side": "CLOSE",
+        "side_cn": "卖出",
+        "priority": "P0",
+        "entry": "下一交易日开盘",
+        "exit": "平仓",
+        "weight_target": 0.0,
+        "weight_hint": "0%",
+        "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+        "close_code": "LOCAL_TAKE_PROFIT",
+        "guaranteed": true,
+        "days_held": 3,
         "sector": "国防军工",
         "etf_code": "512660",
         "etf_name": "军工ETF国泰",
@@ -566,14 +632,167 @@
         "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
         "etf_display": "美容护理 → 159928 消费ETF汇添富",
         "instrument_display": "美容护理（159928 消费ETF汇添富）"
+      },
+      {
+        "rank": 10,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "有色金属",
+        "instrument": "有色金属",
+        "stage": "平静 / 低波动",
+        "trigger": "rt < 40",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P1",
+        "win_rate": 0.53,
+        "n": 735,
+        "why": "平静区间未来5日超额均值约+0.65%，显著",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "有色金属",
+        "etf_code": "512400",
+        "etf_name": "有色金属ETF南方",
+        "etf_label": "512400 有色金属ETF南方",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "有色金属 → 512400 有色金属ETF南方",
+        "instrument_display": "有色金属（512400 有色金属ETF南方）"
+      },
+      {
+        "rank": 11,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "煤炭",
+        "instrument": "煤炭",
+        "stage": "平静 / 低波动",
+        "trigger": "rt < 40",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P1",
+        "win_rate": 0.49,
+        "n": 509,
+        "why": "平静区间相对偏强（显著）",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "煤炭",
+        "etf_code": "515220",
+        "etf_name": "煤炭ETF国泰",
+        "etf_label": "515220 煤炭ETF国泰",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "煤炭 → 515220 煤炭ETF国泰",
+        "instrument_display": "煤炭（515220 煤炭ETF国泰）"
+      },
+      {
+        "rank": 12,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "石油石化",
+        "instrument": "石油石化",
+        "stage": "平静 / 低波动",
+        "trigger": "rt < 40",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P1",
+        "win_rate": 0.53,
+        "n": 509,
+        "why": "平静区间相对偏强（显著）",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "石油石化",
+        "etf_code": "159697",
+        "etf_name": "石油ETF鹏华",
+        "etf_label": "159697 石油ETF鹏华",
+        "etf_quality": "proxy",
+        "etf_quality_cn": "主题代理",
+        "etf_note": "油气主题代理石化",
+        "etf_display": "石油石化 → 159697 石油ETF鹏华",
+        "instrument_display": "石油石化（159697 石油ETF鹏华）"
+      },
+      {
+        "rank": 50,
+        "market": "SECTOR",
+        "side": "UNDERWEIGHT_RELATIVE",
+        "name": "美容护理",
+        "instrument": "美容护理",
+        "stage": "平静 / 低波动",
+        "trigger": "rt < 40",
+        "entry": "事件确认后减配/回避",
+        "exit": "约5个交易日窗口",
+        "priority": "P1",
+        "win_rate": 0.36,
+        "n": 509,
+        "why": "平静区间显著跑输大盘",
+        "disclaimer": "相对减配，不是裸空指令",
+        "sector": "美容护理",
+        "etf_code": "159928",
+        "etf_name": "消费ETF汇添富",
+        "etf_label": "159928 消费ETF汇添富",
+        "etf_quality": "weak",
+        "etf_quality_cn": "弱代理",
+        "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
+        "etf_display": "美容护理 → 159928 消费ETF汇添富",
+        "instrument_display": "美容护理（159928 消费ETF汇添富）"
+      },
+      {
+        "rank": 51,
+        "market": "SECTOR",
+        "side": "UNDERWEIGHT_RELATIVE",
+        "name": "恒生科技",
+        "instrument": "恒生科技",
+        "stage": "平静 / 低波动",
+        "trigger": "rt < 40",
+        "entry": "事件确认后减配/回避",
+        "exit": "约5个交易日窗口",
+        "priority": "P1",
+        "win_rate": 0.4,
+        "n": 679,
+        "why": "平静区间显著跑输（非主升环境）",
+        "disclaimer": "相对减配，不是裸空指令",
+        "sector": "恒生科技",
+        "etf_code": "513180",
+        "etf_name": "恒生科技ETF华夏",
+        "etf_label": "513180 恒生科技ETF华夏",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "备选 513130/513010",
+        "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
+        "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
+      },
+      {
+        "rank": 52,
+        "market": "SECTOR",
+        "side": "UNDERWEIGHT_RELATIVE",
+        "name": "商贸零售",
+        "instrument": "商贸零售",
+        "stage": "平静 / 低波动",
+        "trigger": "rt < 40",
+        "entry": "事件确认后减配/回避",
+        "exit": "约5个交易日窗口",
+        "priority": "P1",
+        "win_rate": 0.42,
+        "n": 735,
+        "why": "平静区间显著跑输",
+        "disclaimer": "相对减配，不是裸空指令",
+        "sector": "商贸零售",
+        "etf_code": "159928",
+        "etf_name": "消费ETF汇添富",
+        "etf_label": "159928 消费ETF汇添富",
+        "etf_quality": "proxy",
+        "etf_quality_cn": "主题代理",
+        "etf_note": "零售宽基稀缺，用主要消费ETF",
+        "etf_display": "商贸零售 → 159928 消费ETF汇添富",
+        "instrument_display": "商贸零售（159928 消费ETF汇添富）"
       }
     ],
     "flex_panel": {
       "version": "flex_v2",
-      "status": "持有",
-      "status_code": "SAT_ONLY",
-      "headline": "组合 Flex v2：持仓管理（无新开）",
-      "as_of": "2026-09-17",
+      "status": "平仓",
+      "status_code": "FLAT",
+      "headline": "组合 Flex v2：执行平仓",
+      "as_of": "2026-09-18",
       "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
       "core_tail_policy": {
         "id": "CORE_STRICT_TAIL_V2",
@@ -628,17 +847,17 @@
         "rule_cn": "卫星持有满3日后，篮子收益≤-3%止损；≥4%止盈；触发后下一交易日开盘平仓",
         "price_basis_cn": "真实仓按本机成交均价与最近可得收盘价；模拟仓按T+1开盘入场与最近可得收盘价"
       },
-      "allocation_cn": "仅卫星：100% 阶段板块（进取 Flex：单仓100%；双仓 60/40）",
-      "allocation_mode": "SAT_ONLY",
+      "allocation_cn": "空仓观望",
+      "allocation_mode": "FLAT",
       "allocation": {
         "mode": "aggressive",
         "mode_cn": "进取 Flex：单仓100%；双仓 60/40",
-        "allocation_mode": "SAT_ONLY",
-        "allocation_cn": "仅卫星：100% 阶段板块（进取 Flex：单仓100%；双仓 60/40）",
+        "allocation_mode": "FLAT",
+        "allocation_cn": "空仓观望",
         "w_core": 0.0,
-        "w_sat": 1.0,
-        "w_cash": 0.0,
-        "total_exposure": 1.0
+        "w_sat": 0.0,
+        "w_cash": 1.0,
+        "total_exposure": 0.0
       },
       "mode": "aggressive",
       "modes": {
@@ -2778,21 +2997,22 @@
         }
       },
       "market_state": {
-        "rt": 43.9,
-        "rt_d1": -7.399999999999999,
-        "rt_d5": -10.800000000000004,
-        "hs300_dd60": -0.1042843632999982,
+        "rt": 37.2,
+        "rt_d1": -6.699999999999996,
+        "rt_d5": -19.299999999999997,
+        "hs300_dd60": -0.0947979418540223,
         "model_confidence": 93.7,
-        "regime_cn": "警戒"
+        "regime_cn": "正常"
       },
       "active_stages": [
+        "CALM",
         "FALLING_HARD"
       ],
       "suppressed_stages": [],
       "suppressed_avoid_conflicts": [],
       "merge_note_cn": "多阶段合并：FALLING_HARD；被门控压制：无",
       "position_state": {
-        "as_of": "2026-09-17",
+        "as_of": "2026-09-18",
         "mode": "aggressive",
         "core": {
           "status": "flat",
@@ -2814,8 +3034,8 @@
           "entry_signal_date": "2026-09-15",
           "entry_date": "2026-09-16",
           "exit_due_date": "2026-09-28",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "stage_id": "RISING_HARD",
           "names": [
             "通信",
@@ -2891,6 +3111,83 @@
               }
             ],
             "execution_basis": "ETF_OPEN_CONFIRMED"
+          },
+          {
+            "signal_id": "2026-09-15",
+            "entry_date": "2026-09-16",
+            "members": [
+              {
+                "name": "通信",
+                "etf_code": "515880",
+                "etf_name": "通信ETF国泰",
+                "weight_in_sleeve": 0.4945,
+                "portfolio_weight": null,
+                "entry_open": 0.653
+              },
+              {
+                "name": "机械设备",
+                "etf_code": "159886",
+                "etf_name": "机械ETF富国",
+                "weight_in_sleeve": 0.2721,
+                "portfolio_weight": null,
+                "entry_open": 0.84
+              },
+              {
+                "name": "国防军工",
+                "etf_code": "512660",
+                "etf_name": "军工ETF国泰",
+                "weight_in_sleeve": 0.2334,
+                "portfolio_weight": null,
+                "entry_open": 1.139
+              }
+            ],
+            "min_hold_days": 3,
+            "stop_loss": -0.03,
+            "take_profit": 0.04,
+            "transaction_cost_bps_one_way": 1.0,
+            "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
+            "status": "TRIGGERED",
+            "event_type": "TAKE_PROFIT",
+            "close_code": "LOCAL_TAKE_PROFIT",
+            "action_cn": "卫星篮子止盈",
+            "trigger_date": "2026-09-18",
+            "execution_date": "2026-09-21",
+            "execution_status": "PENDING",
+            "execution_bar_complete": false,
+            "trigger_return": 0.04314384274260252,
+            "trigger_threshold": 0.04,
+            "days_held": 3,
+            "checked_through": "2026-09-18",
+            "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+            "requires_open_marks": true,
+            "id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
+            "sleeve": "satellite",
+            "signal_date": "2026-09-18",
+            "position": {
+              "status": "open",
+              "entry_signal_date": "2026-09-15",
+              "entry_date": "2026-09-16",
+              "exit_due_date": "2026-09-28",
+              "days_held": 3,
+              "days_remaining": 5,
+              "stage_id": "RISING_HARD",
+              "names": [
+                "通信",
+                "机械设备",
+                "国防军工"
+              ],
+              "weights": {
+                "通信": 0.4945,
+                "机械设备": 0.2721,
+                "国防军工": 0.2334
+              },
+              "etf_code": null,
+              "execution_mode": "T_PLUS_1_OPEN",
+              "entry_price_type": "open",
+              "planned_hold_days": null
+            },
+            "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+            "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT"
           }
         ],
         "cooldown_through": {
@@ -2930,11 +3227,19 @@
           "take_profit": 0.04,
           "transaction_cost_bps_one_way": 1.0,
           "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-          "status": "CLEAR",
-          "checked_through": "2026-09-17",
-          "latest_return": 0.02193938749785218,
-          "days_held": 2,
-          "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
+          "status": "TRIGGERED",
+          "event_type": "TAKE_PROFIT",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "action_cn": "卫星篮子止盈",
+          "trigger_date": "2026-09-18",
+          "execution_date": "2026-09-21",
+          "execution_status": "PENDING",
+          "execution_bar_complete": false,
+          "trigger_return": 0.04314384274260252,
+          "trigger_threshold": 0.04,
+          "days_held": 3,
+          "checked_through": "2026-09-18",
+          "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线"
         }
       },
       "execution_events": [
@@ -2995,13 +3300,90 @@
             }
           ],
           "execution_basis": "ETF_OPEN_CONFIRMED"
+        },
+        {
+          "signal_id": "2026-09-15",
+          "entry_date": "2026-09-16",
+          "members": [
+            {
+              "name": "通信",
+              "etf_code": "515880",
+              "etf_name": "通信ETF国泰",
+              "weight_in_sleeve": 0.4945,
+              "portfolio_weight": null,
+              "entry_open": 0.653
+            },
+            {
+              "name": "机械设备",
+              "etf_code": "159886",
+              "etf_name": "机械ETF富国",
+              "weight_in_sleeve": 0.2721,
+              "portfolio_weight": null,
+              "entry_open": 0.84
+            },
+            {
+              "name": "国防军工",
+              "etf_code": "512660",
+              "etf_name": "军工ETF国泰",
+              "weight_in_sleeve": 0.2334,
+              "portfolio_weight": null,
+              "entry_open": 1.139
+            }
+          ],
+          "min_hold_days": 3,
+          "stop_loss": -0.03,
+          "take_profit": 0.04,
+          "transaction_cost_bps_one_way": 1.0,
+          "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
+          "status": "TRIGGERED",
+          "event_type": "TAKE_PROFIT",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "action_cn": "卫星篮子止盈",
+          "trigger_date": "2026-09-18",
+          "execution_date": "2026-09-21",
+          "execution_status": "PENDING",
+          "execution_bar_complete": false,
+          "trigger_return": 0.04314384274260252,
+          "trigger_threshold": 0.04,
+          "days_held": 3,
+          "checked_through": "2026-09-18",
+          "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "requires_open_marks": true,
+          "id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
+          "sleeve": "satellite",
+          "signal_date": "2026-09-18",
+          "position": {
+            "status": "open",
+            "entry_signal_date": "2026-09-15",
+            "entry_date": "2026-09-16",
+            "exit_due_date": "2026-09-28",
+            "days_held": 3,
+            "days_remaining": 5,
+            "stage_id": "RISING_HARD",
+            "names": [
+              "通信",
+              "机械设备",
+              "国防军工"
+            ],
+            "weights": {
+              "通信": 0.4945,
+              "机械设备": 0.2721,
+              "国防军工": 0.2334
+            },
+            "etf_code": null,
+            "execution_mode": "T_PLUS_1_OPEN",
+            "entry_price_type": "open",
+            "planned_hold_days": null
+          },
+          "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+          "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT"
         }
       ],
       "cooldown_through": {
         "satellite": "2026-09-10"
       },
       "exit_plan": {
-        "as_of": "2026-09-17",
+        "as_of": "2026-09-18",
         "core": {
           "status": "flat",
           "entry_signal_date": null,
@@ -3016,7 +3398,7 @@
           "status": "open",
           "entry_signal_date": "2026-09-15",
           "entry_date": "2026-09-16",
-          "days_held": 2,
+          "days_held": 3,
           "stage_id": "RISING_HARD",
           "rules": {
             "min_hold": 3,
@@ -3027,7 +3409,13 @@
               "HIGH_COOLING"
             ]
           },
-          "triggered_close": null,
+          "triggered_close": {
+            "close_code": "LOCAL_TAKE_PROFIT",
+            "priority": "P0",
+            "action_cn": "卫星篮子止盈",
+            "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+            "guaranteed": true
+          },
           "paths": {
             "event_earliest_signal_date": "2026-09-18",
             "default_signal_date": "2026-09-22",
@@ -3038,7 +3426,7 @@
           },
           "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。",
           "exit_due_date": "2026-09-28",
-          "days_to_max": 6
+          "days_to_max": 5
         },
         "guarantee_cn": "日更成功且 as_of=当日时：任一 close_code 触发必写入 close_list；执行台必须展示策略平仓提示（本机未点买也可看，点买后可记账平仓）。日更失败则页面不会刷新——需看 Actions。"
       },
@@ -3075,9 +3463,9 @@
       "satellite": {
         "sleeve": "satellite",
         "name": "板块超配卫星",
-        "active": true,
-        "status_cn": "持有中",
-        "tone": "buy",
+        "active": false,
+        "status_cn": "退出",
+        "tone": "sell",
         "stage_id": "RISING_HARD",
         "stage_cn": "降温（ΔRT_5≤-5）",
         "stage_ids": [
@@ -3358,21 +3746,16 @@
           }
         ],
         "detail": "高置信阶段全量；小样本为观察仓；按得分×映射质量加权；弱代理不进默认篮子；收益≤-3%止损，≥4%止盈；long-only 不做空。",
-        "weights": {
-          "有色金属": 0.3741,
-          "煤炭": 0.2996,
-          "基础化工": 0.1902,
-          "电力设备": 0.136
-        },
-        "weight_target": 1.0,
+        "weights": {},
+        "weight_target": 0.0,
         "observe_only": false,
         "position": {
           "status": "open",
           "entry_signal_date": "2026-09-15",
           "entry_date": "2026-09-16",
           "exit_due_date": "2026-09-28",
-          "days_held": 2,
-          "days_remaining": 6,
+          "days_held": 3,
+          "days_remaining": 5,
           "stage_id": "RISING_HARD",
           "names": [
             "通信",
@@ -3391,23 +3774,23 @@
         }
       },
       "buy_list": [],
-      "sell_list": [],
-      "hold_list": [
+      "sell_list": [
         {
           "sleeve": "satellite",
           "name": "通信",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复开仓）",
-          "side": "HOLD",
-          "side_cn": "持有",
-          "priority": "P1",
-          "weight_target": 0.4945,
-          "weight_hint": "49%",
-          "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
-          "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
           "sector": "通信",
           "etf_code": "515880",
           "etf_name": "通信ETF国泰",
@@ -3421,18 +3804,19 @@
         {
           "sleeve": "satellite",
           "name": "机械设备",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复开仓）",
-          "side": "HOLD",
-          "side_cn": "持有",
-          "priority": "P1",
-          "weight_target": 0.2721,
-          "weight_hint": "27%",
-          "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
-          "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
           "sector": "机械设备",
           "etf_code": "159886",
           "etf_name": "机械ETF富国",
@@ -3446,18 +3830,19 @@
         {
           "sleeve": "satellite",
           "name": "国防军工",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复开仓）",
-          "side": "HOLD",
-          "side_cn": "持有",
-          "priority": "P1",
-          "weight_target": 0.2334,
-          "weight_hint": "23%",
-          "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
-          "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
           "sector": "国防军工",
           "etf_code": "512660",
           "etf_name": "军工ETF国泰",
@@ -3469,6 +3854,7 @@
           "instrument_display": "国防军工（512660 军工ETF国泰）"
         }
       ],
+      "hold_list": [],
       "avoid_list": [
         {
           "name": "计算机",
@@ -3597,8 +3983,140 @@
           "instrument_display": "美容护理（159928 消费ETF汇添富）"
         }
       ],
-      "close_list": [],
-      "minimal_actions": [],
+      "close_list": [
+        {
+          "sleeve": "satellite",
+          "name": "通信",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
+          "sector": "通信",
+          "etf_code": "515880",
+          "etf_name": "通信ETF国泰",
+          "etf_label": "515880 通信ETF国泰",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "通信 → 515880 通信ETF国泰",
+          "instrument_display": "通信（515880 通信ETF国泰）"
+        },
+        {
+          "sleeve": "satellite",
+          "name": "机械设备",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
+          "sector": "机械设备",
+          "etf_code": "159886",
+          "etf_name": "机械ETF富国",
+          "etf_label": "159886 机械ETF富国",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "机械设备 → 159886 机械ETF富国",
+          "instrument_display": "机械设备（159886 机械ETF富国）"
+        },
+        {
+          "sleeve": "satellite",
+          "name": "国防军工",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
+          "sector": "国防军工",
+          "etf_code": "512660",
+          "etf_name": "军工ETF国泰",
+          "etf_label": "512660 军工ETF国泰",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "国防军工 → 512660 军工ETF国泰",
+          "instrument_display": "国防军工（512660 军工ETF国泰）"
+        }
+      ],
+      "minimal_actions": [
+        {
+          "sleeve": "satellite",
+          "name": "通信",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
+          "sector": "通信",
+          "etf_code": "515880",
+          "etf_name": "通信ETF国泰",
+          "etf_label": "515880 通信ETF国泰",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "通信 → 515880 通信ETF国泰",
+          "instrument_display": "通信（515880 通信ETF国泰）"
+        },
+        {
+          "sleeve": "satellite",
+          "name": "机械设备",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
+          "sector": "机械设备",
+          "etf_code": "159886",
+          "etf_name": "机械ETF富国",
+          "etf_label": "159886 机械ETF富国",
+          "etf_quality": "good",
+          "etf_quality_cn": "贴合",
+          "etf_note": "",
+          "etf_display": "机械设备 → 159886 机械ETF富国",
+          "instrument_display": "机械设备（159886 机械ETF富国）"
+        }
+      ],
       "all_actions": [
         {
           "sleeve": "core",
@@ -3626,18 +4144,19 @@
         {
           "sleeve": "satellite",
           "name": "通信",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复开仓）",
-          "side": "HOLD",
-          "side_cn": "持有",
-          "priority": "P1",
-          "weight_target": 0.4945,
-          "weight_hint": "49%",
-          "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
-          "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
           "sector": "通信",
           "etf_code": "515880",
           "etf_name": "通信ETF国泰",
@@ -3651,18 +4170,19 @@
         {
           "sleeve": "satellite",
           "name": "机械设备",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复开仓）",
-          "side": "HOLD",
-          "side_cn": "持有",
-          "priority": "P1",
-          "weight_target": 0.2721,
-          "weight_hint": "27%",
-          "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
-          "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
           "sector": "机械设备",
           "etf_code": "159886",
           "etf_name": "机械ETF富国",
@@ -3676,18 +4196,19 @@
         {
           "sleeve": "satellite",
           "name": "国防军工",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复开仓）",
-          "side": "HOLD",
-          "side_cn": "持有",
-          "priority": "P1",
-          "weight_target": 0.2334,
-          "weight_hint": "23%",
-          "why": "卫星持仓中，不重叠新开",
-          "days_held": 2,
-          "days_remaining": 6,
-          "entry": "—",
-          "exit": "约剩 6 日；收益≤-3%止损 / ≥4%止盈 / 事件退出",
+          "action": "CLOSE",
+          "action_cn": "卫星篮子止盈",
+          "side": "CLOSE",
+          "side_cn": "卖出",
+          "priority": "P0",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+          "close_code": "LOCAL_TAKE_PROFIT",
+          "guaranteed": true,
+          "days_held": 3,
           "sector": "国防军工",
           "etf_code": "512660",
           "etf_name": "军工ETF国泰",
@@ -3826,26 +4347,26 @@
         }
       ],
       "risk_dashboard": {
-        "estimated_beta": 1.124,
-        "estimated_daily_vol": 0.0112,
-        "estimated_daily_vol_cn": "约 1.1%（固定beta启发式）",
-        "total_exposure": 1.0,
-        "cash": 0.0,
+        "estimated_beta": 0.0,
+        "estimated_daily_vol": 0.0,
+        "estimated_daily_vol_cn": "约 0.0%（固定beta启发式）",
+        "total_exposure": 0.0,
+        "cash": 1.0,
         "growth_sat_share": 0.0,
         "correlation_warning": false,
         "correlation_note": "相关风险中性",
-        "max_single_name_weight": 0.3741,
+        "max_single_name_weight": 0.0,
         "circuit_breaker_cn": "组合研究回撤>15% 时建议卫星清零、仅保留核心规则",
         "model_cn": "固定beta + 目标仓位的暴露估算；不是实盘风控执行器",
         "controls": [
           {
             "key": "max_exposure",
-            "value": 1.0,
+            "value": 0.0,
             "enforced": true
           },
           {
             "key": "max_single_name",
-            "value": 0.3741,
+            "value": 0.0,
             "enforced": true
           },
           {
@@ -6537,7 +7058,7 @@
     "as_of": "2026-09-18",
     "start": "2026-05-21",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 1,
+    "fetch_workers": 4,
     "not_broker_feed": true,
     "required_codes": [
       "159886",
@@ -6588,28 +7109,9 @@
     "stale_codes": [],
     "complete_as_of": "2026-09-18",
     "coverage_missing_codes": [],
-    "coverage_stale_codes": [
-      "159666",
-      "159697",
-      "159730",
-      "159745",
-      "159766",
-      "159995",
-      "512010",
-      "512200",
-      "512430",
-      "512580",
-      "512800",
-      "512880",
-      "513180",
-      "515210",
-      "515710",
-      "516110",
-      "516670",
-      "560620"
-    ],
-    "coverage_complete_as_of": "2026-09-17",
-    "quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
+    "coverage_stale_codes": [],
+    "coverage_complete_as_of": "2026-09-18",
+    "quality": "OK",
     "by_code": {
       "159666": {
         "etf_code": "159666",
@@ -7273,12 +7775,18 @@
             "close": 0.979,
             "high": 0.982,
             "low": 0.964
+          },
+          "2026-09-18": {
+            "open": 0.978,
+            "close": 0.985,
+            "high": 0.989,
+            "low": 0.973
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "159697": {
         "etf_code": "159697",
@@ -7942,12 +8450,18 @@
             "close": 1.308,
             "high": 1.313,
             "low": 1.287
+          },
+          "2026-09-18": {
+            "open": 1.3,
+            "close": 1.319,
+            "high": 1.319,
+            "low": 1.293
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "159730": {
         "etf_code": "159730",
@@ -8611,12 +9125,18 @@
             "close": 1.001,
             "high": 1.009,
             "low": 0.992
+          },
+          "2026-09-18": {
+            "open": 1.008,
+            "close": 1.008,
+            "high": 1.009,
+            "low": 1.004
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "159745": {
         "etf_code": "159745",
@@ -9280,12 +9800,18 @@
             "close": 0.513,
             "high": 0.515,
             "low": 0.509
+          },
+          "2026-09-18": {
+            "open": 0.514,
+            "close": 0.519,
+            "high": 0.519,
+            "low": 0.513
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "159766": {
         "etf_code": "159766",
@@ -9949,12 +10475,18 @@
             "close": 0.542,
             "high": 0.543,
             "low": 0.537
+          },
+          "2026-09-18": {
+            "open": 0.542,
+            "close": 0.549,
+            "high": 0.55,
+            "low": 0.541
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "159886": {
         "etf_code": "159886",
@@ -10629,10 +11161,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "159928": {
         "etf_code": "159928",
@@ -11307,10 +11836,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "159995": {
         "etf_code": "159995",
@@ -11974,12 +12500,18 @@
             "close": 1.114,
             "high": 1.133,
             "low": 1.108
+          },
+          "2026-09-18": {
+            "open": 1.134,
+            "close": 1.152,
+            "high": 1.165,
+            "low": 1.13
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "159998": {
         "etf_code": "159998",
@@ -12654,10 +13186,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "510300": {
         "etf_code": "510300",
@@ -13332,10 +13861,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "512010": {
         "etf_code": "512010",
@@ -13999,12 +14525,18 @@
             "close": 0.372,
             "high": 0.374,
             "low": 0.368
+          },
+          "2026-09-18": {
+            "open": 0.373,
+            "close": 0.373,
+            "high": 0.378,
+            "low": 0.371
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "512200": {
         "etf_code": "512200",
@@ -14668,12 +15200,18 @@
             "close": 1.185,
             "high": 1.187,
             "low": 1.17
+          },
+          "2026-09-18": {
+            "open": 1.185,
+            "close": 1.23,
+            "high": 1.233,
+            "low": 1.18
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "512400": {
         "etf_code": "512400",
@@ -15348,10 +15886,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "512430": {
         "etf_code": "512430",
@@ -15937,12 +16472,18 @@
             "close": 0.88,
             "high": 0.882,
             "low": 0.88
+          },
+          "2026-09-18": {
+            "open": 0.888,
+            "close": 0.896,
+            "high": 0.896,
+            "low": 0.888
           }
         },
-        "bar_count": 97,
+        "bar_count": 98,
         "first": "2026-04-30",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "512580": {
         "etf_code": "512580",
@@ -16606,12 +17147,18 @@
             "close": 1.114,
             "high": 1.118,
             "low": 1.109
+          },
+          "2026-09-18": {
+            "open": 1.118,
+            "close": 1.131,
+            "high": 1.131,
+            "low": 1.113
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "512660": {
         "etf_code": "512660",
@@ -17286,10 +17833,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "512800": {
         "etf_code": "512800",
@@ -17953,12 +18497,18 @@
             "close": 0.837,
             "high": 0.845,
             "low": 0.832
+          },
+          "2026-09-18": {
+            "open": 0.834,
+            "close": 0.835,
+            "high": 0.843,
+            "low": 0.831
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "512880": {
         "etf_code": "512880",
@@ -18622,12 +19172,18 @@
             "close": 1.042,
             "high": 1.054,
             "low": 1.042
+          },
+          "2026-09-18": {
+            "open": 1.047,
+            "close": 1.057,
+            "high": 1.059,
+            "low": 1.047
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "512980": {
         "etf_code": "512980",
@@ -19302,10 +19858,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "513180": {
         "etf_code": "513180",
@@ -19969,12 +20522,18 @@
             "close": 0.542,
             "high": 0.544,
             "low": 0.537
+          },
+          "2026-09-18": {
+            "open": 0.546,
+            "close": 0.553,
+            "high": 0.555,
+            "low": 0.545
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "515210": {
         "etf_code": "515210",
@@ -20638,12 +21197,18 @@
             "close": 1.129,
             "high": 1.14,
             "low": 1.124
+          },
+          "2026-09-18": {
+            "open": 1.132,
+            "close": 1.138,
+            "high": 1.139,
+            "low": 1.132
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "515220": {
         "etf_code": "515220",
@@ -21318,10 +21883,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "515710": {
         "etf_code": "515710",
@@ -21985,12 +22547,18 @@
             "close": 0.485,
             "high": 0.485,
             "low": 0.482
+          },
+          "2026-09-18": {
+            "open": 0.485,
+            "close": 0.488,
+            "high": 0.489,
+            "low": 0.484
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "515880": {
         "etf_code": "515880",
@@ -22665,10 +23233,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "516020": {
         "etf_code": "516020",
@@ -23343,10 +23908,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "516110": {
         "etf_code": "516110",
@@ -24010,12 +24572,18 @@
             "close": 1.07,
             "high": 1.072,
             "low": 1.05
+          },
+          "2026-09-18": {
+            "open": 1.071,
+            "close": 1.071,
+            "high": 1.076,
+            "low": 1.066
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "516670": {
         "etf_code": "516670",
@@ -24679,12 +25247,18 @@
             "close": 0.602,
             "high": 0.605,
             "low": 0.595
+          },
+          "2026-09-18": {
+            "open": 0.602,
+            "close": 0.604,
+            "high": 0.604,
+            "low": 0.598
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       },
       "516850": {
         "etf_code": "516850",
@@ -25359,10 +25933,7 @@
         "bar_count": 111,
         "first": "2026-04-13",
         "last": "2026-09-18",
-        "fresh_for_as_of": true,
-        "bar_sources": {
-          "2026-09-18": "TENCENT_ETF_FINAL_QUOTE"
-        }
+        "fresh_for_as_of": true
       },
       "560620": {
         "etf_code": "560620",
@@ -26026,67 +26597,21 @@
             "close": 0.951,
             "high": 0.957,
             "low": 0.946
+          },
+          "2026-09-18": {
+            "open": 0.946,
+            "close": 0.953,
+            "high": 0.957,
+            "low": 0.946
           }
         },
-        "bar_count": 110,
+        "bar_count": 111,
         "first": "2026-04-13",
-        "last": "2026-09-17",
-        "fresh_for_as_of": false
+        "last": "2026-09-18",
+        "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-09-18T12:24:26+00:00",
-    "eod_completion_source": "PRESERVED_POST_CLOSE_FINAL_QUOTE",
-    "final_quote_fallback": {
-      "trade_date": "2026-09-18",
-      "status": "complete",
-      "code_count": 11,
-      "quotes": {
-        "159886": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:39+08:00"
-        },
-        "159928": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:27+08:00"
-        },
-        "159998": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:51+08:00"
-        },
-        "510300": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:52+08:00"
-        },
-        "512400": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:33+08:00"
-        },
-        "512660": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:51+08:00"
-        },
-        "512980": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:15:00+08:00"
-        },
-        "515220": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:47+08:00"
-        },
-        "515880": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:33+08:00"
-        },
-        "516020": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:54+08:00"
-        },
-        "516850": {
-          "source": "TENCENT_ETF_FINAL_QUOTE",
-          "quote_time": "2026-09-18T16:14:47+08:00"
-        }
-      }
-    },
+    "updated_at": "2026-09-18T13:03:50+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-09-18",
@@ -26901,9 +27426,8 @@
     "authoritative": true,
     "coverage_from": "1990-12-19",
     "coverage_through": "2026-12-31",
-    "generated_for": "2026-09-17",
+    "generated_for": "2026-09-18",
     "dates": [
-      "2016-09-19",
       "2016-09-20",
       "2016-09-21",
       "2016-09-22",
@@ -29409,9 +29933,116 @@
     "mode": "aggressive",
     "as_of": "2026-09-18",
     "marks_as_of": "2026-09-18",
-    "status": "OFFICIAL_PENDING",
-    "headline_cn": "2026-09-18 正式 Flex 策略待生成",
-    "items": [],
+    "status": "ACTION",
+    "headline_cn": "2026-09-18 有 1 项处于执行窗口的策略动作",
+    "items": [
+      {
+        "signal_id": "2026-09-15",
+        "entry_date": "2026-09-16",
+        "members": [
+          {
+            "name": "通信",
+            "etf_code": "515880",
+            "etf_name": "通信ETF国泰",
+            "weight_in_sleeve": 0.4945,
+            "portfolio_weight": null,
+            "entry_open": 0.653
+          },
+          {
+            "name": "机械设备",
+            "etf_code": "159886",
+            "etf_name": "机械ETF富国",
+            "weight_in_sleeve": 0.2721,
+            "portfolio_weight": null,
+            "entry_open": 0.84
+          },
+          {
+            "name": "国防军工",
+            "etf_code": "512660",
+            "etf_name": "军工ETF国泰",
+            "weight_in_sleeve": 0.2334,
+            "portfolio_weight": null,
+            "entry_open": 1.139
+          }
+        ],
+        "min_hold_days": 3,
+        "stop_loss": -0.03,
+        "take_profit": 0.04,
+        "transaction_cost_bps_one_way": 1.0,
+        "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
+        "status": "TRIGGERED",
+        "event_type": "TAKE_PROFIT",
+        "close_code": "LOCAL_TAKE_PROFIT",
+        "action_cn": "卫星篮子止盈",
+        "trigger_date": "2026-09-18",
+        "execution_date": "2026-09-21",
+        "execution_status": "PENDING",
+        "execution_bar_complete": false,
+        "trigger_return": 0.04314384274260252,
+        "trigger_threshold": 0.04,
+        "days_held": 3,
+        "checked_through": "2026-09-18",
+        "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+        "requires_open_marks": true,
+        "id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
+        "sleeve": "satellite",
+        "signal_date": "2026-09-18",
+        "position": {
+          "status": "open",
+          "entry_signal_date": "2026-09-15",
+          "entry_date": "2026-09-16",
+          "exit_due_date": "2026-09-28",
+          "days_held": 3,
+          "days_remaining": 5,
+          "stage_id": "RISING_HARD",
+          "names": [
+            "通信",
+            "机械设备",
+            "国防军工"
+          ],
+          "weights": {
+            "通信": 0.4945,
+            "机械设备": 0.2721,
+            "国防军工": 0.2334
+          },
+          "etf_code": null,
+          "execution_mode": "T_PLUS_1_OPEN",
+          "entry_price_type": "open",
+          "planned_hold_days": null
+        },
+        "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+        "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
+        "title_cn": "卫星篮子止盈",
+        "execution_mode": "T_PLUS_1_OPEN",
+        "execution_window_cn": "下一交易日开盘整篮平仓",
+        "instruments": [
+          {
+            "name": "通信",
+            "etf_code": "515880",
+            "etf_name": "通信ETF国泰",
+            "weight_in_sleeve": 0.4945,
+            "portfolio_weight": null,
+            "entry_open": 0.653
+          },
+          {
+            "name": "机械设备",
+            "etf_code": "159886",
+            "etf_name": "机械ETF富国",
+            "weight_in_sleeve": 0.2721,
+            "portfolio_weight": null,
+            "entry_open": 0.84
+          },
+          {
+            "name": "国防军工",
+            "etf_code": "512660",
+            "etf_name": "军工ETF国泰",
+            "weight_in_sleeve": 0.2334,
+            "portfolio_weight": null,
+            "entry_open": 1.139
+          }
+        ]
+      }
+    ],
     "execution_events": [
       {
         "event_type": "EXIT",
@@ -29470,6 +30101,83 @@
           }
         ],
         "execution_basis": "ETF_OPEN_CONFIRMED"
+      },
+      {
+        "signal_id": "2026-09-15",
+        "entry_date": "2026-09-16",
+        "members": [
+          {
+            "name": "通信",
+            "etf_code": "515880",
+            "etf_name": "通信ETF国泰",
+            "weight_in_sleeve": 0.4945,
+            "portfolio_weight": null,
+            "entry_open": 0.653
+          },
+          {
+            "name": "机械设备",
+            "etf_code": "159886",
+            "etf_name": "机械ETF富国",
+            "weight_in_sleeve": 0.2721,
+            "portfolio_weight": null,
+            "entry_open": 0.84
+          },
+          {
+            "name": "国防军工",
+            "etf_code": "512660",
+            "etf_name": "军工ETF国泰",
+            "weight_in_sleeve": 0.2334,
+            "portfolio_weight": null,
+            "entry_open": 1.139
+          }
+        ],
+        "min_hold_days": 3,
+        "stop_loss": -0.03,
+        "take_profit": 0.04,
+        "transaction_cost_bps_one_way": 1.0,
+        "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
+        "status": "TRIGGERED",
+        "event_type": "TAKE_PROFIT",
+        "close_code": "LOCAL_TAKE_PROFIT",
+        "action_cn": "卫星篮子止盈",
+        "trigger_date": "2026-09-18",
+        "execution_date": "2026-09-21",
+        "execution_status": "PENDING",
+        "execution_bar_complete": false,
+        "trigger_return": 0.04314384274260252,
+        "trigger_threshold": 0.04,
+        "days_held": 3,
+        "checked_through": "2026-09-18",
+        "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+        "requires_open_marks": true,
+        "id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
+        "sleeve": "satellite",
+        "signal_date": "2026-09-18",
+        "position": {
+          "status": "open",
+          "entry_signal_date": "2026-09-15",
+          "entry_date": "2026-09-16",
+          "exit_due_date": "2026-09-28",
+          "days_held": 3,
+          "days_remaining": 5,
+          "stage_id": "RISING_HARD",
+          "names": [
+            "通信",
+            "机械设备",
+            "国防军工"
+          ],
+          "weights": {
+            "通信": 0.4945,
+            "机械设备": 0.2721,
+            "国防军工": 0.2334
+          },
+          "etf_code": null,
+          "execution_mode": "T_PLUS_1_OPEN",
+          "entry_price_type": "open",
+          "planned_hold_days": null
+        },
+        "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+        "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT"
       }
     ],
     "satellite_risk_event": {
@@ -29506,11 +30214,48 @@
       "take_profit": 0.04,
       "transaction_cost_bps_one_way": 1.0,
       "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-      "status": "CLEAR",
-      "checked_through": "2026-09-17",
-      "latest_return": 0.02193938749785218,
-      "days_held": 2,
-      "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
+      "status": "TRIGGERED",
+      "event_type": "TAKE_PROFIT",
+      "close_code": "LOCAL_TAKE_PROFIT",
+      "action_cn": "卫星篮子止盈",
+      "trigger_date": "2026-09-18",
+      "execution_date": "2026-09-21",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "trigger_return": 0.04314384274260252,
+      "trigger_threshold": 0.04,
+      "days_held": 3,
+      "checked_through": "2026-09-18",
+      "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线",
+      "requires_open_marks": true,
+      "id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
+      "sleeve": "satellite",
+      "signal_date": "2026-09-18",
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-09-15",
+        "entry_date": "2026-09-16",
+        "exit_due_date": "2026-09-28",
+        "days_held": 3,
+        "days_remaining": 5,
+        "stage_id": "RISING_HARD",
+        "names": [
+          "通信",
+          "机械设备",
+          "国防军工"
+        ],
+        "weights": {
+          "通信": 0.4945,
+          "机械设备": 0.2721,
+          "国防军工": 0.2334
+        },
+        "etf_code": null,
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": null
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT"
     },
     "visibility_policy": {
       "policy_id": "SIGNAL_THROUGH_EXECUTION_SESSION",
@@ -29521,14 +30266,14 @@
     },
     "data_quality": {
       "report_as_of": "2026-09-18",
-      "strategy_as_of": "2026-09-17",
-      "strategy_publication_status": "OFFICIAL_PENDING",
-      "official_strategy_pending": true,
+      "strategy_as_of": "2026-09-18",
+      "strategy_publication_status": "CURRENT",
+      "official_strategy_pending": false,
       "strategy_provisional": false,
       "marks_as_of": "2026-09-18",
-      "marks_quality": "OK_FINAL_QUOTE_PENDING_DAILY_CONFIRMATION",
-      "risk_check_status": "CLEAR",
-      "complete": false
+      "marks_quality": "OK",
+      "risk_check_status": "TRIGGERED",
+      "complete": true
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",

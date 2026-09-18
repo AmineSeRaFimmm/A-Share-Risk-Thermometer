@@ -1,45 +1,45 @@
 {
   "trade_date": "2026-09-18",
-  "temperature_mode": "CLOSE_PENDING",
+  "temperature_mode": "OFFICIAL_CLOSE",
   "components": [
     {
       "key": "avix_percentile_2y",
       "name": "AVIX两年分位",
-      "score": 20.6759,
+      "score": 20.2783,
       "weight": 0.28,
-      "contribution": 5.7893,
+      "contribution": 5.6779,
       "observed": true,
-      "raw_value": 16.6401,
-      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-09-18T15:10:08+08:00",
+      "raw_value": 16.5863,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-09-18",
       "fetch_time": null,
-      "quality": "TIME_UNVERIFIED"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 27.1192,
+      "score": 26.5997,
       "weight": 0.14,
-      "contribution": 3.7967,
+      "contribution": 3.724,
       "observed": true,
-      "raw_value": 16.6401,
-      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-09-18T15:10:08+08:00",
+      "raw_value": 16.5863,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-09-18",
       "fetch_time": null,
-      "quality": "TIME_UNVERIFIED"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_5d_change",
       "name": "AVIX 5日变化",
-      "score": 36.1737,
+      "score": 35.5716,
       "weight": 0.08,
-      "contribution": 2.8939,
+      "contribution": 2.8457,
       "observed": true,
-      "raw_value": 16.6401,
-      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-09-18T15:10:08+08:00",
+      "raw_value": 16.5863,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-09-18",
       "fetch_time": null,
-      "quality": "TIME_UNVERIFIED"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "qvix_confirmation",
@@ -49,8 +49,8 @@
       "contribution": 12.0,
       "observed": true,
       "raw_value": 16.05,
-      "source": "OPTBBS_CSV_300ETF_MIN_QVIX_PROXY",
-      "quote_time": "2026-09-18T15:00:56+08:00",
+      "source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
+      "quote_time": null,
       "fetch_time": null,
       "quality": "PROXY"
     },
@@ -61,24 +61,24 @@
       "weight": 0.12,
       "contribution": 2.4762,
       "observed": true,
-      "raw_value": 11.0939,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
-      "quote_time": null,
-      "fetch_time": "2026-09-18T15:10:13+08:00",
-      "quality": "REALTIME_INDEX"
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-09-18",
+      "fetch_time": null,
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "drawdown_pressure",
       "name": "回撤压力",
-      "score": 69.931,
+      "score": 69.9305,
       "weight": 0.12,
       "contribution": 8.3917,
       "observed": true,
-      "raw_value": -0.0948,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
-      "quote_time": null,
-      "fetch_time": "2026-09-18T15:10:13+08:00",
-      "quality": "REALTIME_INDEX"
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-09-18",
+      "fetch_time": null,
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "market_breadth_pressure",
@@ -87,11 +87,11 @@
       "weight": 0.1,
       "contribution": 1.3035,
       "observed": true,
-      "raw_value": 0.7669,
-      "source": "PARSE_EM_ZDFENBU",
-      "quote_time": null,
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-09-18",
       "fetch_time": null,
-      "quality": "SINGLE_SOURCE"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "turnover_stress",
@@ -100,11 +100,11 @@
       "weight": 0.04,
       "contribution": 0.8062,
       "observed": true,
-      "raw_value": 1.0419,
-      "source": "EASTMONEY_INDEX_QUOTE_RT",
-      "quote_time": null,
-      "fetch_time": "2026-09-18T15:10:13+08:00",
-      "quality": "SESSION_NORMALIZED"
+      "raw_value": null,
+      "source": "OFFICIAL_CLOSE",
+      "quote_time": "2026-09-18",
+      "fetch_time": null,
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     }
   ]
 }
