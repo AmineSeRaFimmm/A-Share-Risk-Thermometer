@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-18",
+  "as_of": "2026-09-21",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -17,23 +17,15 @@
     "planned_hold_days": null
   },
   "satellite": {
-    "status": "open",
-    "entry_signal_date": "2026-09-15",
-    "entry_date": "2026-09-16",
-    "exit_due_date": "2026-09-28",
-    "days_held": 3,
-    "days_remaining": 5,
-    "stage_id": "RISING_HARD",
-    "names": [
-      "通信",
-      "机械设备",
-      "国防军工"
-    ],
-    "weights": {
-      "通信": 0.4945,
-      "机械设备": 0.2721,
-      "国防军工": 0.2334
-    },
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
+    "days_remaining": 0,
+    "stage_id": null,
+    "names": [],
+    "weights": {},
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -139,8 +131,8 @@
       "action_cn": "卫星篮子止盈",
       "trigger_date": "2026-09-18",
       "execution_date": "2026-09-21",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "trigger_return": 0.04314384274260252,
       "trigger_threshold": 0.04,
       "days_held": 3,
@@ -174,11 +166,12 @@
         "planned_hold_days": null
       },
       "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-      "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT"
+      "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     }
   ],
   "cooldown_through": {
-    "satellite": "2026-09-10"
+    "satellite": "2026-09-21"
   },
   "satellite_risk_check": {
     "signal_id": "2026-09-15",
