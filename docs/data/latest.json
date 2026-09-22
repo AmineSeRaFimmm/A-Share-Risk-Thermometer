@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-09-22",
-  "update_time": "2026-09-22T21:46:50+08:00",
+  "update_time": "2026-09-22T22:19:25+08:00",
   "risk_temperature": 32.0,
   "regime": "NORMAL",
   "regime_cn": "正常",
@@ -91,7 +91,7 @@
     "qvix_close": 15.94,
     "qvix_source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
     "qvix_quote_time": "2026-09-22T14:56:00+08:00",
-    "qvix_delay_minutes": 401.9,
+    "qvix_delay_minutes": 441.8,
     "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
     "qvix_quality_flags": "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY",
     "qvix_secondary_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
