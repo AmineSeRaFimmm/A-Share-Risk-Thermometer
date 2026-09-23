@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-22",
+  "as_of": "2026-09-23",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -17,15 +17,25 @@
     "planned_hold_days": null
   },
   "satellite": {
-    "status": "flat",
-    "entry_signal_date": null,
-    "entry_date": null,
-    "exit_due_date": null,
-    "days_held": 0,
-    "days_remaining": 0,
-    "stage_id": null,
-    "names": [],
-    "weights": {},
+    "status": "open",
+    "entry_signal_date": "2026-09-22",
+    "entry_date": "2026-09-23",
+    "exit_due_date": "2026-10-12",
+    "days_held": 1,
+    "days_remaining": 7,
+    "stage_id": "FALLING_HARD",
+    "names": [
+      "有色金属",
+      "煤炭",
+      "基础化工",
+      "电力设备"
+    ],
+    "weights": {
+      "有色金属": 0.3741,
+      "煤炭": 0.2996,
+      "基础化工": 0.1902,
+      "电力设备": 0.136
+    },
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -174,32 +184,40 @@
     "satellite": "2026-09-21"
   },
   "satellite_risk_check": {
-    "signal_id": "2026-09-15",
-    "entry_date": "2026-09-16",
+    "signal_id": "2026-09-22",
+    "entry_date": "2026-09-23",
     "members": [
       {
-        "name": "通信",
-        "etf_code": "515880",
-        "etf_name": "通信ETF国泰",
-        "weight_in_sleeve": 0.4945,
+        "name": "有色金属",
+        "etf_code": "512400",
+        "etf_name": "有色金属ETF南方",
+        "weight_in_sleeve": 0.3741374137413741,
         "portfolio_weight": null,
-        "entry_open": 0.653
+        "entry_open": 1.74
       },
       {
-        "name": "机械设备",
-        "etf_code": "159886",
-        "etf_name": "机械ETF富国",
-        "weight_in_sleeve": 0.2721,
+        "name": "煤炭",
+        "etf_code": "515220",
+        "etf_name": "煤炭ETF国泰",
+        "weight_in_sleeve": 0.2996299629962996,
         "portfolio_weight": null,
-        "entry_open": 0.84
+        "entry_open": 1.282
       },
       {
-        "name": "国防军工",
-        "etf_code": "512660",
-        "etf_name": "军工ETF国泰",
-        "weight_in_sleeve": 0.2334,
+        "name": "基础化工",
+        "etf_code": "516020",
+        "etf_name": "化工ETF华宝",
+        "weight_in_sleeve": 0.19021902190219023,
         "portfolio_weight": null,
-        "entry_open": 1.139
+        "entry_open": 0.828
+      },
+      {
+        "name": "电力设备",
+        "etf_code": "516850",
+        "etf_name": "新能源ETF华夏",
+        "weight_in_sleeve": 0.13601360136013602,
+        "portfolio_weight": null,
+        "entry_open": 0.86
       }
     ],
     "min_hold_days": 3,
@@ -207,18 +225,10 @@
     "take_profit": 0.04,
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-    "status": "TRIGGERED",
-    "event_type": "TAKE_PROFIT",
-    "close_code": "LOCAL_TAKE_PROFIT",
-    "action_cn": "卫星篮子止盈",
-    "trigger_date": "2026-09-18",
-    "execution_date": "2026-09-21",
-    "execution_status": "PENDING",
-    "execution_bar_complete": false,
-    "trigger_return": 0.04314384274260252,
-    "trigger_threshold": 0.04,
-    "days_held": 3,
-    "checked_through": "2026-09-18",
-    "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线"
+    "status": "CLEAR",
+    "checked_through": "2026-09-23",
+    "latest_return": -0.010754343199564032,
+    "days_held": 1,
+    "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
