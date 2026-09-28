@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-09-24",
+  "as_of": "2026-09-28",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -21,8 +21,8 @@
     "entry_signal_date": "2026-09-22",
     "entry_date": "2026-09-23",
     "exit_due_date": "2026-10-12",
-    "days_held": 2,
-    "days_remaining": 6,
+    "days_held": 3,
+    "days_remaining": 5,
     "stage_id": "FALLING_HARD",
     "names": [
       "有色金属",
@@ -178,6 +178,93 @@
       "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
       "event_id": "satellite:2026-09-15:2026-09-16:2026-09-18:LOCAL_TAKE_PROFIT",
       "execution_basis": "ETF_OPEN_CONFIRMED"
+    },
+    {
+      "signal_id": "2026-09-22",
+      "entry_date": "2026-09-23",
+      "members": [
+        {
+          "name": "有色金属",
+          "etf_code": "512400",
+          "etf_name": "有色金属ETF南方",
+          "weight_in_sleeve": 0.3741374137413741,
+          "portfolio_weight": null,
+          "entry_open": 1.74
+        },
+        {
+          "name": "煤炭",
+          "etf_code": "515220",
+          "etf_name": "煤炭ETF国泰",
+          "weight_in_sleeve": 0.2996299629962996,
+          "portfolio_weight": null,
+          "entry_open": 1.282
+        },
+        {
+          "name": "基础化工",
+          "etf_code": "516020",
+          "etf_name": "化工ETF华宝",
+          "weight_in_sleeve": 0.19021902190219023,
+          "portfolio_weight": null,
+          "entry_open": 0.828
+        },
+        {
+          "name": "电力设备",
+          "etf_code": "516850",
+          "etf_name": "新能源ETF华夏",
+          "weight_in_sleeve": 0.13601360136013602,
+          "portfolio_weight": null,
+          "entry_open": 0.86
+        }
+      ],
+      "min_hold_days": 3,
+      "stop_loss": -0.03,
+      "take_profit": 0.04,
+      "transaction_cost_bps_one_way": 1.0,
+      "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
+      "status": "TRIGGERED",
+      "event_type": "STOP_LOSS",
+      "close_code": "LOCAL_STOP_LOSS",
+      "action_cn": "卫星篮子止损",
+      "trigger_date": "2026-09-28",
+      "execution_date": "2026-09-29",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "trigger_return": -0.051240814766409515,
+      "trigger_threshold": -0.03,
+      "days_held": 3,
+      "checked_through": "2026-09-28",
+      "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
+      "requires_open_marks": true,
+      "id": "satellite:2026-09-22:2026-09-23:2026-09-28:LOCAL_STOP_LOSS",
+      "sleeve": "satellite",
+      "signal_date": "2026-09-28",
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-09-22",
+        "entry_date": "2026-09-23",
+        "exit_due_date": "2026-10-12",
+        "days_held": 3,
+        "days_remaining": 5,
+        "stage_id": "FALLING_HARD",
+        "names": [
+          "有色金属",
+          "煤炭",
+          "基础化工",
+          "电力设备"
+        ],
+        "weights": {
+          "有色金属": 0.3741,
+          "煤炭": 0.2996,
+          "基础化工": 0.1902,
+          "电力设备": 0.136
+        },
+        "etf_code": null,
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": null
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "satellite:2026-09-22:2026-09-23:2026-09-28:LOCAL_STOP_LOSS"
     }
   ],
   "cooldown_through": {
@@ -225,10 +312,18 @@
     "take_profit": 0.04,
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-    "status": "CLEAR",
-    "checked_through": "2026-09-24",
-    "latest_return": -0.02948584823190603,
-    "days_held": 2,
-    "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
+    "status": "TRIGGERED",
+    "event_type": "STOP_LOSS",
+    "close_code": "LOCAL_STOP_LOSS",
+    "action_cn": "卫星篮子止损",
+    "trigger_date": "2026-09-28",
+    "execution_date": "2026-09-29",
+    "execution_status": "PENDING",
+    "execution_bar_complete": false,
+    "trigger_return": -0.051240814766409515,
+    "trigger_threshold": -0.03,
+    "days_held": 3,
+    "checked_through": "2026-09-28",
+    "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线"
   }
 }
