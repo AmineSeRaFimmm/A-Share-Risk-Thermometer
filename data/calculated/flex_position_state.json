@@ -1,7 +1,26 @@
 {
-  "as_of": "2026-09-28",
+  "as_of": "2026-09-29",
   "mode": "aggressive",
   "core": {
+    "status": "open",
+    "entry_signal_date": "2026-09-28",
+    "entry_date": "2026-09-29",
+    "exit_due_date": "2026-10-12",
+    "days_held": 1,
+    "days_remaining": 4,
+    "stage_id": "CSI300_CORE_BUY",
+    "names": [
+      "沪深300"
+    ],
+    "weights": {
+      "沪深300": 1.0
+    },
+    "etf_code": "510300",
+    "execution_mode": "T_PLUS_1_OPEN",
+    "entry_price_type": "open",
+    "planned_hold_days": 5
+  },
+  "satellite": {
     "status": "flat",
     "entry_signal_date": null,
     "entry_date": null,
@@ -11,31 +30,6 @@
     "stage_id": null,
     "names": [],
     "weights": {},
-    "etf_code": null,
-    "execution_mode": "T_PLUS_1_OPEN",
-    "entry_price_type": "open",
-    "planned_hold_days": null
-  },
-  "satellite": {
-    "status": "open",
-    "entry_signal_date": "2026-09-22",
-    "entry_date": "2026-09-23",
-    "exit_due_date": "2026-10-12",
-    "days_held": 3,
-    "days_remaining": 5,
-    "stage_id": "FALLING_HARD",
-    "names": [
-      "有色金属",
-      "煤炭",
-      "基础化工",
-      "电力设备"
-    ],
-    "weights": {
-      "有色金属": 0.3741,
-      "煤炭": 0.2996,
-      "基础化工": 0.1902,
-      "电力设备": 0.136
-    },
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -227,8 +221,8 @@
       "action_cn": "卫星篮子止损",
       "trigger_date": "2026-09-28",
       "execution_date": "2026-09-29",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "trigger_return": -0.051240814766409515,
       "trigger_threshold": -0.03,
       "days_held": 3,
@@ -264,11 +258,12 @@
         "planned_hold_days": null
       },
       "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-      "event_id": "satellite:2026-09-22:2026-09-23:2026-09-28:LOCAL_STOP_LOSS"
+      "event_id": "satellite:2026-09-22:2026-09-23:2026-09-28:LOCAL_STOP_LOSS",
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     }
   ],
   "cooldown_through": {
-    "satellite": "2026-09-21"
+    "satellite": "2026-09-29"
   },
   "satellite_risk_check": {
     "signal_id": "2026-09-22",
