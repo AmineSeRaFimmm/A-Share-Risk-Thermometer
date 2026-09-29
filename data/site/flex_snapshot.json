@@ -1,9 +1,9 @@
 {
   "schema_version": 2,
-  "revision": "caf86e9597e2a6b234f22001f11aaf3ed5790ee9a0ccad41cb1bee0333c80daa",
-  "built_at": "2026-09-29T14:54:34+08:00",
+  "revision": "83cab5eddfe82ae4c838201ea20efe98d0f81041211c00d4b85eda801a1fb711",
+  "built_at": "2026-09-29T22:20:22+08:00",
   "strategy_as_of": "2026-09-28",
-  "marks_as_of": "2026-09-28",
+  "marks_as_of": "2026-09-29",
   "marks_quality": "OK",
   "strategy_publication_status": "OFFICIAL_PENDING",
   "official_strategy_pending": true,
@@ -7731,10 +7731,10 @@
     "title": "Flex ETF daily marks (EOD)",
     "policy": "SIM_ENTRY_OPEN_MARK_CLOSE",
     "policy_cn": "模拟仓专业口径：入场价=入场日开盘价；盯市价=as_of收盘价；不做盘中轮询；与策略/回测日频一致。",
-    "as_of": "2026-09-28",
-    "start": "2026-05-31",
+    "as_of": "2026-09-29",
+    "start": "2026-06-01",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
-    "fetch_workers": 4,
+    "fetch_workers": 1,
     "not_broker_feed": true,
     "required_codes": [
       "159745",
@@ -7788,10 +7788,10 @@
     "code_count": 29,
     "missing_codes": [],
     "stale_codes": [],
-    "complete_as_of": "2026-09-28",
+    "complete_as_of": "2026-09-29",
     "coverage_missing_codes": [],
     "coverage_stale_codes": [],
-    "coverage_complete_as_of": "2026-09-28",
+    "coverage_complete_as_of": "2026-09-29",
     "quality": "OK",
     "by_code": {
       "159666": {
@@ -8492,11 +8492,17 @@
             "close": 0.969,
             "high": 0.972,
             "low": 0.963
+          },
+          "2026-09-29": {
+            "open": 0.969,
+            "close": 0.964,
+            "high": 0.969,
+            "low": 0.962
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "159697": {
@@ -9197,11 +9203,17 @@
             "close": 1.302,
             "high": 1.306,
             "low": 1.291
+          },
+          "2026-09-29": {
+            "open": 1.296,
+            "close": 1.288,
+            "high": 1.302,
+            "low": 1.286
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "159730": {
@@ -9902,11 +9914,17 @@
             "close": 0.998,
             "high": 1.033,
             "low": 0.993
+          },
+          "2026-09-29": {
+            "open": 0.995,
+            "close": 0.997,
+            "high": 0.998,
+            "low": 0.99
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "159745": {
@@ -10607,11 +10625,17 @@
             "close": 0.512,
             "high": 0.521,
             "low": 0.509
+          },
+          "2026-09-29": {
+            "open": 0.511,
+            "close": 0.521,
+            "high": 0.521,
+            "low": 0.51
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "159766": {
@@ -11312,11 +11336,17 @@
             "close": 0.536,
             "high": 0.542,
             "low": 0.532
+          },
+          "2026-09-29": {
+            "open": 0.535,
+            "close": 0.538,
+            "high": 0.541,
+            "low": 0.535
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "159886": {
@@ -12017,11 +12047,17 @@
             "close": 0.8,
             "high": 0.814,
             "low": 0.797
+          },
+          "2026-09-29": {
+            "open": 0.805,
+            "close": 0.804,
+            "high": 0.807,
+            "low": 0.797
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "159928": {
@@ -12722,11 +12758,17 @@
             "close": 0.645,
             "high": 0.648,
             "low": 0.642
+          },
+          "2026-09-29": {
+            "open": 0.646,
+            "close": 0.647,
+            "high": 0.648,
+            "low": 0.644
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "159995": {
@@ -13427,11 +13469,17 @@
             "close": 1.079,
             "high": 1.127,
             "low": 1.075
+          },
+          "2026-09-29": {
+            "open": 1.073,
+            "close": 1.088,
+            "high": 1.091,
+            "low": 1.07
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "159998": {
@@ -14132,11 +14180,17 @@
             "close": 0.905,
             "high": 0.935,
             "low": 0.902
+          },
+          "2026-09-29": {
+            "open": 0.904,
+            "close": 0.91,
+            "high": 0.912,
+            "low": 0.903
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "510300": {
@@ -14837,11 +14891,17 @@
             "close": 4.417,
             "high": 4.503,
             "low": 4.397
+          },
+          "2026-09-29": {
+            "open": 4.399,
+            "close": 4.416,
+            "high": 4.431,
+            "low": 4.398
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512010": {
@@ -15542,11 +15602,17 @@
             "close": 0.376,
             "high": 0.379,
             "low": 0.373
+          },
+          "2026-09-29": {
+            "open": 0.375,
+            "close": 0.377,
+            "high": 0.384,
+            "low": 0.373
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512200": {
@@ -16247,11 +16313,17 @@
             "close": 1.242,
             "high": 1.259,
             "low": 1.234
+          },
+          "2026-09-29": {
+            "open": 1.25,
+            "close": 1.297,
+            "high": 1.301,
+            "low": 1.245
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512400": {
@@ -16952,11 +17024,17 @@
             "close": 1.593,
             "high": 1.633,
             "low": 1.583
+          },
+          "2026-09-29": {
+            "open": 1.584,
+            "close": 1.619,
+            "high": 1.622,
+            "low": 1.584
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512430": {
@@ -17579,11 +17657,17 @@
             "close": 0.883,
             "high": 0.91,
             "low": 0.872
+          },
+          "2026-09-29": {
+            "open": 0.882,
+            "close": 0.884,
+            "high": 0.885,
+            "low": 0.879
           }
         },
-        "bar_count": 103,
+        "bar_count": 104,
         "first": "2026-04-30",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512580": {
@@ -18284,11 +18368,17 @@
             "close": 1.084,
             "high": 1.111,
             "low": 1.078
+          },
+          "2026-09-29": {
+            "open": 1.082,
+            "close": 1.091,
+            "high": 1.093,
+            "low": 1.082
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512660": {
@@ -18989,11 +19079,17 @@
             "close": 1.098,
             "high": 1.129,
             "low": 1.093
+          },
+          "2026-09-29": {
+            "open": 1.096,
+            "close": 1.102,
+            "high": 1.106,
+            "low": 1.09
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512800": {
@@ -19694,11 +19790,17 @@
             "close": 0.835,
             "high": 0.845,
             "low": 0.833
+          },
+          "2026-09-29": {
+            "open": 0.835,
+            "close": 0.841,
+            "high": 0.842,
+            "low": 0.832
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512880": {
@@ -20399,11 +20501,17 @@
             "close": 1.025,
             "high": 1.044,
             "low": 1.022
+          },
+          "2026-09-29": {
+            "open": 1.025,
+            "close": 1.025,
+            "high": 1.03,
+            "low": 1.024
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "512980": {
@@ -21104,11 +21212,17 @@
             "close": 0.782,
             "high": 0.804,
             "low": 0.78
+          },
+          "2026-09-29": {
+            "open": 0.781,
+            "close": 0.795,
+            "high": 0.799,
+            "low": 0.78
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "513180": {
@@ -21809,11 +21923,17 @@
             "close": 0.542,
             "high": 0.549,
             "low": 0.539
+          },
+          "2026-09-29": {
+            "open": 0.539,
+            "close": 0.536,
+            "high": 0.54,
+            "low": 0.532
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "515210": {
@@ -22514,11 +22634,17 @@
             "close": 1.104,
             "high": 1.12,
             "low": 1.098
+          },
+          "2026-09-29": {
+            "open": 1.104,
+            "close": 1.113,
+            "high": 1.117,
+            "low": 1.101
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "515220": {
@@ -23219,11 +23345,17 @@
             "close": 1.264,
             "high": 1.267,
             "low": 1.244
+          },
+          "2026-09-29": {
+            "open": 1.264,
+            "close": 1.245,
+            "high": 1.265,
+            "low": 1.229
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "515710": {
@@ -23924,11 +24056,17 @@
             "close": 0.483,
             "high": 0.487,
             "low": 0.481
+          },
+          "2026-09-29": {
+            "open": 0.484,
+            "close": 0.482,
+            "high": 0.484,
+            "low": 0.48
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "515880": {
@@ -24629,11 +24767,17 @@
             "close": 0.627,
             "high": 0.673,
             "low": 0.624
+          },
+          "2026-09-29": {
+            "open": 0.62,
+            "close": 0.629,
+            "high": 0.633,
+            "low": 0.62
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "516020": {
@@ -25334,11 +25478,17 @@
             "close": 0.795,
             "high": 0.81,
             "low": 0.791
+          },
+          "2026-09-29": {
+            "open": 0.794,
+            "close": 0.785,
+            "high": 0.795,
+            "low": 0.778
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "516110": {
@@ -26039,11 +26189,17 @@
             "close": 1.057,
             "high": 1.07,
             "low": 1.052
+          },
+          "2026-09-29": {
+            "open": 1.061,
+            "close": 1.058,
+            "high": 1.061,
+            "low": 1.047
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "516670": {
@@ -26744,11 +26900,17 @@
             "close": 0.592,
             "high": 0.594,
             "low": 0.583
+          },
+          "2026-09-29": {
+            "open": 0.591,
+            "close": 0.594,
+            "high": 0.595,
+            "low": 0.589
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "516850": {
@@ -27449,11 +27611,17 @@
             "close": 0.811,
             "high": 0.834,
             "low": 0.807
+          },
+          "2026-09-29": {
+            "open": 0.814,
+            "close": 0.819,
+            "high": 0.822,
+            "low": 0.812
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       },
       "560620": {
@@ -28154,18 +28322,24 @@
             "close": 0.942,
             "high": 0.946,
             "low": 0.942
+          },
+          "2026-09-29": {
+            "open": 0.945,
+            "close": 0.942,
+            "high": 0.945,
+            "low": 0.942
           }
         },
-        "bar_count": 116,
+        "bar_count": 117,
         "first": "2026-04-13",
-        "last": "2026-09-28",
+        "last": "2026-09-29",
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-09-28T18:12:44+00:00",
+    "updated_at": "2026-09-29T14:20:22+00:00",
     "published_bar_preservation": {
       "status": "used",
-      "candidate_as_of": "2026-09-28",
+      "candidate_as_of": "2026-09-29",
       "codes": [
         "159666",
         "159697",
@@ -31677,7 +31851,7 @@
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
     "as_of": "2026-09-29",
-    "marks_as_of": "2026-09-28",
+    "marks_as_of": "2026-09-29",
     "status": "ACTION",
     "headline_cn": "2026-09-29 有 2 项处于执行窗口的策略动作",
     "items": [
@@ -32154,7 +32328,7 @@
       "strategy_publication_status": "OFFICIAL_PENDING",
       "official_strategy_pending": true,
       "strategy_provisional": false,
-      "marks_as_of": "2026-09-28",
+      "marks_as_of": "2026-09-29",
       "marks_quality": "OK",
       "risk_check_status": "TRIGGERED",
       "complete": false
