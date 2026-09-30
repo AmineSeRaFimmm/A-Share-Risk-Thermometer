@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-09-29",
+  "as_of": "2026-09-30",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-09-28",
     "entry_date": "2026-09-29",
     "exit_due_date": "2026-10-12",
-    "days_held": 1,
-    "days_remaining": 4,
+    "days_held": 2,
+    "days_remaining": 3,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
