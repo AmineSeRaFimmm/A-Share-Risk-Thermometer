@@ -1,32 +1,32 @@
 symbol,name,status,rows,last_error,last_try
-801010,农林牧渔,OK,6466,,2026-10-07T14:45:55
-801030,基础化工,OK,6466,,2026-10-07T14:45:55
-801050,有色金属,OK,6466,,2026-10-07T14:45:55
-801040,钢铁,OK,6466,,2026-10-07T14:45:55
-801080,电子,OK,6466,,2026-10-07T14:45:55
-801880,汽车,OK,3052,,2026-10-07T14:45:55
-801120,食品饮料,OK,6466,,2026-10-07T14:45:55
-801110,家用电器,OK,6466,,2026-10-07T14:45:55
-801130,纺织服饰,OK,6466,,2026-10-07T14:45:55
-801140,轻工制造,OK,6466,,2026-10-07T14:45:55
-801150,医药生物,OK,6466,,2026-10-07T14:45:55
-801160,公用事业,OK,6466,,2026-10-07T14:45:55
-801180,房地产,OK,6466,,2026-10-07T14:45:55
-801170,交通运输,OK,6466,,2026-10-07T14:45:55
-801210,社会服务,OK,6466,,2026-10-07T14:45:55
-801780,银行,OK,3052,,2026-10-07T14:45:55
-801200,商贸零售,OK,6466,,2026-10-07T14:45:55
-801790,非银金融,OK,3052,,2026-10-07T14:45:55
-801230,综合,OK,6466,,2026-10-07T14:45:55
-801720,建筑装饰,OK,3052,,2026-10-07T14:45:55
-801710,建筑材料,OK,3052,,2026-10-07T14:45:55
-801890,机械设备,OK,3052,,2026-10-07T14:45:55
-801740,国防军工,OK,3052,,2026-10-07T14:45:55
-801750,计算机,OK,3052,,2026-10-07T14:45:55
-801760,传媒,OK,3052,,2026-10-07T14:45:55
-801770,通信,OK,3052,,2026-10-07T14:45:55
-801730,电力设备,OK,3052,,2026-10-07T14:45:55
-801950,煤炭,OK,3059,,2026-10-07T14:45:55
-801970,环保,OK,1158,,2026-10-07T14:45:55
-801960,石油石化,OK,1158,,2026-10-07T14:45:55
-801980,美容护理,OK,1158,,2026-10-07T14:45:55
+801040,钢铁,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801050,有色金属,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801030,基础化工,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801010,农林牧渔,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801080,电子,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801110,家用电器,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801120,食品饮料,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801880,汽车,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801130,纺织服饰,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801140,轻工制造,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801150,医药生物,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801160,公用事业,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801170,交通运输,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801200,商贸零售,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801180,房地产,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801210,社会服务,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801780,银行,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801790,非银金融,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801230,综合,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801710,建筑材料,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801720,建筑装饰,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801730,电力设备,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801890,机械设备,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801740,国防军工,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801750,计算机,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801760,传媒,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801770,通信,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801950,煤炭,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801960,石油石化,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801970,环保,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
+801980,美容护理,ERROR,0,Expecting value: line 1 column 1 (char 0),2026-10-07T15:36:44
