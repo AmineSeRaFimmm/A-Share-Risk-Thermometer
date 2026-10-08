@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "1306f20b6337aa9c156a42291508e3a8e33ce01de859b3a551d8d081f9c6af94",
-  "built_at": "2026-10-08T01:28:53+08:00",
+  "revision": "feee7f3dccf1fa764a7d481305bb2d19b19a104c5ad453ff2d33b8bc9b284db3",
+  "built_at": "2026-10-08T10:47:59+08:00",
   "strategy_as_of": "2026-09-30",
   "marks_as_of": "2026-09-30",
   "marks_quality": "OK",
-  "strategy_publication_status": "CURRENT",
-  "official_strategy_pending": false,
+  "strategy_publication_status": "OFFICIAL_PENDING",
+  "official_strategy_pending": true,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -31347,10 +31347,10 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-09-30",
+    "as_of": "2026-10-08",
     "marks_as_of": "2026-09-30",
     "status": "ACTION",
-    "headline_cn": "2026-09-30 有 1 项处于执行窗口的策略动作",
+    "headline_cn": "2026-10-08 有 1 项处于执行窗口的策略动作",
     "items": [
       {
         "id": "2026-09-30:ENTRY:satellite:OPEN",
@@ -31712,15 +31712,15 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-09-30",
+      "report_as_of": "2026-10-08",
       "strategy_as_of": "2026-09-30",
-      "strategy_publication_status": "CURRENT",
-      "official_strategy_pending": false,
+      "strategy_publication_status": "OFFICIAL_PENDING",
+      "official_strategy_pending": true,
       "strategy_provisional": false,
       "marks_as_of": "2026-09-30",
       "marks_quality": "OK",
       "risk_check_status": "TRIGGERED",
-      "complete": true
+      "complete": false
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",
