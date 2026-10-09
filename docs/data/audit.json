@@ -1,5 +1,5 @@
 {
-  "trade_date": "2026-10-08",
+  "trade_date": "2026-10-09",
   "temperature_mode": "OFFICIAL_CLOSE",
   "data_health": {
     "options_history": "OK",
@@ -15,21 +15,21 @@
     "usable_nowcast": true,
     "usable_gap_fill": true,
     "note": "normal two-term interpolation",
-    "avix_mid": 16.4486
+    "avix_mid": 16.706
   },
   "nowcast": {
     "active": false,
     "reason_cn": "盘中 nowcast 未激活；正式收盘优先官方 AVIX"
   },
   "model_confidence": {
-    "score": 92.1,
+    "score": 92.0,
     "coverage_score": 100.0,
-    "data_quality_score": 92.1,
+    "data_quality_score": 92.0,
     "grade": "HIGH",
     "missing_components": "QVIX_PROXY"
   },
   "warnings": [
     "WARN_QVIX_REALTIME_PROXY"
   ],
-  "last_successful_update": "2026-10-09T01:25:41+08:00"
+  "last_successful_update": "2026-10-09T23:24:06+08:00"
 }

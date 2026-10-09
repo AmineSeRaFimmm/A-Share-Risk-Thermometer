@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-10-08",
+  "as_of": "2026-10-09",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-09-28",
     "entry_date": "2026-09-29",
     "exit_due_date": "2026-10-12",
-    "days_held": 3,
-    "days_remaining": 2,
+    "days_held": 4,
+    "days_remaining": 1,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -25,8 +25,8 @@
     "entry_signal_date": "2026-09-30",
     "entry_date": "2026-10-08",
     "exit_due_date": "2026-10-19",
-    "days_held": 1,
-    "days_remaining": 7,
+    "days_held": 2,
+    "days_remaining": 6,
     "stage_id": "RISING_HARD",
     "names": [
       "通信",
@@ -308,9 +308,9 @@
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
     "status": "CLEAR",
-    "checked_through": "2026-10-08",
-    "latest_return": -0.025354080186006267,
-    "days_held": 1,
+    "checked_through": "2026-10-09",
+    "latest_return": -0.0286754785861969,
+    "days_held": 2,
     "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
