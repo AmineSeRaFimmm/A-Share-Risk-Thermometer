@@ -1,45 +1,45 @@
 {
-  "trade_date": "2026-10-12",
+  "trade_date": "2026-10-13",
   "temperature_mode": "NOWCAST",
   "components": [
     {
       "key": "avix_percentile_2y",
       "name": "AVIX两年分位",
-      "score": 20.2381,
+      "score": 24.2545,
       "weight": 0.28,
-      "contribution": 5.6667,
+      "contribution": 6.7913,
       "observed": true,
-      "raw_value": 16.7015,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-10-09",
+      "raw_value": 16.9927,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-10-13T01:03:41+08:00",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "TIME_UNVERIFIED|WARN_NOT_BRACKET_30D"
     },
     {
       "key": "avix_zscore_1y",
       "name": "AVIX Z-score",
-      "score": 29.034,
+      "score": 32.1485,
       "weight": 0.14,
-      "contribution": 4.0648,
+      "contribution": 4.5008,
       "observed": true,
-      "raw_value": 16.7015,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-10-09",
+      "raw_value": 16.9927,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-10-13T01:03:41+08:00",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "TIME_UNVERIFIED|WARN_NOT_BRACKET_30D"
     },
     {
       "key": "avix_5d_change",
       "name": "AVIX 5日变化",
-      "score": 29.6292,
+      "score": 42.9511,
       "weight": 0.08,
-      "contribution": 2.3703,
+      "contribution": 3.4361,
       "observed": true,
-      "raw_value": 16.7015,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-10-09",
+      "raw_value": 16.9927,
+      "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
+      "quote_time": "2026-10-13T01:03:41+08:00",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "TIME_UNVERIFIED|WARN_NOT_BRACKET_30D"
     },
     {
       "key": "qvix_confirmation",
@@ -49,62 +49,62 @@
       "contribution": 7.2,
       "observed": true,
       "raw_value": 15.92,
-      "source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
-      "quote_time": "2026-10-09T14:56:54+08:00",
+      "source": "AKSHARE_300ETF_MIN_QVIX_PROXY",
+      "quote_time": "2026-10-13T14:56:54+08:00",
       "fetch_time": null,
-      "quality": "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY"
+      "quality": "PROXY"
     },
     {
       "key": "realized_vol_percentile",
       "name": "实现波动率",
-      "score": 30.3571,
+      "score": 27.9762,
       "weight": 0.12,
-      "contribution": 3.6429,
+      "contribution": 3.3571,
       "observed": true,
-      "raw_value": null,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-10-09",
-      "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "raw_value": 12.8805,
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-10-13T01:03:43+08:00",
+      "quality": "REALTIME_INDEX"
     },
     {
       "key": "drawdown_pressure",
       "name": "回撤压力",
-      "score": 71.9753,
+      "score": 76.3596,
       "weight": 0.12,
-      "contribution": 8.637,
+      "contribution": 9.1632,
       "observed": true,
-      "raw_value": null,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-10-09",
-      "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "raw_value": -0.106,
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-10-13T01:03:43+08:00",
+      "quality": "REALTIME_INDEX"
     },
     {
       "key": "market_breadth_pressure",
       "name": "市场宽度",
-      "score": 44.0367,
+      "score": 50.0,
       "weight": 0.1,
-      "contribution": 4.4037,
-      "observed": true,
+      "contribution": 5.0,
+      "observed": false,
       "raw_value": null,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-10-09",
+      "source": null,
+      "quote_time": null,
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "SINGLE_SOURCE"
     },
     {
       "key": "turnover_stress",
       "name": "成交压力",
-      "score": 30.2609,
+      "score": 100.0,
       "weight": 0.04,
-      "contribution": 1.2104,
+      "contribution": 4.0,
       "observed": true,
-      "raw_value": null,
-      "source": "OFFICIAL_CLOSE",
-      "quote_time": "2026-10-09",
-      "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "raw_value": 10.5685,
+      "source": "TENCENT_INDEX_QUOTE_RT",
+      "quote_time": null,
+      "fetch_time": "2026-10-13T01:03:43+08:00",
+      "quality": "SESSION_NORMALIZED"
     }
   ]
 }

@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-10-09",
+  "as_of": "2026-10-12",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-09-28",
     "entry_date": "2026-09-29",
     "exit_due_date": "2026-10-12",
-    "days_held": 4,
-    "days_remaining": 1,
+    "days_held": 5,
+    "days_remaining": 0,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -25,8 +25,8 @@
     "entry_signal_date": "2026-09-30",
     "entry_date": "2026-10-08",
     "exit_due_date": "2026-10-19",
-    "days_held": 2,
-    "days_remaining": 6,
+    "days_held": 3,
+    "days_remaining": 5,
     "stage_id": "RISING_HARD",
     "names": [
       "通信",
@@ -268,6 +268,106 @@
       "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
       "event_id": "satellite:2026-09-22:2026-09-23:2026-09-28:LOCAL_STOP_LOSS",
       "execution_basis": "ETF_OPEN_CONFIRMED"
+    },
+    {
+      "event_type": "EXIT",
+      "close_code": "CORE_MAX_HOLD",
+      "reason_cn": "Core holding period complete",
+      "days_held": 5,
+      "id": "core:2026-09-28:2026-09-29:2026-10-12:CORE_MAX_HOLD",
+      "sleeve": "core",
+      "trigger_date": "2026-10-12",
+      "signal_date": "2026-10-12",
+      "execution_date": "2026-10-13",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-09-28",
+        "entry_date": "2026-09-29",
+        "exit_due_date": "2026-10-12",
+        "days_held": 5,
+        "days_remaining": 0,
+        "stage_id": "CSI300_CORE_BUY",
+        "names": [
+          "沪深300"
+        ],
+        "weights": {
+          "沪深300": 1.0
+        },
+        "etf_code": "510300",
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": 5
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "core:2026-09-28:2026-09-29:2026-10-12:CORE_MAX_HOLD",
+      "signal_id": "2026-09-28",
+      "requires_open_marks": true,
+      "members": [
+        {
+          "name": "沪深300",
+          "etf_code": "510300",
+          "weight_in_sleeve": 1.0
+        }
+      ]
+    },
+    {
+      "event_type": "EXIT",
+      "close_code": "EVENT_FLIP",
+      "reason_cn": "卫星已持有 3 日 ≥ 最短 3 日，开仓阶段 RISING_HARD 命中对立 FALLING_HARD，提前平仓",
+      "days_held": 3,
+      "id": "satellite:2026-09-30:2026-10-08:2026-10-12:EVENT_FLIP",
+      "sleeve": "satellite",
+      "trigger_date": "2026-10-12",
+      "signal_date": "2026-10-12",
+      "execution_date": "2026-10-13",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-09-30",
+        "entry_date": "2026-10-08",
+        "exit_due_date": "2026-10-19",
+        "days_held": 3,
+        "days_remaining": 5,
+        "stage_id": "RISING_HARD",
+        "names": [
+          "通信",
+          "机械设备",
+          "国防军工"
+        ],
+        "weights": {
+          "通信": 0.4945,
+          "机械设备": 0.2721,
+          "国防军工": 0.2334
+        },
+        "etf_code": null,
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": null
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "satellite:2026-09-30:2026-10-08:2026-10-12:EVENT_FLIP",
+      "signal_id": "2026-09-30",
+      "requires_open_marks": true,
+      "members": [
+        {
+          "name": "通信",
+          "etf_code": "515880",
+          "weight_in_sleeve": 0.4945
+        },
+        {
+          "name": "机械设备",
+          "etf_code": "159886",
+          "weight_in_sleeve": 0.2721
+        },
+        {
+          "name": "国防军工",
+          "etf_code": "512660",
+          "weight_in_sleeve": 0.2334
+        }
+      ]
     }
   ],
   "cooldown_through": {
