@@ -1,43 +1,31 @@
 {
-  "as_of": "2026-10-12",
+  "as_of": "2026-10-13",
   "mode": "aggressive",
   "core": {
-    "status": "open",
-    "entry_signal_date": "2026-09-28",
-    "entry_date": "2026-09-29",
-    "exit_due_date": "2026-10-12",
-    "days_held": 5,
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
     "days_remaining": 0,
-    "stage_id": "CSI300_CORE_BUY",
-    "names": [
-      "沪深300"
-    ],
-    "weights": {
-      "沪深300": 1.0
-    },
-    "etf_code": "510300",
+    "stage_id": null,
+    "names": [],
+    "weights": {},
+    "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
-    "planned_hold_days": 5
+    "planned_hold_days": null
   },
   "satellite": {
-    "status": "open",
-    "entry_signal_date": "2026-09-30",
-    "entry_date": "2026-10-08",
-    "exit_due_date": "2026-10-19",
-    "days_held": 3,
-    "days_remaining": 5,
-    "stage_id": "RISING_HARD",
-    "names": [
-      "通信",
-      "机械设备",
-      "国防军工"
-    ],
-    "weights": {
-      "通信": 0.4945,
-      "机械设备": 0.2721,
-      "国防军工": 0.2334
-    },
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
+    "days_remaining": 0,
+    "stage_id": null,
+    "names": [],
+    "weights": {},
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -279,8 +267,8 @@
       "trigger_date": "2026-10-12",
       "signal_date": "2026-10-12",
       "execution_date": "2026-10-13",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "position": {
         "status": "open",
         "entry_signal_date": "2026-09-28",
@@ -310,7 +298,8 @@
           "etf_code": "510300",
           "weight_in_sleeve": 1.0
         }
-      ]
+      ],
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     },
     {
       "event_type": "EXIT",
@@ -322,8 +311,8 @@
       "trigger_date": "2026-10-12",
       "signal_date": "2026-10-12",
       "execution_date": "2026-10-13",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "position": {
         "status": "open",
         "entry_signal_date": "2026-09-30",
@@ -367,11 +356,13 @@
           "etf_code": "512660",
           "weight_in_sleeve": 0.2334
         }
-      ]
+      ],
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     }
   ],
   "cooldown_through": {
-    "satellite": "2026-09-29"
+    "satellite": "2026-10-13",
+    "core": "2026-10-13"
   },
   "satellite_risk_check": {
     "signal_id": "2026-09-30",
