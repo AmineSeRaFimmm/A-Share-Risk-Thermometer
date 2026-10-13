@@ -9,7 +9,7 @@
   "disclaimer": "研究观察信号，来自历史回测（推荐区间 60-75 + 60日回撤确认）。不是买卖建议，也不是生产交易指令；与 S3/S4（AVIX 规则）相互独立。",
   "latest": {
     "trade_date": "2026-10-13",
-    "risk_temperature": 40.6,
+    "risk_temperature": 41.1,
     "drawdown_60d": -0.1086,
     "in_band": false,
     "drawdown_confirmed": true,

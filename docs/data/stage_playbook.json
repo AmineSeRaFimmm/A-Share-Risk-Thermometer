@@ -46,16 +46,16 @@
   },
   "market_state": {
     "trade_date": "2026-10-13",
-    "rt": 40.6,
+    "rt": 41.1,
     "prev_rt": 48.3,
-    "rt_d1": -7.699999999999996,
-    "rt_d5": -6.5,
+    "rt_d1": -7.199999999999996,
+    "rt_d5": -6.0,
     "rt_rollmax_10": 60.4,
     "hs300_dd60": -0.1085837137147029,
     "regime": "CAUTION",
     "regime_cn": "警戒",
     "quality": "WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D",
-    "model_confidence": 90.2
+    "model_confidence": 88.7
   },
   "active_stage_ids": [
     "FALLING_HARD"
@@ -2693,11 +2693,11 @@
       }
     },
     "market_state": {
-      "rt": 40.6,
-      "rt_d1": -7.699999999999996,
-      "rt_d5": -6.5,
+      "rt": 41.1,
+      "rt_d1": -7.199999999999996,
+      "rt_d5": -6.0,
       "hs300_dd60": -0.1085837137147029,
-      "model_confidence": 90.2,
+      "model_confidence": 88.7,
       "regime_cn": "警戒"
     },
     "active_stages": [

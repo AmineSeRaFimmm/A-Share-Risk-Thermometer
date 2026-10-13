@@ -83,9 +83,9 @@
     {
       "key": "market_breadth_pressure",
       "name": "市场宽度",
-      "score": 26.3724,
+      "score": 30.9754,
       "weight": 0.1,
-      "contribution": 2.6372,
+      "contribution": 3.0975,
       "observed": true,
       "raw_value": null,
       "source": "OFFICIAL_CLOSE",

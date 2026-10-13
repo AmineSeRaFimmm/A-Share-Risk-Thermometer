@@ -123,19 +123,19 @@
     {
       "sampled_at": "2026-10-13T15:00:00+08:00",
       "time": "15:00",
-      "risk_temperature": 40.6,
+      "risk_temperature": 41.1,
       "temperature_mode": "OFFICIAL_CLOSE",
       "temperature_mode_cn": "收盘正式",
       "is_final": true,
       "quality": "WARN_QVIX_REALTIME_PROXY|WARN_ROLLOVER_SINGLE_TERM_30D",
-      "model_confidence": 90.2,
+      "model_confidence": 88.7,
       "model_coverage_score": 100.0,
-      "model_data_quality_score": 90.2,
+      "model_data_quality_score": 88.7,
       "model_missing_components": "QVIX_PROXY",
       "hs300_drawdown_60d": -0.1086,
       "breadth_mode": "STOCK_A",
       "breadth_quality": "OK",
-      "breadth_source": "PARSE_SOHU_ZDT",
+      "breadth_source": "PARSE_EM_A_SPOT",
       "breadth_observed": true,
       "plot_eligible": true,
       "core_tail_status": "FINAL",
@@ -250,11 +250,11 @@
         "intraday_mode"
       ],
       "values": {
-        "risk_temperature": 40.6,
+        "risk_temperature": 41.1,
         "hs300_drawdown_60d": -0.1086,
-        "model_confidence": 90.2,
+        "model_confidence": 88.7,
         "model_coverage_score": 100.0,
-        "model_data_quality_score": 90.2,
+        "model_data_quality_score": 88.7,
         "model_missing_components": "QVIX_PROXY",
         "disallowed_missing_components": "",
         "breadth_mode": "STOCK_A",
@@ -262,11 +262,11 @@
         "temperature_mode": "OFFICIAL_CLOSE"
       },
       "model_coverage_score": 100.0,
-      "model_data_quality_score": 90.2,
+      "model_data_quality_score": 88.7,
       "model_missing_components": "QVIX_PROXY",
       "breadth_mode": "STOCK_A",
       "breadth_quality": "OK",
-      "breadth_source": "PARSE_SOHU_ZDT"
+      "breadth_source": "PARSE_EM_A_SPOT"
     },
     "policy": {
       "id": "CORE_STRICT_TAIL_V2",

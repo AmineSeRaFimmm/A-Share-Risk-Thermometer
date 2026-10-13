@@ -22,10 +22,10 @@
     "reason_cn": "盘中 nowcast 未激活；正式收盘优先官方 AVIX"
   },
   "model_confidence": {
-    "score": 90.2,
+    "score": 88.7,
     "coverage_score": 100.0,
-    "data_quality_score": 90.2,
-    "grade": "HIGH",
+    "data_quality_score": 88.7,
+    "grade": "MEDIUM",
     "missing_components": "QVIX_PROXY"
   },
   "warnings": [
@@ -33,5 +33,5 @@
     "WARN_QVIX_REALTIME_PROXY",
     "WARN_ROLLOVER_SINGLE_TERM_30D"
   ],
-  "last_successful_update": "2026-10-13T23:20:26+08:00"
+  "last_successful_update": "2026-10-14T00:05:17+08:00"
 }
