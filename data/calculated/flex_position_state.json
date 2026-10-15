@@ -1,31 +1,51 @@
 {
-  "as_of": "2026-10-14",
+  "as_of": "2026-10-15",
   "mode": "aggressive",
   "core": {
-    "status": "flat",
-    "entry_signal_date": null,
-    "entry_date": null,
-    "exit_due_date": null,
-    "days_held": 0,
-    "days_remaining": 0,
-    "stage_id": null,
-    "names": [],
-    "weights": {},
-    "etf_code": null,
+    "status": "open",
+    "entry_signal_date": "2026-10-14",
+    "entry_date": "2026-10-15",
+    "exit_due_date": "2026-10-21",
+    "days_held": 1,
+    "days_remaining": 4,
+    "stage_id": "CSI300_CORE_BUY",
+    "names": [
+      "沪深300"
+    ],
+    "weights": {
+      "沪深300": 1.0
+    },
+    "etf_code": "510300",
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
-    "planned_hold_days": null
+    "planned_hold_days": 5
   },
   "satellite": {
-    "status": "flat",
-    "entry_signal_date": null,
-    "entry_date": null,
-    "exit_due_date": null,
-    "days_held": 0,
-    "days_remaining": 0,
-    "stage_id": null,
-    "names": [],
-    "weights": {},
+    "status": "open",
+    "entry_signal_date": "2026-10-14",
+    "entry_date": "2026-10-15",
+    "exit_due_date": "2026-10-26",
+    "days_held": 1,
+    "days_remaining": 7,
+    "stage_id": "CSI300_CORE_BUY",
+    "names": [
+      "通信",
+      "恒生科技",
+      "机械设备",
+      "建筑材料",
+      "传媒",
+      "国防军工",
+      "商贸零售"
+    ],
+    "weights": {
+      "通信": 0.2328,
+      "恒生科技": 0.1897,
+      "机械设备": 0.1281,
+      "建筑材料": 0.1252,
+      "传媒": 0.1252,
+      "国防军工": 0.1099,
+      "商贸零售": 0.0891
+    },
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -365,32 +385,64 @@
     "core": "2026-10-13"
   },
   "satellite_risk_check": {
-    "signal_id": "2026-09-30",
-    "entry_date": "2026-10-08",
+    "signal_id": "2026-10-14",
+    "entry_date": "2026-10-15",
     "members": [
       {
         "name": "通信",
         "etf_code": "515880",
         "etf_name": "通信ETF国泰",
-        "weight_in_sleeve": 0.4945,
+        "weight_in_sleeve": 0.2328,
         "portfolio_weight": null,
-        "entry_open": 0.624
+        "entry_open": 0.525
+      },
+      {
+        "name": "恒生科技",
+        "etf_code": "513180",
+        "etf_name": "恒生科技ETF华夏",
+        "weight_in_sleeve": 0.1897,
+        "portfolio_weight": null,
+        "entry_open": 0.514
       },
       {
         "name": "机械设备",
         "etf_code": "159886",
         "etf_name": "机械ETF富国",
-        "weight_in_sleeve": 0.2721,
+        "weight_in_sleeve": 0.1281,
         "portfolio_weight": null,
-        "entry_open": 0.803
+        "entry_open": 0.764
+      },
+      {
+        "name": "建筑材料",
+        "etf_code": "159745",
+        "etf_name": "建材ETF国泰",
+        "weight_in_sleeve": 0.1252,
+        "portfolio_weight": null,
+        "entry_open": 0.51
+      },
+      {
+        "name": "传媒",
+        "etf_code": "512980",
+        "etf_name": "传媒ETF广发",
+        "weight_in_sleeve": 0.1252,
+        "portfolio_weight": null,
+        "entry_open": 0.804
       },
       {
         "name": "国防军工",
         "etf_code": "512660",
         "etf_name": "军工ETF国泰",
-        "weight_in_sleeve": 0.2334,
+        "weight_in_sleeve": 0.1099,
         "portfolio_weight": null,
-        "entry_open": 1.102
+        "entry_open": 1.052
+      },
+      {
+        "name": "商贸零售",
+        "etf_code": "159928",
+        "etf_name": "消费ETF汇添富",
+        "weight_in_sleeve": 0.0891,
+        "portfolio_weight": null,
+        "entry_open": 0.658
       }
     ],
     "min_hold_days": 3,
@@ -399,9 +451,9 @@
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
     "status": "CLEAR",
-    "checked_through": "2026-10-09",
-    "latest_return": -0.0286754785861969,
-    "days_held": 2,
+    "checked_through": "2026-10-15",
+    "latest_return": -0.007140453396697888,
+    "days_held": 1,
     "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
