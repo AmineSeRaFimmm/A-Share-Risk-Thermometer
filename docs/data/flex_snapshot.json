@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "61434b52cdea1b11122da8a573053bac8b7083d4596f3b9a798be5cbe5e1b971",
-  "built_at": "2026-10-16T22:14:51+08:00",
+  "revision": "57149edcdeacf588691877f5a58958e065d7b082160d7d81daa0103b517d49a5",
+  "built_at": "2026-10-16T22:52:58+08:00",
   "strategy_as_of": "2026-10-16",
   "marks_as_of": "2026-10-16",
   "marks_quality": "OK",
@@ -30027,7 +30027,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-10-16T14:13:54+00:00",
+    "updated_at": "2026-10-16T14:52:58+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-10-16",
