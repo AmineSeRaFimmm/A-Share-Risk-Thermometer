@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "trade_date": "2026-10-20",
-  "sample_count": 3,
-  "eligible_count": 0,
+  "sample_count": 4,
+  "eligible_count": 1,
   "excluded_count": 3,
   "has_final": false,
   "first_sample_at": "2026-10-20T00:12:11+08:00",
-  "last_sample_at": "2026-10-20T01:01:08+08:00",
+  "last_sample_at": "2026-10-20T14:01:07+08:00",
   "rows": [
     {
       "sampled_at": "2026-10-20T00:12:11+08:00",
@@ -91,6 +91,41 @@
       "core_tail_degraded": false,
       "core_tail_actionable_at_sample": false,
       "core_tail_uncertainty": null
+    },
+    {
+      "sampled_at": "2026-10-20T14:01:07+08:00",
+      "time": "14:01",
+      "risk_temperature": 59.2,
+      "temperature_mode": "NOWCAST",
+      "temperature_mode_cn": "盘中估算",
+      "is_final": false,
+      "quality": "OK_NOWCAST|OK_REALTIME_AVIX_ESTIMATE|WARN_NOT_BRACKET_30D|WARN_QVIX_MISSING|WARN_INDEX_TIME_UNVERIFIED|WARN_OFFICIAL_AVIX_MISSING",
+      "model_confidence": 70.5,
+      "model_coverage_score": 88.0,
+      "model_data_quality_score": 80.2,
+      "model_missing_components": "QVIX",
+      "hs300_drawdown_60d": -0.1314,
+      "breadth_mode": "STOCK_A",
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU",
+      "breadth_observed": true,
+      "plot_eligible": true,
+      "core_tail_status": "DATA_WAIT",
+      "core_tail_status_cn": "缺失数据导致条件不确定，已跳过（RT可能区间 53.2-65.2）",
+      "core_tail_sample_state": "INDETERMINATE",
+      "core_tail_sample_state_cn": "缺失数据导致边界不确定",
+      "core_tail_consecutive_samples": 0,
+      "core_tail_stable": false,
+      "core_tail_degraded": false,
+      "core_tail_actionable_at_sample": false,
+      "core_tail_uncertainty": {
+        "groups": [
+          "QVIX"
+        ],
+        "weight": 0.12,
+        "risk_temperature_lower": 53.2,
+        "risk_temperature_upper": 65.2
+      }
     }
   ],
   "available_dates": [
@@ -148,77 +183,82 @@
   ],
   "core_tail_signal": {
     "status": "DATA_WAIT",
-    "status_cn": "本次数据无法量化，已跳过（模型覆盖不足/数据质量不足/存在关键因子缺失/全A宽度无效）",
+    "status_cn": "缺失数据导致条件不确定，已跳过（RT可能区间 53.2-65.2）",
     "trade_date": "2026-10-20",
     "candidate": false,
     "stable": false,
     "actionable": false,
     "consecutive_samples": 0,
     "stability_span_minutes": 0,
-    "invalid_samples_skipped": 3,
+    "invalid_samples_skipped": 4,
     "degraded_samples_in_streak": 0,
     "degraded": false,
     "degraded_uncertainty": null,
-    "latest_sample_state": "INVALID",
-    "latest_sample_state_cn": "数据结构无效",
-    "last_sample_at": "2026-10-20T01:01:08+08:00",
-    "valid_until": "2026-10-20T01:16:08+08:00",
+    "latest_sample_state": "INDETERMINATE",
+    "latest_sample_state_cn": "缺失数据导致边界不确定",
+    "last_sample_at": "2026-10-20T14:01:07+08:00",
+    "valid_until": "2026-10-20T14:16:07+08:00",
     "conditions": {
-      "state": "INVALID",
+      "state": "INDETERMINATE",
       "eligible": false,
       "definitive_fail": false,
       "skip_without_reset": true,
-      "degraded": false,
-      "decision_basis": "UNBOUNDED_INVALID",
-      "uncertainty": null,
+      "degraded": true,
+      "decision_basis": "BOUNDED_DEGRADATION",
+      "uncertainty": {
+        "groups": [
+          "QVIX"
+        ],
+        "weight": 0.12,
+        "risk_temperature_lower": 53.2,
+        "risk_temperature_upper": 65.2
+      },
       "data_valid": false,
-      "conditions_pass": true,
+      "conditions_pass": false,
       "checks": {
-        "risk_temperature": true,
+        "risk_temperature": false,
         "hs300_drawdown_60d": true,
         "confidence_present": true,
         "coverage": false,
-        "data_quality": false,
+        "data_quality": true,
         "allowed_degradations": false,
-        "stock_breadth": false,
+        "stock_breadth": true,
         "intraday_mode": true
       },
       "quality_checks": {
         "confidence_present": true,
         "coverage": false,
-        "data_quality": false,
+        "data_quality": true,
         "allowed_degradations": false,
-        "stock_breadth": false,
+        "stock_breadth": true,
         "intraday_mode": true
       },
       "strategy_checks": {
-        "risk_temperature": true,
+        "risk_temperature": false,
         "hs300_drawdown_60d": true
       },
       "invalid_reasons": [
         "coverage",
-        "data_quality",
-        "allowed_degradations",
-        "stock_breadth"
+        "allowed_degradations"
       ],
       "values": {
-        "risk_temperature": 64.2,
-        "hs300_drawdown_60d": -0.1195,
-        "model_confidence": 69.2,
-        "model_coverage_score": 90.0,
-        "model_data_quality_score": 76.9,
-        "model_missing_components": "QVIX_PROXY|BREADTH",
-        "disallowed_missing_components": "BREADTH",
-        "breadth_mode": "MISSING",
-        "breadth_quality": "WARN_BREADTH_MISSING",
+        "risk_temperature": 59.2,
+        "hs300_drawdown_60d": -0.1314,
+        "model_confidence": 70.5,
+        "model_coverage_score": 88.0,
+        "model_data_quality_score": 80.2,
+        "model_missing_components": "QVIX",
+        "disallowed_missing_components": "QVIX",
+        "breadth_mode": "STOCK_A",
+        "breadth_quality": "OK",
         "temperature_mode": "NOWCAST"
       },
-      "model_coverage_score": 90.0,
-      "model_data_quality_score": 76.9,
-      "model_missing_components": "QVIX_PROXY|BREADTH",
-      "breadth_mode": "MISSING",
-      "breadth_quality": "WARN_BREADTH_MISSING",
-      "breadth_source": ""
+      "model_coverage_score": 88.0,
+      "model_data_quality_score": 80.2,
+      "model_missing_components": "QVIX",
+      "breadth_mode": "STOCK_A",
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU"
     },
     "policy": {
       "id": "CORE_STRICT_TAIL_V2",
