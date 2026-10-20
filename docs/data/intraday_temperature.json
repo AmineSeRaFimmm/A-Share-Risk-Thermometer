@@ -1,10 +1,10 @@
 {
   "status": "ok",
   "trade_date": "2026-10-20",
-  "sample_count": 5,
-  "eligible_count": 2,
+  "sample_count": 6,
+  "eligible_count": 3,
   "excluded_count": 3,
-  "has_final": false,
+  "has_final": true,
   "first_sample_at": "2026-10-20T00:12:11+08:00",
   "last_sample_at": "2026-10-20T15:17:03+08:00",
   "rows": [
@@ -126,6 +126,34 @@
         "risk_temperature_lower": 53.2,
         "risk_temperature_upper": 65.2
       }
+    },
+    {
+      "sampled_at": "2026-10-20T15:00:00+08:00",
+      "time": "15:00",
+      "risk_temperature": 51.1,
+      "temperature_mode": "OFFICIAL_CLOSE",
+      "temperature_mode_cn": "收盘正式",
+      "is_final": true,
+      "quality": "WARN_QVIX_MISSING|WARN_ROLLOVER_SINGLE_TERM_30D",
+      "model_confidence": 81.5,
+      "model_coverage_score": 88.0,
+      "model_data_quality_score": 92.6,
+      "model_missing_components": "QVIX",
+      "hs300_drawdown_60d": -0.1242,
+      "breadth_mode": "STOCK_A",
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU",
+      "breadth_observed": true,
+      "plot_eligible": true,
+      "core_tail_status": "FINAL",
+      "core_tail_status_cn": "已转正式收盘，尾盘窗口结束",
+      "core_tail_sample_state": "INVALID",
+      "core_tail_sample_state_cn": "数据结构无效",
+      "core_tail_consecutive_samples": 0,
+      "core_tail_stable": false,
+      "core_tail_degraded": false,
+      "core_tail_actionable_at_sample": false,
+      "core_tail_uncertainty": null
     },
     {
       "sampled_at": "2026-10-20T15:17:03+08:00",
