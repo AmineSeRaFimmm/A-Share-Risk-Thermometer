@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-10-20",
+  "as_of": "2026-10-21",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-10-14",
     "entry_date": "2026-10-15",
     "exit_due_date": "2026-10-21",
-    "days_held": 4,
-    "days_remaining": 1,
+    "days_held": 5,
+    "days_remaining": 0,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -25,8 +25,8 @@
     "entry_signal_date": "2026-10-14",
     "entry_date": "2026-10-15",
     "exit_due_date": "2026-10-26",
-    "days_held": 4,
-    "days_remaining": 4,
+    "days_held": 5,
+    "days_remaining": 3,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "通信",
@@ -378,6 +378,134 @@
         }
       ],
       "execution_basis": "ETF_OPEN_CONFIRMED"
+    },
+    {
+      "event_type": "EXIT",
+      "close_code": "CORE_MAX_HOLD",
+      "reason_cn": "Core holding period complete",
+      "days_held": 5,
+      "id": "core:2026-10-14:2026-10-15:2026-10-21:CORE_MAX_HOLD",
+      "sleeve": "core",
+      "trigger_date": "2026-10-21",
+      "signal_date": "2026-10-21",
+      "execution_date": "2026-10-22",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-10-14",
+        "entry_date": "2026-10-15",
+        "exit_due_date": "2026-10-21",
+        "days_held": 5,
+        "days_remaining": 0,
+        "stage_id": "CSI300_CORE_BUY",
+        "names": [
+          "沪深300"
+        ],
+        "weights": {
+          "沪深300": 1.0
+        },
+        "etf_code": "510300",
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": 5
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "core:2026-10-14:2026-10-15:2026-10-21:CORE_MAX_HOLD",
+      "signal_id": "2026-10-14",
+      "requires_open_marks": true,
+      "members": [
+        {
+          "name": "沪深300",
+          "etf_code": "510300",
+          "weight_in_sleeve": 1.0
+        }
+      ]
+    },
+    {
+      "event_type": "EXIT",
+      "close_code": "DEFAULT_NO_STAGE",
+      "reason_cn": "卫星已持有 5 日 ≥ 默认 5 日，且当日无 high/observe 阶段，按默认路径平仓",
+      "days_held": 5,
+      "id": "satellite:2026-10-14:2026-10-15:2026-10-21:DEFAULT_NO_STAGE",
+      "sleeve": "satellite",
+      "trigger_date": "2026-10-21",
+      "signal_date": "2026-10-21",
+      "execution_date": "2026-10-22",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-10-14",
+        "entry_date": "2026-10-15",
+        "exit_due_date": "2026-10-26",
+        "days_held": 5,
+        "days_remaining": 3,
+        "stage_id": "CSI300_CORE_BUY",
+        "names": [
+          "通信",
+          "恒生科技",
+          "机械设备",
+          "建筑材料",
+          "传媒",
+          "国防军工",
+          "商贸零售"
+        ],
+        "weights": {
+          "通信": 0.2328,
+          "恒生科技": 0.1897,
+          "机械设备": 0.1281,
+          "建筑材料": 0.1252,
+          "传媒": 0.1252,
+          "国防军工": 0.1099,
+          "商贸零售": 0.0891
+        },
+        "etf_code": null,
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": null
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "satellite:2026-10-14:2026-10-15:2026-10-21:DEFAULT_NO_STAGE",
+      "signal_id": "2026-10-14",
+      "requires_open_marks": true,
+      "members": [
+        {
+          "name": "通信",
+          "etf_code": "515880",
+          "weight_in_sleeve": 0.2328
+        },
+        {
+          "name": "恒生科技",
+          "etf_code": "513180",
+          "weight_in_sleeve": 0.1897
+        },
+        {
+          "name": "机械设备",
+          "etf_code": "159886",
+          "weight_in_sleeve": 0.1281
+        },
+        {
+          "name": "建筑材料",
+          "etf_code": "159745",
+          "weight_in_sleeve": 0.1252
+        },
+        {
+          "name": "传媒",
+          "etf_code": "512980",
+          "weight_in_sleeve": 0.1252
+        },
+        {
+          "name": "国防军工",
+          "etf_code": "512660",
+          "weight_in_sleeve": 0.1099
+        },
+        {
+          "name": "商贸零售",
+          "etf_code": "159928",
+          "weight_in_sleeve": 0.0891
+        }
+      ]
     }
   ],
   "cooldown_through": {
@@ -451,9 +579,9 @@
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
     "status": "CLEAR",
-    "checked_through": "2026-10-20",
-    "latest_return": 0.0010595962262858194,
-    "days_held": 4,
+    "checked_through": "2026-10-21",
+    "latest_return": -0.004965095231085459,
+    "days_held": 5,
     "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
