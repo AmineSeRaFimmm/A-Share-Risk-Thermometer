@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "d76c2da7295027e3f3200647e16bdd94441911fecb58d9aa2fd73b796fe8f397",
-  "built_at": "2026-10-20T23:36:39+08:00",
+  "revision": "187428a456df62c13be1a1d888ca066de18b01eac489b8958f56f97044996f14",
+  "built_at": "2026-10-21T15:13:50+08:00",
   "strategy_as_of": "2026-10-20",
   "marks_as_of": "2026-10-20",
   "marks_quality": "OK",
-  "strategy_publication_status": "CURRENT",
-  "official_strategy_pending": false,
+  "strategy_publication_status": "OFFICIAL_PENDING",
+  "official_strategy_pending": true,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -33534,10 +33534,10 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-10-20",
+    "as_of": "2026-10-21",
     "marks_as_of": "2026-10-20",
-    "status": "HOLD",
-    "headline_cn": "今日无新动作，维持策略持仓",
+    "status": "OFFICIAL_PENDING",
+    "headline_cn": "2026-10-21 正式 Flex 策略待生成",
     "items": [],
     "execution_events": [
       {
@@ -33947,15 +33947,15 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-10-20",
+      "report_as_of": "2026-10-21",
       "strategy_as_of": "2026-10-20",
-      "strategy_publication_status": "CURRENT",
-      "official_strategy_pending": false,
+      "strategy_publication_status": "OFFICIAL_PENDING",
+      "official_strategy_pending": true,
       "strategy_provisional": false,
       "marks_as_of": "2026-10-20",
       "marks_quality": "OK",
       "risk_check_status": "CLEAR",
-      "complete": true
+      "complete": false
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",
