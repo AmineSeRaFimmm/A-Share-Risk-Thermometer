@@ -1,51 +1,31 @@
 {
-  "as_of": "2026-10-21",
+  "as_of": "2026-10-22",
   "mode": "aggressive",
   "core": {
-    "status": "open",
-    "entry_signal_date": "2026-10-14",
-    "entry_date": "2026-10-15",
-    "exit_due_date": "2026-10-21",
-    "days_held": 5,
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
     "days_remaining": 0,
-    "stage_id": "CSI300_CORE_BUY",
-    "names": [
-      "沪深300"
-    ],
-    "weights": {
-      "沪深300": 1.0
-    },
-    "etf_code": "510300",
+    "stage_id": null,
+    "names": [],
+    "weights": {},
+    "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
-    "planned_hold_days": 5
+    "planned_hold_days": null
   },
   "satellite": {
-    "status": "open",
-    "entry_signal_date": "2026-10-14",
-    "entry_date": "2026-10-15",
-    "exit_due_date": "2026-10-26",
-    "days_held": 5,
-    "days_remaining": 3,
-    "stage_id": "CSI300_CORE_BUY",
-    "names": [
-      "通信",
-      "恒生科技",
-      "机械设备",
-      "建筑材料",
-      "传媒",
-      "国防军工",
-      "商贸零售"
-    ],
-    "weights": {
-      "通信": 0.2328,
-      "恒生科技": 0.1897,
-      "机械设备": 0.1281,
-      "建筑材料": 0.1252,
-      "传媒": 0.1252,
-      "国防军工": 0.1099,
-      "商贸零售": 0.0891
-    },
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
+    "days_remaining": 0,
+    "stage_id": null,
+    "names": [],
+    "weights": {},
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -389,8 +369,8 @@
       "trigger_date": "2026-10-21",
       "signal_date": "2026-10-21",
       "execution_date": "2026-10-22",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "position": {
         "status": "open",
         "entry_signal_date": "2026-10-14",
@@ -420,7 +400,8 @@
           "etf_code": "510300",
           "weight_in_sleeve": 1.0
         }
-      ]
+      ],
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     },
     {
       "event_type": "EXIT",
@@ -432,8 +413,8 @@
       "trigger_date": "2026-10-21",
       "signal_date": "2026-10-21",
       "execution_date": "2026-10-22",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "position": {
         "status": "open",
         "entry_signal_date": "2026-10-14",
@@ -505,12 +486,13 @@
           "etf_code": "159928",
           "weight_in_sleeve": 0.0891
         }
-      ]
+      ],
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     }
   ],
   "cooldown_through": {
-    "satellite": "2026-10-13",
-    "core": "2026-10-13"
+    "satellite": "2026-10-22",
+    "core": "2026-10-22"
   },
   "satellite_risk_check": {
     "signal_id": "2026-10-14",
