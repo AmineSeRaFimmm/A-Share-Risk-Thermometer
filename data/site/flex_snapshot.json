@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "d676ba6a49dcd8974ecf00a41a6260f3d40e256ca76f055eb6568c6d72e51a52",
-  "built_at": "2026-10-22T23:51:11+08:00",
+  "revision": "690102fff77c913956518bcd5e6b756e2bbec237039c3c51446c52df66a3be17",
+  "built_at": "2026-10-23T14:03:08+08:00",
   "strategy_as_of": "2026-10-22",
   "marks_as_of": "2026-10-22",
   "marks_quality": "OK",
-  "strategy_publication_status": "CURRENT",
-  "official_strategy_pending": false,
+  "strategy_publication_status": "OFFICIAL_PENDING",
+  "official_strategy_pending": true,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -34015,194 +34015,11 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-10-22",
+    "as_of": "2026-10-23",
     "marks_as_of": "2026-10-22",
-    "status": "ACTION",
-    "headline_cn": "2026-10-22 有 2 项处于执行窗口的策略动作",
-    "items": [
-      {
-        "event_type": "EXIT",
-        "close_code": "CORE_MAX_HOLD",
-        "reason_cn": "Core holding period complete",
-        "days_held": 5,
-        "id": "core:2026-10-14:2026-10-15:2026-10-21:CORE_MAX_HOLD",
-        "sleeve": "core",
-        "trigger_date": "2026-10-21",
-        "signal_date": "2026-10-21",
-        "execution_date": "2026-10-22",
-        "execution_status": "EXECUTED",
-        "execution_bar_complete": true,
-        "position": {
-          "status": "open",
-          "entry_signal_date": "2026-10-14",
-          "entry_date": "2026-10-15",
-          "exit_due_date": "2026-10-21",
-          "days_held": 5,
-          "days_remaining": 0,
-          "stage_id": "CSI300_CORE_BUY",
-          "names": [
-            "沪深300"
-          ],
-          "weights": {
-            "沪深300": 1.0
-          },
-          "etf_code": "510300",
-          "execution_mode": "T_PLUS_1_OPEN",
-          "entry_price_type": "open",
-          "planned_hold_days": 5
-        },
-        "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-        "event_id": "core:2026-10-14:2026-10-15:2026-10-21:CORE_MAX_HOLD",
-        "signal_id": "2026-10-14",
-        "requires_open_marks": true,
-        "members": [
-          {
-            "name": "沪深300",
-            "etf_code": "510300",
-            "weight_in_sleeve": 1.0
-          }
-        ],
-        "execution_basis": "ETF_OPEN_CONFIRMED",
-        "action_cn": "策略离场",
-        "title_cn": "策略离场",
-        "execution_mode": "T_PLUS_1_OPEN",
-        "execution_window_cn": "下一交易日开盘整篮平仓",
-        "instruments": [
-          {
-            "name": "沪深300",
-            "etf_code": "510300",
-            "weight_in_sleeve": 1.0
-          }
-        ]
-      },
-      {
-        "event_type": "EXIT",
-        "close_code": "DEFAULT_NO_STAGE",
-        "reason_cn": "卫星已持有 5 日 ≥ 默认 5 日，且当日无 high/observe 阶段，按默认路径平仓",
-        "days_held": 5,
-        "id": "satellite:2026-10-14:2026-10-15:2026-10-21:DEFAULT_NO_STAGE",
-        "sleeve": "satellite",
-        "trigger_date": "2026-10-21",
-        "signal_date": "2026-10-21",
-        "execution_date": "2026-10-22",
-        "execution_status": "EXECUTED",
-        "execution_bar_complete": true,
-        "position": {
-          "status": "open",
-          "entry_signal_date": "2026-10-14",
-          "entry_date": "2026-10-15",
-          "exit_due_date": "2026-10-26",
-          "days_held": 5,
-          "days_remaining": 3,
-          "stage_id": "CSI300_CORE_BUY",
-          "names": [
-            "通信",
-            "恒生科技",
-            "机械设备",
-            "建筑材料",
-            "传媒",
-            "国防军工",
-            "商贸零售"
-          ],
-          "weights": {
-            "通信": 0.2328,
-            "恒生科技": 0.1897,
-            "机械设备": 0.1281,
-            "建筑材料": 0.1252,
-            "传媒": 0.1252,
-            "国防军工": 0.1099,
-            "商贸零售": 0.0891
-          },
-          "etf_code": null,
-          "execution_mode": "T_PLUS_1_OPEN",
-          "entry_price_type": "open",
-          "planned_hold_days": null
-        },
-        "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-        "event_id": "satellite:2026-10-14:2026-10-15:2026-10-21:DEFAULT_NO_STAGE",
-        "signal_id": "2026-10-14",
-        "requires_open_marks": true,
-        "members": [
-          {
-            "name": "通信",
-            "etf_code": "515880",
-            "weight_in_sleeve": 0.2328
-          },
-          {
-            "name": "恒生科技",
-            "etf_code": "513180",
-            "weight_in_sleeve": 0.1897
-          },
-          {
-            "name": "机械设备",
-            "etf_code": "159886",
-            "weight_in_sleeve": 0.1281
-          },
-          {
-            "name": "建筑材料",
-            "etf_code": "159745",
-            "weight_in_sleeve": 0.1252
-          },
-          {
-            "name": "传媒",
-            "etf_code": "512980",
-            "weight_in_sleeve": 0.1252
-          },
-          {
-            "name": "国防军工",
-            "etf_code": "512660",
-            "weight_in_sleeve": 0.1099
-          },
-          {
-            "name": "商贸零售",
-            "etf_code": "159928",
-            "weight_in_sleeve": 0.0891
-          }
-        ],
-        "execution_basis": "ETF_OPEN_CONFIRMED",
-        "action_cn": "策略离场",
-        "title_cn": "策略离场",
-        "execution_mode": "T_PLUS_1_OPEN",
-        "execution_window_cn": "下一交易日开盘整篮平仓",
-        "instruments": [
-          {
-            "name": "通信",
-            "etf_code": "515880",
-            "weight_in_sleeve": 0.2328
-          },
-          {
-            "name": "恒生科技",
-            "etf_code": "513180",
-            "weight_in_sleeve": 0.1897
-          },
-          {
-            "name": "机械设备",
-            "etf_code": "159886",
-            "weight_in_sleeve": 0.1281
-          },
-          {
-            "name": "建筑材料",
-            "etf_code": "159745",
-            "weight_in_sleeve": 0.1252
-          },
-          {
-            "name": "传媒",
-            "etf_code": "512980",
-            "weight_in_sleeve": 0.1252
-          },
-          {
-            "name": "国防军工",
-            "etf_code": "512660",
-            "weight_in_sleeve": 0.1099
-          },
-          {
-            "name": "商贸零售",
-            "etf_code": "159928",
-            "weight_in_sleeve": 0.0891
-          }
-        ]
-      }
-    ],
+    "status": "OFFICIAL_PENDING",
+    "headline_cn": "2026-10-23 正式 Flex 策略待生成",
+    "items": [],
     "execution_events": [
       {
         "event_type": "EXIT",
@@ -34757,15 +34574,15 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-10-22",
+      "report_as_of": "2026-10-23",
       "strategy_as_of": "2026-10-22",
-      "strategy_publication_status": "CURRENT",
-      "official_strategy_pending": false,
+      "strategy_publication_status": "OFFICIAL_PENDING",
+      "official_strategy_pending": true,
       "strategy_provisional": false,
       "marks_as_of": "2026-10-22",
       "marks_quality": "OK",
       "risk_check_status": "TRIGGERED",
-      "complete": true
+      "complete": false
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",
