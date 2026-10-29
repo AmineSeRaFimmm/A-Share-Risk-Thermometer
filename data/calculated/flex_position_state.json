@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-10-28",
+  "as_of": "2026-10-29",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-10-23",
     "entry_date": "2026-10-26",
     "exit_due_date": "2026-10-30",
-    "days_held": 3,
-    "days_remaining": 2,
+    "days_held": 4,
+    "days_remaining": 1,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -25,8 +25,8 @@
     "entry_signal_date": "2026-10-23",
     "entry_date": "2026-10-26",
     "exit_due_date": "2026-11-04",
-    "days_held": 3,
-    "days_remaining": 5,
+    "days_held": 4,
+    "days_remaining": 4,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "通信",
@@ -508,6 +508,123 @@
         }
       ],
       "execution_basis": "ETF_OPEN_CONFIRMED"
+    },
+    {
+      "signal_id": "2026-10-23",
+      "entry_date": "2026-10-26",
+      "members": [
+        {
+          "name": "通信",
+          "etf_code": "515880",
+          "etf_name": "通信ETF国泰",
+          "weight_in_sleeve": 0.2328,
+          "portfolio_weight": null,
+          "entry_open": 0.504
+        },
+        {
+          "name": "恒生科技",
+          "etf_code": "513180",
+          "etf_name": "恒生科技ETF华夏",
+          "weight_in_sleeve": 0.1897,
+          "portfolio_weight": null,
+          "entry_open": 0.485
+        },
+        {
+          "name": "机械设备",
+          "etf_code": "159886",
+          "etf_name": "机械ETF富国",
+          "weight_in_sleeve": 0.1281,
+          "portfolio_weight": null,
+          "entry_open": 0.743
+        },
+        {
+          "name": "建筑材料",
+          "etf_code": "159745",
+          "etf_name": "建材ETF国泰",
+          "weight_in_sleeve": 0.1252,
+          "portfolio_weight": null,
+          "entry_open": 0.515
+        },
+        {
+          "name": "传媒",
+          "etf_code": "512980",
+          "etf_name": "传媒ETF广发",
+          "weight_in_sleeve": 0.1252,
+          "portfolio_weight": null,
+          "entry_open": 0.782
+        },
+        {
+          "name": "国防军工",
+          "etf_code": "512660",
+          "etf_name": "军工ETF国泰",
+          "weight_in_sleeve": 0.1099,
+          "portfolio_weight": null,
+          "entry_open": 1.053
+        },
+        {
+          "name": "商贸零售",
+          "etf_code": "159928",
+          "etf_name": "消费ETF汇添富",
+          "weight_in_sleeve": 0.0891,
+          "portfolio_weight": null,
+          "entry_open": 0.664
+        }
+      ],
+      "min_hold_days": 3,
+      "stop_loss": -0.03,
+      "take_profit": 0.04,
+      "transaction_cost_bps_one_way": 1.0,
+      "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
+      "status": "TRIGGERED",
+      "event_type": "STOP_LOSS",
+      "close_code": "LOCAL_STOP_LOSS",
+      "action_cn": "卫星篮子止损",
+      "trigger_date": "2026-10-29",
+      "execution_date": "2026-10-30",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "trigger_return": -0.037063049806026926,
+      "trigger_threshold": -0.03,
+      "days_held": 4,
+      "checked_through": "2026-10-29",
+      "reason_cn": "固定卫星篮子持有第 4 日 EOD 收益首次低于止损线",
+      "requires_open_marks": true,
+      "id": "satellite:2026-10-23:2026-10-26:2026-10-29:LOCAL_STOP_LOSS",
+      "sleeve": "satellite",
+      "signal_date": "2026-10-29",
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-10-23",
+        "entry_date": "2026-10-26",
+        "exit_due_date": "2026-11-04",
+        "days_held": 4,
+        "days_remaining": 4,
+        "stage_id": "CSI300_CORE_BUY",
+        "names": [
+          "通信",
+          "恒生科技",
+          "机械设备",
+          "建筑材料",
+          "传媒",
+          "国防军工",
+          "商贸零售"
+        ],
+        "weights": {
+          "通信": 0.2328,
+          "恒生科技": 0.1897,
+          "机械设备": 0.1281,
+          "建筑材料": 0.1252,
+          "传媒": 0.1252,
+          "国防军工": 0.1099,
+          "商贸零售": 0.0891
+        },
+        "etf_code": null,
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": null
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "satellite:2026-10-23:2026-10-26:2026-10-29:LOCAL_STOP_LOSS"
     }
   ],
   "cooldown_through": {
@@ -580,10 +697,18 @@
     "take_profit": 0.04,
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-    "status": "CLEAR",
-    "checked_through": "2026-10-28",
-    "latest_return": -0.009158128795523024,
-    "days_held": 3,
-    "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
+    "status": "TRIGGERED",
+    "event_type": "STOP_LOSS",
+    "close_code": "LOCAL_STOP_LOSS",
+    "action_cn": "卫星篮子止损",
+    "trigger_date": "2026-10-29",
+    "execution_date": "2026-10-30",
+    "execution_status": "PENDING",
+    "execution_bar_complete": false,
+    "trigger_return": -0.037063049806026926,
+    "trigger_threshold": -0.03,
+    "days_held": 4,
+    "checked_through": "2026-10-29",
+    "reason_cn": "固定卫星篮子持有第 4 日 EOD 收益首次低于止损线"
   }
 }
