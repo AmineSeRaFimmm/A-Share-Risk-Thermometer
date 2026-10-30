@@ -14388,8 +14388,8 @@
     "risk_temperature": 78.4,
     "regime": "PANIC",
     "avix_clean": 21.854,
-    "qvix": 20.13,
-    "qvix_source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
+    "qvix": 20.22,
+    "qvix_source": "OPTBBS_PARSE_300ETF_QVIX_PROXY",
     "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
     "qvix_is_proxy": true,
     "qvix_replica": 22.0143,
@@ -14397,6 +14397,6 @@
     "hs300_close": 3985.501,
     "drawdown_pressure": 99.4178,
     "breadth_pressure": 92.0402,
-    "model_confidence": 91.8
+    "model_confidence": 93.7
   }
 ]

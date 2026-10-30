@@ -55,7 +55,7 @@
     "regime": "PANIC",
     "regime_cn": "恐慌区",
     "quality": "WARN_QVIX_REALTIME_PROXY",
-    "model_confidence": 91.8
+    "model_confidence": 93.7
   },
   "active_stage_ids": [
     "RISING_HARD",
@@ -3129,7 +3129,7 @@
       "rt_d1": 7.800000000000011,
       "rt_d5": 9.700000000000003,
       "hs300_dd60": -0.1593717320333812,
-      "model_confidence": 91.8,
+      "model_confidence": 93.7,
       "regime_cn": "恐慌区"
     },
     "active_stages": [

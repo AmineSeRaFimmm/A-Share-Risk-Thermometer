@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "9923af9c1b12bffb70f430faacdfdfed0064871536d9c0d5bf75249bbfc9196e",
-  "built_at": "2026-10-30T22:52:14+08:00",
+  "revision": "9388f665375d6f7fd745a7d29db5a9cdf13c0f14b93f9b56e0e14aa40856f837",
+  "built_at": "2026-10-30T23:07:59+08:00",
   "strategy_as_of": "2026-10-30",
   "marks_as_of": "2026-10-30",
   "marks_quality": "OK",
@@ -65,7 +65,7 @@
       "regime": "PANIC",
       "regime_cn": "恐慌区",
       "quality": "WARN_QVIX_REALTIME_PROXY",
-      "model_confidence": 91.8
+      "model_confidence": 93.7
     },
     "active_stage_ids": [
       "RISING_HARD",
@@ -3139,7 +3139,7 @@
         "rt_d1": 7.800000000000011,
         "rt_d5": 9.700000000000003,
         "hs300_dd60": -0.1593717320333812,
-        "model_confidence": 91.8,
+        "model_confidence": 93.7,
         "regime_cn": "恐慌区"
       },
       "active_stages": [
@@ -31940,7 +31940,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-10-30T14:34:22+00:00",
+    "updated_at": "2026-10-30T15:07:59+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-10-30",
