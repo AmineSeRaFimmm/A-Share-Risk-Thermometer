@@ -11,7 +11,7 @@
       "observed": true,
       "raw_value": 22.9934,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-11-03T03:46:04+08:00",
+      "quote_time": "2026-11-03T04:23:40+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -24,7 +24,7 @@
       "observed": true,
       "raw_value": 22.9934,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-11-03T03:46:04+08:00",
+      "quote_time": "2026-11-03T04:23:40+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -37,7 +37,7 @@
       "observed": true,
       "raw_value": 22.9934,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-11-03T03:46:04+08:00",
+      "quote_time": "2026-11-03T04:23:40+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -64,7 +64,7 @@
       "raw_value": 14.4987,
       "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-11-03T03:46:08+08:00",
+      "fetch_time": "2026-11-03T04:23:44+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -77,18 +77,18 @@
       "raw_value": -0.1527,
       "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-11-03T03:46:08+08:00",
+      "fetch_time": "2026-11-03T04:23:44+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
       "key": "market_breadth_pressure",
       "name": "市场宽度",
-      "score": 50.0,
+      "score": 15.5873,
       "weight": 0.1,
-      "contribution": 5.0,
-      "observed": false,
-      "raw_value": null,
-      "source": null,
+      "contribution": 1.5587,
+      "observed": true,
+      "raw_value": 0.8396,
+      "source": "PARSE_EM_A_SPOT",
       "quote_time": null,
       "fetch_time": null,
       "quality": "SINGLE_SOURCE"
@@ -103,7 +103,7 @@
       "raw_value": 11.6707,
       "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-11-03T03:46:08+08:00",
+      "fetch_time": "2026-11-03T04:23:44+08:00",
       "quality": "SESSION_NORMALIZED"
     }
   ]
