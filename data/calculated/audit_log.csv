@@ -1,2 +1,2 @@
 trade_date,event,quality,time
-2026-11-02,update_daily_qvix_refresh,OK_CROSSCHECKED|WARN_QVIX_MISSING,2026-11-03T04:22:14+08:00
+2026-11-03,bootstrap_history,WARN_QVIX_REALTIME_PROXY,2026-11-04T00:21:31+08:00
