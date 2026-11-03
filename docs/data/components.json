@@ -11,7 +11,7 @@
       "observed": true,
       "raw_value": 22.928,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-11-04T00:22:32+08:00",
+      "quote_time": "2026-11-04T01:21:49+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -24,7 +24,7 @@
       "observed": true,
       "raw_value": 22.928,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-11-04T00:22:32+08:00",
+      "quote_time": "2026-11-04T01:21:49+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -37,7 +37,7 @@
       "observed": true,
       "raw_value": 22.928,
       "source": "SINA_AKSHARE_REALTIME_MONTH_MID",
-      "quote_time": "2026-11-04T00:22:32+08:00",
+      "quote_time": "2026-11-04T01:21:49+08:00",
       "fetch_time": null,
       "quality": "TIME_UNVERIFIED"
     },
@@ -62,9 +62,9 @@
       "contribution": 4.8571,
       "observed": true,
       "raw_value": 14.2986,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-11-04T00:22:35+08:00",
+      "fetch_time": "2026-11-04T01:21:54+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
@@ -75,20 +75,20 @@
       "contribution": 11.8482,
       "observed": true,
       "raw_value": -0.1544,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-11-04T00:22:35+08:00",
+      "fetch_time": "2026-11-04T01:21:54+08:00",
       "quality": "REALTIME_INDEX"
     },
     {
       "key": "market_breadth_pressure",
       "name": "市场宽度",
-      "score": 50.0,
+      "score": 79.013,
       "weight": 0.1,
-      "contribution": 5.0,
-      "observed": false,
-      "raw_value": null,
-      "source": null,
+      "contribution": 7.9013,
+      "observed": true,
+      "raw_value": 0.3877,
+      "source": "PARSE_EM_A_SPOT",
       "quote_time": null,
       "fetch_time": null,
       "quality": "SINGLE_SOURCE"
@@ -101,9 +101,9 @@
       "contribution": 4.0,
       "observed": true,
       "raw_value": 11.6388,
-      "source": "TENCENT_INDEX_QUOTE_RT",
+      "source": "EASTMONEY_INDEX_QUOTE_RT",
       "quote_time": null,
-      "fetch_time": "2026-11-04T00:22:35+08:00",
+      "fetch_time": "2026-11-04T01:21:54+08:00",
       "quality": "SESSION_NORMALIZED"
     }
   ]
