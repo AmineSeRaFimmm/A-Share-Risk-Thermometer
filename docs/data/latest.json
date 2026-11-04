@@ -1,18 +1,18 @@
 {
   "trade_date": "2026-11-04",
-  "update_time": "2026-11-04T23:49:25+08:00",
+  "update_time": "2026-11-05T00:29:49+08:00",
   "risk_temperature": 69.5,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
-  "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY",
+  "quality": "WARN_QVIX_REALTIME_PROXY",
   "model_confidence": {
-    "score": 91.5,
+    "score": 91.7,
     "coverage_score": 100.0,
-    "data_quality_score": 91.5,
+    "data_quality_score": 91.7,
     "grade": "HIGH",
     "missing_components": "QVIX_PROXY"
   },
-  "model_confidence_label": "91.5 / 高",
+  "model_confidence_label": "91.7 / 高",
   "temperature_mode": "OFFICIAL_CLOSE",
   "temperature_mode_cn": "收盘正式",
   "is_final": true,
@@ -36,13 +36,13 @@
     "limit_down_ratio": 0.0031,
     "breadth_pressure": 14.8132,
     "breadth_source": "PARSE_EM_A_SPOT",
-    "breadth_secondary_source": "PARSE_EM_ZDFENBU",
-    "breadth_source_agreement": 0.98,
-    "breadth_source_score_delta": 1.9991,
+    "breadth_secondary_source": null,
+    "breadth_source_agreement": null,
+    "breadth_source_score_delta": null,
     "as_of_trade_date": "2026-11-04",
     "breadth_mode": "STOCK_A",
     "breadth_mode_cn": "全A个股宽度",
-    "breadth_quality": "OK_CROSSCHECKED"
+    "breadth_quality": "OK"
   },
   "avix": {
     "avix_clean_close": 21.1466,
@@ -66,7 +66,7 @@
     "risk_temperature": 69.5,
     "regime": "HIGH_RISK",
     "regime_cn": "高风险",
-    "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY",
+    "quality": "WARN_QVIX_REALTIME_PROXY",
     "temperature_mode": "OFFICIAL_CLOSE",
     "temperature_mode_cn": "收盘正式",
     "is_final": true,
@@ -85,22 +85,22 @@
       "breadth_pressure": 14.8132,
       "breadth_source": "PARSE_EM_A_SPOT",
       "breadth_mode": "STOCK_A",
-      "breadth_quality": "OK_CROSSCHECKED"
+      "breadth_quality": "OK"
     },
     "avix_clean": 21.1466,
     "qvix_close": 19.16,
     "qvix_source": "OPTBBS_300ETF_EOD_QVIX_PROXY_CROSSCHECKED_EASTMONEY_DELAYED",
     "qvix_quote_time": "2026-11-04T14:56:23+08:00",
-    "qvix_delay_minutes": 531.7,
+    "qvix_delay_minutes": 573.0,
     "qvix_quality": "WARN_QVIX_REALTIME_PROXY",
     "qvix_quality_flags": "CROSS_CONFIRMED|DELAYED|EOD_PROVISIONAL|PROXY",
     "qvix_secondary_source": "EASTMONEY_CFFEX_300INDEX_QVIX_DELAYED",
     "qvix_secondary_close": 21.1456,
     "qvix_source_agreement": 0.8964,
     "model_confidence": {
-      "score": 91.5,
+      "score": 91.7,
       "coverage_score": 100.0,
-      "data_quality_score": 91.5,
+      "data_quality_score": 91.7,
       "grade": "HIGH",
       "missing_components": "QVIX_PROXY"
     }

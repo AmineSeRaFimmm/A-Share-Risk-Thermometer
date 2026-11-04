@@ -13,7 +13,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-04",
       "fetch_time": null,
-      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_zscore_1y",
@@ -26,7 +26,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-04",
       "fetch_time": null,
-      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_5d_change",
@@ -39,7 +39,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-04",
       "fetch_time": null,
-      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "qvix_confirmation",
@@ -65,7 +65,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-04",
       "fetch_time": null,
-      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "drawdown_pressure",
@@ -78,7 +78,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-04",
       "fetch_time": null,
-      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "market_breadth_pressure",
@@ -91,7 +91,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-04",
       "fetch_time": null,
-      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "turnover_stress",
@@ -104,7 +104,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-04",
       "fetch_time": null,
-      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
+      "quality": "WARN_QVIX_REALTIME_PROXY"
     }
   ]
 }
