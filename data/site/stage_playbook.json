@@ -46,16 +46,16 @@
   },
   "market_state": {
     "trade_date": "2026-11-06",
-    "rt": 75.5,
+    "rt": 78.3,
     "prev_rt": 60.7,
-    "rt_d1": 14.799999999999997,
-    "rt_d5": -2.9000000000000057,
+    "rt_d1": 17.599999999999994,
+    "rt_d5": -0.10000000000000853,
     "rt_rollmax_10": 78.5,
     "hs300_dd60": -0.144865387722422,
     "regime": "PANIC",
     "regime_cn": "恐慌区",
     "quality": "WARN_QVIX_REALTIME_PROXY",
-    "model_confidence": 93.2
+    "model_confidence": 93.7
   },
   "active_stage_ids": [
     "ENTER_70_BOUNCE",
@@ -3001,11 +3001,11 @@
       }
     },
     "market_state": {
-      "rt": 75.5,
-      "rt_d1": 14.799999999999997,
-      "rt_d5": -2.9000000000000057,
+      "rt": 78.3,
+      "rt_d1": 17.599999999999994,
+      "rt_d5": -0.10000000000000853,
       "hs300_dd60": -0.144865387722422,
-      "model_confidence": 93.2,
+      "model_confidence": 93.7,
       "regime_cn": "恐慌区"
     },
     "active_stages": [

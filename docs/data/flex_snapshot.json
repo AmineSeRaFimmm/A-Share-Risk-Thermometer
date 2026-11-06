@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "b613b6f56bc689ab0f027e20e412e3b3a6953b4722592f449064a47793a0e6b2",
-  "built_at": "2026-11-06T23:42:09+08:00",
+  "revision": "7380c4cb6d8a32f211cb7946d6dffad3ee27c38de990e91bd6078dc96c573f57",
+  "built_at": "2026-11-06T23:59:22+08:00",
   "strategy_as_of": "2026-11-06",
   "marks_as_of": "2026-11-06",
   "marks_quality": "OK",
@@ -56,16 +56,16 @@
     },
     "market_state": {
       "trade_date": "2026-11-06",
-      "rt": 75.5,
+      "rt": 78.3,
       "prev_rt": 60.7,
-      "rt_d1": 14.799999999999997,
-      "rt_d5": -2.9000000000000057,
+      "rt_d1": 17.599999999999994,
+      "rt_d5": -0.10000000000000853,
       "rt_rollmax_10": 78.5,
       "hs300_dd60": -0.144865387722422,
       "regime": "PANIC",
       "regime_cn": "恐慌区",
       "quality": "WARN_QVIX_REALTIME_PROXY",
-      "model_confidence": 93.2
+      "model_confidence": 93.7
     },
     "active_stage_ids": [
       "ENTER_70_BOUNCE",
@@ -3011,11 +3011,11 @@
         }
       },
       "market_state": {
-        "rt": 75.5,
-        "rt_d1": 14.799999999999997,
-        "rt_d5": -2.9000000000000057,
+        "rt": 78.3,
+        "rt_d1": 17.599999999999994,
+        "rt_d5": -0.10000000000000853,
         "hs300_dd60": -0.144865387722422,
-        "model_confidence": 93.2,
+        "model_confidence": 93.7,
         "regime_cn": "恐慌区"
       },
       "active_stages": [
@@ -32803,7 +32803,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-11-06T15:26:28+00:00",
+    "updated_at": "2026-11-06T15:59:22+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-11-06",
