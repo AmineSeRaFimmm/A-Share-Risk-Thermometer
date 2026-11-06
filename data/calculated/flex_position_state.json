@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-11-05",
+  "as_of": "2026-11-06",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-11-03",
     "entry_date": "2026-11-04",
     "exit_due_date": "2026-11-10",
-    "days_held": 2,
-    "days_remaining": 3,
+    "days_held": 3,
+    "days_remaining": 2,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -21,37 +21,15 @@
     "planned_hold_days": 5
   },
   "satellite": {
-    "status": "open",
-    "entry_signal_date": "2026-11-02",
-    "entry_date": "2026-11-03",
-    "exit_due_date": "2026-11-12",
-    "days_held": 3,
-    "days_remaining": 5,
-    "stage_id": "CSI300_CORE_BUY",
-    "names": [
-      "恒生科技",
-      "煤炭",
-      "传媒",
-      "有色金属",
-      "建筑材料",
-      "商贸零售",
-      "基础化工",
-      "电力设备",
-      "石油石化",
-      "轻工制造"
-    ],
-    "weights": {
-      "恒生科技": 0.1721,
-      "煤炭": 0.151,
-      "传媒": 0.1499,
-      "有色金属": 0.1474,
-      "建筑材料": 0.1136,
-      "商贸零售": 0.0809,
-      "基础化工": 0.075,
-      "电力设备": 0.0536,
-      "石油石化": 0.0296,
-      "轻工制造": 0.0269
-    },
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
+    "days_remaining": 0,
+    "stage_id": null,
+    "names": [],
+    "weights": {},
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -773,8 +751,8 @@
       "action_cn": "卫星篮子止盈",
       "trigger_date": "2026-11-05",
       "execution_date": "2026-11-06",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "trigger_return": 0.04827186922196125,
       "trigger_threshold": 0.04,
       "days_held": 3,
@@ -822,11 +800,12 @@
         "planned_hold_days": null
       },
       "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-      "event_id": "satellite:2026-11-02:2026-11-03:2026-11-05:LOCAL_TAKE_PROFIT"
+      "event_id": "satellite:2026-11-02:2026-11-03:2026-11-05:LOCAL_TAKE_PROFIT",
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     }
   ],
   "cooldown_through": {
-    "satellite": "2026-10-30",
+    "satellite": "2026-11-06",
     "core": "2026-11-02"
   },
   "satellite_risk_check": {
