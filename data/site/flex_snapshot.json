@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "5b332c97344fbef3d8aae8c9f83199ef5e142c72922c5c20765b18afedb89ef0",
-  "built_at": "2026-11-10T01:54:11+08:00",
+  "revision": "b85a19a0695c2655157606e7987b9410890dbc6b22c2cfe9b8d4320b932bda71",
+  "built_at": "2026-11-10T02:53:57+08:00",
   "strategy_as_of": "2026-11-09",
   "marks_as_of": "2026-11-09",
   "marks_quality": "OK",
@@ -64,8 +64,8 @@
       "hs300_dd60": -0.1444791902635211,
       "regime": "HIGH_RISK",
       "regime_cn": "高风险",
-      "quality": "OK_CROSSCHECKED|WARN_QVIX_MISSING",
-      "model_confidence": 86.3
+      "quality": "WARN_QVIX_MISSING",
+      "model_confidence": 86.5
     },
     "active_stage_ids": [
       "CSI300_CORE_BUY"
@@ -2813,7 +2813,7 @@
         "rt_d1": -15.799999999999997,
         "rt_d5": -1.9000000000000057,
         "hs300_dd60": -0.1444791902635211,
-        "model_confidence": 86.3,
+        "model_confidence": 86.5,
         "regime_cn": "高风险"
       },
       "active_stages": [
@@ -32921,7 +32921,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-11-09T17:53:07+00:00",
+    "updated_at": "2026-11-09T18:53:57+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-11-09",
