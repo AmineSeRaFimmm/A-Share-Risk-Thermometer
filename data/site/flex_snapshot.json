@@ -1,7 +1,7 @@
 {
   "schema_version": 2,
-  "revision": "26c5b44ac6fd5904f8d649627855015bb883c3c9f8ac9b0a22925fddedb187cb",
-  "built_at": "2026-11-10T23:51:35+08:00",
+  "revision": "6ef3a604d44cbe09791a1ad2b7c2470580c873df3ab2da958ec06c35acac682e",
+  "built_at": "2026-11-11T00:30:17+08:00",
   "strategy_as_of": "2026-11-10",
   "marks_as_of": "2026-11-10",
   "marks_quality": "OK",
@@ -56,16 +56,16 @@
     },
     "market_state": {
       "trade_date": "2026-11-10",
-      "rt": 58.2,
+      "rt": 58.1,
       "prev_rt": 68.5,
-      "rt_d1": -10.299999999999997,
-      "rt_d5": -12.200000000000003,
+      "rt_d1": -10.399999999999999,
+      "rt_d5": -12.300000000000004,
       "rt_rollmax_10": 78.4,
       "hs300_dd60": -0.1438457926834669,
       "regime": "CAUTION",
       "regime_cn": "警戒",
-      "quality": "WARN_QVIX_REALTIME_PROXY",
-      "model_confidence": 93.7
+      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY",
+      "model_confidence": 93.6
     },
     "active_stage_ids": [
       "FALLING_HARD",
@@ -3033,11 +3033,11 @@
         }
       },
       "market_state": {
-        "rt": 58.2,
-        "rt_d1": -10.299999999999997,
-        "rt_d5": -12.200000000000003,
+        "rt": 58.1,
+        "rt_d1": -10.399999999999999,
+        "rt_d5": -12.300000000000004,
         "hs300_dd60": -0.1438457926834669,
-        "model_confidence": 93.7,
+        "model_confidence": 93.6,
         "regime_cn": "警戒"
       },
       "active_stages": [
@@ -33405,7 +33405,7 @@
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-11-10T15:50:14+00:00",
+    "updated_at": "2026-11-10T16:30:17+00:00",
     "published_bar_preservation": {
       "status": "used",
       "candidate_as_of": "2026-11-10",
@@ -35264,7 +35264,7 @@
     "authoritative": true,
     "coverage_from": "1990-12-19",
     "coverage_through": "2026-12-31",
-    "generated_for": "2026-11-10",
+    "generated_for": "2026-11-11",
     "dates": [
       "2016-11-14",
       "2016-11-15",

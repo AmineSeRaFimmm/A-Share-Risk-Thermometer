@@ -13,7 +13,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-10",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_zscore_1y",
@@ -26,7 +26,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-10",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "avix_5d_change",
@@ -39,7 +39,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-10",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "qvix_confirmation",
@@ -65,7 +65,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-10",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "drawdown_pressure",
@@ -78,20 +78,20 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-10",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "market_breadth_pressure",
       "name": "市场宽度",
-      "score": 13.369,
+      "score": 12.6293,
       "weight": 0.1,
-      "contribution": 1.3369,
+      "contribution": 1.2629,
       "observed": true,
       "raw_value": null,
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-10",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
     },
     {
       "key": "turnover_stress",
@@ -104,7 +104,7 @@
       "source": "OFFICIAL_CLOSE",
       "quote_time": "2026-11-10",
       "fetch_time": null,
-      "quality": "WARN_QVIX_REALTIME_PROXY"
+      "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY"
     }
   ]
 }
