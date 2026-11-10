@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-11-09",
+  "as_of": "2026-11-10",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-11-03",
     "entry_date": "2026-11-04",
     "exit_due_date": "2026-11-10",
-    "days_held": 4,
-    "days_remaining": 1,
+    "days_held": 5,
+    "days_remaining": 0,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -21,15 +21,25 @@
     "planned_hold_days": 5
   },
   "satellite": {
-    "status": "flat",
-    "entry_signal_date": null,
-    "entry_date": null,
-    "exit_due_date": null,
-    "days_held": 0,
-    "days_remaining": 0,
-    "stage_id": null,
-    "names": [],
-    "weights": {},
+    "status": "open",
+    "entry_signal_date": "2026-11-09",
+    "entry_date": "2026-11-10",
+    "exit_due_date": "2026-11-19",
+    "days_held": 1,
+    "days_remaining": 7,
+    "stage_id": "CSI300_CORE_BUY",
+    "names": [
+      "恒生科技",
+      "建筑材料",
+      "传媒",
+      "商贸零售"
+    ],
+    "weights": {
+      "恒生科技": 0.3584,
+      "建筑材料": 0.2366,
+      "传媒": 0.2366,
+      "商贸零售": 0.1684
+    },
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -802,6 +812,49 @@
       "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
       "event_id": "satellite:2026-11-02:2026-11-03:2026-11-05:LOCAL_TAKE_PROFIT",
       "execution_basis": "ETF_OPEN_CONFIRMED"
+    },
+    {
+      "event_type": "EXIT",
+      "close_code": "CORE_MAX_HOLD",
+      "reason_cn": "Core holding period complete",
+      "days_held": 5,
+      "id": "core:2026-11-03:2026-11-04:2026-11-10:CORE_MAX_HOLD",
+      "sleeve": "core",
+      "trigger_date": "2026-11-10",
+      "signal_date": "2026-11-10",
+      "execution_date": "2026-11-11",
+      "execution_status": "PENDING",
+      "execution_bar_complete": false,
+      "position": {
+        "status": "open",
+        "entry_signal_date": "2026-11-03",
+        "entry_date": "2026-11-04",
+        "exit_due_date": "2026-11-10",
+        "days_held": 5,
+        "days_remaining": 0,
+        "stage_id": "CSI300_CORE_BUY",
+        "names": [
+          "沪深300"
+        ],
+        "weights": {
+          "沪深300": 1.0
+        },
+        "etf_code": "510300",
+        "execution_mode": "T_PLUS_1_OPEN",
+        "entry_price_type": "open",
+        "planned_hold_days": 5
+      },
+      "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+      "event_id": "core:2026-11-03:2026-11-04:2026-11-10:CORE_MAX_HOLD",
+      "signal_id": "2026-11-03",
+      "requires_open_marks": true,
+      "members": [
+        {
+          "name": "沪深300",
+          "etf_code": "510300",
+          "weight_in_sleeve": 1.0
+        }
+      ]
     }
   ],
   "cooldown_through": {
@@ -809,88 +862,40 @@
     "core": "2026-11-02"
   },
   "satellite_risk_check": {
-    "signal_id": "2026-11-02",
-    "entry_date": "2026-11-03",
+    "signal_id": "2026-11-09",
+    "entry_date": "2026-11-10",
     "members": [
       {
         "name": "恒生科技",
         "etf_code": "513180",
         "etf_name": "恒生科技ETF华夏",
-        "weight_in_sleeve": 0.1721,
+        "weight_in_sleeve": 0.3584,
         "portfolio_weight": null,
-        "entry_open": 0.48
-      },
-      {
-        "name": "煤炭",
-        "etf_code": "515220",
-        "etf_name": "煤炭ETF国泰",
-        "weight_in_sleeve": 0.151,
-        "portfolio_weight": null,
-        "entry_open": 1.215
-      },
-      {
-        "name": "传媒",
-        "etf_code": "512980",
-        "etf_name": "传媒ETF广发",
-        "weight_in_sleeve": 0.1499,
-        "portfolio_weight": null,
-        "entry_open": 0.79
-      },
-      {
-        "name": "有色金属",
-        "etf_code": "512400",
-        "etf_name": "有色金属ETF南方",
-        "weight_in_sleeve": 0.1474,
-        "portfolio_weight": null,
-        "entry_open": 1.393
+        "entry_open": 0.51
       },
       {
         "name": "建筑材料",
         "etf_code": "159745",
         "etf_name": "建材ETF国泰",
-        "weight_in_sleeve": 0.1136,
+        "weight_in_sleeve": 0.2366,
         "portfolio_weight": null,
-        "entry_open": 0.498
+        "entry_open": 0.514
+      },
+      {
+        "name": "传媒",
+        "etf_code": "512980",
+        "etf_name": "传媒ETF广发",
+        "weight_in_sleeve": 0.2366,
+        "portfolio_weight": null,
+        "entry_open": 0.832
       },
       {
         "name": "商贸零售",
         "etf_code": "159928",
         "etf_name": "消费ETF汇添富",
-        "weight_in_sleeve": 0.0809,
+        "weight_in_sleeve": 0.1684,
         "portfolio_weight": null,
-        "entry_open": 0.689
-      },
-      {
-        "name": "基础化工",
-        "etf_code": "516020",
-        "etf_name": "化工ETF华宝",
-        "weight_in_sleeve": 0.075,
-        "portfolio_weight": null,
-        "entry_open": 0.717
-      },
-      {
-        "name": "电力设备",
-        "etf_code": "516850",
-        "etf_name": "新能源ETF华夏",
-        "weight_in_sleeve": 0.0536,
-        "portfolio_weight": null,
-        "entry_open": 0.716
-      },
-      {
-        "name": "石油石化",
-        "etf_code": "159697",
-        "etf_name": "石油ETF鹏华",
-        "weight_in_sleeve": 0.0296,
-        "portfolio_weight": null,
-        "entry_open": 1.31
-      },
-      {
-        "name": "轻工制造",
-        "etf_code": "512430",
-        "etf_name": "家居家电ETF华泰柏瑞",
-        "weight_in_sleeve": 0.0269,
-        "portfolio_weight": null,
-        "entry_open": 0.831
+        "entry_open": 0.7
       }
     ],
     "min_hold_days": 3,
@@ -898,18 +903,10 @@
     "take_profit": 0.04,
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-    "status": "TRIGGERED",
-    "event_type": "TAKE_PROFIT",
-    "close_code": "LOCAL_TAKE_PROFIT",
-    "action_cn": "卫星篮子止盈",
-    "trigger_date": "2026-11-05",
-    "execution_date": "2026-11-06",
-    "execution_status": "PENDING",
-    "execution_bar_complete": false,
-    "trigger_return": 0.04827186922196125,
-    "trigger_threshold": 0.04,
-    "days_held": 3,
-    "checked_through": "2026-11-05",
-    "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次达到止盈线"
+    "status": "CLEAR",
+    "checked_through": "2026-11-10",
+    "latest_return": 0.006220263118212888,
+    "days_held": 1,
+    "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
