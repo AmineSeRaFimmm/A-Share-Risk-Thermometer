@@ -1,18 +1,18 @@
 {
   "trade_date": "2026-11-10",
-  "update_time": "2026-11-11T00:29:55+08:00",
+  "update_time": "2026-11-11T01:16:41+08:00",
   "risk_temperature": 58.1,
   "regime": "CAUTION",
   "regime_cn": "警戒",
-  "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY",
+  "quality": "WARN_QVIX_REALTIME_PROXY",
   "model_confidence": {
-    "score": 93.6,
+    "score": 93.7,
     "coverage_score": 100.0,
-    "data_quality_score": 93.6,
+    "data_quality_score": 93.7,
     "grade": "HIGH",
     "missing_components": "QVIX_PROXY"
   },
-  "model_confidence_label": "93.6 / 高",
+  "model_confidence_label": "93.7 / 高",
   "temperature_mode": "OFFICIAL_CLOSE",
   "temperature_mode_cn": "收盘正式",
   "is_final": true,
@@ -36,13 +36,13 @@
     "limit_down_ratio": 0.0004,
     "breadth_pressure": 12.6293,
     "breadth_source": "PARSE_EM_A_SPOT",
-    "breadth_secondary_source": "PARSE_EM_ZDFENBU",
-    "breadth_source_agreement": 0.9926,
-    "breadth_source_score_delta": 0.7397,
+    "breadth_secondary_source": null,
+    "breadth_source_agreement": null,
+    "breadth_source_score_delta": null,
     "as_of_trade_date": "2026-11-10",
     "breadth_mode": "STOCK_A",
     "breadth_mode_cn": "全A个股宽度",
-    "breadth_quality": "OK_CROSSCHECKED"
+    "breadth_quality": "OK"
   },
   "avix": {
     "avix_clean_close": 19.3499,
@@ -66,7 +66,7 @@
     "risk_temperature": 58.1,
     "regime": "CAUTION",
     "regime_cn": "警戒",
-    "quality": "OK_CROSSCHECKED|WARN_QVIX_REALTIME_PROXY",
+    "quality": "WARN_QVIX_REALTIME_PROXY",
     "temperature_mode": "OFFICIAL_CLOSE",
     "temperature_mode_cn": "收盘正式",
     "is_final": true,
@@ -85,7 +85,7 @@
       "breadth_pressure": 12.6293,
       "breadth_source": "PARSE_EM_A_SPOT",
       "breadth_mode": "STOCK_A",
-      "breadth_quality": "OK_CROSSCHECKED"
+      "breadth_quality": "OK"
     },
     "avix_clean": 19.3499,
     "qvix_close": 17.5,
@@ -98,9 +98,9 @@
     "qvix_secondary_close": null,
     "qvix_source_agreement": null,
     "model_confidence": {
-      "score": 93.6,
+      "score": 93.7,
       "coverage_score": 100.0,
-      "data_quality_score": 93.6,
+      "data_quality_score": 93.7,
       "grade": "HIGH",
       "missing_components": "QVIX_PROXY"
     }
