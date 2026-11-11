@@ -1,32 +1,28 @@
 {
-  "as_of": "2026-11-10",
+  "as_of": "2026-11-11",
   "mode": "aggressive",
   "core": {
-    "status": "open",
-    "entry_signal_date": "2026-11-03",
-    "entry_date": "2026-11-04",
-    "exit_due_date": "2026-11-10",
-    "days_held": 5,
+    "status": "flat",
+    "entry_signal_date": null,
+    "entry_date": null,
+    "exit_due_date": null,
+    "days_held": 0,
     "days_remaining": 0,
-    "stage_id": "CSI300_CORE_BUY",
-    "names": [
-      "沪深300"
-    ],
-    "weights": {
-      "沪深300": 1.0
-    },
-    "etf_code": "510300",
+    "stage_id": null,
+    "names": [],
+    "weights": {},
+    "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
-    "planned_hold_days": 5
+    "planned_hold_days": null
   },
   "satellite": {
     "status": "open",
     "entry_signal_date": "2026-11-09",
     "entry_date": "2026-11-10",
     "exit_due_date": "2026-11-19",
-    "days_held": 1,
-    "days_remaining": 7,
+    "days_held": 2,
+    "days_remaining": 6,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "恒生科技",
@@ -823,8 +819,8 @@
       "trigger_date": "2026-11-10",
       "signal_date": "2026-11-10",
       "execution_date": "2026-11-11",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "position": {
         "status": "open",
         "entry_signal_date": "2026-11-03",
@@ -854,12 +850,13 @@
           "etf_code": "510300",
           "weight_in_sleeve": 1.0
         }
-      ]
+      ],
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     }
   ],
   "cooldown_through": {
     "satellite": "2026-11-06",
-    "core": "2026-11-02"
+    "core": "2026-11-11"
   },
   "satellite_risk_check": {
     "signal_id": "2026-11-09",
@@ -904,9 +901,9 @@
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
     "status": "CLEAR",
-    "checked_through": "2026-11-10",
-    "latest_return": 0.006220263118212888,
-    "days_held": 1,
+    "checked_through": "2026-11-11",
+    "latest_return": -0.001821852157120496,
+    "days_held": 2,
     "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
