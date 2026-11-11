@@ -1,9 +1,9 @@
 {
-  "build_time": "2026-11-12T00:18:32+08:00",
+  "build_time": "2026-11-12T01:27:56+08:00",
   "etf_marks_as_of": "2026-11-11",
   "etf_marks_quality": "OK",
   "etf_marks_revision": "2026-11-11|OK",
-  "flex_snapshot_revision": "d9b004d4dd27abd4d8dea861f9762c2732d64f46fa6bc02e7b8ddfe45a7bb7ef",
+  "flex_snapshot_revision": "0e812848ff6b30f75207326f09d4e77a496144664c85924b4f377aad0fb9e8a8",
   "flex_snapshot_strategy_as_of": "2026-11-11",
   "flex_snapshot_marks_as_of": "2026-11-11",
   "revision_reason": "SITE_BUILD"
