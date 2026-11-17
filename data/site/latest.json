@@ -1,6 +1,6 @@
 {
   "trade_date": "2026-11-18",
-  "update_time": "2026-11-18T01:08:53+08:00",
+  "update_time": "2026-11-18T01:42:07+08:00",
   "risk_temperature": 71.6,
   "regime": "HIGH_RISK",
   "regime_cn": "高风险",
@@ -66,7 +66,7 @@
     "risk_temperature": 64.4,
     "regime": "HIGH_RISK",
     "regime_cn": "高风险",
-    "quality": "OK_CROSSCHECKED|WARN_QVIX_MISSING|WARN_ROLLOVER_SINGLE_TERM_30D",
+    "quality": "WARN_QVIX_MISSING|WARN_ROLLOVER_SINGLE_TERM_30D",
     "temperature_mode": "OFFICIAL_CLOSE",
     "temperature_mode_cn": "收盘正式",
     "is_final": true,
@@ -85,7 +85,7 @@
       "breadth_pressure": 88.3525,
       "breadth_source": "PARSE_EM_A_SPOT",
       "breadth_mode": "STOCK_A",
-      "breadth_quality": "OK_CROSSCHECKED"
+      "breadth_quality": "OK"
     },
     "avix_clean": 19.5866,
     "qvix_close": null,
@@ -115,14 +115,14 @@
     "official_risk_temperature": 64.4,
     "realtime_avix": 19.9338,
     "realtime_avix_quality": null,
-    "realtime_valuation_time": "2026-11-18T01:08:20+08:00",
+    "realtime_valuation_time": "2026-11-18T01:41:31+08:00",
     "qvix_close": 20.63,
     "qvix_source": "AKSHARE_300ETF_MIN_QVIX_PROXY",
     "qvix_quote_time": "2026-11-18T14:56:06+08:00",
     "qvix_delay_minutes": 0.0,
     "realtime_index_source": "EASTMONEY_INDEX_QUOTE_RT",
     "realtime_index_quote_time": null,
-    "realtime_index_fetch_time": "2026-11-18T01:08:24+08:00",
+    "realtime_index_fetch_time": "2026-11-18T01:41:35+08:00",
     "realtime_index_symbols": "sh000001,sh000300",
     "method": "盘中估算 from realtime volatility and index factors; official close history remains separate",
     "active": true
