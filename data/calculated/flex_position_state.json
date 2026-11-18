@@ -1,13 +1,13 @@
 {
-  "as_of": "2026-11-17",
+  "as_of": "2026-11-18",
   "mode": "aggressive",
   "core": {
     "status": "open",
     "entry_signal_date": "2026-11-16",
     "entry_date": "2026-11-17",
     "exit_due_date": "2026-11-23",
-    "days_held": 1,
-    "days_remaining": 4,
+    "days_held": 2,
+    "days_remaining": 3,
     "stage_id": "CSI300_CORE_BUY",
     "names": [
       "沪深300"
@@ -21,15 +21,31 @@
     "planned_hold_days": 5
   },
   "satellite": {
-    "status": "flat",
-    "entry_signal_date": null,
-    "entry_date": null,
-    "exit_due_date": null,
-    "days_held": 0,
-    "days_remaining": 0,
-    "stage_id": null,
-    "names": [],
-    "weights": {},
+    "status": "open",
+    "entry_signal_date": "2026-11-17",
+    "entry_date": "2026-11-18",
+    "exit_due_date": "2026-11-27",
+    "days_held": 1,
+    "days_remaining": 7,
+    "stage_id": "CSI300_CORE_BUY",
+    "names": [
+      "恒生科技",
+      "通信",
+      "机械设备",
+      "建筑材料",
+      "传媒",
+      "国防军工",
+      "商贸零售"
+    ],
+    "weights": {
+      "恒生科技": 0.2415,
+      "通信": 0.2179,
+      "机械设备": 0.1199,
+      "建筑材料": 0.1172,
+      "传媒": 0.1172,
+      "国防军工": 0.1029,
+      "商贸零售": 0.0834
+    },
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -941,40 +957,64 @@
     "core": "2026-11-11"
   },
   "satellite_risk_check": {
-    "signal_id": "2026-11-09",
-    "entry_date": "2026-11-10",
+    "signal_id": "2026-11-17",
+    "entry_date": "2026-11-18",
     "members": [
       {
         "name": "恒生科技",
         "etf_code": "513180",
         "etf_name": "恒生科技ETF华夏",
-        "weight_in_sleeve": 0.3584,
+        "weight_in_sleeve": 0.2415,
         "portfolio_weight": null,
-        "entry_open": 0.51
+        "entry_open": 0.469
+      },
+      {
+        "name": "通信",
+        "etf_code": "515880",
+        "etf_name": "通信ETF国泰",
+        "weight_in_sleeve": 0.2179,
+        "portfolio_weight": null,
+        "entry_open": 0.382
+      },
+      {
+        "name": "机械设备",
+        "etf_code": "159886",
+        "etf_name": "机械ETF富国",
+        "weight_in_sleeve": 0.1199,
+        "portfolio_weight": null,
+        "entry_open": 0.726
       },
       {
         "name": "建筑材料",
         "etf_code": "159745",
         "etf_name": "建材ETF国泰",
-        "weight_in_sleeve": 0.2366,
+        "weight_in_sleeve": 0.1172,
         "portfolio_weight": null,
-        "entry_open": 0.514
+        "entry_open": 0.496
       },
       {
         "name": "传媒",
         "etf_code": "512980",
         "etf_name": "传媒ETF广发",
-        "weight_in_sleeve": 0.2366,
+        "weight_in_sleeve": 0.1172,
         "portfolio_weight": null,
-        "entry_open": 0.832
+        "entry_open": 0.768
+      },
+      {
+        "name": "国防军工",
+        "etf_code": "512660",
+        "etf_name": "军工ETF国泰",
+        "weight_in_sleeve": 0.1029,
+        "portfolio_weight": null,
+        "entry_open": 0.962
       },
       {
         "name": "商贸零售",
         "etf_code": "159928",
         "etf_name": "消费ETF汇添富",
-        "weight_in_sleeve": 0.1684,
+        "weight_in_sleeve": 0.0834,
         "portfolio_weight": null,
-        "entry_open": 0.7
+        "entry_open": 0.709
       }
     ],
     "min_hold_days": 3,
@@ -982,18 +1022,10 @@
     "take_profit": 0.04,
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-    "status": "TRIGGERED",
-    "event_type": "STOP_LOSS",
-    "close_code": "LOCAL_STOP_LOSS",
-    "action_cn": "卫星篮子止损",
-    "trigger_date": "2026-11-13",
-    "execution_date": "2026-11-16",
-    "execution_status": "PENDING",
-    "execution_bar_complete": false,
-    "trigger_return": -0.032813401916574114,
-    "trigger_threshold": -0.03,
-    "days_held": 4,
-    "checked_through": "2026-11-13",
-    "reason_cn": "固定卫星篮子持有第 4 日 EOD 收益首次低于止损线"
+    "status": "CLEAR",
+    "checked_through": "2026-11-18",
+    "latest_return": -0.0064471391039330195,
+    "days_held": 1,
+    "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
