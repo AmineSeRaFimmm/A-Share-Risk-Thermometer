@@ -1,12 +1,12 @@
 {
   "status": "ok",
   "trade_date": "2026-11-20",
-  "sample_count": 4,
-  "eligible_count": 0,
+  "sample_count": 5,
+  "eligible_count": 1,
   "excluded_count": 4,
-  "has_final": false,
+  "has_final": true,
   "first_sample_at": "2026-11-20T00:52:16+08:00",
-  "last_sample_at": "2026-11-20T03:00:57+08:00",
+  "last_sample_at": "2026-11-20T15:00:00+08:00",
   "rows": [
     {
       "sampled_at": "2026-11-20T00:52:16+08:00",
@@ -147,6 +147,34 @@
         "risk_temperature_lower": 62.7,
         "risk_temperature_upper": 72.7
       }
+    },
+    {
+      "sampled_at": "2026-11-20T15:00:00+08:00",
+      "time": "15:00",
+      "risk_temperature": 71.8,
+      "temperature_mode": "OFFICIAL_CLOSE",
+      "temperature_mode_cn": "收盘正式",
+      "is_final": true,
+      "quality": "WARN_QVIX_MISSING",
+      "model_confidence": 86.5,
+      "model_coverage_score": 88.0,
+      "model_data_quality_score": 98.3,
+      "model_missing_components": "QVIX",
+      "hs300_drawdown_60d": -0.1459,
+      "breadth_mode": "STOCK_A",
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU",
+      "breadth_observed": true,
+      "plot_eligible": true,
+      "core_tail_status": "FINAL",
+      "core_tail_status_cn": "已转正式收盘，尾盘窗口结束",
+      "core_tail_sample_state": "INVALID",
+      "core_tail_sample_state_cn": "数据结构无效",
+      "core_tail_consecutive_samples": 0,
+      "core_tail_stable": false,
+      "core_tail_degraded": false,
+      "core_tail_actionable_at_sample": false,
+      "core_tail_uncertainty": null
     }
   ],
   "available_dates": [
@@ -226,37 +254,30 @@
     "2026-11-20"
   ],
   "core_tail_signal": {
-    "status": "DATA_WAIT",
-    "status_cn": "缺失数据导致条件不确定，已跳过（RT可能区间 62.7-72.7）",
+    "status": "FINAL",
+    "status_cn": "已转正式收盘，尾盘窗口结束",
     "trade_date": "2026-11-20",
     "candidate": false,
     "stable": false,
     "actionable": false,
     "consecutive_samples": 0,
     "stability_span_minutes": 0,
-    "invalid_samples_skipped": 4,
+    "invalid_samples_skipped": 0,
     "degraded_samples_in_streak": 0,
     "degraded": false,
     "degraded_uncertainty": null,
-    "latest_sample_state": "INDETERMINATE",
-    "latest_sample_state_cn": "缺失数据导致边界不确定",
-    "last_sample_at": "2026-11-20T03:00:57+08:00",
-    "valid_until": "2026-11-20T03:15:57+08:00",
+    "latest_sample_state": "INVALID",
+    "latest_sample_state_cn": "数据结构无效",
+    "last_sample_at": "2026-11-20T15:00:00+08:00",
+    "valid_until": "2026-11-20T15:15:00+08:00",
     "conditions": {
-      "state": "INDETERMINATE",
+      "state": "INVALID",
       "eligible": false,
       "definitive_fail": false,
       "skip_without_reset": true,
-      "degraded": true,
-      "decision_basis": "BOUNDED_DEGRADATION",
-      "uncertainty": {
-        "groups": [
-          "BREADTH"
-        ],
-        "weight": 0.1,
-        "risk_temperature_lower": 62.7,
-        "risk_temperature_upper": 72.7
-      },
+      "degraded": false,
+      "decision_basis": "UNBOUNDED_INVALID",
+      "uncertainty": null,
       "data_valid": false,
       "conditions_pass": true,
       "checks": {
@@ -266,16 +287,16 @@
         "coverage": false,
         "data_quality": true,
         "allowed_degradations": false,
-        "stock_breadth": false,
-        "intraday_mode": true
+        "stock_breadth": true,
+        "intraday_mode": false
       },
       "quality_checks": {
         "confidence_present": true,
         "coverage": false,
         "data_quality": true,
         "allowed_degradations": false,
-        "stock_breadth": false,
-        "intraday_mode": true
+        "stock_breadth": true,
+        "intraday_mode": false
       },
       "strategy_checks": {
         "risk_temperature": true,
@@ -284,26 +305,26 @@
       "invalid_reasons": [
         "coverage",
         "allowed_degradations",
-        "stock_breadth"
+        "intraday_mode"
       ],
       "values": {
-        "risk_temperature": 67.7,
-        "hs300_drawdown_60d": -0.1394,
-        "model_confidence": 73.5,
-        "model_coverage_score": 90.0,
-        "model_data_quality_score": 81.7,
-        "model_missing_components": "QVIX_PROXY|BREADTH",
-        "disallowed_missing_components": "BREADTH",
-        "breadth_mode": "MISSING",
-        "breadth_quality": "WARN_BREADTH_MISSING",
-        "temperature_mode": "NOWCAST"
+        "risk_temperature": 71.8,
+        "hs300_drawdown_60d": -0.1459,
+        "model_confidence": 86.5,
+        "model_coverage_score": 88.0,
+        "model_data_quality_score": 98.3,
+        "model_missing_components": "QVIX",
+        "disallowed_missing_components": "QVIX",
+        "breadth_mode": "STOCK_A",
+        "breadth_quality": "OK",
+        "temperature_mode": "OFFICIAL_CLOSE"
       },
-      "model_coverage_score": 90.0,
-      "model_data_quality_score": 81.7,
-      "model_missing_components": "QVIX_PROXY|BREADTH",
-      "breadth_mode": "MISSING",
-      "breadth_quality": "WARN_BREADTH_MISSING",
-      "breadth_source": ""
+      "model_coverage_score": 88.0,
+      "model_data_quality_score": 98.3,
+      "model_missing_components": "QVIX",
+      "breadth_mode": "STOCK_A",
+      "breadth_quality": "OK",
+      "breadth_source": "PARSE_EM_ZDFENBU"
     },
     "policy": {
       "id": "CORE_STRICT_TAIL_V2",
