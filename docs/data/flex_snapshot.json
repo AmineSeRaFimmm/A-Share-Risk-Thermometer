@@ -1,12 +1,12 @@
 {
   "schema_version": 2,
-  "revision": "d64d8e377a06223db8c0254765d29dea0b32d8041c126eaa05d3ad9a165dbc9b",
-  "built_at": "2026-11-21T02:40:09+08:00",
-  "strategy_as_of": "2026-11-20",
-  "marks_as_of": "2026-11-20",
+  "revision": "23859315f67292379b26c67c1e6b091e959ba16a83fd73e110404d7508a7b9ef",
+  "built_at": "2026-11-24T03:34:02+08:00",
+  "strategy_as_of": "2026-11-23",
+  "marks_as_of": "2026-11-23",
   "marks_quality": "OK",
-  "strategy_publication_status": "CURRENT",
-  "official_strategy_pending": false,
+  "strategy_publication_status": "OFFICIAL_PENDING",
+  "official_strategy_pending": true,
   "calendar_coverage_through": "2026-12-31",
   "stage_playbook": {
     "title": "风险温度分阶段交易指令（严格研究版）",
@@ -45,31 +45,31 @@
         "research/output/core_plus_sectors/core_plus_sectors_report.md"
       ]
     },
-    "as_of": "2026-11-20",
+    "as_of": "2026-11-23",
     "data_quality": {
       "risk_source": "OFFICIAL_CLOSE",
-      "official_as_of": "2026-11-20",
+      "official_as_of": "2026-11-23",
       "bridged": false,
       "bridged_dates": [],
       "bridge_source": null,
       "note_cn": "策略日期与正式风险因子日期一致。"
     },
     "market_state": {
-      "trade_date": "2026-11-20",
-      "rt": 71.8,
-      "prev_rt": 67.6,
-      "rt_d1": 4.200000000000003,
-      "rt_d5": 12.0,
+      "trade_date": "2026-11-23",
+      "rt": 60.1,
+      "prev_rt": 71.8,
+      "rt_d1": -11.699999999999996,
+      "rt_d5": -5.999999999999993,
       "rt_rollmax_10": 71.8,
-      "hs300_dd60": -0.1459333858427908,
+      "hs300_dd60": -0.1451280344566858,
       "regime": "HIGH_RISK",
       "regime_cn": "高风险",
       "quality": "WARN_QVIX_MISSING",
       "model_confidence": 86.5
     },
     "active_stage_ids": [
-      "RISING_HARD",
-      "ENTER_70_BOUNCE",
+      "FALLING_HARD",
+      "HIGH_COOLING",
       "CSI300_CORE_BUY"
     ],
     "primary_stage": {
@@ -163,151 +163,176 @@
         "same_day_note": null
       },
       {
-        "stage_id": "ENTER_70_BOUNCE",
-        "name_cn": "刚进入更高风险（穿越70）——弹性反弹窗口",
-        "priority": 80,
+        "stage_id": "HIGH_COOLING",
+        "name_cn": "高位降温 / 避险轮动",
+        "priority": 90,
         "csi300": {
-          "action": "OPTIONAL_IF_CORE_MET",
-          "action_cn": "若同时满足主策略则执行主策略；否则不加仓指数",
-          "detail": "穿越70本身样本较少；指数仍以主策略约束为准。",
+          "action": "STAND_DOWN_OR_HOLD_EXISTING",
+          "action_cn": "主策略若已到期则不新开；已持有按规则卖",
+          "detail": "高位回落阶段指数边沿不清晰；以板块相对避险与规则卖出为主。",
           "confidence": "MEDIUM"
         },
         "sectors_long": [
           {
-            "name": "恒生科技",
-            "why": "进入≥70后5日超额约+2.5%，胜率75%，p<0.05（n=32，中等样本）",
-            "win_rate": 0.75,
-            "n": 32,
+            "name": "石油石化",
+            "why": "高位回落5日超额+1.5%，胜率76%，显著（最高胜率组）",
+            "win_rate": 0.76,
+            "n": 37,
             "horizon": "5D",
-            "mean_excess": 0.0253,
-            "size_note": "高胜率但n=32，单笔风险预算宜小"
+            "mean_excess": 0.0149
+          },
+          {
+            "name": "综合",
+            "why": "高位回落超额+1.6%，胜率69%，显著",
+            "win_rate": 0.69,
+            "n": 39,
+            "horizon": "5D",
+            "mean_excess": 0.015661
+          },
+          {
+            "name": "轻工制造",
+            "why": "高位回落超额+1.5%，胜率69%，显著",
+            "win_rate": 0.69,
+            "n": 39,
+            "horizon": "5D",
+            "mean_excess": 0.014524
+          },
+          {
+            "name": "煤炭",
+            "why": "高位回落超额+1.5%，胜率59%，显著",
+            "win_rate": 0.59,
+            "n": 37,
+            "horizon": "5D",
+            "mean_excess": 0.01494
+          },
+          {
+            "name": "传媒",
+            "why": "高位回落超额+1.5%，胜率64%，显著",
+            "win_rate": 0.64,
+            "n": 39,
+            "horizon": "5D",
+            "mean_excess": 0.014803
           }
         ],
         "sectors_short": [
           {
-            "name": "石油石化",
-            "why": "进入≥70后5日显著跑输，胜率仅27%",
-            "win_rate": 0.27,
-            "n": 30,
+            "name": "电子",
+            "why": "高位回落阶段相对偏弱（均值负）",
+            "win_rate": 0.49,
+            "n": 39,
             "horizon": "5D",
-            "mean_excess": -0.012337
+            "mean_excess": -0.002096
           },
           {
-            "name": "公用事业",
-            "why": "进入高风险后相对偏弱",
-            "win_rate": 0.38,
-            "n": 34,
+            "name": "计算机",
+            "why": "高位回落阶段相对偏弱",
+            "win_rate": 0.44,
+            "n": 39,
             "horizon": "5D",
-            "mean_excess": -0.009042
-          },
-          {
-            "name": "银行",
-            "why": "进入高风险后相对偏弱",
-            "win_rate": 0.47,
-            "n": 34,
-            "horizon": "5D",
-            "mean_excess": -0.007081
+            "mean_excess": -0.001737
           }
         ],
         "hold_days": 5,
         "notes": [
-          "弹性反弹≠避险；与主策略冲突时以主策略与回撤约束优先。"
+          "这是「避险/相对抗跌」指令，不是追涨科技。",
+          "事件样本 n≈40，置信度低于升温大样本结论；仓位宜保守。"
         ],
         "same_day_note": null
       },
       {
-        "stage_id": "RISING_HARD",
-        "name_cn": "升温冲击（ΔRT_5≥+5）",
-        "priority": 40,
+        "stage_id": "FALLING_HARD",
+        "name_cn": "降温（ΔRT_5≤-5）",
+        "priority": 50,
         "csi300": {
-          "action": "NO_CHASE_SAME_DAY",
-          "action_cn": "升温当日不追涨指数；若同时满足主策略买入条件则按主策略",
-          "detail": "升温是波动抬升，不等于立刻满仓。主策略仍要求 60≤RT<80 且 60日回撤≤-5%。",
-          "confidence": "HIGH"
+          "action": "NO_NEW_LONG_UNLESS_CORE",
+          "action_cn": "除非仍满足主策略持仓中，否则不新开指数多单",
+          "detail": "降温阶段指数边沿取决于是否仍在60-80且回撤条件；默认观望。",
+          "confidence": "MEDIUM"
         },
         "sectors_long": [
           {
-            "name": "通信",
-            "why": "升温后5日超额最高且极显著；IS/OOS同号",
-            "win_rate": 0.59,
-            "n": 438,
+            "name": "有色金属",
+            "why": "降温后5日超额显著为正",
+            "win_rate": 0.53,
+            "n": 477,
             "horizon": "5D",
-            "mean_excess": 0.0079
+            "mean_excess": 0.0063
           },
           {
-            "name": "电子",
-            "why": "升温后5日超额显著；IS/OOS同号",
-            "win_rate": 0.55,
-            "n": 438,
+            "name": "煤炭",
+            "why": "降温后5日超额显著为正",
+            "win_rate": 0.52,
+            "n": 339,
             "horizon": "5D",
-            "mean_excess": 0.0066
+            "mean_excess": 0.0061
           },
           {
-            "name": "机械设备",
-            "why": "升温后5日超额显著；IS/OOS同号",
+            "name": "基础化工",
+            "why": "降温后5日超额显著、胜率57%",
             "win_rate": 0.57,
-            "n": 438,
+            "n": 477,
             "horizon": "5D",
-            "mean_excess": 0.0045
+            "mean_excess": 0.002979
           },
           {
-            "name": "国防军工",
-            "why": "升温后5日超额显著；IS/OOS同号",
-            "win_rate": 0.55,
-            "n": 438,
+            "name": "电力设备",
+            "why": "降温后5日超额显著",
+            "win_rate": 0.53,
+            "n": 477,
             "horizon": "5D",
-            "mean_excess": 0.004
+            "mean_excess": 0.003273
           }
         ],
         "sectors_short": [
           {
+            "name": "计算机",
+            "why": "降温后显著跑输",
+            "win_rate": 0.43,
+            "n": 477,
+            "horizon": "5D",
+            "mean_excess": -0.003997
+          },
+          {
+            "name": "传媒",
+            "why": "降温后显著跑输",
+            "win_rate": 0.44,
+            "n": 477,
+            "horizon": "5D",
+            "mean_excess": -0.003221
+          },
+          {
             "name": "美容护理",
-            "why": "升温后显著跑输",
-            "win_rate": 0.4,
-            "n": 327,
-            "horizon": "5D",
-            "mean_excess": -0.00406
-          },
-          {
-            "name": "房地产",
-            "why": "升温后显著跑输；IS/OOS稳定为负",
+            "why": "降温后显著跑输",
             "win_rate": 0.42,
-            "n": 438,
+            "n": 339,
             "horizon": "5D",
-            "mean_excess": -0.00384
-          },
-          {
-            "name": "钢铁",
-            "why": "升温后显著跑输",
-            "win_rate": 0.42,
-            "n": 438,
-            "horizon": "5D",
-            "mean_excess": -0.00305
+            "mean_excess": -0.003069
           }
         ],
         "hold_days": 5,
         "notes": [
-          "板块指令是相对沪深300的超额偏好，持有约5日窗口；不建议升温当日追恒生科技。"
+          "降温≠全面做多；偏资源/中游相对强，TMT相对弱。"
         ],
-        "same_day_note": "升温当日同步：银行/公用事业相对强；恒生科技/电子/计算机当日相对弱——先别抢反弹。"
+        "same_day_note": null
       }
     ],
     "actionable_instructions": [
       {
         "sleeve": "core",
         "name": "沪深300",
-        "action": "HOLD",
-        "action_cn": "持有（忽略重复信号）",
-        "side": "HOLD",
-        "side_cn": "持有",
+        "action": "CLOSE",
+        "action_cn": "到期卖出",
+        "side": "CLOSE",
+        "side_cn": "卖出",
         "priority": "P0",
-        "weight_target": 1.0,
-        "weight_hint": "100%",
-        "why": "主策略持仓中，忽略新开仓信号",
-        "days_held": 4,
-        "days_remaining": 1,
-        "entry": "—",
-        "exit": "约剩 1 日",
+        "entry": "下一交易日开盘",
+        "exit": "平仓",
+        "weight_target": 0.0,
+        "weight_hint": "0%",
+        "why": "核心持有满 5 日，按对应入场路径卖出（CORE_MAX_HOLD 确定性路径）",
+        "close_code": "CORE_MAX_HOLD",
+        "guaranteed": true,
+        "days_held": 5,
         "sector": "沪深300",
         "etf_code": "510300",
         "etf_name": "沪深300ETF华泰柏瑞",
@@ -319,331 +344,107 @@
         "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
       },
       {
-        "sleeve": "satellite",
-        "name": "恒生科技",
-        "action": "CLOSE",
-        "action_cn": "卫星篮子止损",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
+        "name": "计算机",
+        "side": "AVOID",
+        "side_cn": "回避（若持有则减配）",
+        "stages": [
+          "FALLING_HARD",
+          "HIGH_COOLING"
+        ],
+        "stage_evidence": [
+          {
+            "stage_id": "FALLING_HARD",
+            "score": 0.026276,
+            "why": "降温后显著跑输",
+            "win_rate": 0.43,
+            "n": 477,
+            "mean_excess": -0.003997,
+            "horizon": "5D"
+          },
+          {
+            "stage_id": "HIGH_COOLING",
+            "score": 0.001014,
+            "why": "高位回落阶段相对偏弱",
+            "win_rate": 0.44,
+            "n": 39,
+            "mean_excess": -0.001737,
+            "horizon": "5D"
+          }
+        ],
+        "why": "降温后显著跑输",
+        "win_rate": 0.43,
+        "n": 477,
+        "mean_excess": -0.003997,
+        "conditional": true,
+        "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
+        "conflict_resolution": null,
+        "action": "AVOID",
+        "action_cn": "回避/条件减配",
+        "priority": "P2",
         "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-        "close_code": "LOCAL_STOP_LOSS",
-        "guaranteed": true,
-        "days_held": 3,
-        "sector": "恒生科技",
-        "etf_code": "513180",
-        "etf_name": "恒生科技ETF华夏",
-        "etf_label": "513180 恒生科技ETF华夏",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "备选 513130/513010",
-        "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
-        "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
-      },
-      {
-        "sleeve": "satellite",
-        "name": "通信",
-        "action": "CLOSE",
-        "action_cn": "卫星篮子止损",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
-        "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-        "close_code": "LOCAL_STOP_LOSS",
-        "guaranteed": true,
-        "days_held": 3,
-        "sector": "通信",
-        "etf_code": "515880",
-        "etf_name": "通信ETF国泰",
-        "etf_label": "515880 通信ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "通信 → 515880 通信ETF国泰",
-        "instrument_display": "通信（515880 通信ETF国泰）"
-      },
-      {
-        "sleeve": "satellite",
-        "name": "机械设备",
-        "action": "CLOSE",
-        "action_cn": "卫星篮子止损",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
-        "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-        "close_code": "LOCAL_STOP_LOSS",
-        "guaranteed": true,
-        "days_held": 3,
-        "sector": "机械设备",
-        "etf_code": "159886",
-        "etf_name": "机械ETF富国",
-        "etf_label": "159886 机械ETF富国",
+        "weight_hint": "0%（若持有）",
+        "entry": "—",
+        "exit": "—",
+        "sector": "计算机",
+        "etf_code": "159998",
+        "etf_name": "计算机ETF天弘",
+        "etf_label": "159998 计算机ETF天弘",
         "etf_quality": "good",
         "etf_quality_cn": "贴合",
         "etf_note": "",
-        "etf_display": "机械设备 → 159886 机械ETF富国",
-        "instrument_display": "机械设备（159886 机械ETF富国）"
+        "etf_display": "计算机 → 159998 计算机ETF天弘",
+        "instrument_display": "计算机（159998 计算机ETF天弘）"
       },
       {
-        "sleeve": "satellite",
-        "name": "建筑材料",
-        "action": "CLOSE",
-        "action_cn": "卫星篮子止损",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
+        "name": "电子",
+        "side": "AVOID",
+        "side_cn": "回避（若持有则减配）",
+        "stages": [
+          "HIGH_COOLING"
+        ],
+        "stage_evidence": [
+          {
+            "stage_id": "HIGH_COOLING",
+            "score": 0.000954,
+            "why": "高位回落阶段相对偏弱（均值负）",
+            "win_rate": 0.49,
+            "n": 39,
+            "mean_excess": -0.002096,
+            "horizon": "5D"
+          }
+        ],
+        "why": "高位回落阶段相对偏弱（均值负）",
+        "win_rate": 0.49,
+        "n": 39,
+        "mean_excess": -0.002096,
+        "conditional": true,
+        "condition_cn": "仅当已持有「电子」映射 ETF 时减至 0；无持仓则无需操作",
+        "conflict_resolution": null,
+        "action": "AVOID",
+        "action_cn": "回避/条件减配",
+        "priority": "P2",
         "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-        "close_code": "LOCAL_STOP_LOSS",
-        "guaranteed": true,
-        "days_held": 3,
-        "sector": "建筑材料",
-        "etf_code": "159745",
-        "etf_name": "建材ETF国泰",
-        "etf_label": "159745 建材ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "建筑材料 → 159745 建材ETF国泰",
-        "instrument_display": "建筑材料（159745 建材ETF国泰）"
-      },
-      {
-        "sleeve": "satellite",
-        "name": "传媒",
-        "action": "CLOSE",
-        "action_cn": "卫星篮子止损",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
-        "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-        "close_code": "LOCAL_STOP_LOSS",
-        "guaranteed": true,
-        "days_held": 3,
-        "sector": "传媒",
-        "etf_code": "512980",
-        "etf_name": "传媒ETF广发",
-        "etf_label": "512980 传媒ETF广发",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "传媒 → 512980 传媒ETF广发",
-        "instrument_display": "传媒（512980 传媒ETF广发）"
-      },
-      {
-        "sleeve": "satellite",
-        "name": "国防军工",
-        "action": "CLOSE",
-        "action_cn": "卫星篮子止损",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
-        "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-        "close_code": "LOCAL_STOP_LOSS",
-        "guaranteed": true,
-        "days_held": 3,
-        "sector": "国防军工",
-        "etf_code": "512660",
-        "etf_name": "军工ETF国泰",
-        "etf_label": "512660 军工ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "国防军工 → 512660 军工ETF国泰",
-        "instrument_display": "国防军工（512660 军工ETF国泰）"
-      },
-      {
-        "sleeve": "satellite",
-        "name": "商贸零售",
-        "action": "CLOSE",
-        "action_cn": "卫星篮子止损",
-        "side": "CLOSE",
-        "side_cn": "卖出",
-        "priority": "P0",
-        "entry": "下一交易日开盘",
-        "exit": "平仓",
-        "weight_target": 0.0,
-        "weight_hint": "0%",
-        "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-        "close_code": "LOCAL_STOP_LOSS",
-        "guaranteed": true,
-        "days_held": 3,
-        "sector": "商贸零售",
-        "etf_code": "159928",
-        "etf_name": "消费ETF汇添富",
-        "etf_label": "159928 消费ETF汇添富",
+        "weight_hint": "0%（若持有）",
+        "entry": "—",
+        "exit": "—",
+        "sector": "电子",
+        "etf_code": "159995",
+        "etf_name": "芯片ETF华夏",
+        "etf_label": "159995 芯片ETF华夏",
         "etf_quality": "proxy",
         "etf_quality_cn": "主题代理",
-        "etf_note": "零售宽基稀缺，用主要消费ETF",
-        "etf_display": "商贸零售 → 159928 消费ETF汇添富",
-        "instrument_display": "商贸零售（159928 消费ETF汇添富）"
-      },
-      {
-        "name": "房地产",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "RISING_HARD"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "RISING_HARD",
-            "score": 0.025315,
-            "why": "升温后显著跑输；IS/OOS稳定为负",
-            "win_rate": 0.42,
-            "n": 438,
-            "mean_excess": -0.00384,
-            "horizon": "5D"
-          }
-        ],
-        "why": "升温后显著跑输；IS/OOS稳定为负",
-        "win_rate": 0.42,
-        "n": 438,
-        "mean_excess": -0.00384,
-        "conditional": true,
-        "condition_cn": "仅当已持有「房地产」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "房地产",
-        "etf_code": "512200",
-        "etf_name": "房地产ETF南方",
-        "etf_label": "512200 房地产ETF南方",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "房地产 → 512200 房地产ETF南方",
-        "instrument_display": "房地产（512200 房地产ETF南方）"
-      },
-      {
-        "name": "钢铁",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "RISING_HARD"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "RISING_HARD",
-            "score": 0.020107,
-            "why": "升温后显著跑输",
-            "win_rate": 0.42,
-            "n": 438,
-            "mean_excess": -0.00305,
-            "horizon": "5D"
-          }
-        ],
-        "why": "升温后显著跑输",
-        "win_rate": 0.42,
-        "n": 438,
-        "mean_excess": -0.00305,
-        "conditional": true,
-        "condition_cn": "仅当已持有「钢铁」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "钢铁",
-        "etf_code": "515210",
-        "etf_name": "钢铁ETF国泰",
-        "etf_label": "515210 钢铁ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "钢铁 → 515210 钢铁ETF国泰",
-        "instrument_display": "钢铁（515210 钢铁ETF国泰）"
-      },
-      {
-        "name": "石油石化",
-        "side": "AVOID",
-        "side_cn": "回避（若持有则减配）",
-        "stages": [
-          "ENTER_70_BOUNCE"
-        ],
-        "stage_evidence": [
-          {
-            "stage_id": "ENTER_70_BOUNCE",
-            "score": 0.002554,
-            "why": "进入≥70后5日显著跑输，胜率仅27%",
-            "win_rate": 0.27,
-            "n": 30,
-            "mean_excess": -0.012337,
-            "horizon": "5D"
-          }
-        ],
-        "why": "进入≥70后5日显著跑输，胜率仅27%",
-        "win_rate": 0.27,
-        "n": 30,
-        "mean_excess": -0.012337,
-        "conditional": true,
-        "condition_cn": "仅当已持有「石油石化」映射 ETF 时减至 0；无持仓则无需操作",
-        "conflict_resolution": null,
-        "action": "AVOID",
-        "action_cn": "回避/条件减配",
-        "priority": "P2",
-        "weight_target": 0.0,
-        "weight_hint": "0%（若持有）",
-        "entry": "—",
-        "exit": "—",
-        "sector": "石油石化",
-        "etf_code": "159697",
-        "etf_name": "石油ETF鹏华",
-        "etf_label": "159697 石油ETF鹏华",
-        "etf_quality": "proxy",
-        "etf_quality_cn": "主题代理",
-        "etf_note": "油气主题代理石化",
-        "etf_display": "石油石化 → 159697 石油ETF鹏华",
-        "instrument_display": "石油石化（159697 石油ETF鹏华）"
+        "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
+        "etf_display": "电子 → 159995 芯片ETF华夏",
+        "instrument_display": "电子（159995 芯片ETF华夏）"
       },
       {
         "name": "公用事业",
         "side": "AVOID",
         "side_cn": "回避（若持有则减配）",
         "stages": [
-          "ENTER_70_BOUNCE",
           "CSI300_CORE_BUY"
         ],
         "stage_evidence": [
-          {
-            "stage_id": "ENTER_70_BOUNCE",
-            "score": 0.004007,
-            "why": "进入高风险后相对偏弱",
-            "win_rate": 0.38,
-            "n": 34,
-            "mean_excess": -0.009042,
-            "horizon": "5D"
-          },
           {
             "stage_id": "CSI300_CORE_BUY",
             "score": 0.017905,
@@ -683,19 +484,9 @@
         "side": "AVOID",
         "side_cn": "回避（若持有则减配）",
         "stages": [
-          "ENTER_70_BOUNCE",
           "CSI300_CORE_BUY"
         ],
         "stage_evidence": [
-          {
-            "stage_id": "ENTER_70_BOUNCE",
-            "score": 0.003881,
-            "why": "进入高风险后相对偏弱",
-            "win_rate": 0.47,
-            "n": 34,
-            "mean_excess": -0.007081,
-            "horizon": "5D"
-          },
           {
             "stage_id": "CSI300_CORE_BUY",
             "score": 0.006647,
@@ -925,43 +716,18 @@
         "rank": 10,
         "market": "SECTOR",
         "side": "OVERWEIGHT_RELATIVE",
-        "name": "恒生科技",
-        "instrument": "恒生科技",
-        "stage": "刚进入更高风险（穿越70）——弹性反弹窗口",
-        "trigger": "prev_rt < 70 <= rt",
+        "name": "石油石化",
+        "instrument": "石油石化",
+        "stage": "高位降温 / 避险轮动",
+        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
         "entry": "事件确认后 T+1",
         "exit": "持有约5个交易日",
         "priority": "P2",
-        "win_rate": 0.75,
-        "n": 32,
-        "why": "进入≥70后5日超额约+2.5%，胜率75%，p<0.05（n=32，中等样本）",
-        "size_note": "高胜率但n=32，单笔风险预算宜小",
+        "win_rate": 0.76,
+        "n": 37,
+        "why": "高位回落5日超额+1.5%，胜率76%，显著（最高胜率组）",
+        "size_note": "相对收益指令，按映射 ETF 交易",
         "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "恒生科技",
-        "etf_code": "513180",
-        "etf_name": "恒生科技ETF华夏",
-        "etf_label": "513180 恒生科技ETF华夏",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "备选 513130/513010",
-        "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
-        "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
-      },
-      {
-        "rank": 50,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "石油石化",
-        "instrument": "石油石化",
-        "stage": "刚进入更高风险（穿越70）——弹性反弹窗口",
-        "trigger": "prev_rt < 70 <= rt",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.27,
-        "n": 30,
-        "why": "进入≥70后5日显著跑输，胜率仅27%",
-        "disclaimer": "相对减配，不是裸空指令",
         "sector": "石油石化",
         "etf_code": "159697",
         "etf_name": "石油ETF鹏华",
@@ -973,97 +739,124 @@
         "instrument_display": "石油石化（159697 石油ETF鹏华）"
       },
       {
-        "rank": 51,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "公用事业",
-        "instrument": "公用事业",
-        "stage": "刚进入更高风险（穿越70）——弹性反弹窗口",
-        "trigger": "prev_rt < 70 <= rt",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.38,
-        "n": 34,
-        "why": "进入高风险后相对偏弱",
-        "disclaimer": "相对减配，不是裸空指令",
-        "sector": "公用事业",
-        "etf_code": "560620",
-        "etf_name": "公用事业ETF万家",
-        "etf_label": "560620 公用事业ETF万家",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "公用事业 → 560620 公用事业ETF万家",
-        "instrument_display": "公用事业（560620 公用事业ETF万家）"
-      },
-      {
-        "rank": 52,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "银行",
-        "instrument": "银行",
-        "stage": "刚进入更高风险（穿越70）——弹性反弹窗口",
-        "trigger": "prev_rt < 70 <= rt",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.47,
-        "n": 34,
-        "why": "进入高风险后相对偏弱",
-        "disclaimer": "相对减配，不是裸空指令",
-        "sector": "银行",
-        "etf_code": "512800",
-        "etf_name": "银行ETF华宝",
-        "etf_label": "512800 银行ETF华宝",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "银行 → 512800 银行ETF华宝",
-        "instrument_display": "银行（512800 银行ETF华宝）"
-      },
-      {
-        "rank": 10,
-        "market": "SECTOR",
-        "side": "OVERWEIGHT_RELATIVE",
-        "name": "通信",
-        "instrument": "通信",
-        "stage": "升温冲击（ΔRT_5≥+5）",
-        "trigger": "rt_d5 >= 5",
-        "entry": "事件确认后 T+1",
-        "exit": "持有约5个交易日",
-        "priority": "P1",
-        "win_rate": 0.59,
-        "n": 438,
-        "why": "升温后5日超额最高且极显著；IS/OOS同号",
-        "size_note": "相对收益指令，按映射 ETF 交易",
-        "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "通信",
-        "etf_code": "515880",
-        "etf_name": "通信ETF国泰",
-        "etf_label": "515880 通信ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "通信 → 515880 通信ETF国泰",
-        "instrument_display": "通信（515880 通信ETF国泰）"
-      },
-      {
         "rank": 11,
         "market": "SECTOR",
         "side": "OVERWEIGHT_RELATIVE",
-        "name": "电子",
-        "instrument": "电子",
-        "stage": "升温冲击（ΔRT_5≥+5）",
-        "trigger": "rt_d5 >= 5",
+        "name": "综合",
+        "instrument": "综合",
+        "stage": "高位降温 / 避险轮动",
+        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
         "entry": "事件确认后 T+1",
         "exit": "持有约5个交易日",
-        "priority": "P1",
-        "win_rate": 0.55,
-        "n": 438,
-        "why": "升温后5日超额显著；IS/OOS同号",
+        "priority": "P2",
+        "win_rate": 0.69,
+        "n": 39,
+        "why": "高位回落超额+1.6%，胜率69%，显著",
         "size_note": "相对收益指令，按映射 ETF 交易",
         "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "综合",
+        "etf_code": "510300",
+        "etf_name": "沪深300ETF华泰柏瑞",
+        "etf_label": "510300 沪深300ETF华泰柏瑞",
+        "etf_quality": "weak",
+        "etf_quality_cn": "弱代理",
+        "etf_note": "综合行业无干净映射，回退沪深300",
+        "etf_display": "综合 → 510300 沪深300ETF华泰柏瑞",
+        "instrument_display": "综合（510300 沪深300ETF华泰柏瑞）"
+      },
+      {
+        "rank": 12,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "轻工制造",
+        "instrument": "轻工制造",
+        "stage": "高位降温 / 避险轮动",
+        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P2",
+        "win_rate": 0.69,
+        "n": 39,
+        "why": "高位回落超额+1.5%，胜率69%，显著",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "轻工制造",
+        "etf_code": "512430",
+        "etf_name": "家居家电ETF华泰柏瑞",
+        "etf_label": "512430 家居家电ETF华泰柏瑞",
+        "etf_quality": "proxy",
+        "etf_quality_cn": "主题代理",
+        "etf_note": "无纯正轻工ETF，用家居主题近似",
+        "etf_display": "轻工制造 → 512430 家居家电ETF华泰柏瑞",
+        "instrument_display": "轻工制造（512430 家居家电ETF华泰柏瑞）"
+      },
+      {
+        "rank": 13,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "煤炭",
+        "instrument": "煤炭",
+        "stage": "高位降温 / 避险轮动",
+        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P2",
+        "win_rate": 0.59,
+        "n": 37,
+        "why": "高位回落超额+1.5%，胜率59%，显著",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "煤炭",
+        "etf_code": "515220",
+        "etf_name": "煤炭ETF国泰",
+        "etf_label": "515220 煤炭ETF国泰",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "煤炭 → 515220 煤炭ETF国泰",
+        "instrument_display": "煤炭（515220 煤炭ETF国泰）"
+      },
+      {
+        "rank": 14,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "传媒",
+        "instrument": "传媒",
+        "stage": "高位降温 / 避险轮动",
+        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P2",
+        "win_rate": 0.64,
+        "n": 39,
+        "why": "高位回落超额+1.5%，胜率64%，显著",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "传媒",
+        "etf_code": "512980",
+        "etf_name": "传媒ETF广发",
+        "etf_label": "512980 传媒ETF广发",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "传媒 → 512980 传媒ETF广发",
+        "instrument_display": "传媒（512980 传媒ETF广发）"
+      },
+      {
+        "rank": 50,
+        "market": "SECTOR",
+        "side": "UNDERWEIGHT_RELATIVE",
+        "name": "电子",
+        "instrument": "电子",
+        "stage": "高位降温 / 避险轮动",
+        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "entry": "事件确认后减配/回避",
+        "exit": "约5个交易日窗口",
+        "priority": "P1",
+        "win_rate": 0.49,
+        "n": 39,
+        "why": "高位回落阶段相对偏弱（均值负）",
+        "disclaimer": "相对减配，不是裸空指令",
         "sector": "电子",
         "etf_code": "159995",
         "etf_name": "芯片ETF华夏",
@@ -1075,71 +868,198 @@
         "instrument_display": "电子（159995 芯片ETF华夏）"
       },
       {
+        "rank": 51,
+        "market": "SECTOR",
+        "side": "UNDERWEIGHT_RELATIVE",
+        "name": "计算机",
+        "instrument": "计算机",
+        "stage": "高位降温 / 避险轮动",
+        "trigger": "rt_rollmax_10 >= 65 and rt >= 55 and rt_d5 <= -3 and rt_d1 < 0",
+        "entry": "事件确认后减配/回避",
+        "exit": "约5个交易日窗口",
+        "priority": "P1",
+        "win_rate": 0.44,
+        "n": 39,
+        "why": "高位回落阶段相对偏弱",
+        "disclaimer": "相对减配，不是裸空指令",
+        "sector": "计算机",
+        "etf_code": "159998",
+        "etf_name": "计算机ETF天弘",
+        "etf_label": "159998 计算机ETF天弘",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "计算机 → 159998 计算机ETF天弘",
+        "instrument_display": "计算机（159998 计算机ETF天弘）"
+      },
+      {
+        "rank": 10,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "有色金属",
+        "instrument": "有色金属",
+        "stage": "降温（ΔRT_5≤-5）",
+        "trigger": "rt_d5 <= -5",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P1",
+        "win_rate": 0.53,
+        "n": 477,
+        "why": "降温后5日超额显著为正",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "有色金属",
+        "etf_code": "512400",
+        "etf_name": "有色金属ETF南方",
+        "etf_label": "512400 有色金属ETF南方",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "有色金属 → 512400 有色金属ETF南方",
+        "instrument_display": "有色金属（512400 有色金属ETF南方）"
+      },
+      {
+        "rank": 11,
+        "market": "SECTOR",
+        "side": "OVERWEIGHT_RELATIVE",
+        "name": "煤炭",
+        "instrument": "煤炭",
+        "stage": "降温（ΔRT_5≤-5）",
+        "trigger": "rt_d5 <= -5",
+        "entry": "事件确认后 T+1",
+        "exit": "持有约5个交易日",
+        "priority": "P1",
+        "win_rate": 0.52,
+        "n": 339,
+        "why": "降温后5日超额显著为正",
+        "size_note": "相对收益指令，按映射 ETF 交易",
+        "disclaimer": "超额收益代理资金偏好，非官方资金流",
+        "sector": "煤炭",
+        "etf_code": "515220",
+        "etf_name": "煤炭ETF国泰",
+        "etf_label": "515220 煤炭ETF国泰",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "煤炭 → 515220 煤炭ETF国泰",
+        "instrument_display": "煤炭（515220 煤炭ETF国泰）"
+      },
+      {
         "rank": 12,
         "market": "SECTOR",
         "side": "OVERWEIGHT_RELATIVE",
-        "name": "机械设备",
-        "instrument": "机械设备",
-        "stage": "升温冲击（ΔRT_5≥+5）",
-        "trigger": "rt_d5 >= 5",
+        "name": "基础化工",
+        "instrument": "基础化工",
+        "stage": "降温（ΔRT_5≤-5）",
+        "trigger": "rt_d5 <= -5",
         "entry": "事件确认后 T+1",
         "exit": "持有约5个交易日",
         "priority": "P1",
         "win_rate": 0.57,
-        "n": 438,
-        "why": "升温后5日超额显著；IS/OOS同号",
+        "n": 477,
+        "why": "降温后5日超额显著、胜率57%",
         "size_note": "相对收益指令，按映射 ETF 交易",
         "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "机械设备",
-        "etf_code": "159886",
-        "etf_name": "机械ETF富国",
-        "etf_label": "159886 机械ETF富国",
+        "sector": "基础化工",
+        "etf_code": "516020",
+        "etf_name": "化工ETF华宝",
+        "etf_label": "516020 化工ETF华宝",
         "etf_quality": "good",
         "etf_quality_cn": "贴合",
         "etf_note": "",
-        "etf_display": "机械设备 → 159886 机械ETF富国",
-        "instrument_display": "机械设备（159886 机械ETF富国）"
+        "etf_display": "基础化工 → 516020 化工ETF华宝",
+        "instrument_display": "基础化工（516020 化工ETF华宝）"
       },
       {
         "rank": 13,
         "market": "SECTOR",
         "side": "OVERWEIGHT_RELATIVE",
-        "name": "国防军工",
-        "instrument": "国防军工",
-        "stage": "升温冲击（ΔRT_5≥+5）",
-        "trigger": "rt_d5 >= 5",
+        "name": "电力设备",
+        "instrument": "电力设备",
+        "stage": "降温（ΔRT_5≤-5）",
+        "trigger": "rt_d5 <= -5",
         "entry": "事件确认后 T+1",
         "exit": "持有约5个交易日",
         "priority": "P1",
-        "win_rate": 0.55,
-        "n": 438,
-        "why": "升温后5日超额显著；IS/OOS同号",
+        "win_rate": 0.53,
+        "n": 477,
+        "why": "降温后5日超额显著",
         "size_note": "相对收益指令，按映射 ETF 交易",
         "disclaimer": "超额收益代理资金偏好，非官方资金流",
-        "sector": "国防军工",
-        "etf_code": "512660",
-        "etf_name": "军工ETF国泰",
-        "etf_label": "512660 军工ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "国防军工 → 512660 军工ETF国泰",
-        "instrument_display": "国防军工（512660 军工ETF国泰）"
+        "sector": "电力设备",
+        "etf_code": "516850",
+        "etf_name": "新能源ETF华夏",
+        "etf_label": "516850 新能源ETF华夏",
+        "etf_quality": "proxy",
+        "etf_quality_cn": "主题代理",
+        "etf_note": "电力设备≈新能源主题",
+        "etf_display": "电力设备 → 516850 新能源ETF华夏",
+        "instrument_display": "电力设备（516850 新能源ETF华夏）"
       },
       {
         "rank": 50,
         "market": "SECTOR",
         "side": "UNDERWEIGHT_RELATIVE",
-        "name": "美容护理",
-        "instrument": "美容护理",
-        "stage": "升温冲击（ΔRT_5≥+5）",
-        "trigger": "rt_d5 >= 5",
+        "name": "计算机",
+        "instrument": "计算机",
+        "stage": "降温（ΔRT_5≤-5）",
+        "trigger": "rt_d5 <= -5",
         "entry": "事件确认后减配/回避",
         "exit": "约5个交易日窗口",
         "priority": "P1",
-        "win_rate": 0.4,
-        "n": 327,
-        "why": "升温后显著跑输",
+        "win_rate": 0.43,
+        "n": 477,
+        "why": "降温后显著跑输",
+        "disclaimer": "相对减配，不是裸空指令",
+        "sector": "计算机",
+        "etf_code": "159998",
+        "etf_name": "计算机ETF天弘",
+        "etf_label": "159998 计算机ETF天弘",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "计算机 → 159998 计算机ETF天弘",
+        "instrument_display": "计算机（159998 计算机ETF天弘）"
+      },
+      {
+        "rank": 51,
+        "market": "SECTOR",
+        "side": "UNDERWEIGHT_RELATIVE",
+        "name": "传媒",
+        "instrument": "传媒",
+        "stage": "降温（ΔRT_5≤-5）",
+        "trigger": "rt_d5 <= -5",
+        "entry": "事件确认后减配/回避",
+        "exit": "约5个交易日窗口",
+        "priority": "P1",
+        "win_rate": 0.44,
+        "n": 477,
+        "why": "降温后显著跑输",
+        "disclaimer": "相对减配，不是裸空指令",
+        "sector": "传媒",
+        "etf_code": "512980",
+        "etf_name": "传媒ETF广发",
+        "etf_label": "512980 传媒ETF广发",
+        "etf_quality": "good",
+        "etf_quality_cn": "贴合",
+        "etf_note": "",
+        "etf_display": "传媒 → 512980 传媒ETF广发",
+        "instrument_display": "传媒（512980 传媒ETF广发）"
+      },
+      {
+        "rank": 52,
+        "market": "SECTOR",
+        "side": "UNDERWEIGHT_RELATIVE",
+        "name": "美容护理",
+        "instrument": "美容护理",
+        "stage": "降温（ΔRT_5≤-5）",
+        "trigger": "rt_d5 <= -5",
+        "entry": "事件确认后减配/回避",
+        "exit": "约5个交易日窗口",
+        "priority": "P1",
+        "win_rate": 0.42,
+        "n": 339,
+        "why": "降温后显著跑输",
         "disclaimer": "相对减配，不是裸空指令",
         "sector": "美容护理",
         "etf_code": "159928",
@@ -1150,64 +1070,14 @@
         "etf_note": "A股无主流美容护理行业ETF，用消费ETF弱代理",
         "etf_display": "美容护理 → 159928 消费ETF汇添富",
         "instrument_display": "美容护理（159928 消费ETF汇添富）"
-      },
-      {
-        "rank": 51,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "房地产",
-        "instrument": "房地产",
-        "stage": "升温冲击（ΔRT_5≥+5）",
-        "trigger": "rt_d5 >= 5",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.42,
-        "n": 438,
-        "why": "升温后显著跑输；IS/OOS稳定为负",
-        "disclaimer": "相对减配，不是裸空指令",
-        "sector": "房地产",
-        "etf_code": "512200",
-        "etf_name": "房地产ETF南方",
-        "etf_label": "512200 房地产ETF南方",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "房地产 → 512200 房地产ETF南方",
-        "instrument_display": "房地产（512200 房地产ETF南方）"
-      },
-      {
-        "rank": 52,
-        "market": "SECTOR",
-        "side": "UNDERWEIGHT_RELATIVE",
-        "name": "钢铁",
-        "instrument": "钢铁",
-        "stage": "升温冲击（ΔRT_5≥+5）",
-        "trigger": "rt_d5 >= 5",
-        "entry": "事件确认后减配/回避",
-        "exit": "约5个交易日窗口",
-        "priority": "P1",
-        "win_rate": 0.42,
-        "n": 438,
-        "why": "升温后显著跑输",
-        "disclaimer": "相对减配，不是裸空指令",
-        "sector": "钢铁",
-        "etf_code": "515210",
-        "etf_name": "钢铁ETF国泰",
-        "etf_label": "515210 钢铁ETF国泰",
-        "etf_quality": "good",
-        "etf_quality_cn": "贴合",
-        "etf_note": "",
-        "etf_display": "钢铁 → 515210 钢铁ETF国泰",
-        "instrument_display": "钢铁（515210 钢铁ETF国泰）"
       }
     ],
     "flex_panel": {
       "version": "flex_v2",
-      "status": "核心",
-      "status_code": "CORE_ONLY",
-      "headline": "组合 Flex v2：核心仓",
-      "as_of": "2026-11-20",
+      "status": "平仓",
+      "status_code": "FLAT",
+      "headline": "组合 Flex v2：执行平仓",
+      "as_of": "2026-11-23",
       "execution_cn": "CORE严格条件且盘中连续稳定 → T日14:50尾盘执行；其余信号 → T+1开盘",
       "core_tail_policy": {
         "id": "CORE_STRICT_TAIL_V2",
@@ -1262,17 +1132,17 @@
         "rule_cn": "卫星持有满3日后，篮子收益≤-3%止损；≥4%止盈；触发后下一交易日开盘平仓",
         "price_basis_cn": "真实仓按本机成交均价与最近可得收盘价；模拟仓按T+1开盘入场与最近可得收盘价"
       },
-      "allocation_cn": "仅核心：100% 沪深300（进取 Flex：单仓100%；双仓 60/40）",
-      "allocation_mode": "CORE_ONLY",
+      "allocation_cn": "空仓观望",
+      "allocation_mode": "FLAT",
       "allocation": {
         "mode": "aggressive",
         "mode_cn": "进取 Flex：单仓100%；双仓 60/40",
-        "allocation_mode": "CORE_ONLY",
-        "allocation_cn": "仅核心：100% 沪深300（进取 Flex：单仓100%；双仓 60/40）",
-        "w_core": 1.0,
+        "allocation_mode": "FLAT",
+        "allocation_cn": "空仓观望",
+        "w_core": 0.0,
         "w_sat": 0.0,
-        "w_cash": 0.0,
-        "total_exposure": 1.0
+        "w_cash": 1.0,
+        "total_exposure": 0.0
       },
       "mode": "aggressive",
       "modes": {
@@ -3412,31 +3282,31 @@
         }
       },
       "market_state": {
-        "rt": 71.8,
-        "rt_d1": 4.200000000000003,
-        "rt_d5": 12.0,
-        "hs300_dd60": -0.1459333858427908,
+        "rt": 60.1,
+        "rt_d1": -11.699999999999996,
+        "rt_d5": -5.999999999999993,
+        "hs300_dd60": -0.1451280344566858,
         "model_confidence": 86.5,
         "regime_cn": "高风险"
       },
       "active_stages": [
-        "RISING_HARD",
-        "ENTER_70_BOUNCE",
+        "FALLING_HARD",
+        "HIGH_COOLING",
         "CSI300_CORE_BUY"
       ],
       "suppressed_stages": [],
       "suppressed_avoid_conflicts": [],
-      "merge_note_cn": "多阶段合并：RISING_HARD, ENTER_70_BOUNCE, CSI300_CORE_BUY；被门控压制：无；升温日不追恒科/电子/计算机（除非 CORE 同步）",
+      "merge_note_cn": "多阶段合并：FALLING_HARD, HIGH_COOLING, CSI300_CORE_BUY；被门控压制：无",
       "position_state": {
-        "as_of": "2026-11-20",
+        "as_of": "2026-11-23",
         "mode": "aggressive",
         "core": {
           "status": "open",
           "entry_signal_date": "2026-11-16",
           "entry_date": "2026-11-17",
           "exit_due_date": "2026-11-23",
-          "days_held": 4,
-          "days_remaining": 1,
+          "days_held": 5,
+          "days_remaining": 0,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
             "沪深300"
@@ -3450,31 +3320,15 @@
           "planned_hold_days": 5
         },
         "satellite": {
-          "status": "open",
-          "entry_signal_date": "2026-11-17",
-          "entry_date": "2026-11-18",
-          "exit_due_date": "2026-11-27",
-          "days_held": 3,
-          "days_remaining": 5,
-          "stage_id": "CSI300_CORE_BUY",
-          "names": [
-            "恒生科技",
-            "通信",
-            "机械设备",
-            "建筑材料",
-            "传媒",
-            "国防军工",
-            "商贸零售"
-          ],
-          "weights": {
-            "恒生科技": 0.2415,
-            "通信": 0.2179,
-            "机械设备": 0.1199,
-            "建筑材料": 0.1172,
-            "传媒": 0.1172,
-            "国防军工": 0.1029,
-            "商贸零售": 0.0834
-          },
+          "status": "flat",
+          "entry_signal_date": null,
+          "entry_date": null,
+          "exit_due_date": null,
+          "days_held": 0,
+          "days_remaining": 0,
+          "stage_id": null,
+          "names": [],
+          "weights": {},
           "etf_code": null,
           "execution_mode": "T_PLUS_1_OPEN",
           "entry_price_type": "open",
@@ -4452,8 +4306,8 @@
             "action_cn": "卫星篮子止损",
             "trigger_date": "2026-11-20",
             "execution_date": "2026-11-23",
-            "execution_status": "PENDING",
-            "execution_bar_complete": false,
+            "execution_status": "EXECUTED",
+            "execution_bar_complete": true,
             "trigger_return": -0.053214012481633155,
             "trigger_threshold": -0.03,
             "days_held": 3,
@@ -4495,11 +4349,55 @@
               "planned_hold_days": null
             },
             "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-            "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS"
+            "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS",
+            "execution_basis": "ETF_OPEN_CONFIRMED"
+          },
+          {
+            "event_type": "EXIT",
+            "close_code": "CORE_MAX_HOLD",
+            "reason_cn": "Core holding period complete",
+            "days_held": 5,
+            "id": "core:2026-11-16:2026-11-17:2026-11-23:CORE_MAX_HOLD",
+            "sleeve": "core",
+            "trigger_date": "2026-11-23",
+            "signal_date": "2026-11-23",
+            "execution_date": "2026-11-24",
+            "execution_status": "PENDING",
+            "execution_bar_complete": false,
+            "position": {
+              "status": "open",
+              "entry_signal_date": "2026-11-16",
+              "entry_date": "2026-11-17",
+              "exit_due_date": "2026-11-23",
+              "days_held": 5,
+              "days_remaining": 0,
+              "stage_id": "CSI300_CORE_BUY",
+              "names": [
+                "沪深300"
+              ],
+              "weights": {
+                "沪深300": 1.0
+              },
+              "etf_code": "510300",
+              "execution_mode": "T_PLUS_1_OPEN",
+              "entry_price_type": "open",
+              "planned_hold_days": 5
+            },
+            "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+            "event_id": "core:2026-11-16:2026-11-17:2026-11-23:CORE_MAX_HOLD",
+            "signal_id": "2026-11-16",
+            "requires_open_marks": true,
+            "members": [
+              {
+                "name": "沪深300",
+                "etf_code": "510300",
+                "weight_in_sleeve": 1.0
+              }
+            ]
           }
         ],
         "cooldown_through": {
-          "satellite": "2026-11-16",
+          "satellite": "2026-11-23",
           "core": "2026-11-11"
         },
         "satellite_risk_check": {
@@ -5554,8 +5452,8 @@
           "action_cn": "卫星篮子止损",
           "trigger_date": "2026-11-20",
           "execution_date": "2026-11-23",
-          "execution_status": "PENDING",
-          "execution_bar_complete": false,
+          "execution_status": "EXECUTED",
+          "execution_bar_complete": true,
           "trigger_return": -0.053214012481633155,
           "trigger_threshold": -0.03,
           "days_held": 3,
@@ -5597,82 +5495,115 @@
             "planned_hold_days": null
           },
           "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-          "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS"
+          "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS",
+          "execution_basis": "ETF_OPEN_CONFIRMED"
+        },
+        {
+          "event_type": "EXIT",
+          "close_code": "CORE_MAX_HOLD",
+          "reason_cn": "Core holding period complete",
+          "days_held": 5,
+          "id": "core:2026-11-16:2026-11-17:2026-11-23:CORE_MAX_HOLD",
+          "sleeve": "core",
+          "trigger_date": "2026-11-23",
+          "signal_date": "2026-11-23",
+          "execution_date": "2026-11-24",
+          "execution_status": "PENDING",
+          "execution_bar_complete": false,
+          "position": {
+            "status": "open",
+            "entry_signal_date": "2026-11-16",
+            "entry_date": "2026-11-17",
+            "exit_due_date": "2026-11-23",
+            "days_held": 5,
+            "days_remaining": 0,
+            "stage_id": "CSI300_CORE_BUY",
+            "names": [
+              "沪深300"
+            ],
+            "weights": {
+              "沪深300": 1.0
+            },
+            "etf_code": "510300",
+            "execution_mode": "T_PLUS_1_OPEN",
+            "entry_price_type": "open",
+            "planned_hold_days": 5
+          },
+          "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+          "event_id": "core:2026-11-16:2026-11-17:2026-11-23:CORE_MAX_HOLD",
+          "signal_id": "2026-11-16",
+          "requires_open_marks": true,
+          "members": [
+            {
+              "name": "沪深300",
+              "etf_code": "510300",
+              "weight_in_sleeve": 1.0
+            }
+          ]
         }
       ],
       "cooldown_through": {
-        "satellite": "2026-11-16",
+        "satellite": "2026-11-23",
         "core": "2026-11-11"
       },
       "exit_plan": {
-        "as_of": "2026-11-20",
+        "as_of": "2026-11-23",
         "core": {
           "status": "open",
           "entry_signal_date": "2026-11-16",
           "entry_date": "2026-11-17",
-          "days_held": 4,
+          "days_held": 5,
           "hold_days": 5,
           "execution_mode": "T_PLUS_1_OPEN",
           "entry_price_type": "open",
-          "triggered_close": null,
+          "triggered_close": {
+            "close_code": "CORE_MAX_HOLD",
+            "why": "核心已持有 5 日 ≥ 5 日，必须平仓",
+            "guaranteed": true
+          },
           "max_signal_date": "2026-11-23",
           "max_exec_next_open": "2026-11-24",
           "exit_due_date": "2026-11-23",
-          "days_to_max": 1
+          "days_to_max": 0
         },
         "satellite": {
-          "status": "open",
-          "entry_signal_date": "2026-11-17",
-          "entry_date": "2026-11-18",
-          "days_held": 3,
-          "stage_id": "CSI300_CORE_BUY",
+          "status": "flat",
+          "entry_signal_date": null,
+          "entry_date": null,
+          "days_held": 0,
+          "stage_id": null,
           "rules": {
             "min_hold": 3,
             "default_hold": 5,
             "max_hold": 8,
             "opposites": []
           },
-          "triggered_close": {
-            "close_code": "LOCAL_STOP_LOSS",
-            "priority": "P0",
-            "action_cn": "卫星篮子止损",
-            "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-            "guaranteed": true
-          },
-          "paths": {
-            "event_earliest_signal_date": "2026-11-20",
-            "default_signal_date": "2026-11-24",
-            "max_signal_date": "2026-11-27",
-            "max_exec_next_open": "2026-11-30",
-            "default_exec_next_open": "2026-11-25",
-            "event_exec_next_open": "2026-11-23"
-          },
-          "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。",
-          "exit_due_date": "2026-11-27",
-          "days_to_max": 5
+          "triggered_close": null,
+          "paths": {},
+          "note_cn": "卫星篮子内标的按同一 sleeve 同日进出。MAX_HOLD 为确定性到期；EVENT_FLIP / DEFAULT_NO_STAGE 条件满足当天必进 close_list。"
         },
         "guarantee_cn": "日更成功且 as_of=当日时：任一 close_code 触发必写入 close_list；执行台必须展示策略平仓提示（本机未点买也可看，点买后可记账平仓）。日更失败则页面不会刷新——需看 Actions。"
       },
       "core": {
         "sleeve": "core",
         "name": "沪深300 主策略",
-        "action": "HOLD",
-        "action_cn": "持有中",
-        "tone": "buy",
-        "detail": "已持有约 4 日，剩余约 1 日。",
+        "action": "CLOSE",
+        "action_cn": "到期卖出",
+        "tone": "sell",
+        "detail": "主策略持有期满，下一交易日开盘卖出。",
         "rule": "60≤RT<80 且 60日回撤≤-5%；持有5日",
-        "active": true,
+        "active": false,
         "etf_code": "510300",
         "etf_name": "沪深300ETF华泰柏瑞",
         "etf_label": "510300 沪深300ETF华泰柏瑞",
-        "weight_target": 1.0,
+        "weight_target": 0.0,
         "position": {
           "status": "open",
           "entry_signal_date": "2026-11-16",
           "entry_date": "2026-11-17",
           "exit_due_date": "2026-11-23",
-          "days_held": 4,
-          "days_remaining": 1,
+          "days_held": 5,
+          "days_remaining": 0,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
             "沪深300"
@@ -5691,39 +5622,29 @@
         "sleeve": "satellite",
         "name": "板块超配卫星",
         "active": false,
-        "status_cn": "退出",
-        "tone": "sell",
-        "stage_id": "CSI300_CORE_BUY",
-        "stage_cn": "升温冲击（ΔRT_5≥+5） + 刚进入更高风险（穿越70）——弹性反弹窗口 + 主策略做多窗口（高胜率高收益核心）",
+        "status_cn": "未激活",
+        "tone": "wait",
+        "stage_id": "FALLING_HARD",
+        "stage_cn": "降温（ΔRT_5≤-5） + 高位降温 / 避险轮动 + 主策略做多窗口（高胜率高收益核心）",
         "stage_ids": [
-          "RISING_HARD",
-          "ENTER_70_BOUNCE",
+          "FALLING_HARD",
+          "HIGH_COOLING",
           "CSI300_CORE_BUY"
         ],
         "buy": [
           {
             "name": "恒生科技",
-            "score": 0.08107,
-            "weight_in_sat": 0.2415,
+            "score": 0.059602,
+            "weight_in_sat": 0.1721,
             "quality": "good",
             "quality_weight": 1.0,
             "win_rate": 0.58,
             "n": 165,
             "mean_excess": 0.008,
             "stages": [
-              "ENTER_70_BOUNCE",
               "CSI300_CORE_BUY"
             ],
             "stage_evidence": [
-              {
-                "stage_id": "ENTER_70_BOUNCE",
-                "score": 0.021468,
-                "why": "进入≥70后5日超额约+2.5%，胜率75%，p<0.05（n=32，中等样本）",
-                "win_rate": 0.75,
-                "n": 32,
-                "mean_excess": 0.0253,
-                "horizon": "5D"
-              },
               {
                 "stage_id": "CSI300_CORE_BUY",
                 "score": 0.059602,
@@ -5734,8 +5655,8 @@
                 "horizon": "5D"
               }
             ],
-            "why": "阶段ENTER_70_BOUNCE+CSI300_CORE_BUY证据合并",
-            "tier": "observe",
+            "why": "高风险区间超额显著（弹性，仓位宜小于A股主仓）",
+            "tier": "high",
             "conflict_resolution": null,
             "sector": "恒生科技",
             "etf_code": "513180",
@@ -5748,81 +5669,137 @@
             "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
           },
           {
-            "name": "通信",
-            "score": 0.073161,
-            "weight_in_sat": 0.2179,
+            "name": "煤炭",
+            "score": 0.052276,
+            "weight_in_sat": 0.151,
             "quality": "good",
             "quality_weight": 1.0,
-            "win_rate": 0.59,
-            "n": 438,
-            "mean_excess": 0.0079,
+            "win_rate": 0.52,
+            "n": 339,
+            "mean_excess": 0.0061,
             "stages": [
-              "RISING_HARD"
+              "FALLING_HARD",
+              "HIGH_COOLING"
             ],
             "stage_evidence": [
               {
-                "stage_id": "RISING_HARD",
-                "score": 0.073161,
-                "why": "升温后5日超额最高且极显著；IS/OOS同号",
+                "stage_id": "FALLING_HARD",
+                "score": 0.040882,
+                "why": "降温后5日超额显著为正",
+                "win_rate": 0.52,
+                "n": 339,
+                "mean_excess": 0.0061,
+                "horizon": "5D"
+              },
+              {
+                "stage_id": "HIGH_COOLING",
+                "score": 0.011394,
+                "why": "高位回落超额+1.5%，胜率59%，显著",
                 "win_rate": 0.59,
-                "n": 438,
-                "mean_excess": 0.0079,
+                "n": 37,
+                "mean_excess": 0.01494,
                 "horizon": "5D"
               }
             ],
-            "why": "升温后5日超额最高且极显著；IS/OOS同号",
+            "why": "阶段FALLING_HARD+HIGH_COOLING证据合并",
             "tier": "high",
             "conflict_resolution": null,
-            "sector": "通信",
-            "etf_code": "515880",
-            "etf_name": "通信ETF国泰",
-            "etf_label": "515880 通信ETF国泰",
+            "sector": "煤炭",
+            "etf_code": "515220",
+            "etf_name": "煤炭ETF国泰",
+            "etf_label": "515220 煤炭ETF国泰",
             "etf_quality": "good",
             "etf_quality_cn": "贴合",
             "etf_note": "",
-            "etf_display": "通信 → 515880 通信ETF国泰",
-            "instrument_display": "通信（515880 通信ETF国泰）"
+            "etf_display": "煤炭 → 515220 煤炭ETF国泰",
+            "instrument_display": "煤炭（515220 煤炭ETF国泰）"
           },
           {
-            "name": "机械设备",
-            "score": 0.040261,
-            "weight_in_sat": 0.1199,
+            "name": "传媒",
+            "score": 0.05191,
+            "weight_in_sat": 0.1499,
             "quality": "good",
             "quality_weight": 1.0,
-            "win_rate": 0.57,
-            "n": 438,
-            "mean_excess": 0.0045,
+            "win_rate": 0.58,
+            "n": 184,
+            "mean_excess": 0.005,
             "stages": [
-              "RISING_HARD"
+              "HIGH_COOLING",
+              "CSI300_CORE_BUY"
             ],
             "stage_evidence": [
               {
-                "stage_id": "RISING_HARD",
-                "score": 0.040261,
-                "why": "升温后5日超额显著；IS/OOS同号",
-                "win_rate": 0.57,
-                "n": 438,
-                "mean_excess": 0.0045,
+                "stage_id": "HIGH_COOLING",
+                "score": 0.012572,
+                "why": "高位回落超额+1.5%，胜率64%，显著",
+                "win_rate": 0.64,
+                "n": 39,
+                "mean_excess": 0.014803,
+                "horizon": "5D"
+              },
+              {
+                "stage_id": "CSI300_CORE_BUY",
+                "score": 0.039338,
+                "why": "高风险区间超额显著",
+                "win_rate": 0.58,
+                "n": 184,
+                "mean_excess": 0.005,
                 "horizon": "5D"
               }
             ],
-            "why": "升温后5日超额显著；IS/OOS同号",
-            "tier": "high",
-            "conflict_resolution": null,
-            "sector": "机械设备",
-            "etf_code": "159886",
-            "etf_name": "机械ETF富国",
-            "etf_label": "159886 机械ETF富国",
+            "why": "阶段HIGH_COOLING+CSI300_CORE_BUY证据合并",
+            "tier": "observe",
+            "conflict_resolution": "同名多空冲突按阶段证据得分保留超配",
+            "sector": "传媒",
+            "etf_code": "512980",
+            "etf_name": "传媒ETF广发",
+            "etf_label": "512980 传媒ETF广发",
             "etf_quality": "good",
             "etf_quality_cn": "贴合",
             "etf_note": "",
-            "etf_display": "机械设备 → 159886 机械ETF富国",
-            "instrument_display": "机械设备（159886 机械ETF富国）"
+            "etf_display": "传媒 → 512980 传媒ETF广发",
+            "instrument_display": "传媒（512980 传媒ETF广发）"
+          },
+          {
+            "name": "有色金属",
+            "score": 0.051047,
+            "weight_in_sat": 0.1474,
+            "quality": "good",
+            "quality_weight": 1.0,
+            "win_rate": 0.53,
+            "n": 477,
+            "mean_excess": 0.0063,
+            "stages": [
+              "FALLING_HARD"
+            ],
+            "stage_evidence": [
+              {
+                "stage_id": "FALLING_HARD",
+                "score": 0.051047,
+                "why": "降温后5日超额显著为正",
+                "win_rate": 0.53,
+                "n": 477,
+                "mean_excess": 0.0063,
+                "horizon": "5D"
+              }
+            ],
+            "why": "降温后5日超额显著为正",
+            "tier": "high",
+            "conflict_resolution": null,
+            "sector": "有色金属",
+            "etf_code": "512400",
+            "etf_name": "有色金属ETF南方",
+            "etf_label": "512400 有色金属ETF南方",
+            "etf_quality": "good",
+            "etf_quality_cn": "贴合",
+            "etf_note": "",
+            "etf_display": "有色金属 → 512400 有色金属ETF南方",
+            "instrument_display": "有色金属（512400 有色金属ETF南方）"
           },
           {
             "name": "建筑材料",
             "score": 0.039338,
-            "weight_in_sat": 0.1172,
+            "weight_in_sat": 0.1136,
             "quality": "good",
             "quality_weight": 1.0,
             "win_rate": 0.58,
@@ -5856,81 +5833,9 @@
             "instrument_display": "建筑材料（159745 建材ETF国泰）"
           },
           {
-            "name": "传媒",
-            "score": 0.039338,
-            "weight_in_sat": 0.1172,
-            "quality": "good",
-            "quality_weight": 1.0,
-            "win_rate": 0.58,
-            "n": 184,
-            "mean_excess": 0.005,
-            "stages": [
-              "CSI300_CORE_BUY"
-            ],
-            "stage_evidence": [
-              {
-                "stage_id": "CSI300_CORE_BUY",
-                "score": 0.039338,
-                "why": "高风险区间超额显著",
-                "win_rate": 0.58,
-                "n": 184,
-                "mean_excess": 0.005,
-                "horizon": "5D"
-              }
-            ],
-            "why": "高风险区间超额显著",
-            "tier": "high",
-            "conflict_resolution": null,
-            "sector": "传媒",
-            "etf_code": "512980",
-            "etf_name": "传媒ETF广发",
-            "etf_label": "512980 传媒ETF广发",
-            "etf_quality": "good",
-            "etf_quality_cn": "贴合",
-            "etf_note": "",
-            "etf_display": "传媒 → 512980 传媒ETF广发",
-            "instrument_display": "传媒（512980 传媒ETF广发）"
-          },
-          {
-            "name": "国防军工",
-            "score": 0.034532,
-            "weight_in_sat": 0.1029,
-            "quality": "good",
-            "quality_weight": 1.0,
-            "win_rate": 0.55,
-            "n": 438,
-            "mean_excess": 0.004,
-            "stages": [
-              "RISING_HARD"
-            ],
-            "stage_evidence": [
-              {
-                "stage_id": "RISING_HARD",
-                "score": 0.034532,
-                "why": "升温后5日超额显著；IS/OOS同号",
-                "win_rate": 0.55,
-                "n": 438,
-                "mean_excess": 0.004,
-                "horizon": "5D"
-              }
-            ],
-            "why": "升温后5日超额显著；IS/OOS同号",
-            "tier": "high",
-            "conflict_resolution": null,
-            "sector": "国防军工",
-            "etf_code": "512660",
-            "etf_name": "军工ETF国泰",
-            "etf_label": "512660 军工ETF国泰",
-            "etf_quality": "good",
-            "etf_quality_cn": "贴合",
-            "etf_note": "",
-            "etf_display": "国防军工 → 512660 军工ETF国泰",
-            "instrument_display": "国防军工（512660 军工ETF国泰）"
-          },
-          {
             "name": "商贸零售",
             "score": 0.028011,
-            "weight_in_sat": 0.0834,
+            "weight_in_sat": 0.0809,
             "quality": "proxy",
             "quality_weight": 0.7,
             "win_rate": 0.59,
@@ -5965,125 +5870,105 @@
             "etf_note": "零售宽基稀缺，用主要消费ETF",
             "etf_display": "商贸零售 → 159928 消费ETF汇添富",
             "instrument_display": "商贸零售（159928 消费ETF汇添富）"
-          }
-        ],
-        "avoid": [
-          {
-            "name": "房地产",
-            "side": "AVOID",
-            "side_cn": "回避（若持有则减配）",
-            "stages": [
-              "RISING_HARD"
-            ],
-            "stage_evidence": [
-              {
-                "stage_id": "RISING_HARD",
-                "score": 0.025315,
-                "why": "升温后显著跑输；IS/OOS稳定为负",
-                "win_rate": 0.42,
-                "n": 438,
-                "mean_excess": -0.00384,
-                "horizon": "5D"
-              }
-            ],
-            "why": "升温后显著跑输；IS/OOS稳定为负",
-            "win_rate": 0.42,
-            "n": 438,
-            "mean_excess": -0.00384,
-            "conditional": true,
-            "condition_cn": "仅当已持有「房地产」映射 ETF 时减至 0；无持仓则无需操作",
-            "conflict_resolution": null,
-            "action": "AVOID",
-            "action_cn": "回避/条件减配",
-            "priority": "P2",
-            "weight_target": 0.0,
-            "weight_hint": "0%（若持有）",
-            "entry": "—",
-            "exit": "—",
-            "sector": "房地产",
-            "etf_code": "512200",
-            "etf_name": "房地产ETF南方",
-            "etf_label": "512200 房地产ETF南方",
-            "etf_quality": "good",
-            "etf_quality_cn": "贴合",
-            "etf_note": "",
-            "etf_display": "房地产 → 512200 房地产ETF南方",
-            "instrument_display": "房地产（512200 房地产ETF南方）"
           },
           {
-            "name": "钢铁",
-            "side": "AVOID",
-            "side_cn": "回避（若持有则减配）",
+            "name": "基础化工",
+            "score": 0.02596,
+            "weight_in_sat": 0.075,
+            "quality": "good",
+            "quality_weight": 1.0,
+            "win_rate": 0.57,
+            "n": 477,
+            "mean_excess": 0.002979,
             "stages": [
-              "RISING_HARD"
+              "FALLING_HARD"
             ],
             "stage_evidence": [
               {
-                "stage_id": "RISING_HARD",
-                "score": 0.020107,
-                "why": "升温后显著跑输",
-                "win_rate": 0.42,
-                "n": 438,
-                "mean_excess": -0.00305,
+                "stage_id": "FALLING_HARD",
+                "score": 0.02596,
+                "why": "降温后5日超额显著、胜率57%",
+                "win_rate": 0.57,
+                "n": 477,
+                "mean_excess": 0.002979,
                 "horizon": "5D"
               }
             ],
-            "why": "升温后显著跑输",
-            "win_rate": 0.42,
-            "n": 438,
-            "mean_excess": -0.00305,
-            "conditional": true,
-            "condition_cn": "仅当已持有「钢铁」映射 ETF 时减至 0；无持仓则无需操作",
+            "why": "降温后5日超额显著、胜率57%",
+            "tier": "high",
             "conflict_resolution": null,
-            "action": "AVOID",
-            "action_cn": "回避/条件减配",
-            "priority": "P2",
-            "weight_target": 0.0,
-            "weight_hint": "0%（若持有）",
-            "entry": "—",
-            "exit": "—",
-            "sector": "钢铁",
-            "etf_code": "515210",
-            "etf_name": "钢铁ETF国泰",
-            "etf_label": "515210 钢铁ETF国泰",
+            "sector": "基础化工",
+            "etf_code": "516020",
+            "etf_name": "化工ETF华宝",
+            "etf_label": "516020 化工ETF华宝",
             "etf_quality": "good",
             "etf_quality_cn": "贴合",
             "etf_note": "",
-            "etf_display": "钢铁 → 515210 钢铁ETF国泰",
-            "instrument_display": "钢铁（515210 钢铁ETF国泰）"
+            "etf_display": "基础化工 → 516020 化工ETF华宝",
+            "instrument_display": "基础化工（516020 化工ETF华宝）"
+          },
+          {
+            "name": "电力设备",
+            "score": 0.018564,
+            "weight_in_sat": 0.0536,
+            "quality": "proxy",
+            "quality_weight": 0.7,
+            "win_rate": 0.53,
+            "n": 477,
+            "mean_excess": 0.003273,
+            "stages": [
+              "FALLING_HARD"
+            ],
+            "stage_evidence": [
+              {
+                "stage_id": "FALLING_HARD",
+                "score": 0.018564,
+                "why": "降温后5日超额显著",
+                "win_rate": 0.53,
+                "n": 477,
+                "mean_excess": 0.003273,
+                "horizon": "5D"
+              }
+            ],
+            "why": "降温后5日超额显著",
+            "tier": "high",
+            "conflict_resolution": null,
+            "sector": "电力设备",
+            "etf_code": "516850",
+            "etf_name": "新能源ETF华夏",
+            "etf_label": "516850 新能源ETF华夏",
+            "etf_quality": "proxy",
+            "etf_quality_cn": "主题代理",
+            "etf_note": "电力设备≈新能源主题",
+            "etf_display": "电力设备 → 516850 新能源ETF华夏",
+            "instrument_display": "电力设备（516850 新能源ETF华夏）"
           },
           {
             "name": "石油石化",
-            "side": "AVOID",
-            "side_cn": "回避（若持有则减配）",
+            "score": 0.010246,
+            "weight_in_sat": 0.0296,
+            "quality": "proxy",
+            "quality_weight": 0.7,
+            "win_rate": 0.76,
+            "n": 37,
+            "mean_excess": 0.0149,
             "stages": [
-              "ENTER_70_BOUNCE"
+              "HIGH_COOLING"
             ],
             "stage_evidence": [
               {
-                "stage_id": "ENTER_70_BOUNCE",
-                "score": 0.002554,
-                "why": "进入≥70后5日显著跑输，胜率仅27%",
-                "win_rate": 0.27,
-                "n": 30,
-                "mean_excess": -0.012337,
+                "stage_id": "HIGH_COOLING",
+                "score": 0.010246,
+                "why": "高位回落5日超额+1.5%，胜率76%，显著（最高胜率组）",
+                "win_rate": 0.76,
+                "n": 37,
+                "mean_excess": 0.0149,
                 "horizon": "5D"
               }
             ],
-            "why": "进入≥70后5日显著跑输，胜率仅27%",
-            "win_rate": 0.27,
-            "n": 30,
-            "mean_excess": -0.012337,
-            "conditional": true,
-            "condition_cn": "仅当已持有「石油石化」映射 ETF 时减至 0；无持仓则无需操作",
+            "why": "高位回落5日超额+1.5%，胜率76%，显著（最高胜率组）",
+            "tier": "observe",
             "conflict_resolution": null,
-            "action": "AVOID",
-            "action_cn": "回避/条件减配",
-            "priority": "P2",
-            "weight_target": 0.0,
-            "weight_hint": "0%（若持有）",
-            "entry": "—",
-            "exit": "—",
             "sector": "石油石化",
             "etf_code": "159697",
             "etf_name": "石油ETF鹏华",
@@ -6095,23 +5980,145 @@
             "instrument_display": "石油石化（159697 石油ETF鹏华）"
           },
           {
+            "name": "轻工制造",
+            "score": 0.009309,
+            "weight_in_sat": 0.0269,
+            "quality": "proxy",
+            "quality_weight": 0.7,
+            "win_rate": 0.69,
+            "n": 39,
+            "mean_excess": 0.014524,
+            "stages": [
+              "HIGH_COOLING"
+            ],
+            "stage_evidence": [
+              {
+                "stage_id": "HIGH_COOLING",
+                "score": 0.009309,
+                "why": "高位回落超额+1.5%，胜率69%，显著",
+                "win_rate": 0.69,
+                "n": 39,
+                "mean_excess": 0.014524,
+                "horizon": "5D"
+              }
+            ],
+            "why": "高位回落超额+1.5%，胜率69%，显著",
+            "tier": "observe",
+            "conflict_resolution": null,
+            "sector": "轻工制造",
+            "etf_code": "512430",
+            "etf_name": "家居家电ETF华泰柏瑞",
+            "etf_label": "512430 家居家电ETF华泰柏瑞",
+            "etf_quality": "proxy",
+            "etf_quality_cn": "主题代理",
+            "etf_note": "无纯正轻工ETF，用家居主题近似",
+            "etf_display": "轻工制造 → 512430 家居家电ETF华泰柏瑞",
+            "instrument_display": "轻工制造（512430 家居家电ETF华泰柏瑞）"
+          }
+        ],
+        "avoid": [
+          {
+            "name": "计算机",
+            "side": "AVOID",
+            "side_cn": "回避（若持有则减配）",
+            "stages": [
+              "FALLING_HARD",
+              "HIGH_COOLING"
+            ],
+            "stage_evidence": [
+              {
+                "stage_id": "FALLING_HARD",
+                "score": 0.026276,
+                "why": "降温后显著跑输",
+                "win_rate": 0.43,
+                "n": 477,
+                "mean_excess": -0.003997,
+                "horizon": "5D"
+              },
+              {
+                "stage_id": "HIGH_COOLING",
+                "score": 0.001014,
+                "why": "高位回落阶段相对偏弱",
+                "win_rate": 0.44,
+                "n": 39,
+                "mean_excess": -0.001737,
+                "horizon": "5D"
+              }
+            ],
+            "why": "降温后显著跑输",
+            "win_rate": 0.43,
+            "n": 477,
+            "mean_excess": -0.003997,
+            "conditional": true,
+            "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
+            "conflict_resolution": null,
+            "action": "AVOID",
+            "action_cn": "回避/条件减配",
+            "priority": "P2",
+            "weight_target": 0.0,
+            "weight_hint": "0%（若持有）",
+            "entry": "—",
+            "exit": "—",
+            "sector": "计算机",
+            "etf_code": "159998",
+            "etf_name": "计算机ETF天弘",
+            "etf_label": "159998 计算机ETF天弘",
+            "etf_quality": "good",
+            "etf_quality_cn": "贴合",
+            "etf_note": "",
+            "etf_display": "计算机 → 159998 计算机ETF天弘",
+            "instrument_display": "计算机（159998 计算机ETF天弘）"
+          },
+          {
+            "name": "电子",
+            "side": "AVOID",
+            "side_cn": "回避（若持有则减配）",
+            "stages": [
+              "HIGH_COOLING"
+            ],
+            "stage_evidence": [
+              {
+                "stage_id": "HIGH_COOLING",
+                "score": 0.000954,
+                "why": "高位回落阶段相对偏弱（均值负）",
+                "win_rate": 0.49,
+                "n": 39,
+                "mean_excess": -0.002096,
+                "horizon": "5D"
+              }
+            ],
+            "why": "高位回落阶段相对偏弱（均值负）",
+            "win_rate": 0.49,
+            "n": 39,
+            "mean_excess": -0.002096,
+            "conditional": true,
+            "condition_cn": "仅当已持有「电子」映射 ETF 时减至 0；无持仓则无需操作",
+            "conflict_resolution": null,
+            "action": "AVOID",
+            "action_cn": "回避/条件减配",
+            "priority": "P2",
+            "weight_target": 0.0,
+            "weight_hint": "0%（若持有）",
+            "entry": "—",
+            "exit": "—",
+            "sector": "电子",
+            "etf_code": "159995",
+            "etf_name": "芯片ETF华夏",
+            "etf_label": "159995 芯片ETF华夏",
+            "etf_quality": "proxy",
+            "etf_quality_cn": "主题代理",
+            "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
+            "etf_display": "电子 → 159995 芯片ETF华夏",
+            "instrument_display": "电子（159995 芯片ETF华夏）"
+          },
+          {
             "name": "公用事业",
             "side": "AVOID",
             "side_cn": "回避（若持有则减配）",
             "stages": [
-              "ENTER_70_BOUNCE",
               "CSI300_CORE_BUY"
             ],
             "stage_evidence": [
-              {
-                "stage_id": "ENTER_70_BOUNCE",
-                "score": 0.004007,
-                "why": "进入高风险后相对偏弱",
-                "win_rate": 0.38,
-                "n": 34,
-                "mean_excess": -0.009042,
-                "horizon": "5D"
-              },
               {
                 "stage_id": "CSI300_CORE_BUY",
                 "score": 0.017905,
@@ -6151,19 +6158,9 @@
             "side": "AVOID",
             "side_cn": "回避（若持有则减配）",
             "stages": [
-              "ENTER_70_BOUNCE",
               "CSI300_CORE_BUY"
             ],
             "stage_evidence": [
-              {
-                "stage_id": "ENTER_70_BOUNCE",
-                "score": 0.003881,
-                "why": "进入高风险后相对偏弱",
-                "win_rate": 0.47,
-                "n": 34,
-                "mean_excess": -0.007081,
-                "horizon": "5D"
-              },
               {
                 "stage_id": "CSI300_CORE_BUY",
                 "score": 0.006647,
@@ -6204,31 +6201,15 @@
         "weight_target": 0.0,
         "observe_only": false,
         "position": {
-          "status": "open",
-          "entry_signal_date": "2026-11-17",
-          "entry_date": "2026-11-18",
-          "exit_due_date": "2026-11-27",
-          "days_held": 3,
-          "days_remaining": 5,
-          "stage_id": "CSI300_CORE_BUY",
-          "names": [
-            "恒生科技",
-            "通信",
-            "机械设备",
-            "建筑材料",
-            "传媒",
-            "国防军工",
-            "商贸零售"
-          ],
-          "weights": {
-            "恒生科技": 0.2415,
-            "通信": 0.2179,
-            "机械设备": 0.1199,
-            "建筑材料": 0.1172,
-            "传媒": 0.1172,
-            "国防军工": 0.1029,
-            "商贸零售": 0.0834
-          },
+          "status": "flat",
+          "entry_signal_date": null,
+          "entry_date": null,
+          "exit_due_date": null,
+          "days_held": 0,
+          "days_remaining": 0,
+          "stage_id": null,
+          "names": [],
+          "weights": {},
           "etf_code": null,
           "execution_mode": "T_PLUS_1_OPEN",
           "entry_price_type": "open",
@@ -6238,204 +6219,21 @@
       "buy_list": [],
       "sell_list": [
         {
-          "sleeve": "satellite",
-          "name": "恒生科技",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "恒生科技",
-          "etf_code": "513180",
-          "etf_name": "恒生科技ETF华夏",
-          "etf_label": "513180 恒生科技ETF华夏",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "备选 513130/513010",
-          "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
-          "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "通信",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "通信",
-          "etf_code": "515880",
-          "etf_name": "通信ETF国泰",
-          "etf_label": "515880 通信ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "通信 → 515880 通信ETF国泰",
-          "instrument_display": "通信（515880 通信ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "机械设备",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "机械设备",
-          "etf_code": "159886",
-          "etf_name": "机械ETF富国",
-          "etf_label": "159886 机械ETF富国",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "机械设备 → 159886 机械ETF富国",
-          "instrument_display": "机械设备（159886 机械ETF富国）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "建筑材料",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "建筑材料",
-          "etf_code": "159745",
-          "etf_name": "建材ETF国泰",
-          "etf_label": "159745 建材ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "建筑材料 → 159745 建材ETF国泰",
-          "instrument_display": "建筑材料（159745 建材ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "传媒",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "传媒",
-          "etf_code": "512980",
-          "etf_name": "传媒ETF广发",
-          "etf_label": "512980 传媒ETF广发",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "传媒 → 512980 传媒ETF广发",
-          "instrument_display": "传媒（512980 传媒ETF广发）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "国防军工",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "国防军工",
-          "etf_code": "512660",
-          "etf_name": "军工ETF国泰",
-          "etf_label": "512660 军工ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "国防军工 → 512660 军工ETF国泰",
-          "instrument_display": "国防军工（512660 军工ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "商贸零售",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "商贸零售",
-          "etf_code": "159928",
-          "etf_name": "消费ETF汇添富",
-          "etf_label": "159928 消费ETF汇添富",
-          "etf_quality": "proxy",
-          "etf_quality_cn": "主题代理",
-          "etf_note": "零售宽基稀缺，用主要消费ETF",
-          "etf_display": "商贸零售 → 159928 消费ETF汇添富",
-          "instrument_display": "商贸零售（159928 消费ETF汇添富）"
-        }
-      ],
-      "hold_list": [
-        {
           "sleeve": "core",
           "name": "沪深300",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复信号）",
-          "side": "HOLD",
-          "side_cn": "持有",
+          "action": "CLOSE",
+          "action_cn": "到期卖出",
+          "side": "CLOSE",
+          "side_cn": "卖出",
           "priority": "P0",
-          "weight_target": 1.0,
-          "weight_hint": "100%",
-          "why": "主策略持仓中，忽略新开仓信号",
-          "days_held": 4,
-          "days_remaining": 1,
-          "entry": "—",
-          "exit": "约剩 1 日",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "核心持有满 5 日，按对应入场路径卖出（CORE_MAX_HOLD 确定性路径）",
+          "close_code": "CORE_MAX_HOLD",
+          "guaranteed": true,
+          "days_held": 5,
           "sector": "沪深300",
           "etf_code": "510300",
           "etf_name": "沪深300ETF华泰柏瑞",
@@ -6447,31 +6245,42 @@
           "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
         }
       ],
+      "hold_list": [],
       "avoid_list": [
         {
-          "name": "房地产",
+          "name": "计算机",
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "RISING_HARD"
+            "FALLING_HARD",
+            "HIGH_COOLING"
           ],
           "stage_evidence": [
             {
-              "stage_id": "RISING_HARD",
-              "score": 0.025315,
-              "why": "升温后显著跑输；IS/OOS稳定为负",
-              "win_rate": 0.42,
-              "n": 438,
-              "mean_excess": -0.00384,
+              "stage_id": "FALLING_HARD",
+              "score": 0.026276,
+              "why": "降温后显著跑输",
+              "win_rate": 0.43,
+              "n": 477,
+              "mean_excess": -0.003997,
+              "horizon": "5D"
+            },
+            {
+              "stage_id": "HIGH_COOLING",
+              "score": 0.001014,
+              "why": "高位回落阶段相对偏弱",
+              "win_rate": 0.44,
+              "n": 39,
+              "mean_excess": -0.001737,
               "horizon": "5D"
             }
           ],
-          "why": "升温后显著跑输；IS/OOS稳定为负",
-          "win_rate": 0.42,
-          "n": 438,
-          "mean_excess": -0.00384,
+          "why": "降温后显著跑输",
+          "win_rate": 0.43,
+          "n": 477,
+          "mean_excess": -0.003997,
           "conditional": true,
-          "condition_cn": "仅当已持有「房地产」映射 ETF 时减至 0；无持仓则无需操作",
+          "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
           "conflict_resolution": null,
           "action": "AVOID",
           "action_cn": "回避/条件减配",
@@ -6480,40 +6289,40 @@
           "weight_hint": "0%（若持有）",
           "entry": "—",
           "exit": "—",
-          "sector": "房地产",
-          "etf_code": "512200",
-          "etf_name": "房地产ETF南方",
-          "etf_label": "512200 房地产ETF南方",
+          "sector": "计算机",
+          "etf_code": "159998",
+          "etf_name": "计算机ETF天弘",
+          "etf_label": "159998 计算机ETF天弘",
           "etf_quality": "good",
           "etf_quality_cn": "贴合",
           "etf_note": "",
-          "etf_display": "房地产 → 512200 房地产ETF南方",
-          "instrument_display": "房地产（512200 房地产ETF南方）"
+          "etf_display": "计算机 → 159998 计算机ETF天弘",
+          "instrument_display": "计算机（159998 计算机ETF天弘）"
         },
         {
-          "name": "钢铁",
+          "name": "电子",
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "RISING_HARD"
+            "HIGH_COOLING"
           ],
           "stage_evidence": [
             {
-              "stage_id": "RISING_HARD",
-              "score": 0.020107,
-              "why": "升温后显著跑输",
-              "win_rate": 0.42,
-              "n": 438,
-              "mean_excess": -0.00305,
+              "stage_id": "HIGH_COOLING",
+              "score": 0.000954,
+              "why": "高位回落阶段相对偏弱（均值负）",
+              "win_rate": 0.49,
+              "n": 39,
+              "mean_excess": -0.002096,
               "horizon": "5D"
             }
           ],
-          "why": "升温后显著跑输",
-          "win_rate": 0.42,
-          "n": 438,
-          "mean_excess": -0.00305,
+          "why": "高位回落阶段相对偏弱（均值负）",
+          "win_rate": 0.49,
+          "n": 39,
+          "mean_excess": -0.002096,
           "conditional": true,
-          "condition_cn": "仅当已持有「钢铁」映射 ETF 时减至 0；无持仓则无需操作",
+          "condition_cn": "仅当已持有「电子」映射 ETF 时减至 0；无持仓则无需操作",
           "conflict_resolution": null,
           "action": "AVOID",
           "action_cn": "回避/条件减配",
@@ -6522,76 +6331,24 @@
           "weight_hint": "0%（若持有）",
           "entry": "—",
           "exit": "—",
-          "sector": "钢铁",
-          "etf_code": "515210",
-          "etf_name": "钢铁ETF国泰",
-          "etf_label": "515210 钢铁ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "钢铁 → 515210 钢铁ETF国泰",
-          "instrument_display": "钢铁（515210 钢铁ETF国泰）"
-        },
-        {
-          "name": "石油石化",
-          "side": "AVOID",
-          "side_cn": "回避（若持有则减配）",
-          "stages": [
-            "ENTER_70_BOUNCE"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "ENTER_70_BOUNCE",
-              "score": 0.002554,
-              "why": "进入≥70后5日显著跑输，胜率仅27%",
-              "win_rate": 0.27,
-              "n": 30,
-              "mean_excess": -0.012337,
-              "horizon": "5D"
-            }
-          ],
-          "why": "进入≥70后5日显著跑输，胜率仅27%",
-          "win_rate": 0.27,
-          "n": 30,
-          "mean_excess": -0.012337,
-          "conditional": true,
-          "condition_cn": "仅当已持有「石油石化」映射 ETF 时减至 0；无持仓则无需操作",
-          "conflict_resolution": null,
-          "action": "AVOID",
-          "action_cn": "回避/条件减配",
-          "priority": "P2",
-          "weight_target": 0.0,
-          "weight_hint": "0%（若持有）",
-          "entry": "—",
-          "exit": "—",
-          "sector": "石油石化",
-          "etf_code": "159697",
-          "etf_name": "石油ETF鹏华",
-          "etf_label": "159697 石油ETF鹏华",
+          "sector": "电子",
+          "etf_code": "159995",
+          "etf_name": "芯片ETF华夏",
+          "etf_label": "159995 芯片ETF华夏",
           "etf_quality": "proxy",
           "etf_quality_cn": "主题代理",
-          "etf_note": "油气主题代理石化",
-          "etf_display": "石油石化 → 159697 石油ETF鹏华",
-          "instrument_display": "石油石化（159697 石油ETF鹏华）"
+          "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
+          "etf_display": "电子 → 159995 芯片ETF华夏",
+          "instrument_display": "电子（159995 芯片ETF华夏）"
         },
         {
           "name": "公用事业",
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "ENTER_70_BOUNCE",
             "CSI300_CORE_BUY"
           ],
           "stage_evidence": [
-            {
-              "stage_id": "ENTER_70_BOUNCE",
-              "score": 0.004007,
-              "why": "进入高风险后相对偏弱",
-              "win_rate": 0.38,
-              "n": 34,
-              "mean_excess": -0.009042,
-              "horizon": "5D"
-            },
             {
               "stage_id": "CSI300_CORE_BUY",
               "score": 0.017905,
@@ -6631,19 +6388,9 @@
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "ENTER_70_BOUNCE",
             "CSI300_CORE_BUY"
           ],
           "stage_evidence": [
-            {
-              "stage_id": "ENTER_70_BOUNCE",
-              "score": 0.003881,
-              "why": "进入高风险后相对偏弱",
-              "win_rate": 0.47,
-              "n": 34,
-              "mean_excess": -0.007081,
-              "horizon": "5D"
-            },
             {
               "stage_id": "CSI300_CORE_BUY",
               "score": 0.006647,
@@ -6681,10 +6428,10 @@
       ],
       "close_list": [
         {
-          "sleeve": "satellite",
-          "name": "恒生科技",
+          "sleeve": "core",
+          "name": "沪深300",
           "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
+          "action_cn": "到期卖出",
           "side": "CLOSE",
           "side_cn": "卖出",
           "priority": "P0",
@@ -6692,193 +6439,38 @@
           "exit": "平仓",
           "weight_target": 0.0,
           "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
+          "why": "核心持有满 5 日，按对应入场路径卖出（CORE_MAX_HOLD 确定性路径）",
+          "close_code": "CORE_MAX_HOLD",
           "guaranteed": true,
-          "days_held": 3,
-          "sector": "恒生科技",
-          "etf_code": "513180",
-          "etf_name": "恒生科技ETF华夏",
-          "etf_label": "513180 恒生科技ETF华夏",
+          "days_held": 5,
+          "sector": "沪深300",
+          "etf_code": "510300",
+          "etf_name": "沪深300ETF华泰柏瑞",
+          "etf_label": "510300 沪深300ETF华泰柏瑞",
           "etf_quality": "good",
           "etf_quality_cn": "贴合",
-          "etf_note": "备选 513130/513010",
-          "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
-          "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "通信",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "通信",
-          "etf_code": "515880",
-          "etf_name": "通信ETF国泰",
-          "etf_label": "515880 通信ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "通信 → 515880 通信ETF国泰",
-          "instrument_display": "通信（515880 通信ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "机械设备",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "机械设备",
-          "etf_code": "159886",
-          "etf_name": "机械ETF富国",
-          "etf_label": "159886 机械ETF富国",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "机械设备 → 159886 机械ETF富国",
-          "instrument_display": "机械设备（159886 机械ETF富国）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "建筑材料",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "建筑材料",
-          "etf_code": "159745",
-          "etf_name": "建材ETF国泰",
-          "etf_label": "159745 建材ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "建筑材料 → 159745 建材ETF国泰",
-          "instrument_display": "建筑材料（159745 建材ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "传媒",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "传媒",
-          "etf_code": "512980",
-          "etf_name": "传媒ETF广发",
-          "etf_label": "512980 传媒ETF广发",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "传媒 → 512980 传媒ETF广发",
-          "instrument_display": "传媒（512980 传媒ETF广发）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "国防军工",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "国防军工",
-          "etf_code": "512660",
-          "etf_name": "军工ETF国泰",
-          "etf_label": "512660 军工ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "国防军工 → 512660 军工ETF国泰",
-          "instrument_display": "国防军工（512660 军工ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "商贸零售",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "商贸零售",
-          "etf_code": "159928",
-          "etf_name": "消费ETF汇添富",
-          "etf_label": "159928 消费ETF汇添富",
-          "etf_quality": "proxy",
-          "etf_quality_cn": "主题代理",
-          "etf_note": "零售宽基稀缺，用主要消费ETF",
-          "etf_display": "商贸零售 → 159928 消费ETF汇添富",
-          "instrument_display": "商贸零售（159928 消费ETF汇添富）"
+          "etf_note": "核心指数仓默认标的；备选 510310/159919",
+          "etf_display": "沪深300 → 510300 沪深300ETF华泰柏瑞",
+          "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
         }
       ],
       "minimal_actions": [
         {
           "sleeve": "core",
           "name": "沪深300",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复信号）",
-          "side": "HOLD",
-          "side_cn": "持有",
+          "action": "CLOSE",
+          "action_cn": "到期卖出",
+          "side": "CLOSE",
+          "side_cn": "卖出",
           "priority": "P0",
-          "weight_target": 1.0,
-          "weight_hint": "100%",
-          "why": "主策略持仓中，忽略新开仓信号",
-          "days_held": 4,
-          "days_remaining": 1,
-          "entry": "—",
-          "exit": "约剩 1 日",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "核心持有满 5 日，按对应入场路径卖出（CORE_MAX_HOLD 确定性路径）",
+          "close_code": "CORE_MAX_HOLD",
+          "guaranteed": true,
+          "days_held": 5,
           "sector": "沪深300",
           "etf_code": "510300",
           "etf_name": "沪深300ETF华泰柏瑞",
@@ -6888,76 +6480,25 @@
           "etf_note": "核心指数仓默认标的；备选 510310/159919",
           "etf_display": "沪深300 → 510300 沪深300ETF华泰柏瑞",
           "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "恒生科技",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "恒生科技",
-          "etf_code": "513180",
-          "etf_name": "恒生科技ETF华夏",
-          "etf_label": "513180 恒生科技ETF华夏",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "备选 513130/513010",
-          "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
-          "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "通信",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "通信",
-          "etf_code": "515880",
-          "etf_name": "通信ETF国泰",
-          "etf_label": "515880 通信ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "通信 → 515880 通信ETF国泰",
-          "instrument_display": "通信（515880 通信ETF国泰）"
         }
       ],
       "all_actions": [
         {
           "sleeve": "core",
           "name": "沪深300",
-          "action": "HOLD",
-          "action_cn": "持有（忽略重复信号）",
-          "side": "HOLD",
-          "side_cn": "持有",
+          "action": "CLOSE",
+          "action_cn": "到期卖出",
+          "side": "CLOSE",
+          "side_cn": "卖出",
           "priority": "P0",
-          "weight_target": 1.0,
-          "weight_hint": "100%",
-          "why": "主策略持仓中，忽略新开仓信号",
-          "days_held": 4,
-          "days_remaining": 1,
-          "entry": "—",
-          "exit": "约剩 1 日",
+          "entry": "下一交易日开盘",
+          "exit": "平仓",
+          "weight_target": 0.0,
+          "weight_hint": "0%",
+          "why": "核心持有满 5 日，按对应入场路径卖出（CORE_MAX_HOLD 确定性路径）",
+          "close_code": "CORE_MAX_HOLD",
+          "guaranteed": true,
+          "days_held": 5,
           "sector": "沪深300",
           "etf_code": "510300",
           "etf_name": "沪深300ETF华泰柏瑞",
@@ -6969,331 +6510,107 @@
           "instrument_display": "沪深300（510300 沪深300ETF华泰柏瑞）"
         },
         {
-          "sleeve": "satellite",
-          "name": "恒生科技",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
+          "name": "计算机",
+          "side": "AVOID",
+          "side_cn": "回避（若持有则减配）",
+          "stages": [
+            "FALLING_HARD",
+            "HIGH_COOLING"
+          ],
+          "stage_evidence": [
+            {
+              "stage_id": "FALLING_HARD",
+              "score": 0.026276,
+              "why": "降温后显著跑输",
+              "win_rate": 0.43,
+              "n": 477,
+              "mean_excess": -0.003997,
+              "horizon": "5D"
+            },
+            {
+              "stage_id": "HIGH_COOLING",
+              "score": 0.001014,
+              "why": "高位回落阶段相对偏弱",
+              "win_rate": 0.44,
+              "n": 39,
+              "mean_excess": -0.001737,
+              "horizon": "5D"
+            }
+          ],
+          "why": "降温后显著跑输",
+          "win_rate": 0.43,
+          "n": 477,
+          "mean_excess": -0.003997,
+          "conditional": true,
+          "condition_cn": "仅当已持有「计算机」映射 ETF 时减至 0；无持仓则无需操作",
+          "conflict_resolution": null,
+          "action": "AVOID",
+          "action_cn": "回避/条件减配",
+          "priority": "P2",
           "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "恒生科技",
-          "etf_code": "513180",
-          "etf_name": "恒生科技ETF华夏",
-          "etf_label": "513180 恒生科技ETF华夏",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "备选 513130/513010",
-          "etf_display": "恒生科技 → 513180 恒生科技ETF华夏",
-          "instrument_display": "恒生科技（513180 恒生科技ETF华夏）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "通信",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "通信",
-          "etf_code": "515880",
-          "etf_name": "通信ETF国泰",
-          "etf_label": "515880 通信ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "通信 → 515880 通信ETF国泰",
-          "instrument_display": "通信（515880 通信ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "机械设备",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "机械设备",
-          "etf_code": "159886",
-          "etf_name": "机械ETF富国",
-          "etf_label": "159886 机械ETF富国",
+          "weight_hint": "0%（若持有）",
+          "entry": "—",
+          "exit": "—",
+          "sector": "计算机",
+          "etf_code": "159998",
+          "etf_name": "计算机ETF天弘",
+          "etf_label": "159998 计算机ETF天弘",
           "etf_quality": "good",
           "etf_quality_cn": "贴合",
           "etf_note": "",
-          "etf_display": "机械设备 → 159886 机械ETF富国",
-          "instrument_display": "机械设备（159886 机械ETF富国）"
+          "etf_display": "计算机 → 159998 计算机ETF天弘",
+          "instrument_display": "计算机（159998 计算机ETF天弘）"
         },
         {
-          "sleeve": "satellite",
-          "name": "建筑材料",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
+          "name": "电子",
+          "side": "AVOID",
+          "side_cn": "回避（若持有则减配）",
+          "stages": [
+            "HIGH_COOLING"
+          ],
+          "stage_evidence": [
+            {
+              "stage_id": "HIGH_COOLING",
+              "score": 0.000954,
+              "why": "高位回落阶段相对偏弱（均值负）",
+              "win_rate": 0.49,
+              "n": 39,
+              "mean_excess": -0.002096,
+              "horizon": "5D"
+            }
+          ],
+          "why": "高位回落阶段相对偏弱（均值负）",
+          "win_rate": 0.49,
+          "n": 39,
+          "mean_excess": -0.002096,
+          "conditional": true,
+          "condition_cn": "仅当已持有「电子」映射 ETF 时减至 0；无持仓则无需操作",
+          "conflict_resolution": null,
+          "action": "AVOID",
+          "action_cn": "回避/条件减配",
+          "priority": "P2",
           "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "建筑材料",
-          "etf_code": "159745",
-          "etf_name": "建材ETF国泰",
-          "etf_label": "159745 建材ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "建筑材料 → 159745 建材ETF国泰",
-          "instrument_display": "建筑材料（159745 建材ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "传媒",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "传媒",
-          "etf_code": "512980",
-          "etf_name": "传媒ETF广发",
-          "etf_label": "512980 传媒ETF广发",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "传媒 → 512980 传媒ETF广发",
-          "instrument_display": "传媒（512980 传媒ETF广发）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "国防军工",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "国防军工",
-          "etf_code": "512660",
-          "etf_name": "军工ETF国泰",
-          "etf_label": "512660 军工ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "国防军工 → 512660 军工ETF国泰",
-          "instrument_display": "国防军工（512660 军工ETF国泰）"
-        },
-        {
-          "sleeve": "satellite",
-          "name": "商贸零售",
-          "action": "CLOSE",
-          "action_cn": "卫星篮子止损",
-          "side": "CLOSE",
-          "side_cn": "卖出",
-          "priority": "P0",
-          "entry": "下一交易日开盘",
-          "exit": "平仓",
-          "weight_target": 0.0,
-          "weight_hint": "0%",
-          "why": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-          "close_code": "LOCAL_STOP_LOSS",
-          "guaranteed": true,
-          "days_held": 3,
-          "sector": "商贸零售",
-          "etf_code": "159928",
-          "etf_name": "消费ETF汇添富",
-          "etf_label": "159928 消费ETF汇添富",
+          "weight_hint": "0%（若持有）",
+          "entry": "—",
+          "exit": "—",
+          "sector": "电子",
+          "etf_code": "159995",
+          "etf_name": "芯片ETF华夏",
+          "etf_label": "159995 芯片ETF华夏",
           "etf_quality": "proxy",
           "etf_quality_cn": "主题代理",
-          "etf_note": "零售宽基稀缺，用主要消费ETF",
-          "etf_display": "商贸零售 → 159928 消费ETF汇添富",
-          "instrument_display": "商贸零售（159928 消费ETF汇添富）"
-        },
-        {
-          "name": "房地产",
-          "side": "AVOID",
-          "side_cn": "回避（若持有则减配）",
-          "stages": [
-            "RISING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "RISING_HARD",
-              "score": 0.025315,
-              "why": "升温后显著跑输；IS/OOS稳定为负",
-              "win_rate": 0.42,
-              "n": 438,
-              "mean_excess": -0.00384,
-              "horizon": "5D"
-            }
-          ],
-          "why": "升温后显著跑输；IS/OOS稳定为负",
-          "win_rate": 0.42,
-          "n": 438,
-          "mean_excess": -0.00384,
-          "conditional": true,
-          "condition_cn": "仅当已持有「房地产」映射 ETF 时减至 0；无持仓则无需操作",
-          "conflict_resolution": null,
-          "action": "AVOID",
-          "action_cn": "回避/条件减配",
-          "priority": "P2",
-          "weight_target": 0.0,
-          "weight_hint": "0%（若持有）",
-          "entry": "—",
-          "exit": "—",
-          "sector": "房地产",
-          "etf_code": "512200",
-          "etf_name": "房地产ETF南方",
-          "etf_label": "512200 房地产ETF南方",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "房地产 → 512200 房地产ETF南方",
-          "instrument_display": "房地产（512200 房地产ETF南方）"
-        },
-        {
-          "name": "钢铁",
-          "side": "AVOID",
-          "side_cn": "回避（若持有则减配）",
-          "stages": [
-            "RISING_HARD"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "RISING_HARD",
-              "score": 0.020107,
-              "why": "升温后显著跑输",
-              "win_rate": 0.42,
-              "n": 438,
-              "mean_excess": -0.00305,
-              "horizon": "5D"
-            }
-          ],
-          "why": "升温后显著跑输",
-          "win_rate": 0.42,
-          "n": 438,
-          "mean_excess": -0.00305,
-          "conditional": true,
-          "condition_cn": "仅当已持有「钢铁」映射 ETF 时减至 0；无持仓则无需操作",
-          "conflict_resolution": null,
-          "action": "AVOID",
-          "action_cn": "回避/条件减配",
-          "priority": "P2",
-          "weight_target": 0.0,
-          "weight_hint": "0%（若持有）",
-          "entry": "—",
-          "exit": "—",
-          "sector": "钢铁",
-          "etf_code": "515210",
-          "etf_name": "钢铁ETF国泰",
-          "etf_label": "515210 钢铁ETF国泰",
-          "etf_quality": "good",
-          "etf_quality_cn": "贴合",
-          "etf_note": "",
-          "etf_display": "钢铁 → 515210 钢铁ETF国泰",
-          "instrument_display": "钢铁（515210 钢铁ETF国泰）"
-        },
-        {
-          "name": "石油石化",
-          "side": "AVOID",
-          "side_cn": "回避（若持有则减配）",
-          "stages": [
-            "ENTER_70_BOUNCE"
-          ],
-          "stage_evidence": [
-            {
-              "stage_id": "ENTER_70_BOUNCE",
-              "score": 0.002554,
-              "why": "进入≥70后5日显著跑输，胜率仅27%",
-              "win_rate": 0.27,
-              "n": 30,
-              "mean_excess": -0.012337,
-              "horizon": "5D"
-            }
-          ],
-          "why": "进入≥70后5日显著跑输，胜率仅27%",
-          "win_rate": 0.27,
-          "n": 30,
-          "mean_excess": -0.012337,
-          "conditional": true,
-          "condition_cn": "仅当已持有「石油石化」映射 ETF 时减至 0；无持仓则无需操作",
-          "conflict_resolution": null,
-          "action": "AVOID",
-          "action_cn": "回避/条件减配",
-          "priority": "P2",
-          "weight_target": 0.0,
-          "weight_hint": "0%（若持有）",
-          "entry": "—",
-          "exit": "—",
-          "sector": "石油石化",
-          "etf_code": "159697",
-          "etf_name": "石油ETF鹏华",
-          "etf_label": "159697 石油ETF鹏华",
-          "etf_quality": "proxy",
-          "etf_quality_cn": "主题代理",
-          "etf_note": "油气主题代理石化",
-          "etf_display": "石油石化 → 159697 石油ETF鹏华",
-          "instrument_display": "石油石化（159697 石油ETF鹏华）"
+          "etf_note": "电子宽基稀缺；用芯片/半导体高相关代理",
+          "etf_display": "电子 → 159995 芯片ETF华夏",
+          "instrument_display": "电子（159995 芯片ETF华夏）"
         },
         {
           "name": "公用事业",
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "ENTER_70_BOUNCE",
             "CSI300_CORE_BUY"
           ],
           "stage_evidence": [
-            {
-              "stage_id": "ENTER_70_BOUNCE",
-              "score": 0.004007,
-              "why": "进入高风险后相对偏弱",
-              "win_rate": 0.38,
-              "n": 34,
-              "mean_excess": -0.009042,
-              "horizon": "5D"
-            },
             {
               "stage_id": "CSI300_CORE_BUY",
               "score": 0.017905,
@@ -7333,19 +6650,9 @@
           "side": "AVOID",
           "side_cn": "回避（若持有则减配）",
           "stages": [
-            "ENTER_70_BOUNCE",
             "CSI300_CORE_BUY"
           ],
           "stage_evidence": [
-            {
-              "stage_id": "ENTER_70_BOUNCE",
-              "score": 0.003881,
-              "why": "进入高风险后相对偏弱",
-              "win_rate": 0.47,
-              "n": 34,
-              "mean_excess": -0.007081,
-              "horizon": "5D"
-            },
             {
               "stage_id": "CSI300_CORE_BUY",
               "score": 0.006647,
@@ -7382,26 +6689,26 @@
         }
       ],
       "risk_dashboard": {
-        "estimated_beta": 1.0,
-        "estimated_daily_vol": 0.01,
-        "estimated_daily_vol_cn": "约 1.0%（固定beta启发式）",
-        "total_exposure": 1.0,
-        "cash": 0.0,
+        "estimated_beta": 0.0,
+        "estimated_daily_vol": 0.0,
+        "estimated_daily_vol_cn": "约 0.0%（固定beta启发式）",
+        "total_exposure": 0.0,
+        "cash": 1.0,
         "growth_sat_share": 0.0,
         "correlation_warning": false,
         "correlation_note": "相关风险中性",
-        "max_single_name_weight": 1.0,
+        "max_single_name_weight": 0.0,
         "circuit_breaker_cn": "组合研究回撤>15% 时建议卫星清零、仅保留核心规则",
         "model_cn": "固定beta + 目标仓位的暴露估算；不是实盘风控执行器",
         "controls": [
           {
             "key": "max_exposure",
-            "value": 1.0,
+            "value": 0.0,
             "enforced": true
           },
           {
             "key": "max_single_name",
-            "value": 1.0,
+            "value": 0.0,
             "enforced": true
           },
           {
@@ -10090,8 +9397,8 @@
     "title": "Flex ETF daily marks (EOD)",
     "policy": "SIM_ENTRY_OPEN_MARK_CLOSE",
     "policy_cn": "模拟仓专业口径：入场价=入场日开盘价；盯市价=as_of收盘价；不做盘中轮询；与策略/回测日频一致。",
-    "as_of": "2026-11-20",
-    "start": "2026-07-23",
+    "as_of": "2026-11-23",
+    "start": "2026-07-26",
     "source": "AKSHARE_FUND_ETF_HIST_EM",
     "fetch_workers": 4,
     "not_broker_feed": true,
@@ -10100,14 +9407,19 @@
       "159745",
       "159886",
       "159928",
+      "159995",
+      "159998",
       "510300",
-      "512200",
+      "512400",
+      "512430",
       "512660",
       "512800",
       "512980",
       "513180",
-      "515210",
+      "515220",
       "515880",
+      "516020",
+      "516850",
       "560620"
     ],
     "coverage_codes": [
@@ -10144,10 +9456,10 @@
     "code_count": 29,
     "missing_codes": [],
     "stale_codes": [],
-    "complete_as_of": "2026-11-20",
+    "complete_as_of": "2026-11-23",
     "coverage_missing_codes": [],
     "coverage_stale_codes": [],
-    "coverage_complete_as_of": "2026-11-20",
+    "coverage_complete_as_of": "2026-11-23",
     "quality": "OK",
     "by_code": {
       "159666": {
@@ -11052,11 +10364,17 @@
             "close": 0.979,
             "high": 0.986,
             "low": 0.974
+          },
+          "2026-11-23": {
+            "open": 0.974,
+            "close": 0.978,
+            "high": 0.98,
+            "low": 0.97
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "159697": {
@@ -11961,11 +11279,17 @@
             "close": 1.207,
             "high": 1.212,
             "low": 1.192
+          },
+          "2026-11-23": {
+            "open": 1.207,
+            "close": 1.194,
+            "high": 1.207,
+            "low": 1.184
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "159730": {
@@ -12870,11 +12194,17 @@
             "close": 1.035,
             "high": 1.038,
             "low": 1.022
+          },
+          "2026-11-23": {
+            "open": 1.021,
+            "close": 1.043,
+            "high": 1.087,
+            "low": 1.019
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "159745": {
@@ -13779,11 +13109,17 @@
             "close": 0.47,
             "high": 0.484,
             "low": 0.469
+          },
+          "2026-11-23": {
+            "open": 0.463,
+            "close": 0.469,
+            "high": 0.471,
+            "low": 0.46
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "159766": {
@@ -14688,11 +14024,17 @@
             "close": 0.519,
             "high": 0.528,
             "low": 0.516
+          },
+          "2026-11-23": {
+            "open": 0.515,
+            "close": 0.522,
+            "high": 0.524,
+            "low": 0.511
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "159886": {
@@ -15597,11 +14939,17 @@
             "close": 0.705,
             "high": 0.713,
             "low": 0.696
+          },
+          "2026-11-23": {
+            "open": 0.702,
+            "close": 0.71,
+            "high": 0.713,
+            "low": 0.695
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "159928": {
@@ -16506,11 +15854,17 @@
             "close": 0.704,
             "high": 0.706,
             "low": 0.694
+          },
+          "2026-11-23": {
+            "open": 0.7,
+            "close": 0.702,
+            "high": 0.705,
+            "low": 0.693
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "159995": {
@@ -17415,11 +16769,17 @@
             "close": 0.814,
             "high": 0.835,
             "low": 0.809
+          },
+          "2026-11-23": {
+            "open": 0.801,
+            "close": 0.813,
+            "high": 0.825,
+            "low": 0.778
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "159998": {
@@ -18324,11 +17684,17 @@
             "close": 0.751,
             "high": 0.773,
             "low": 0.751
+          },
+          "2026-11-23": {
+            "open": 0.744,
+            "close": 0.764,
+            "high": 0.771,
+            "low": 0.736
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "510300": {
@@ -19233,11 +18599,17 @@
             "close": 4.018,
             "high": 4.035,
             "low": 3.97
+          },
+          "2026-11-23": {
+            "open": 3.997,
+            "close": 4.023,
+            "high": 4.045,
+            "low": 3.976
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512010": {
@@ -20142,11 +19514,17 @@
             "close": 0.374,
             "high": 0.376,
             "low": 0.368
+          },
+          "2026-11-23": {
+            "open": 0.371,
+            "close": 0.379,
+            "high": 0.381,
+            "low": 0.368
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512200": {
@@ -21051,11 +20429,17 @@
             "close": 1.011,
             "high": 1.05,
             "low": 1.011
+          },
+          "2026-11-23": {
+            "open": 1.003,
+            "close": 1.018,
+            "high": 1.02,
+            "low": 0.984
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512400": {
@@ -21960,11 +21344,17 @@
             "close": 1.242,
             "high": 1.252,
             "low": 1.223
+          },
+          "2026-11-23": {
+            "open": 1.242,
+            "close": 1.282,
+            "high": 1.288,
+            "low": 1.233
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512430": {
@@ -22791,11 +22181,17 @@
             "close": 0.813,
             "high": 0.838,
             "low": 0.812
+          },
+          "2026-11-23": {
+            "open": 0.805,
+            "close": 0.821,
+            "high": 0.823,
+            "low": 0.801
           }
         },
-        "bar_count": 137,
+        "bar_count": 138,
         "first": "2026-04-30",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512580": {
@@ -23700,11 +23096,17 @@
             "close": 0.955,
             "high": 0.973,
             "low": 0.949
+          },
+          "2026-11-23": {
+            "open": 0.951,
+            "close": 0.96,
+            "high": 0.962,
+            "low": 0.939
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512660": {
@@ -24609,11 +24011,17 @@
             "close": 0.896,
             "high": 0.923,
             "low": 0.894
+          },
+          "2026-11-23": {
+            "open": 0.888,
+            "close": 0.909,
+            "high": 0.914,
+            "low": 0.876
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512800": {
@@ -25518,11 +24926,17 @@
             "close": 0.926,
             "high": 0.927,
             "low": 0.904
+          },
+          "2026-11-23": {
+            "open": 0.923,
+            "close": 0.916,
+            "high": 0.928,
+            "low": 0.914
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512880": {
@@ -26427,11 +25841,17 @@
             "close": 0.981,
             "high": 0.984,
             "low": 0.968
+          },
+          "2026-11-23": {
+            "open": 0.98,
+            "close": 0.984,
+            "high": 0.987,
+            "low": 0.975
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "512980": {
@@ -27336,11 +26756,17 @@
             "close": 0.709,
             "high": 0.731,
             "low": 0.705
+          },
+          "2026-11-23": {
+            "open": 0.697,
+            "close": 0.739,
+            "high": 0.745,
+            "low": 0.697
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "513180": {
@@ -28245,11 +27671,17 @@
             "close": 0.439,
             "high": 0.446,
             "low": 0.439
+          },
+          "2026-11-23": {
+            "open": 0.432,
+            "close": 0.44,
+            "high": 0.441,
+            "low": 0.426
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "515210": {
@@ -29154,11 +28586,17 @@
             "close": 1.0,
             "high": 1.015,
             "low": 0.994
+          },
+          "2026-11-23": {
+            "open": 0.994,
+            "close": 1.001,
+            "high": 1.002,
+            "low": 0.98
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "515220": {
@@ -30063,11 +29501,17 @@
             "close": 1.161,
             "high": 1.177,
             "low": 1.15
+          },
+          "2026-11-23": {
+            "open": 1.156,
+            "close": 1.148,
+            "high": 1.157,
+            "low": 1.138
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "515710": {
@@ -30972,11 +30416,17 @@
             "close": 0.517,
             "high": 0.521,
             "low": 0.51
+          },
+          "2026-11-23": {
+            "open": 0.516,
+            "close": 0.515,
+            "high": 0.517,
+            "low": 0.508
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "515880": {
@@ -31881,11 +31331,17 @@
             "close": 0.362,
             "high": 0.375,
             "low": 0.362
+          },
+          "2026-11-23": {
+            "open": 0.356,
+            "close": 0.381,
+            "high": 0.384,
+            "low": 0.354
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "516020": {
@@ -32790,11 +32246,17 @@
             "close": 0.677,
             "high": 0.693,
             "low": 0.673
+          },
+          "2026-11-23": {
+            "open": 0.675,
+            "close": 0.684,
+            "high": 0.688,
+            "low": 0.669
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "516110": {
@@ -33699,11 +33161,17 @@
             "close": 1.015,
             "high": 1.031,
             "low": 1.011
+          },
+          "2026-11-23": {
+            "open": 1.011,
+            "close": 1.032,
+            "high": 1.036,
+            "low": 1.004
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "516670": {
@@ -34608,11 +34076,17 @@
             "close": 0.6,
             "high": 0.605,
             "low": 0.588
+          },
+          "2026-11-23": {
+            "open": 0.602,
+            "close": 0.606,
+            "high": 0.607,
+            "low": 0.594
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "516850": {
@@ -35517,11 +34991,17 @@
             "close": 0.672,
             "high": 0.694,
             "low": 0.669
+          },
+          "2026-11-23": {
+            "open": 0.661,
+            "close": 0.68,
+            "high": 0.682,
+            "low": 0.66
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       },
       "560620": {
@@ -36426,18 +35906,24 @@
             "close": 0.972,
             "high": 0.984,
             "low": 0.957
+          },
+          "2026-11-23": {
+            "open": 0.963,
+            "close": 0.961,
+            "high": 0.964,
+            "low": 0.957
           }
         },
-        "bar_count": 150,
+        "bar_count": 151,
         "first": "2026-04-13",
-        "last": "2026-11-20",
+        "last": "2026-11-23",
         "fresh_for_as_of": true
       }
     },
-    "updated_at": "2026-11-20T18:39:06+00:00",
+    "updated_at": "2026-11-23T19:34:01+00:00",
     "published_bar_preservation": {
       "status": "used",
-      "candidate_as_of": "2026-11-20",
+      "candidate_as_of": "2026-11-23",
       "codes": [
         "159666",
         "159697",
@@ -36539,7 +36025,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "159697": [
           "2026-04-13",
@@ -36610,7 +36098,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "159730": [
           "2026-04-13",
@@ -36681,7 +36171,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "159745": [
           "2026-04-13",
@@ -36752,7 +36244,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "159766": [
           "2026-04-13",
@@ -36823,7 +36317,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "159886": [
           "2026-04-13",
@@ -36894,7 +36390,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "159928": [
           "2026-04-13",
@@ -36965,7 +36463,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "159995": [
           "2026-04-13",
@@ -37036,7 +36536,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "159998": [
           "2026-04-13",
@@ -37107,7 +36609,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "510300": [
           "2026-04-13",
@@ -37178,7 +36682,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512010": [
           "2026-04-13",
@@ -37249,7 +36755,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512200": [
           "2026-04-13",
@@ -37320,7 +36828,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512400": [
           "2026-04-13",
@@ -37391,7 +36901,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512430": [
           "2026-04-30",
@@ -37449,7 +36961,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512580": [
           "2026-04-13",
@@ -37520,7 +37034,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512660": [
           "2026-04-13",
@@ -37591,7 +37107,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512800": [
           "2026-04-13",
@@ -37662,7 +37180,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512880": [
           "2026-04-13",
@@ -37733,7 +37253,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "512980": [
           "2026-04-13",
@@ -37804,7 +37326,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "513180": [
           "2026-04-13",
@@ -37875,7 +37399,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "515210": [
           "2026-04-13",
@@ -37946,7 +37472,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "515220": [
           "2026-04-13",
@@ -38017,7 +37545,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "515710": [
           "2026-04-13",
@@ -38088,7 +37618,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "515880": [
           "2026-04-13",
@@ -38159,7 +37691,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "516020": [
           "2026-04-13",
@@ -38230,7 +37764,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "516110": [
           "2026-04-13",
@@ -38301,7 +37837,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "516670": [
           "2026-04-13",
@@ -38372,7 +37910,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "516850": [
           "2026-04-13",
@@ -38443,7 +37983,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ],
         "560620": [
           "2026-04-13",
@@ -38514,7 +38056,9 @@
           "2026-07-17",
           "2026-07-20",
           "2026-07-21",
-          "2026-07-22"
+          "2026-07-22",
+          "2026-07-23",
+          "2026-07-24"
         ]
       }
     }
@@ -38525,11 +38069,8 @@
     "authoritative": true,
     "coverage_from": "1990-12-19",
     "coverage_through": "2026-12-31",
-    "generated_for": "2026-11-21",
+    "generated_for": "2026-11-24",
     "dates": [
-      "2016-11-23",
-      "2016-11-24",
-      "2016-11-25",
       "2016-11-28",
       "2016-11-29",
       "2016-11-30",
@@ -40989,186 +40530,62 @@
     "schema_version": 2,
     "strategy_id": "FLEX_AGGRESSIVE",
     "mode": "aggressive",
-    "as_of": "2026-11-20",
-    "marks_as_of": "2026-11-20",
+    "as_of": "2026-11-24",
+    "marks_as_of": "2026-11-23",
     "status": "ACTION",
-    "headline_cn": "2026-11-20 有 1 项处于执行窗口的策略动作",
+    "headline_cn": "2026-11-24 有 1 项处于执行窗口的策略动作",
     "items": [
       {
-        "signal_id": "2026-11-17",
-        "entry_date": "2026-11-18",
-        "members": [
-          {
-            "name": "恒生科技",
-            "etf_code": "513180",
-            "etf_name": "恒生科技ETF华夏",
-            "weight_in_sleeve": 0.2415,
-            "portfolio_weight": null,
-            "entry_open": 0.469
-          },
-          {
-            "name": "通信",
-            "etf_code": "515880",
-            "etf_name": "通信ETF国泰",
-            "weight_in_sleeve": 0.2179,
-            "portfolio_weight": null,
-            "entry_open": 0.382
-          },
-          {
-            "name": "机械设备",
-            "etf_code": "159886",
-            "etf_name": "机械ETF富国",
-            "weight_in_sleeve": 0.1199,
-            "portfolio_weight": null,
-            "entry_open": 0.726
-          },
-          {
-            "name": "建筑材料",
-            "etf_code": "159745",
-            "etf_name": "建材ETF国泰",
-            "weight_in_sleeve": 0.1172,
-            "portfolio_weight": null,
-            "entry_open": 0.496
-          },
-          {
-            "name": "传媒",
-            "etf_code": "512980",
-            "etf_name": "传媒ETF广发",
-            "weight_in_sleeve": 0.1172,
-            "portfolio_weight": null,
-            "entry_open": 0.768
-          },
-          {
-            "name": "国防军工",
-            "etf_code": "512660",
-            "etf_name": "军工ETF国泰",
-            "weight_in_sleeve": 0.1029,
-            "portfolio_weight": null,
-            "entry_open": 0.962
-          },
-          {
-            "name": "商贸零售",
-            "etf_code": "159928",
-            "etf_name": "消费ETF汇添富",
-            "weight_in_sleeve": 0.0834,
-            "portfolio_weight": null,
-            "entry_open": 0.709
-          }
-        ],
-        "min_hold_days": 3,
-        "stop_loss": -0.03,
-        "take_profit": 0.04,
-        "transaction_cost_bps_one_way": 1.0,
-        "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-        "status": "TRIGGERED",
-        "event_type": "STOP_LOSS",
-        "close_code": "LOCAL_STOP_LOSS",
-        "action_cn": "卫星篮子止损",
-        "trigger_date": "2026-11-20",
-        "execution_date": "2026-11-23",
+        "event_type": "EXIT",
+        "close_code": "CORE_MAX_HOLD",
+        "reason_cn": "Core holding period complete",
+        "days_held": 5,
+        "id": "core:2026-11-16:2026-11-17:2026-11-23:CORE_MAX_HOLD",
+        "sleeve": "core",
+        "trigger_date": "2026-11-23",
+        "signal_date": "2026-11-23",
+        "execution_date": "2026-11-24",
         "execution_status": "PENDING",
         "execution_bar_complete": false,
-        "trigger_return": -0.053214012481633155,
-        "trigger_threshold": -0.03,
-        "days_held": 3,
-        "checked_through": "2026-11-20",
-        "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线",
-        "requires_open_marks": true,
-        "id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS",
-        "sleeve": "satellite",
-        "signal_date": "2026-11-20",
         "position": {
           "status": "open",
-          "entry_signal_date": "2026-11-17",
-          "entry_date": "2026-11-18",
-          "exit_due_date": "2026-11-27",
-          "days_held": 3,
-          "days_remaining": 5,
+          "entry_signal_date": "2026-11-16",
+          "entry_date": "2026-11-17",
+          "exit_due_date": "2026-11-23",
+          "days_held": 5,
+          "days_remaining": 0,
           "stage_id": "CSI300_CORE_BUY",
           "names": [
-            "恒生科技",
-            "通信",
-            "机械设备",
-            "建筑材料",
-            "传媒",
-            "国防军工",
-            "商贸零售"
+            "沪深300"
           ],
           "weights": {
-            "恒生科技": 0.2415,
-            "通信": 0.2179,
-            "机械设备": 0.1199,
-            "建筑材料": 0.1172,
-            "传媒": 0.1172,
-            "国防军工": 0.1029,
-            "商贸零售": 0.0834
+            "沪深300": 1.0
           },
-          "etf_code": null,
+          "etf_code": "510300",
           "execution_mode": "T_PLUS_1_OPEN",
           "entry_price_type": "open",
-          "planned_hold_days": null
+          "planned_hold_days": 5
         },
         "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-        "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS",
-        "title_cn": "卫星篮子止损",
+        "event_id": "core:2026-11-16:2026-11-17:2026-11-23:CORE_MAX_HOLD",
+        "signal_id": "2026-11-16",
+        "requires_open_marks": true,
+        "members": [
+          {
+            "name": "沪深300",
+            "etf_code": "510300",
+            "weight_in_sleeve": 1.0
+          }
+        ],
+        "action_cn": "策略离场",
+        "title_cn": "策略离场",
         "execution_mode": "T_PLUS_1_OPEN",
         "execution_window_cn": "下一交易日开盘整篮平仓",
         "instruments": [
           {
-            "name": "恒生科技",
-            "etf_code": "513180",
-            "etf_name": "恒生科技ETF华夏",
-            "weight_in_sleeve": 0.2415,
-            "portfolio_weight": null,
-            "entry_open": 0.469
-          },
-          {
-            "name": "通信",
-            "etf_code": "515880",
-            "etf_name": "通信ETF国泰",
-            "weight_in_sleeve": 0.2179,
-            "portfolio_weight": null,
-            "entry_open": 0.382
-          },
-          {
-            "name": "机械设备",
-            "etf_code": "159886",
-            "etf_name": "机械ETF富国",
-            "weight_in_sleeve": 0.1199,
-            "portfolio_weight": null,
-            "entry_open": 0.726
-          },
-          {
-            "name": "建筑材料",
-            "etf_code": "159745",
-            "etf_name": "建材ETF国泰",
-            "weight_in_sleeve": 0.1172,
-            "portfolio_weight": null,
-            "entry_open": 0.496
-          },
-          {
-            "name": "传媒",
-            "etf_code": "512980",
-            "etf_name": "传媒ETF广发",
-            "weight_in_sleeve": 0.1172,
-            "portfolio_weight": null,
-            "entry_open": 0.768
-          },
-          {
-            "name": "国防军工",
-            "etf_code": "512660",
-            "etf_name": "军工ETF国泰",
-            "weight_in_sleeve": 0.1029,
-            "portfolio_weight": null,
-            "entry_open": 0.962
-          },
-          {
-            "name": "商贸零售",
-            "etf_code": "159928",
-            "etf_name": "消费ETF汇添富",
-            "weight_in_sleeve": 0.0834,
-            "portfolio_weight": null,
-            "entry_open": 0.709
+            "name": "沪深300",
+            "etf_code": "510300",
+            "weight_in_sleeve": 1.0
           }
         ]
       }
@@ -42144,8 +41561,8 @@
         "action_cn": "卫星篮子止损",
         "trigger_date": "2026-11-20",
         "execution_date": "2026-11-23",
-        "execution_status": "PENDING",
-        "execution_bar_complete": false,
+        "execution_status": "EXECUTED",
+        "execution_bar_complete": true,
         "trigger_return": -0.053214012481633155,
         "trigger_threshold": -0.03,
         "days_held": 3,
@@ -42187,7 +41604,51 @@
           "planned_hold_days": null
         },
         "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-        "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS"
+        "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS",
+        "execution_basis": "ETF_OPEN_CONFIRMED"
+      },
+      {
+        "event_type": "EXIT",
+        "close_code": "CORE_MAX_HOLD",
+        "reason_cn": "Core holding period complete",
+        "days_held": 5,
+        "id": "core:2026-11-16:2026-11-17:2026-11-23:CORE_MAX_HOLD",
+        "sleeve": "core",
+        "trigger_date": "2026-11-23",
+        "signal_date": "2026-11-23",
+        "execution_date": "2026-11-24",
+        "execution_status": "PENDING",
+        "execution_bar_complete": false,
+        "position": {
+          "status": "open",
+          "entry_signal_date": "2026-11-16",
+          "entry_date": "2026-11-17",
+          "exit_due_date": "2026-11-23",
+          "days_held": 5,
+          "days_remaining": 0,
+          "stage_id": "CSI300_CORE_BUY",
+          "names": [
+            "沪深300"
+          ],
+          "weights": {
+            "沪深300": 1.0
+          },
+          "etf_code": "510300",
+          "execution_mode": "T_PLUS_1_OPEN",
+          "entry_price_type": "open",
+          "planned_hold_days": 5
+        },
+        "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
+        "event_id": "core:2026-11-16:2026-11-17:2026-11-23:CORE_MAX_HOLD",
+        "signal_id": "2026-11-16",
+        "requires_open_marks": true,
+        "members": [
+          {
+            "name": "沪深300",
+            "etf_code": "510300",
+            "weight_in_sleeve": 1.0
+          }
+        ]
       }
     ],
     "satellite_risk_event": {
@@ -42262,8 +41723,8 @@
       "action_cn": "卫星篮子止损",
       "trigger_date": "2026-11-20",
       "execution_date": "2026-11-23",
-      "execution_status": "PENDING",
-      "execution_bar_complete": false,
+      "execution_status": "EXECUTED",
+      "execution_bar_complete": true,
       "trigger_return": -0.053214012481633155,
       "trigger_threshold": -0.03,
       "days_held": 3,
@@ -42305,7 +41766,8 @@
         "planned_hold_days": null
       },
       "reentry_policy": "NO_SIGNAL_ON_EXIT_SESSION_NEXT_SESSION_SIGNAL",
-      "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS"
+      "event_id": "satellite:2026-11-17:2026-11-18:2026-11-20:LOCAL_STOP_LOSS",
+      "execution_basis": "ETF_OPEN_CONFIRMED"
     },
     "visibility_policy": {
       "policy_id": "SIGNAL_THROUGH_EXECUTION_SESSION",
@@ -42315,15 +41777,15 @@
       "label_cn": "信号交易日至执行交易日收盘"
     },
     "data_quality": {
-      "report_as_of": "2026-11-20",
-      "strategy_as_of": "2026-11-20",
-      "strategy_publication_status": "CURRENT",
-      "official_strategy_pending": false,
+      "report_as_of": "2026-11-24",
+      "strategy_as_of": "2026-11-23",
+      "strategy_publication_status": "OFFICIAL_PENDING",
+      "official_strategy_pending": true,
       "strategy_provisional": false,
-      "marks_as_of": "2026-11-20",
+      "marks_as_of": "2026-11-23",
       "marks_quality": "OK",
       "risk_check_status": "TRIGGERED",
-      "complete": true
+      "complete": false
     },
     "provenance": {
       "source": "FLEX_ENGINE_ATOMIC_SNAPSHOT",
