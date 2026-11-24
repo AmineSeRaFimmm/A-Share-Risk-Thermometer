@@ -38,22 +38,22 @@
       "name": "美容护理",
       "current_close": 3000.46,
       "last_date": "2026-11-24",
-      "sample_days": 2375.0,
+      "sample_days": 1191.0,
       "price_percentile_3y": 0.0026,
-      "drawdown_3y": -0.4216,
-      "return_3y": -0.3451,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.3933,
-      "price_percentile_5y": 0.0016,
-      "drawdown_5y": -0.4532,
-      "return_5y": -0.335,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.4753,
+      "drawdown_3y": -0.4658,
+      "return_3y": -0.4658,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.5365,
+      "price_percentile_5y": 0.0017,
+      "drawdown_5y": -0.6332,
+      "return_5y": -0.6332,
+      "benchmark_return_5y": -0.2203,
+      "relative_return_5y": -0.4129,
       "pe_ttm": 23.71,
       "pb": 2.11,
       "dividend_yield": 2.75,
       "valuation_low_score": 0.4032,
-      "low_position_score": 93.796,
+      "low_position_score": 94.4244,
       "relationship_type": "关系偏弱或样本不足"
     },
     {
@@ -61,91 +61,91 @@
       "name": "房地产",
       "current_close": 1555.71,
       "last_date": "2026-11-24",
-      "sample_days": 12991.0,
+      "sample_days": 6499.0,
       "price_percentile_3y": 0.0013,
-      "drawdown_3y": -0.3614,
-      "return_3y": -0.2165,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.2647,
+      "drawdown_3y": -0.4144,
+      "return_3y": -0.3811,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.4517,
       "price_percentile_5y": 0.0008,
-      "drawdown_5y": -0.4144,
-      "return_5y": -0.1478,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.2882,
+      "drawdown_5y": -0.5946,
+      "return_5y": -0.5229,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.3322,
       "pe_ttm": 6.5,
       "pb": 0.71,
       "dividend_yield": 2.32,
       "valuation_low_score": 0.7634,
-      "low_position_score": 86.9462,
+      "low_position_score": 93.6998,
       "relationship_type": "高温回落修复观察"
-    },
-    {
-      "symbol": 801040.0,
-      "name": "钢铁",
-      "current_close": 1857.75,
-      "last_date": "2026-11-24",
-      "sample_days": 12991.0,
-      "price_percentile_3y": 0.0013,
-      "drawdown_3y": -0.4093,
-      "return_3y": -0.1396,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.1877,
-      "price_percentile_5y": 0.0659,
-      "drawdown_5y": -0.4093,
-      "return_5y": -0.1339,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.2743,
-      "pe_ttm": 19.72,
-      "pb": 0.89,
-      "dividend_yield": 2.77,
-      "valuation_low_score": 0.6882,
-      "low_position_score": 84.8431,
-      "relationship_type": "关系偏弱或样本不足"
     },
     {
       "symbol": 801200.0,
       "name": "商贸零售",
       "current_close": 1549.29,
       "last_date": "2026-11-24",
-      "sample_days": 12991.0,
-      "price_percentile_3y": 0.0026,
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.0847,
       "drawdown_3y": -0.4006,
-      "return_3y": -0.2606,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.3088,
-      "price_percentile_5y": 0.1,
-      "drawdown_5y": -0.4006,
-      "return_5y": -0.1408,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.2812,
+      "return_3y": -0.2693,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.34,
+      "price_percentile_5y": 0.0508,
+      "drawdown_5y": -0.523,
+      "return_5y": -0.4903,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.2995,
       "pe_ttm": 18.79,
       "pb": 1.58,
       "dividend_yield": 2.34,
       "valuation_low_score": 0.5699,
-      "low_position_score": 84.7929,
-      "relationship_type": "高温回落修复观察"
+      "low_position_score": 86.9649,
+      "relationship_type": "关系偏弱或样本不足"
+    },
+    {
+      "symbol": 801040.0,
+      "name": "钢铁",
+      "current_close": 1857.75,
+      "last_date": "2026-11-24",
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.0569,
+      "drawdown_3y": -0.4093,
+      "return_3y": -0.1684,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.239,
+      "price_percentile_5y": 0.0341,
+      "drawdown_5y": -0.5568,
+      "return_5y": -0.4587,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.2679,
+      "pe_ttm": 19.72,
+      "pb": 0.89,
+      "dividend_yield": 2.77,
+      "valuation_low_score": 0.6882,
+      "low_position_score": 86.6928,
+      "relationship_type": "关系偏弱或样本不足"
     },
     {
       "symbol": 801210.0,
       "name": "社会服务",
       "current_close": 6330.78,
       "last_date": "2026-11-24",
-      "sample_days": 12991.0,
-      "price_percentile_3y": 0.0026,
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.0529,
       "drawdown_3y": -0.3416,
-      "return_3y": -0.2119,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.2601,
-      "price_percentile_5y": 0.0619,
-      "drawdown_5y": -0.3416,
-      "return_5y": -0.1942,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.3346,
+      "return_3y": -0.2863,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.3569,
+      "price_percentile_5y": 0.0317,
+      "drawdown_5y": -0.4717,
+      "return_5y": -0.4232,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.2325,
       "pe_ttm": 26.38,
       "pb": 2.07,
       "dividend_yield": 2.06,
       "valuation_low_score": 0.2903,
-      "low_position_score": 80.3304,
+      "low_position_score": 83.9326,
       "relationship_type": "高温回落修复观察"
     }
   ],
@@ -155,264 +155,264 @@
       "name": "美容护理",
       "current_close": 3000.46,
       "last_date": "2026-11-24",
-      "sample_days": 2375.0,
+      "sample_days": 1191.0,
       "price_percentile_3y": 0.0026,
-      "drawdown_3y": -0.4216,
-      "return_3y": -0.3451,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.3933,
-      "price_percentile_5y": 0.0016,
-      "drawdown_5y": -0.4532,
-      "return_5y": -0.335,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.4753,
+      "drawdown_3y": -0.4658,
+      "return_3y": -0.4658,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.5365,
+      "price_percentile_5y": 0.0017,
+      "drawdown_5y": -0.6332,
+      "return_5y": -0.6332,
+      "benchmark_return_5y": -0.2203,
+      "relative_return_5y": -0.4129,
       "pe_ttm": 23.71,
       "pb": 2.11,
       "dividend_yield": 2.75,
       "valuation_low_score": 0.4032,
-      "low_position_score": 93.796
+      "low_position_score": 94.4244
     },
     {
       "symbol": 801180.0,
       "name": "房地产",
       "current_close": 1555.71,
       "last_date": "2026-11-24",
-      "sample_days": 12991.0,
+      "sample_days": 6499.0,
       "price_percentile_3y": 0.0013,
-      "drawdown_3y": -0.3614,
-      "return_3y": -0.2165,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.2647,
+      "drawdown_3y": -0.4144,
+      "return_3y": -0.3811,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.4517,
       "price_percentile_5y": 0.0008,
-      "drawdown_5y": -0.4144,
-      "return_5y": -0.1478,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.2882,
+      "drawdown_5y": -0.5946,
+      "return_5y": -0.5229,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.3322,
       "pe_ttm": 6.5,
       "pb": 0.71,
       "dividend_yield": 2.32,
       "valuation_low_score": 0.7634,
-      "low_position_score": 86.9462
-    },
-    {
-      "symbol": 801040.0,
-      "name": "钢铁",
-      "current_close": 1857.75,
-      "last_date": "2026-11-24",
-      "sample_days": 12991.0,
-      "price_percentile_3y": 0.0013,
-      "drawdown_3y": -0.4093,
-      "return_3y": -0.1396,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.1877,
-      "price_percentile_5y": 0.0659,
-      "drawdown_5y": -0.4093,
-      "return_5y": -0.1339,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.2743,
-      "pe_ttm": 19.72,
-      "pb": 0.89,
-      "dividend_yield": 2.77,
-      "valuation_low_score": 0.6882,
-      "low_position_score": 84.8431
+      "low_position_score": 93.6998
     },
     {
       "symbol": 801200.0,
       "name": "商贸零售",
       "current_close": 1549.29,
       "last_date": "2026-11-24",
-      "sample_days": 12991.0,
-      "price_percentile_3y": 0.0026,
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.0847,
       "drawdown_3y": -0.4006,
-      "return_3y": -0.2606,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.3088,
-      "price_percentile_5y": 0.1,
-      "drawdown_5y": -0.4006,
-      "return_5y": -0.1408,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.2812,
+      "return_3y": -0.2693,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.34,
+      "price_percentile_5y": 0.0508,
+      "drawdown_5y": -0.523,
+      "return_5y": -0.4903,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.2995,
       "pe_ttm": 18.79,
       "pb": 1.58,
       "dividend_yield": 2.34,
       "valuation_low_score": 0.5699,
-      "low_position_score": 84.7929
+      "low_position_score": 86.9649
+    },
+    {
+      "symbol": 801040.0,
+      "name": "钢铁",
+      "current_close": 1857.75,
+      "last_date": "2026-11-24",
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.0569,
+      "drawdown_3y": -0.4093,
+      "return_3y": -0.1684,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.239,
+      "price_percentile_5y": 0.0341,
+      "drawdown_5y": -0.5568,
+      "return_5y": -0.4587,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.2679,
+      "pe_ttm": 19.72,
+      "pb": 0.89,
+      "dividend_yield": 2.77,
+      "valuation_low_score": 0.6882,
+      "low_position_score": 86.6928
     },
     {
       "symbol": 801210.0,
       "name": "社会服务",
       "current_close": 6330.78,
       "last_date": "2026-11-24",
-      "sample_days": 12991.0,
-      "price_percentile_3y": 0.0026,
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.0529,
       "drawdown_3y": -0.3416,
-      "return_3y": -0.2119,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.2601,
-      "price_percentile_5y": 0.0619,
-      "drawdown_5y": -0.3416,
-      "return_5y": -0.1942,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.3346,
+      "return_3y": -0.2863,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.3569,
+      "price_percentile_5y": 0.0317,
+      "drawdown_5y": -0.4717,
+      "return_5y": -0.4232,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.2325,
       "pe_ttm": 26.38,
       "pb": 2.07,
       "dividend_yield": 2.06,
       "valuation_low_score": 0.2903,
-      "low_position_score": 80.3304
-    },
-    {
-      "symbol": 801720.0,
-      "name": "建筑装饰",
-      "current_close": 1649.22,
-      "last_date": "2026-11-24",
-      "sample_days": 6163.0,
-      "price_percentile_3y": 0.0013,
-      "drawdown_3y": -0.3182,
-      "return_3y": -0.1082,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.1563,
-      "price_percentile_5y": 0.0373,
-      "drawdown_5y": -0.3182,
-      "return_5y": -0.0869,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.2273,
-      "pe_ttm": 10.41,
-      "pb": 0.56,
-      "dividend_yield": 3.64,
-      "valuation_low_score": 0.8817,
-      "low_position_score": 78.6772
+      "low_position_score": 83.9326
     },
     {
       "symbol": 801140.0,
       "name": "轻工制造",
       "current_close": 1757.52,
       "last_date": "2026-11-24",
-      "sample_days": 12991.0,
-      "price_percentile_3y": 0.004,
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.0952,
       "drawdown_3y": -0.3342,
-      "return_3y": -0.0866,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.1347,
-      "price_percentile_5y": 0.1071,
-      "drawdown_5y": -0.3342,
-      "return_5y": -0.1247,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.2651,
+      "return_3y": -0.2106,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.2812,
+      "price_percentile_5y": 0.0571,
+      "drawdown_5y": -0.4015,
+      "return_5y": -0.3503,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.1595,
       "pe_ttm": 20.45,
       "pb": 1.74,
       "dividend_yield": 3.14,
       "valuation_low_score": 0.5806,
-      "low_position_score": 76.9258
+      "low_position_score": 79.1698
     },
     {
-      "symbol": 801750.0,
-      "name": "计算机",
-      "current_close": 3642.78,
+      "symbol": 801120.0,
+      "name": "食品饮料",
+      "current_close": 14691.99,
       "last_date": "2026-11-24",
-      "sample_days": 6163.0,
-      "price_percentile_3y": 0.0026,
-      "drawdown_3y": -0.4078,
-      "return_3y": -0.168,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.2162,
-      "price_percentile_5y": 0.177,
-      "drawdown_5y": -0.4078,
-      "return_5y": 0.0331,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.1073,
-      "pe_ttm": 33.4,
-      "pb": 3.26,
-      "dividend_yield": 1.33,
-      "valuation_low_score": 0.0753,
-      "low_position_score": 76.3838
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.1548,
+      "drawdown_3y": -0.3036,
+      "return_3y": -0.2961,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.3667,
+      "price_percentile_5y": 0.0929,
+      "drawdown_5y": -0.4874,
+      "return_5y": -0.3796,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.1889,
+      "pe_ttm": 22.01,
+      "pb": 3.74,
+      "dividend_yield": 4.52,
+      "valuation_low_score": 0.4301,
+      "low_position_score": 79.1005
     },
     {
       "symbol": 801730.0,
       "name": "电力设备",
       "current_close": 6698.58,
       "last_date": "2026-11-24",
-      "sample_days": 6163.0,
-      "price_percentile_3y": 0.0344,
+      "sample_days": 3085.0,
+      "price_percentile_3y": 0.2725,
       "drawdown_3y": -0.4517,
-      "return_3y": 0.0339,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.0143,
-      "price_percentile_5y": 0.227,
-      "drawdown_5y": -0.4517,
-      "return_5y": 0.0289,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.1115,
+      "return_3y": -0.1186,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.1892,
+      "price_percentile_5y": 0.1635,
+      "drawdown_5y": -0.5156,
+      "return_5y": -0.4487,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.258,
       "pe_ttm": 19.78,
       "pb": 2.28,
       "dividend_yield": 1.85,
       "valuation_low_score": 0.3118,
-      "low_position_score": 75.6038
+      "low_position_score": 77.2741
     },
     {
-      "symbol": 801970.0,
-      "name": "环保",
-      "current_close": 1507.07,
+      "symbol": 801720.0,
+      "name": "建筑装饰",
+      "current_close": 1649.22,
       "last_date": "2026-11-24",
-      "sample_days": 2375.0,
-      "price_percentile_3y": 0.0026,
-      "drawdown_3y": -0.3456,
-      "return_3y": -0.09,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.1382,
-      "price_percentile_5y": 0.146,
-      "drawdown_5y": -0.3456,
-      "return_5y": -0.021,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.1613,
-      "pe_ttm": 15.39,
-      "pb": 1.16,
-      "dividend_yield": 2.47,
-      "valuation_low_score": 0.6667,
-      "low_position_score": 75.4296
+      "sample_days": 3085.0,
+      "price_percentile_3y": 0.0331,
+      "drawdown_3y": -0.3182,
+      "return_3y": -0.1754,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.246,
+      "price_percentile_5y": 0.0198,
+      "drawdown_5y": -0.3444,
+      "return_5y": -0.2056,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.0148,
+      "pe_ttm": 10.41,
+      "pb": 0.56,
+      "dividend_yield": 3.64,
+      "valuation_low_score": 0.8817,
+      "low_position_score": 76.9786
     },
     {
-      "symbol": 801880.0,
-      "name": "汽车",
-      "current_close": 5532.14,
+      "symbol": 801710.0,
+      "name": "建筑材料",
+      "current_close": 4517.44,
       "last_date": "2026-11-24",
-      "sample_days": 6163.0,
-      "price_percentile_3y": 0.004,
-      "drawdown_3y": -0.3434,
-      "return_3y": -0.1778,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.226,
-      "price_percentile_5y": 0.1484,
-      "drawdown_5y": -0.3434,
-      "return_5y": -0.0036,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.144,
-      "pe_ttm": 20.88,
-      "pb": 1.75,
-      "dividend_yield": 2.26,
-      "valuation_low_score": 0.4462,
-      "low_position_score": 75.1353
+      "sample_days": 3085.0,
+      "price_percentile_3y": 0.3704,
+      "drawdown_3y": -0.4401,
+      "return_3y": -0.1527,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.2233,
+      "price_percentile_5y": 0.2222,
+      "drawdown_5y": -0.4843,
+      "return_5y": -0.4544,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.2636,
+      "pe_ttm": 21.3,
+      "pb": 1.45,
+      "dividend_yield": 3.58,
+      "valuation_low_score": 0.6237,
+      "low_position_score": 75.5952
     },
     {
-      "symbol": 801740.0,
-      "name": "国防军工",
-      "current_close": 1360.33,
+      "symbol": 801150.0,
+      "name": "医药生物",
+      "current_close": 6973.72,
       "last_date": "2026-11-24",
-      "sample_days": 6163.0,
-      "price_percentile_3y": 0.004,
-      "drawdown_3y": -0.428,
-      "return_3y": -0.0288,
-      "benchmark_return_3y": 0.0482,
-      "relative_return_3y": -0.077,
-      "price_percentile_5y": 0.1905,
-      "drawdown_5y": -0.428,
-      "return_5y": 0.1324,
-      "benchmark_return_5y": 0.1404,
-      "relative_return_5y": -0.008,
-      "pe_ttm": 40.96,
-      "pb": 2.93,
-      "dividend_yield": 0.76,
-      "valuation_low_score": 0.0538,
-      "low_position_score": 73.3883
+      "sample_days": 6499.0,
+      "price_percentile_3y": 0.1204,
+      "drawdown_3y": -0.252,
+      "return_3y": -0.183,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.2536,
+      "price_percentile_5y": 0.0722,
+      "drawdown_5y": -0.3957,
+      "return_5y": -0.3883,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.1975,
+      "pe_ttm": 24.73,
+      "pb": 2.46,
+      "dividend_yield": 1.86,
+      "valuation_low_score": 0.2043,
+      "low_position_score": 73.8461
+    },
+    {
+      "symbol": 801750.0,
+      "name": "计算机",
+      "current_close": 3642.78,
+      "last_date": "2026-11-24",
+      "sample_days": 3085.0,
+      "price_percentile_3y": 0.1786,
+      "drawdown_3y": -0.4078,
+      "return_3y": -0.1815,
+      "benchmark_return_3y": 0.0706,
+      "relative_return_3y": -0.2521,
+      "price_percentile_5y": 0.1373,
+      "drawdown_5y": -0.4078,
+      "return_5y": -0.2669,
+      "benchmark_return_5y": -0.1908,
+      "relative_return_5y": -0.0761,
+      "pe_ttm": 33.4,
+      "pb": 3.26,
+      "dividend_yield": 1.33,
+      "valuation_low_score": 0.0753,
+      "low_position_score": 73.4585
     }
   ],
   "metrics": [
@@ -421,450 +421,450 @@
       "horizon": "10D",
       "symbol": "801200",
       "name": "商贸零售",
-      "sample_size": 483,
+      "sample_size": 242,
       "start_date": "2025-11-10",
       "end_date": "2026-11-10",
-      "corr_temp_fwd_return": 0.1257,
-      "corr_temp_fwd_excess": 0.0928,
-      "corr_delta_temp_fwd_excess": 0.0169,
-      "avg_fwd_return": -0.0077,
-      "avg_fwd_excess": -0.0016,
-      "win_rate_excess": 0.4824
+      "corr_temp_fwd_return": 0.0904,
+      "corr_temp_fwd_excess": 0.0706,
+      "corr_delta_temp_fwd_excess": 0.0252,
+      "avg_fwd_return": -0.0147,
+      "avg_fwd_excess": -0.0094,
+      "win_rate_excess": 0.3843
     },
     {
       "window": "1Y",
       "horizon": "10D",
       "symbol": "801180",
       "name": "房地产",
-      "sample_size": 483,
+      "sample_size": 242,
       "start_date": "2025-11-10",
       "end_date": "2026-11-10",
-      "corr_temp_fwd_return": 0.0207,
-      "corr_temp_fwd_excess": -0.0002,
-      "corr_delta_temp_fwd_excess": -0.008,
-      "avg_fwd_return": -0.0072,
-      "avg_fwd_excess": -0.0011,
-      "win_rate_excess": 0.4658
-    },
-    {
-      "window": "1Y",
-      "horizon": "10D",
-      "symbol": "801210",
-      "name": "社会服务",
-      "sample_size": 483,
-      "start_date": "2025-11-10",
-      "end_date": "2026-11-10",
-      "corr_temp_fwd_return": 0.1435,
-      "corr_temp_fwd_excess": 0.1154,
-      "corr_delta_temp_fwd_excess": 0.046,
-      "avg_fwd_return": -0.0057,
-      "avg_fwd_excess": 0.0003,
-      "win_rate_excess": 0.4783
-    },
-    {
-      "window": "1Y",
-      "horizon": "10D",
-      "symbol": "801980",
-      "name": "美容护理",
-      "sample_size": 483,
-      "start_date": "2025-11-10",
-      "end_date": "2026-11-10",
-      "corr_temp_fwd_return": 0.0681,
-      "corr_temp_fwd_excess": 0.0338,
-      "corr_delta_temp_fwd_excess": 0.0354,
-      "avg_fwd_return": -0.008,
-      "avg_fwd_excess": -0.0022,
-      "win_rate_excess": 0.4431
-    },
-    {
-      "window": "1Y",
-      "horizon": "10D",
-      "symbol": "801040",
-      "name": "钢铁",
-      "sample_size": 483,
-      "start_date": "2025-11-10",
-      "end_date": "2026-11-10",
-      "corr_temp_fwd_return": -0.0884,
-      "corr_temp_fwd_excess": -0.1055,
-      "corr_delta_temp_fwd_excess": -0.0324,
-      "avg_fwd_return": -0.0067,
-      "avg_fwd_excess": -0.001,
-      "win_rate_excess": 0.4534
-    },
-    {
-      "window": "1Y",
-      "horizon": "20D",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "sample_size": 464,
-      "start_date": "2025-11-10",
-      "end_date": "2026-10-27",
-      "corr_temp_fwd_return": 0.1169,
-      "corr_temp_fwd_excess": 0.1207,
-      "corr_delta_temp_fwd_excess": 0.0096,
+      "corr_temp_fwd_return": 0.0379,
+      "corr_temp_fwd_excess": 0.0214,
+      "corr_delta_temp_fwd_excess": -0.0422,
       "avg_fwd_return": -0.0139,
-      "avg_fwd_excess": -0.0037,
-      "win_rate_excess": 0.4526
+      "avg_fwd_excess": -0.0085,
+      "win_rate_excess": 0.4008
+    },
+    {
+      "window": "1Y",
+      "horizon": "10D",
+      "symbol": "801210",
+      "name": "社会服务",
+      "sample_size": 242,
+      "start_date": "2025-11-10",
+      "end_date": "2026-11-10",
+      "corr_temp_fwd_return": 0.0908,
+      "corr_temp_fwd_excess": 0.0806,
+      "corr_delta_temp_fwd_excess": 0.0312,
+      "avg_fwd_return": -0.011,
+      "avg_fwd_excess": -0.0056,
+      "win_rate_excess": 0.3678
+    },
+    {
+      "window": "1Y",
+      "horizon": "10D",
+      "symbol": "801980",
+      "name": "美容护理",
+      "sample_size": 242,
+      "start_date": "2025-11-10",
+      "end_date": "2026-11-10",
+      "corr_temp_fwd_return": 0.0229,
+      "corr_temp_fwd_excess": -0.0005,
+      "corr_delta_temp_fwd_excess": 0.0399,
+      "avg_fwd_return": -0.0157,
+      "avg_fwd_excess": -0.0103,
+      "win_rate_excess": 0.3802
+    },
+    {
+      "window": "1Y",
+      "horizon": "10D",
+      "symbol": "801040",
+      "name": "钢铁",
+      "sample_size": 242,
+      "start_date": "2025-11-10",
+      "end_date": "2026-11-10",
+      "corr_temp_fwd_return": -0.0604,
+      "corr_temp_fwd_excess": -0.0834,
+      "corr_delta_temp_fwd_excess": -0.0502,
+      "avg_fwd_return": -0.013,
+      "avg_fwd_excess": -0.0076,
+      "win_rate_excess": 0.3926
+    },
+    {
+      "window": "1Y",
+      "horizon": "20D",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "sample_size": 232,
+      "start_date": "2025-11-10",
+      "end_date": "2026-10-27",
+      "corr_temp_fwd_return": 0.1158,
+      "corr_temp_fwd_excess": 0.1273,
+      "corr_delta_temp_fwd_excess": -0.048,
+      "avg_fwd_return": -0.0274,
+      "avg_fwd_excess": -0.0175,
+      "win_rate_excess": 0.4483
     },
     {
       "window": "1Y",
       "horizon": "20D",
       "symbol": "801180",
       "name": "房地产",
-      "sample_size": 464,
+      "sample_size": 232,
       "start_date": "2025-11-10",
       "end_date": "2026-10-27",
-      "corr_temp_fwd_return": 0.0591,
-      "corr_temp_fwd_excess": 0.0827,
-      "corr_delta_temp_fwd_excess": -0.0473,
-      "avg_fwd_return": -0.0131,
-      "avg_fwd_excess": -0.0024,
-      "win_rate_excess": 0.4741
+      "corr_temp_fwd_return": 0.0926,
+      "corr_temp_fwd_excess": 0.118,
+      "corr_delta_temp_fwd_excess": -0.065,
+      "avg_fwd_return": -0.0249,
+      "avg_fwd_excess": -0.015,
+      "win_rate_excess": 0.4224
     },
     {
       "window": "1Y",
       "horizon": "20D",
       "symbol": "801210",
       "name": "社会服务",
-      "sample_size": 464,
+      "sample_size": 232,
       "start_date": "2025-11-10",
       "end_date": "2026-10-27",
-      "corr_temp_fwd_return": 0.1119,
-      "corr_temp_fwd_excess": 0.1126,
-      "corr_delta_temp_fwd_excess": 0.0174,
-      "avg_fwd_return": -0.0103,
-      "avg_fwd_excess": -0.0005,
-      "win_rate_excess": 0.444
+      "corr_temp_fwd_return": 0.0589,
+      "corr_temp_fwd_excess": 0.0782,
+      "corr_delta_temp_fwd_excess": -0.0092,
+      "avg_fwd_return": -0.0216,
+      "avg_fwd_excess": -0.0117,
+      "win_rate_excess": 0.4095
     },
     {
       "window": "1Y",
       "horizon": "20D",
       "symbol": "801980",
       "name": "美容护理",
-      "sample_size": 464,
+      "sample_size": 232,
       "start_date": "2025-11-10",
       "end_date": "2026-10-27",
-      "corr_temp_fwd_return": 0.0431,
-      "corr_temp_fwd_excess": 0.0638,
-      "corr_delta_temp_fwd_excess": 0.0239,
-      "avg_fwd_return": -0.0151,
-      "avg_fwd_excess": -0.0043,
-      "win_rate_excess": 0.444
-    },
-    {
-      "window": "1Y",
-      "horizon": "20D",
-      "symbol": "801040",
-      "name": "钢铁",
-      "sample_size": 464,
-      "start_date": "2025-11-10",
-      "end_date": "2026-10-27",
-      "corr_temp_fwd_return": -0.0507,
-      "corr_temp_fwd_excess": -0.0241,
-      "corr_delta_temp_fwd_excess": -0.0548,
-      "avg_fwd_return": -0.0125,
-      "avg_fwd_excess": -0.0022,
-      "win_rate_excess": 0.4741
-    },
-    {
-      "window": "1Y",
-      "horizon": "5D",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "sample_size": 492,
-      "start_date": "2025-11-10",
-      "end_date": "2026-11-17",
-      "corr_temp_fwd_return": 0.0943,
-      "corr_temp_fwd_excess": 0.0172,
-      "corr_delta_temp_fwd_excess": -0.0275,
-      "avg_fwd_return": -0.0041,
-      "avg_fwd_excess": -0.0012,
-      "win_rate_excess": 0.4675
-    },
-    {
-      "window": "1Y",
-      "horizon": "5D",
-      "symbol": "801180",
-      "name": "房地产",
-      "sample_size": 492,
-      "start_date": "2025-11-10",
-      "end_date": "2026-11-17",
-      "corr_temp_fwd_return": 0.032,
-      "corr_temp_fwd_excess": -0.0392,
-      "corr_delta_temp_fwd_excess": -0.032,
-      "avg_fwd_return": -0.0038,
-      "avg_fwd_excess": -0.0009,
-      "win_rate_excess": 0.4593
-    },
-    {
-      "window": "1Y",
-      "horizon": "5D",
-      "symbol": "801210",
-      "name": "社会服务",
-      "sample_size": 492,
-      "start_date": "2025-11-10",
-      "end_date": "2026-11-17",
-      "corr_temp_fwd_return": 0.1157,
-      "corr_temp_fwd_excess": 0.0351,
-      "corr_delta_temp_fwd_excess": -0.006,
-      "avg_fwd_return": -0.003,
-      "avg_fwd_excess": -0.0002,
-      "win_rate_excess": 0.498
-    },
-    {
-      "window": "1Y",
-      "horizon": "5D",
-      "symbol": "801980",
-      "name": "美容护理",
-      "sample_size": 492,
-      "start_date": "2025-11-10",
-      "end_date": "2026-11-17",
-      "corr_temp_fwd_return": 0.0687,
-      "corr_temp_fwd_excess": -0.0084,
-      "corr_delta_temp_fwd_excess": 0.0065,
-      "avg_fwd_return": -0.0041,
-      "avg_fwd_excess": -0.0012,
-      "win_rate_excess": 0.4654
-    },
-    {
-      "window": "1Y",
-      "horizon": "5D",
-      "symbol": "801040",
-      "name": "钢铁",
-      "sample_size": 492,
-      "start_date": "2025-11-10",
-      "end_date": "2026-11-17",
-      "corr_temp_fwd_return": -0.0437,
-      "corr_temp_fwd_excess": -0.11,
-      "corr_delta_temp_fwd_excess": -0.0401,
-      "avg_fwd_return": -0.0034,
-      "avg_fwd_excess": -0.0005,
-      "win_rate_excess": 0.4654
-    },
-    {
-      "window": "2Y",
-      "horizon": "10D",
-      "symbol": "801200",
-      "name": "商贸零售",
-      "sample_size": 987,
-      "start_date": "2024-10-28",
-      "end_date": "2026-11-10",
-      "corr_temp_fwd_return": 0.1238,
-      "corr_temp_fwd_excess": 0.1245,
-      "corr_delta_temp_fwd_excess": 0.0337,
-      "avg_fwd_return": -0.0013,
-      "avg_fwd_excess": -0.0014,
-      "win_rate_excess": 0.4671
-    },
-    {
-      "window": "2Y",
-      "horizon": "10D",
-      "symbol": "801180",
-      "name": "房地产",
-      "sample_size": 987,
-      "start_date": "2024-10-28",
-      "end_date": "2026-11-10",
-      "corr_temp_fwd_return": -0.0006,
-      "corr_temp_fwd_excess": 0.0026,
-      "corr_delta_temp_fwd_excess": -0.0063,
-      "avg_fwd_return": -0.0031,
-      "avg_fwd_excess": -0.0033,
-      "win_rate_excess": 0.4448
-    },
-    {
-      "window": "2Y",
-      "horizon": "10D",
-      "symbol": "801210",
-      "name": "社会服务",
-      "sample_size": 987,
-      "start_date": "2024-10-28",
-      "end_date": "2026-11-10",
-      "corr_temp_fwd_return": 0.1015,
+      "corr_temp_fwd_return": 0.1093,
       "corr_temp_fwd_excess": 0.1067,
-      "corr_delta_temp_fwd_excess": 0.0493,
-      "avg_fwd_return": -0.0017,
-      "avg_fwd_excess": -0.0019,
-      "win_rate_excess": 0.4711
+      "corr_delta_temp_fwd_excess": -0.0249,
+      "avg_fwd_return": -0.0286,
+      "avg_fwd_excess": -0.0186,
+      "win_rate_excess": 0.3707
+    },
+    {
+      "window": "1Y",
+      "horizon": "20D",
+      "symbol": "801040",
+      "name": "钢铁",
+      "sample_size": 232,
+      "start_date": "2025-11-10",
+      "end_date": "2026-10-27",
+      "corr_temp_fwd_return": -0.1202,
+      "corr_temp_fwd_excess": -0.1121,
+      "corr_delta_temp_fwd_excess": -0.0165,
+      "avg_fwd_return": -0.0236,
+      "avg_fwd_excess": -0.0137,
+      "win_rate_excess": 0.4741
+    },
+    {
+      "window": "1Y",
+      "horizon": "5D",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "sample_size": 247,
+      "start_date": "2025-11-10",
+      "end_date": "2026-11-17",
+      "corr_temp_fwd_return": 0.1018,
+      "corr_temp_fwd_excess": 0.0494,
+      "corr_delta_temp_fwd_excess": -0.0284,
+      "avg_fwd_return": -0.0082,
+      "avg_fwd_excess": -0.0053,
+      "win_rate_excess": 0.3968
+    },
+    {
+      "window": "1Y",
+      "horizon": "5D",
+      "symbol": "801180",
+      "name": "房地产",
+      "sample_size": 247,
+      "start_date": "2025-11-10",
+      "end_date": "2026-11-17",
+      "corr_temp_fwd_return": 0.0041,
+      "corr_temp_fwd_excess": -0.0558,
+      "corr_delta_temp_fwd_excess": -0.054,
+      "avg_fwd_return": -0.0076,
+      "avg_fwd_excess": -0.0047,
+      "win_rate_excess": 0.3684
+    },
+    {
+      "window": "1Y",
+      "horizon": "5D",
+      "symbol": "801210",
+      "name": "社会服务",
+      "sample_size": 247,
+      "start_date": "2025-11-10",
+      "end_date": "2026-11-17",
+      "corr_temp_fwd_return": 0.1245,
+      "corr_temp_fwd_excess": 0.0792,
+      "corr_delta_temp_fwd_excess": 0.0067,
+      "avg_fwd_return": -0.0061,
+      "avg_fwd_excess": -0.0032,
+      "win_rate_excess": 0.4291
+    },
+    {
+      "window": "1Y",
+      "horizon": "5D",
+      "symbol": "801980",
+      "name": "美容护理",
+      "sample_size": 247,
+      "start_date": "2025-11-10",
+      "end_date": "2026-11-17",
+      "corr_temp_fwd_return": 0.0558,
+      "corr_temp_fwd_excess": -0.0018,
+      "corr_delta_temp_fwd_excess": 0.0034,
+      "avg_fwd_return": -0.0083,
+      "avg_fwd_excess": -0.0053,
+      "win_rate_excess": 0.3968
+    },
+    {
+      "window": "1Y",
+      "horizon": "5D",
+      "symbol": "801040",
+      "name": "钢铁",
+      "sample_size": 247,
+      "start_date": "2025-11-10",
+      "end_date": "2026-11-17",
+      "corr_temp_fwd_return": -0.0949,
+      "corr_temp_fwd_excess": -0.1604,
+      "corr_delta_temp_fwd_excess": -0.072,
+      "avg_fwd_return": -0.0069,
+      "avg_fwd_excess": -0.004,
+      "win_rate_excess": 0.4251
+    },
+    {
+      "window": "2Y",
+      "horizon": "10D",
+      "symbol": "801200",
+      "name": "商贸零售",
+      "sample_size": 494,
+      "start_date": "2024-10-28",
+      "end_date": "2026-11-10",
+      "corr_temp_fwd_return": 0.0731,
+      "corr_temp_fwd_excess": 0.0814,
+      "corr_delta_temp_fwd_excess": 0.0485,
+      "avg_fwd_return": -0.0033,
+      "avg_fwd_excess": -0.0038,
+      "win_rate_excess": 0.4211
+    },
+    {
+      "window": "2Y",
+      "horizon": "10D",
+      "symbol": "801180",
+      "name": "房地产",
+      "sample_size": 494,
+      "start_date": "2024-10-28",
+      "end_date": "2026-11-10",
+      "corr_temp_fwd_return": -0.046,
+      "corr_temp_fwd_excess": -0.0576,
+      "corr_delta_temp_fwd_excess": -0.0069,
+      "avg_fwd_return": -0.007,
+      "avg_fwd_excess": -0.0075,
+      "win_rate_excess": 0.4231
+    },
+    {
+      "window": "2Y",
+      "horizon": "10D",
+      "symbol": "801210",
+      "name": "社会服务",
+      "sample_size": 494,
+      "start_date": "2024-10-28",
+      "end_date": "2026-11-10",
+      "corr_temp_fwd_return": 0.0188,
+      "corr_temp_fwd_excess": 0.022,
+      "corr_delta_temp_fwd_excess": 0.0601,
+      "avg_fwd_return": -0.0037,
+      "avg_fwd_excess": -0.0043,
+      "win_rate_excess": 0.4474
     },
     {
       "window": "2Y",
       "horizon": "10D",
       "symbol": "801980",
       "name": "美容护理",
-      "sample_size": 987,
+      "sample_size": 494,
       "start_date": "2024-10-28",
       "end_date": "2026-11-10",
-      "corr_temp_fwd_return": 0.0502,
-      "corr_temp_fwd_excess": 0.0473,
-      "corr_delta_temp_fwd_excess": 0.0092,
-      "avg_fwd_return": -0.0038,
-      "avg_fwd_excess": -0.0041,
-      "win_rate_excess": 0.4073
+      "corr_temp_fwd_return": 0.0054,
+      "corr_temp_fwd_excess": 0.005,
+      "corr_delta_temp_fwd_excess": 0.0448,
+      "avg_fwd_return": -0.008,
+      "avg_fwd_excess": -0.0085,
+      "win_rate_excess": 0.417
     },
     {
       "window": "2Y",
       "horizon": "10D",
       "symbol": "801040",
       "name": "钢铁",
-      "sample_size": 987,
+      "sample_size": 494,
       "start_date": "2024-10-28",
       "end_date": "2026-11-10",
-      "corr_temp_fwd_return": -0.079,
-      "corr_temp_fwd_excess": -0.0765,
-      "corr_delta_temp_fwd_excess": -0.0461,
-      "avg_fwd_return": -0.0006,
-      "avg_fwd_excess": -0.0009,
-      "win_rate_excess": 0.4529
+      "corr_temp_fwd_return": -0.0898,
+      "corr_temp_fwd_excess": -0.1048,
+      "corr_delta_temp_fwd_excess": -0.048,
+      "avg_fwd_return": -0.0015,
+      "avg_fwd_excess": -0.0021,
+      "win_rate_excess": 0.4433
     },
     {
       "window": "2Y",
       "horizon": "20D",
       "symbol": "801200",
       "name": "商贸零售",
-      "sample_size": 968,
+      "sample_size": 484,
       "start_date": "2024-10-28",
       "end_date": "2026-10-27",
-      "corr_temp_fwd_return": 0.0885,
-      "corr_temp_fwd_excess": 0.1799,
-      "corr_delta_temp_fwd_excess": 0.0388,
-      "avg_fwd_return": -0.0028,
-      "avg_fwd_excess": -0.0037,
-      "win_rate_excess": 0.4215
+      "corr_temp_fwd_return": 0.0528,
+      "corr_temp_fwd_excess": 0.1322,
+      "corr_delta_temp_fwd_excess": -0.0142,
+      "avg_fwd_return": -0.0068,
+      "avg_fwd_excess": -0.0079,
+      "win_rate_excess": 0.4339
     },
     {
       "window": "2Y",
       "horizon": "20D",
       "symbol": "801180",
       "name": "房地产",
-      "sample_size": 968,
+      "sample_size": 484,
       "start_date": "2024-10-28",
       "end_date": "2026-10-27",
-      "corr_temp_fwd_return": -0.0337,
-      "corr_temp_fwd_excess": 0.0773,
-      "corr_delta_temp_fwd_excess": -0.0097,
-      "avg_fwd_return": -0.0065,
-      "avg_fwd_excess": -0.0072,
-      "win_rate_excess": 0.4091
+      "corr_temp_fwd_return": -0.1063,
+      "corr_temp_fwd_excess": -0.0433,
+      "corr_delta_temp_fwd_excess": -0.0262,
+      "avg_fwd_return": -0.013,
+      "avg_fwd_excess": -0.0141,
+      "win_rate_excess": 0.3988
     },
     {
       "window": "2Y",
       "horizon": "20D",
       "symbol": "801210",
       "name": "社会服务",
-      "sample_size": 968,
+      "sample_size": 484,
       "start_date": "2024-10-28",
       "end_date": "2026-10-27",
-      "corr_temp_fwd_return": 0.0304,
-      "corr_temp_fwd_excess": 0.1226,
-      "corr_delta_temp_fwd_excess": 0.0488,
-      "avg_fwd_return": -0.0034,
-      "avg_fwd_excess": -0.0045,
-      "win_rate_excess": 0.4112
-    },
-    {
-      "window": "2Y",
-      "horizon": "20D",
-      "symbol": "801980",
-      "name": "美容护理",
-      "sample_size": 968,
-      "start_date": "2024-10-28",
-      "end_date": "2026-10-27",
-      "corr_temp_fwd_return": 0.017,
-      "corr_temp_fwd_excess": 0.1168,
-      "corr_delta_temp_fwd_excess": 0.0356,
-      "avg_fwd_return": -0.0077,
-      "avg_fwd_excess": -0.0083,
-      "win_rate_excess": 0.4029
-    },
-    {
-      "window": "2Y",
-      "horizon": "20D",
-      "symbol": "801040",
-      "name": "钢铁",
-      "sample_size": 968,
-      "start_date": "2024-10-28",
-      "end_date": "2026-10-27",
-      "corr_temp_fwd_return": -0.0826,
-      "corr_temp_fwd_excess": 0.0176,
-      "corr_delta_temp_fwd_excess": -0.0434,
-      "avg_fwd_return": -0.0012,
-      "avg_fwd_excess": -0.002,
+      "corr_temp_fwd_return": -0.0644,
+      "corr_temp_fwd_excess": 0.0108,
+      "corr_delta_temp_fwd_excess": 0.0133,
+      "avg_fwd_return": -0.0075,
+      "avg_fwd_excess": -0.0087,
       "win_rate_excess": 0.4669
     },
     {
       "window": "2Y",
+      "horizon": "20D",
+      "symbol": "801980",
+      "name": "美容护理",
+      "sample_size": 484,
+      "start_date": "2024-10-28",
+      "end_date": "2026-10-27",
+      "corr_temp_fwd_return": 0.0155,
+      "corr_temp_fwd_excess": 0.0935,
+      "corr_delta_temp_fwd_excess": -0.0155,
+      "avg_fwd_return": -0.0149,
+      "avg_fwd_excess": -0.0161,
+      "win_rate_excess": 0.374
+    },
+    {
+      "window": "2Y",
+      "horizon": "20D",
+      "symbol": "801040",
+      "name": "钢铁",
+      "sample_size": 484,
+      "start_date": "2024-10-28",
+      "end_date": "2026-10-27",
+      "corr_temp_fwd_return": -0.1655,
+      "corr_temp_fwd_excess": -0.1174,
+      "corr_delta_temp_fwd_excess": -0.0162,
+      "avg_fwd_return": -0.0023,
+      "avg_fwd_excess": -0.0035,
+      "win_rate_excess": 0.5041
+    },
+    {
+      "window": "2Y",
       "horizon": "5D",
       "symbol": "801200",
       "name": "商贸零售",
-      "sample_size": 996,
+      "sample_size": 499,
       "start_date": "2024-10-28",
       "end_date": "2026-11-17",
-      "corr_temp_fwd_return": 0.1197,
-      "corr_temp_fwd_excess": 0.0565,
-      "corr_delta_temp_fwd_excess": 0.0118,
-      "avg_fwd_return": -0.0008,
-      "avg_fwd_excess": -0.0012,
-      "win_rate_excess": 0.4448
+      "corr_temp_fwd_return": 0.11,
+      "corr_temp_fwd_excess": 0.0765,
+      "corr_delta_temp_fwd_excess": 0.0373,
+      "avg_fwd_return": -0.0016,
+      "avg_fwd_excess": -0.002,
+      "win_rate_excess": 0.4289
     },
     {
       "window": "2Y",
       "horizon": "5D",
       "symbol": "801180",
       "name": "房地产",
-      "sample_size": 996,
+      "sample_size": 499,
       "start_date": "2024-10-28",
       "end_date": "2026-11-17",
-      "corr_temp_fwd_return": 0.0413,
-      "corr_temp_fwd_excess": -0.0226,
-      "corr_delta_temp_fwd_excess": 0.0137,
-      "avg_fwd_return": -0.0016,
-      "avg_fwd_excess": -0.0021,
-      "win_rate_excess": 0.4408
+      "corr_temp_fwd_return": -0.0109,
+      "corr_temp_fwd_excess": -0.0715,
+      "corr_delta_temp_fwd_excess": -0.0062,
+      "avg_fwd_return": -0.0034,
+      "avg_fwd_excess": -0.0038,
+      "win_rate_excess": 0.4208
     },
     {
       "window": "2Y",
       "horizon": "5D",
       "symbol": "801210",
       "name": "社会服务",
-      "sample_size": 996,
+      "sample_size": 499,
       "start_date": "2024-10-28",
       "end_date": "2026-11-17",
-      "corr_temp_fwd_return": 0.1094,
-      "corr_temp_fwd_excess": 0.0406,
-      "corr_delta_temp_fwd_excess": 0.0309,
-      "avg_fwd_return": -0.001,
-      "avg_fwd_excess": -0.0014,
-      "win_rate_excess": 0.4759
+      "corr_temp_fwd_return": 0.0903,
+      "corr_temp_fwd_excess": 0.0521,
+      "corr_delta_temp_fwd_excess": 0.0587,
+      "avg_fwd_return": -0.002,
+      "avg_fwd_excess": -0.0024,
+      "win_rate_excess": 0.481
     },
     {
       "window": "2Y",
       "horizon": "5D",
       "symbol": "801980",
       "name": "美容护理",
-      "sample_size": 996,
+      "sample_size": 499,
       "start_date": "2024-10-28",
       "end_date": "2026-11-17",
-      "corr_temp_fwd_return": 0.0698,
-      "corr_temp_fwd_excess": 0.0043,
-      "corr_delta_temp_fwd_excess": 0.0215,
-      "avg_fwd_return": -0.002,
-      "avg_fwd_excess": -0.0024,
-      "win_rate_excess": 0.4307
+      "corr_temp_fwd_return": 0.0427,
+      "corr_temp_fwd_excess": -0.0053,
+      "corr_delta_temp_fwd_excess": 0.0135,
+      "avg_fwd_return": -0.004,
+      "avg_fwd_excess": -0.0044,
+      "win_rate_excess": 0.4128
     },
     {
       "window": "2Y",
       "horizon": "5D",
       "symbol": "801040",
       "name": "钢铁",
-      "sample_size": 996,
+      "sample_size": 499,
       "start_date": "2024-10-28",
       "end_date": "2026-11-17",
-      "corr_temp_fwd_return": -0.0355,
-      "corr_temp_fwd_excess": -0.0974,
-      "corr_delta_temp_fwd_excess": -0.022,
-      "avg_fwd_return": -0.0003,
-      "avg_fwd_excess": -0.0008,
-      "win_rate_excess": 0.4578
+      "corr_temp_fwd_return": -0.0839,
+      "corr_temp_fwd_excess": -0.1532,
+      "corr_delta_temp_fwd_excess": -0.05,
+      "avg_fwd_return": -0.0007,
+      "avg_fwd_excess": -0.0011,
+      "win_rate_excess": 0.4449
     }
   ],
   "buckets": [
@@ -877,30 +877,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 108,
-          "avg_excess": 0.0019,
-          "win_rate": 0.5
+          "sample_size": 54,
+          "avg_excess": 0.0101,
+          "win_rate": 0.6296
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 220,
-          "avg_excess": -0.0069,
-          "win_rate": 0.4182
+          "sample_size": 110,
+          "avg_excess": -0.0308,
+          "win_rate": 0.4
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 118,
-          "avg_excess": 0.0023,
-          "win_rate": 0.5254
+          "sample_size": 59,
+          "avg_excess": -0.0047,
+          "win_rate": 0.4576
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 18,
-          "avg_excess": 0.0018,
-          "win_rate": 0.6667
+          "sample_size": 9,
+          "avg_excess": -0.006,
+          "win_rate": 0.5556
         },
         {
           "bucket": "恐慌",
@@ -920,29 +920,29 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 108,
-          "avg_excess": -0.0116,
-          "win_rate": 0.4259
+          "sample_size": 54,
+          "avg_excess": -0.0195,
+          "win_rate": 0.3333
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 220,
-          "avg_excess": -0.0005,
-          "win_rate": 0.4545
+          "sample_size": 110,
+          "avg_excess": -0.021,
+          "win_rate": 0.3727
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 118,
-          "avg_excess": 0.0002,
-          "win_rate": 0.5254
+          "sample_size": 59,
+          "avg_excess": -0.0019,
+          "win_rate": 0.5593
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 18,
-          "avg_excess": 0.0132,
+          "sample_size": 9,
+          "avg_excess": 0.0008,
           "win_rate": 0.6667
         },
         {
@@ -963,30 +963,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 108,
-          "avg_excess": -0.004,
-          "win_rate": 0.4444
+          "sample_size": 54,
+          "avg_excess": -0.0175,
+          "win_rate": 0.4815
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 220,
-          "avg_excess": -0.0112,
-          "win_rate": 0.3636
+          "sample_size": 110,
+          "avg_excess": -0.0314,
+          "win_rate": 0.3364
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 118,
-          "avg_excess": 0.0071,
-          "win_rate": 0.5932
+          "sample_size": 59,
+          "avg_excess": 0.0068,
+          "win_rate": 0.6102
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 18,
-          "avg_excess": 0.0176,
-          "win_rate": 0.6667
+          "sample_size": 9,
+          "avg_excess": -0.0069,
+          "win_rate": 0.5556
         },
         {
           "bucket": "恐慌",
@@ -1006,30 +1006,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 108,
-          "avg_excess": -0.0011,
-          "win_rate": 0.3889
+          "sample_size": 54,
+          "avg_excess": -0.007,
+          "win_rate": 0.3519
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 220,
-          "avg_excess": -0.0054,
-          "win_rate": 0.4091
+          "sample_size": 110,
+          "avg_excess": -0.0218,
+          "win_rate": 0.3818
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 118,
-          "avg_excess": 0.003,
-          "win_rate": 0.4915
+          "sample_size": 59,
+          "avg_excess": -0.0046,
+          "win_rate": 0.4576
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 18,
-          "avg_excess": 0.0407,
-          "win_rate": 0.8889
+          "sample_size": 9,
+          "avg_excess": 0.038,
+          "win_rate": 0.7778
         },
         {
           "bucket": "恐慌",
@@ -1049,30 +1049,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 108,
-          "avg_excess": -0.0072,
-          "win_rate": 0.4259
+          "sample_size": 54,
+          "avg_excess": -0.0202,
+          "win_rate": 0.2963
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 220,
-          "avg_excess": -0.0083,
-          "win_rate": 0.4091
+          "sample_size": 110,
+          "avg_excess": -0.0307,
+          "win_rate": 0.3273
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 118,
-          "avg_excess": 0.0059,
-          "win_rate": 0.5254
+          "sample_size": 59,
+          "avg_excess": 0.0073,
+          "win_rate": 0.5424
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 18,
-          "avg_excess": -0.0058,
-          "win_rate": 0.4444
+          "sample_size": 9,
+          "avg_excess": -0.0321,
+          "win_rate": 0.2222
         },
         {
           "bucket": "恐慌",
@@ -1092,29 +1092,29 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 276,
-          "avg_excess": -0.0034,
-          "win_rate": 0.442
+          "sample_size": 138,
+          "avg_excess": 0.0089,
+          "win_rate": 0.529
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 456,
-          "avg_excess": -0.0045,
-          "win_rate": 0.4474
+          "sample_size": 228,
+          "avg_excess": -0.0126,
+          "win_rate": 0.4781
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 214,
-          "avg_excess": 0.005,
-          "win_rate": 0.5327
+          "sample_size": 107,
+          "avg_excess": 0.0003,
+          "win_rate": 0.5234
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 22,
-          "avg_excess": -0.0029,
+          "sample_size": 11,
+          "avg_excess": -0.0067,
           "win_rate": 0.5455
         },
         {
@@ -1135,29 +1135,29 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 276,
-          "avg_excess": -0.0112,
-          "win_rate": 0.3841
+          "sample_size": 138,
+          "avg_excess": -0.009,
+          "win_rate": 0.4203
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 456,
-          "avg_excess": -0.008,
-          "win_rate": 0.3904
+          "sample_size": 228,
+          "avg_excess": -0.0166,
+          "win_rate": 0.3553
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 214,
-          "avg_excess": -0.0024,
-          "win_rate": 0.4579
+          "sample_size": 107,
+          "avg_excess": -0.0172,
+          "win_rate": 0.4393
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 22,
-          "avg_excess": 0.0111,
+          "sample_size": 11,
+          "avg_excess": 0.001,
           "win_rate": 0.6364
         },
         {
@@ -1178,30 +1178,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 276,
-          "avg_excess": -0.007,
-          "win_rate": 0.4058
+          "sample_size": 138,
+          "avg_excess": -0.0082,
+          "win_rate": 0.3913
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 456,
-          "avg_excess": -0.0131,
-          "win_rate": 0.3289
+          "sample_size": 228,
+          "avg_excess": -0.0207,
+          "win_rate": 0.3728
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 214,
-          "avg_excess": 0.0176,
-          "win_rate": 0.6075
+          "sample_size": 107,
+          "avg_excess": 0.0175,
+          "win_rate": 0.5981
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 22,
-          "avg_excess": 0.0249,
-          "win_rate": 0.7273
+          "sample_size": 11,
+          "avg_excess": 0.0131,
+          "win_rate": 0.6364
         },
         {
           "bucket": "恐慌",
@@ -1221,30 +1221,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 276,
-          "avg_excess": -0.0056,
-          "win_rate": 0.3623
+          "sample_size": 138,
+          "avg_excess": -0.0033,
+          "win_rate": 0.442
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 456,
-          "avg_excess": -0.0114,
-          "win_rate": 0.3596
+          "sample_size": 228,
+          "avg_excess": -0.0162,
+          "win_rate": 0.4474
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 214,
-          "avg_excess": 0.0075,
-          "win_rate": 0.5327
+          "sample_size": 107,
+          "avg_excess": -0.0042,
+          "win_rate": 0.5047
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 22,
-          "avg_excess": 0.0385,
-          "win_rate": 0.9091
+          "sample_size": 11,
+          "avg_excess": 0.0332,
+          "win_rate": 0.8182
         },
         {
           "bucket": "恐慌",
@@ -1264,30 +1264,30 @@
         {
           "bucket": "低温",
           "range": "0-40",
-          "sample_size": 276,
-          "avg_excess": -0.0131,
-          "win_rate": 0.3768
+          "sample_size": 138,
+          "avg_excess": -0.0175,
+          "win_rate": 0.3696
         },
         {
           "bucket": "正常",
           "range": "40-60",
-          "sample_size": 456,
-          "avg_excess": -0.0114,
-          "win_rate": 0.3772
+          "sample_size": 228,
+          "avg_excess": -0.0223,
+          "win_rate": 0.3421
         },
         {
           "bucket": "警戒",
           "range": "60-75",
-          "sample_size": 214,
-          "avg_excess": 0.0038,
-          "win_rate": 0.486
+          "sample_size": 107,
+          "avg_excess": -0.0006,
+          "win_rate": 0.4579
         },
         {
           "bucket": "高风险",
           "range": "75-90",
-          "sample_size": 22,
-          "avg_excess": -0.0042,
-          "win_rate": 0.4545
+          "sample_size": 11,
+          "avg_excess": -0.0201,
+          "win_rate": 0.2727
         },
         {
           "bucket": "恐慌",
@@ -1306,38 +1306,8 @@
       "name": "钢铁",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0003,
-      "win_rate": 0.4091
-    },
-    {
-      "window": "1Y",
-      "symbol": "801040",
-      "name": "钢铁",
-      "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0005,
-      "win_rate": 0.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801040",
-      "name": "钢铁",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 124,
-      "avg_fwd_excess": -0.0008,
-      "win_rate": 0.4919
-    },
-    {
-      "window": "1Y",
-      "symbol": "801040",
-      "name": "钢铁",
-      "signal": "high_temp",
-      "horizon": "10D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0026,
+      "sample_size": 11,
+      "avg_fwd_excess": -0.0013,
       "win_rate": 0.3636
     },
     {
@@ -1345,9 +1315,9 @@
       "symbol": "801040",
       "name": "钢铁",
       "signal": "high_temp_falling_5d",
-      "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0083,
+      "horizon": "5D",
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0207,
       "win_rate": 0.0
     },
     {
@@ -1355,70 +1325,100 @@
       "symbol": "801040",
       "name": "钢铁",
       "signal": "risk_pullback_after_high",
-      "horizon": "10D",
-      "sample_size": 115,
-      "avg_fwd_excess": -0.0044,
-      "win_rate": 0.4609
-    },
-    {
-      "window": "1Y",
-      "symbol": "801040",
-      "name": "钢铁",
-      "signal": "high_temp",
-      "horizon": "20D",
-      "sample_size": 18,
-      "avg_fwd_excess": 0.0018,
-      "win_rate": 0.6667
-    },
-    {
-      "window": "1Y",
-      "symbol": "801040",
-      "name": "钢铁",
-      "signal": "high_temp_falling_5d",
-      "horizon": "20D",
-      "sample_size": 0,
-      "avg_fwd_excess": null,
-      "win_rate": null
-    },
-    {
-      "window": "1Y",
-      "symbol": "801040",
-      "name": "钢铁",
-      "signal": "risk_pullback_after_high",
-      "horizon": "20D",
-      "sample_size": 100,
-      "avg_fwd_excess": -0.0048,
-      "win_rate": 0.48
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 22,
-      "avg_fwd_excess": -0.0067,
-      "win_rate": 0.3182
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0131,
-      "win_rate": 1.0
-    },
-    {
-      "window": "1Y",
-      "symbol": "801180",
-      "name": "房地产",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 124,
+      "sample_size": 63,
       "avg_fwd_excess": -0.0018,
-      "win_rate": 0.4839
+      "win_rate": 0.3968
+    },
+    {
+      "window": "1Y",
+      "symbol": "801040",
+      "name": "钢铁",
+      "signal": "high_temp",
+      "horizon": "10D",
+      "sample_size": 11,
+      "avg_fwd_excess": -0.0003,
+      "win_rate": 0.2727
+    },
+    {
+      "window": "1Y",
+      "symbol": "801040",
+      "name": "钢铁",
+      "signal": "high_temp_falling_5d",
+      "horizon": "10D",
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0365,
+      "win_rate": 0.0
+    },
+    {
+      "window": "1Y",
+      "symbol": "801040",
+      "name": "钢铁",
+      "signal": "risk_pullback_after_high",
+      "horizon": "10D",
+      "sample_size": 58,
+      "avg_fwd_excess": -0.0061,
+      "win_rate": 0.3621
+    },
+    {
+      "window": "1Y",
+      "symbol": "801040",
+      "name": "钢铁",
+      "signal": "high_temp",
+      "horizon": "20D",
+      "sample_size": 9,
+      "avg_fwd_excess": -0.006,
+      "win_rate": 0.5556
+    },
+    {
+      "window": "1Y",
+      "symbol": "801040",
+      "name": "钢铁",
+      "signal": "high_temp_falling_5d",
+      "horizon": "20D",
+      "sample_size": 0,
+      "avg_fwd_excess": null,
+      "win_rate": null
+    },
+    {
+      "window": "1Y",
+      "symbol": "801040",
+      "name": "钢铁",
+      "signal": "risk_pullback_after_high",
+      "horizon": "20D",
+      "sample_size": 50,
+      "avg_fwd_excess": -0.024,
+      "win_rate": 0.42
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp",
+      "horizon": "5D",
+      "sample_size": 11,
+      "avg_fwd_excess": -0.0077,
+      "win_rate": 0.4545
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0178,
+      "win_rate": 0.0
+    },
+    {
+      "window": "1Y",
+      "symbol": "801180",
+      "name": "房地产",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 63,
+      "avg_fwd_excess": -0.0024,
+      "win_rate": 0.381
     },
     {
       "window": "1Y",
@@ -1426,9 +1426,9 @@
       "name": "房地产",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 22,
-      "avg_fwd_excess": -0.0043,
-      "win_rate": 0.6364
+      "sample_size": 11,
+      "avg_fwd_excess": 0.0042,
+      "win_rate": 0.5455
     },
     {
       "window": "1Y",
@@ -1436,8 +1436,8 @@
       "name": "房地产",
       "signal": "high_temp_falling_5d",
       "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0102,
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0808,
       "win_rate": 0.0
     },
     {
@@ -1446,9 +1446,9 @@
       "name": "房地产",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 115,
-      "avg_fwd_excess": -0.0019,
-      "win_rate": 0.513
+      "sample_size": 58,
+      "avg_fwd_excess": 0.0006,
+      "win_rate": 0.5172
     },
     {
       "window": "1Y",
@@ -1456,8 +1456,8 @@
       "name": "房地产",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 18,
-      "avg_fwd_excess": 0.0132,
+      "sample_size": 9,
+      "avg_fwd_excess": 0.0008,
       "win_rate": 0.6667
     },
     {
@@ -1476,9 +1476,9 @@
       "name": "房地产",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 100,
-      "avg_fwd_excess": 0.0055,
-      "win_rate": 0.58
+      "sample_size": 50,
+      "avg_fwd_excess": 0.0155,
+      "win_rate": 0.7
     },
     {
       "window": "1Y",
@@ -1486,9 +1486,9 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0009,
-      "win_rate": 0.5
+      "sample_size": 11,
+      "avg_fwd_excess": 0.0019,
+      "win_rate": 0.5455
     },
     {
       "window": "1Y",
@@ -1496,9 +1496,9 @@
       "name": "商贸零售",
       "signal": "high_temp_falling_5d",
       "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0138,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.009,
+      "win_rate": 0.0
     },
     {
       "window": "1Y",
@@ -1506,9 +1506,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 124,
-      "avg_fwd_excess": -0.001,
-      "win_rate": 0.4839
+      "sample_size": 63,
+      "avg_fwd_excess": 0.0004,
+      "win_rate": 0.4921
     },
     {
       "window": "1Y",
@@ -1516,8 +1516,8 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0057,
+      "sample_size": 11,
+      "avg_fwd_excess": 0.0105,
       "win_rate": 0.7273
     },
     {
@@ -1526,9 +1526,9 @@
       "name": "商贸零售",
       "signal": "high_temp_falling_5d",
       "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0034,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0878,
+      "win_rate": 0.0
     },
     {
       "window": "1Y",
@@ -1536,9 +1536,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 115,
-      "avg_fwd_excess": 0.0017,
-      "win_rate": 0.513
+      "sample_size": 58,
+      "avg_fwd_excess": 0.0032,
+      "win_rate": 0.4655
     },
     {
       "window": "1Y",
@@ -1546,9 +1546,9 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 18,
-      "avg_fwd_excess": 0.0176,
-      "win_rate": 0.6667
+      "sample_size": 9,
+      "avg_fwd_excess": -0.0069,
+      "win_rate": 0.5556
     },
     {
       "window": "1Y",
@@ -1566,9 +1566,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 100,
-      "avg_fwd_excess": 0.0068,
-      "win_rate": 0.52
+      "sample_size": 50,
+      "avg_fwd_excess": -0.0003,
+      "win_rate": 0.56
     },
     {
       "window": "1Y",
@@ -1576,9 +1576,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0077,
-      "win_rate": 0.6364
+      "sample_size": 11,
+      "avg_fwd_excess": 0.0155,
+      "win_rate": 0.7273
     },
     {
       "window": "1Y",
@@ -1586,9 +1586,9 @@
       "name": "社会服务",
       "signal": "high_temp_falling_5d",
       "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0174,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0082,
+      "win_rate": 0.0
     },
     {
       "window": "1Y",
@@ -1596,9 +1596,9 @@
       "name": "社会服务",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 124,
-      "avg_fwd_excess": 0.0019,
-      "win_rate": 0.5323
+      "sample_size": 63,
+      "avg_fwd_excess": 0.0048,
+      "win_rate": 0.5556
     },
     {
       "window": "1Y",
@@ -1606,9 +1606,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0194,
-      "win_rate": 0.8182
+      "sample_size": 11,
+      "avg_fwd_excess": 0.0315,
+      "win_rate": 0.9091
     },
     {
       "window": "1Y",
@@ -1616,9 +1616,9 @@
       "name": "社会服务",
       "signal": "high_temp_falling_5d",
       "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0039,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0765,
+      "win_rate": 0.0
     },
     {
       "window": "1Y",
@@ -1626,9 +1626,9 @@
       "name": "社会服务",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 115,
-      "avg_fwd_excess": 0.0052,
-      "win_rate": 0.5478
+      "sample_size": 58,
+      "avg_fwd_excess": 0.0104,
+      "win_rate": 0.5
     },
     {
       "window": "1Y",
@@ -1636,9 +1636,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 18,
-      "avg_fwd_excess": 0.0407,
-      "win_rate": 0.8889
+      "sample_size": 9,
+      "avg_fwd_excess": 0.038,
+      "win_rate": 0.7778
     },
     {
       "window": "1Y",
@@ -1656,8 +1656,8 @@
       "name": "社会服务",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 100,
-      "avg_fwd_excess": 0.0128,
+      "sample_size": 50,
+      "avg_fwd_excess": 0.0069,
       "win_rate": 0.58
     },
     {
@@ -1666,9 +1666,9 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 22,
-      "avg_fwd_excess": -0.0094,
-      "win_rate": 0.3636
+      "sample_size": 11,
+      "avg_fwd_excess": -0.0171,
+      "win_rate": 0.2727
     },
     {
       "window": "1Y",
@@ -1676,8 +1676,8 @@
       "name": "美容护理",
       "signal": "high_temp_falling_5d",
       "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.003,
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0302,
       "win_rate": 0.0
     },
     {
@@ -1686,9 +1686,9 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 124,
-      "avg_fwd_excess": -0.0031,
-      "win_rate": 0.4597
+      "sample_size": 63,
+      "avg_fwd_excess": -0.0035,
+      "win_rate": 0.381
     },
     {
       "window": "1Y",
@@ -1696,8 +1696,8 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 22,
-      "avg_fwd_excess": -0.0129,
+      "sample_size": 11,
+      "avg_fwd_excess": -0.0113,
       "win_rate": 0.3636
     },
     {
@@ -1706,8 +1706,8 @@
       "name": "美容护理",
       "signal": "high_temp_falling_5d",
       "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0135,
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0709,
       "win_rate": 0.0
     },
     {
@@ -1716,9 +1716,9 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 115,
-      "avg_fwd_excess": -0.0053,
-      "win_rate": 0.4174
+      "sample_size": 58,
+      "avg_fwd_excess": -0.0117,
+      "win_rate": 0.3276
     },
     {
       "window": "1Y",
@@ -1726,9 +1726,9 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 18,
-      "avg_fwd_excess": -0.0058,
-      "win_rate": 0.4444
+      "sample_size": 9,
+      "avg_fwd_excess": -0.0321,
+      "win_rate": 0.2222
     },
     {
       "window": "1Y",
@@ -1746,8 +1746,8 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 100,
-      "avg_fwd_excess": -0.0093,
+      "sample_size": 50,
+      "avg_fwd_excess": -0.0229,
       "win_rate": 0.4
     },
     {
@@ -1756,9 +1756,9 @@
       "name": "钢铁",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 26,
-      "avg_fwd_excess": -0.0031,
-      "win_rate": 0.3462
+      "sample_size": 13,
+      "avg_fwd_excess": -0.0015,
+      "win_rate": 0.3077
     },
     {
       "window": "2Y",
@@ -1766,8 +1766,8 @@
       "name": "钢铁",
       "signal": "high_temp_falling_5d",
       "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0005,
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0207,
       "win_rate": 0.0
     },
     {
@@ -1776,9 +1776,9 @@
       "name": "钢铁",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 210,
-      "avg_fwd_excess": -0.0013,
-      "win_rate": 0.4667
+      "sample_size": 106,
+      "avg_fwd_excess": -0.0004,
+      "win_rate": 0.4623
     },
     {
       "window": "2Y",
@@ -1786,9 +1786,9 @@
       "name": "钢铁",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 26,
-      "avg_fwd_excess": 0.0039,
-      "win_rate": 0.3846
+      "sample_size": 13,
+      "avg_fwd_excess": -0.0035,
+      "win_rate": 0.2308
     },
     {
       "window": "2Y",
@@ -1796,8 +1796,8 @@
       "name": "钢铁",
       "signal": "high_temp_falling_5d",
       "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0083,
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0365,
       "win_rate": 0.0
     },
     {
@@ -1806,9 +1806,9 @@
       "name": "钢铁",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 201,
-      "avg_fwd_excess": -0.0028,
-      "win_rate": 0.4527
+      "sample_size": 101,
+      "avg_fwd_excess": -0.0015,
+      "win_rate": 0.4554
     },
     {
       "window": "2Y",
@@ -1816,8 +1816,8 @@
       "name": "钢铁",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 22,
-      "avg_fwd_excess": -0.0029,
+      "sample_size": 11,
+      "avg_fwd_excess": -0.0067,
       "win_rate": 0.5455
     },
     {
@@ -1836,9 +1836,9 @@
       "name": "钢铁",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 186,
-      "avg_fwd_excess": -0.0005,
-      "win_rate": 0.4731
+      "sample_size": 93,
+      "avg_fwd_excess": -0.012,
+      "win_rate": 0.4516
     },
     {
       "window": "2Y",
@@ -1846,9 +1846,9 @@
       "name": "房地产",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 26,
-      "avg_fwd_excess": -0.0035,
-      "win_rate": 0.3846
+      "sample_size": 13,
+      "avg_fwd_excess": -0.0028,
+      "win_rate": 0.5385
     },
     {
       "window": "2Y",
@@ -1856,9 +1856,9 @@
       "name": "房地产",
       "signal": "high_temp_falling_5d",
       "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0131,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0178,
+      "win_rate": 0.0
     },
     {
       "window": "2Y",
@@ -1866,9 +1866,9 @@
       "name": "房地产",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 210,
-      "avg_fwd_excess": -0.0017,
-      "win_rate": 0.4619
+      "sample_size": 106,
+      "avg_fwd_excess": -0.0014,
+      "win_rate": 0.4434
     },
     {
       "window": "2Y",
@@ -1876,9 +1876,9 @@
       "name": "房地产",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 26,
-      "avg_fwd_excess": 0.0022,
-      "win_rate": 0.6923
+      "sample_size": 13,
+      "avg_fwd_excess": 0.0043,
+      "win_rate": 0.5385
     },
     {
       "window": "2Y",
@@ -1886,8 +1886,8 @@
       "name": "房地产",
       "signal": "high_temp_falling_5d",
       "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0102,
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0808,
       "win_rate": 0.0
     },
     {
@@ -1896,9 +1896,9 @@
       "name": "房地产",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 201,
-      "avg_fwd_excess": -0.002,
-      "win_rate": 0.4826
+      "sample_size": 101,
+      "avg_fwd_excess": -0.0029,
+      "win_rate": 0.4752
     },
     {
       "window": "2Y",
@@ -1906,8 +1906,8 @@
       "name": "房地产",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0111,
+      "sample_size": 11,
+      "avg_fwd_excess": 0.001,
       "win_rate": 0.6364
     },
     {
@@ -1926,8 +1926,8 @@
       "name": "房地产",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 186,
-      "avg_fwd_excess": -0.0006,
+      "sample_size": 93,
+      "avg_fwd_excess": -0.0036,
       "win_rate": 0.4731
     },
     {
@@ -1936,9 +1936,9 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 26,
-      "avg_fwd_excess": 0.0057,
-      "win_rate": 0.5385
+      "sample_size": 13,
+      "avg_fwd_excess": 0.0138,
+      "win_rate": 0.6154
     },
     {
       "window": "2Y",
@@ -1946,9 +1946,9 @@
       "name": "商贸零售",
       "signal": "high_temp_falling_5d",
       "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0138,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.009,
+      "win_rate": 0.0
     },
     {
       "window": "2Y",
@@ -1956,9 +1956,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 210,
-      "avg_fwd_excess": 0.0021,
-      "win_rate": 0.4952
+      "sample_size": 106,
+      "avg_fwd_excess": 0.0068,
+      "win_rate": 0.5189
     },
     {
       "window": "2Y",
@@ -1966,8 +1966,8 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 26,
-      "avg_fwd_excess": 0.0192,
+      "sample_size": 13,
+      "avg_fwd_excess": 0.0182,
       "win_rate": 0.7692
     },
     {
@@ -1976,9 +1976,9 @@
       "name": "商贸零售",
       "signal": "high_temp_falling_5d",
       "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0034,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0878,
+      "win_rate": 0.0
     },
     {
       "window": "2Y",
@@ -1986,9 +1986,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 201,
-      "avg_fwd_excess": 0.0069,
-      "win_rate": 0.5522
+      "sample_size": 101,
+      "avg_fwd_excess": 0.0146,
+      "win_rate": 0.5446
     },
     {
       "window": "2Y",
@@ -1996,9 +1996,9 @@
       "name": "商贸零售",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0249,
-      "win_rate": 0.7273
+      "sample_size": 11,
+      "avg_fwd_excess": 0.0131,
+      "win_rate": 0.6364
     },
     {
       "window": "2Y",
@@ -2016,9 +2016,9 @@
       "name": "商贸零售",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 186,
-      "avg_fwd_excess": 0.0175,
-      "win_rate": 0.5699
+      "sample_size": 93,
+      "avg_fwd_excess": 0.0266,
+      "win_rate": 0.6129
     },
     {
       "window": "2Y",
@@ -2026,9 +2026,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 26,
-      "avg_fwd_excess": 0.0071,
-      "win_rate": 0.6154
+      "sample_size": 13,
+      "avg_fwd_excess": 0.0183,
+      "win_rate": 0.7692
     },
     {
       "window": "2Y",
@@ -2036,9 +2036,9 @@
       "name": "社会服务",
       "signal": "high_temp_falling_5d",
       "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0174,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0082,
+      "win_rate": 0.0
     },
     {
       "window": "2Y",
@@ -2046,9 +2046,9 @@
       "name": "社会服务",
       "signal": "risk_pullback_after_high",
       "horizon": "5D",
-      "sample_size": 210,
-      "avg_fwd_excess": 0.0001,
-      "win_rate": 0.4905
+      "sample_size": 106,
+      "avg_fwd_excess": 0.0024,
+      "win_rate": 0.5283
     },
     {
       "window": "2Y",
@@ -2056,9 +2056,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 26,
-      "avg_fwd_excess": 0.0237,
-      "win_rate": 0.8462
+      "sample_size": 13,
+      "avg_fwd_excess": 0.0315,
+      "win_rate": 0.9231
     },
     {
       "window": "2Y",
@@ -2066,9 +2066,9 @@
       "name": "社会服务",
       "signal": "high_temp_falling_5d",
       "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": 0.0039,
-      "win_rate": 1.0
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0765,
+      "win_rate": 0.0
     },
     {
       "window": "2Y",
@@ -2076,9 +2076,9 @@
       "name": "社会服务",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 201,
-      "avg_fwd_excess": 0.0015,
-      "win_rate": 0.5025
+      "sample_size": 101,
+      "avg_fwd_excess": 0.0055,
+      "win_rate": 0.4653
     },
     {
       "window": "2Y",
@@ -2086,9 +2086,9 @@
       "name": "社会服务",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 22,
-      "avg_fwd_excess": 0.0385,
-      "win_rate": 0.9091
+      "sample_size": 11,
+      "avg_fwd_excess": 0.0332,
+      "win_rate": 0.8182
     },
     {
       "window": "2Y",
@@ -2106,9 +2106,9 @@
       "name": "社会服务",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 186,
-      "avg_fwd_excess": 0.0063,
-      "win_rate": 0.4946
+      "sample_size": 93,
+      "avg_fwd_excess": 0.004,
+      "win_rate": 0.5269
     },
     {
       "window": "2Y",
@@ -2116,8 +2116,38 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "5D",
-      "sample_size": 26,
-      "avg_fwd_excess": -0.0085,
+      "sample_size": 13,
+      "avg_fwd_excess": -0.0106,
+      "win_rate": 0.3077
+    },
+    {
+      "window": "2Y",
+      "symbol": "801980",
+      "name": "美容护理",
+      "signal": "high_temp_falling_5d",
+      "horizon": "5D",
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0302,
+      "win_rate": 0.0
+    },
+    {
+      "window": "2Y",
+      "symbol": "801980",
+      "name": "美容护理",
+      "signal": "risk_pullback_after_high",
+      "horizon": "5D",
+      "sample_size": 106,
+      "avg_fwd_excess": -0.0002,
+      "win_rate": 0.4528
+    },
+    {
+      "window": "2Y",
+      "symbol": "801980",
+      "name": "美容护理",
+      "signal": "high_temp",
+      "horizon": "10D",
+      "sample_size": 13,
+      "avg_fwd_excess": -0.0086,
       "win_rate": 0.3846
     },
     {
@@ -2125,39 +2155,9 @@
       "symbol": "801980",
       "name": "美容护理",
       "signal": "high_temp_falling_5d",
-      "horizon": "5D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.003,
-      "win_rate": 0.0
-    },
-    {
-      "window": "2Y",
-      "symbol": "801980",
-      "name": "美容护理",
-      "signal": "risk_pullback_after_high",
-      "horizon": "5D",
-      "sample_size": 210,
-      "avg_fwd_excess": -0.0018,
-      "win_rate": 0.481
-    },
-    {
-      "window": "2Y",
-      "symbol": "801980",
-      "name": "美容护理",
-      "signal": "high_temp",
       "horizon": "10D",
-      "sample_size": 26,
-      "avg_fwd_excess": -0.0049,
-      "win_rate": 0.4615
-    },
-    {
-      "window": "2Y",
-      "symbol": "801980",
-      "name": "美容护理",
-      "signal": "high_temp_falling_5d",
-      "horizon": "10D",
-      "sample_size": 2,
-      "avg_fwd_excess": -0.0135,
+      "sample_size": 1,
+      "avg_fwd_excess": -0.0709,
       "win_rate": 0.0
     },
     {
@@ -2166,9 +2166,9 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "10D",
-      "sample_size": 201,
-      "avg_fwd_excess": -0.002,
-      "win_rate": 0.4279
+      "sample_size": 101,
+      "avg_fwd_excess": -0.001,
+      "win_rate": 0.495
     },
     {
       "window": "2Y",
@@ -2176,9 +2176,9 @@
       "name": "美容护理",
       "signal": "high_temp",
       "horizon": "20D",
-      "sample_size": 22,
-      "avg_fwd_excess": -0.0042,
-      "win_rate": 0.4545
+      "sample_size": 11,
+      "avg_fwd_excess": -0.0201,
+      "win_rate": 0.2727
     },
     {
       "window": "2Y",
@@ -2196,9 +2196,9 @@
       "name": "美容护理",
       "signal": "risk_pullback_after_high",
       "horizon": "20D",
-      "sample_size": 186,
-      "avg_fwd_excess": 0.0012,
-      "win_rate": 0.5161
+      "sample_size": 93,
+      "avg_fwd_excess": 0.0001,
+      "win_rate": 0.5269
     }
   ]
 }
