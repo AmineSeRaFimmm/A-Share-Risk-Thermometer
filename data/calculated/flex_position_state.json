@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-11-24",
+  "as_of": "2026-11-25",
   "mode": "aggressive",
   "core": {
     "status": "flat",
@@ -17,15 +17,25 @@
     "planned_hold_days": null
   },
   "satellite": {
-    "status": "flat",
-    "entry_signal_date": null,
-    "entry_date": null,
-    "exit_due_date": null,
-    "days_held": 0,
-    "days_remaining": 0,
-    "stage_id": null,
-    "names": [],
-    "weights": {},
+    "status": "open",
+    "entry_signal_date": "2026-11-24",
+    "entry_date": "2026-11-25",
+    "exit_due_date": "2026-12-04",
+    "days_held": 1,
+    "days_remaining": 7,
+    "stage_id": "FALLING_HARD",
+    "names": [
+      "有色金属",
+      "煤炭",
+      "基础化工",
+      "电力设备"
+    ],
+    "weights": {
+      "有色金属": 0.3741,
+      "煤炭": 0.2996,
+      "基础化工": 0.1902,
+      "电力设备": 0.136
+    },
     "etf_code": null,
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
@@ -1099,64 +1109,40 @@
     "core": "2026-11-24"
   },
   "satellite_risk_check": {
-    "signal_id": "2026-11-17",
-    "entry_date": "2026-11-18",
+    "signal_id": "2026-11-24",
+    "entry_date": "2026-11-25",
     "members": [
       {
-        "name": "恒生科技",
-        "etf_code": "513180",
-        "etf_name": "恒生科技ETF华夏",
-        "weight_in_sleeve": 0.2415,
+        "name": "有色金属",
+        "etf_code": "512400",
+        "etf_name": "有色金属ETF南方",
+        "weight_in_sleeve": 0.3741374137413741,
         "portfolio_weight": null,
-        "entry_open": 0.469
+        "entry_open": 1.22
       },
       {
-        "name": "通信",
-        "etf_code": "515880",
-        "etf_name": "通信ETF国泰",
-        "weight_in_sleeve": 0.2179,
+        "name": "煤炭",
+        "etf_code": "515220",
+        "etf_name": "煤炭ETF国泰",
+        "weight_in_sleeve": 0.2996299629962996,
         "portfolio_weight": null,
-        "entry_open": 0.382
+        "entry_open": 1.137
       },
       {
-        "name": "机械设备",
-        "etf_code": "159886",
-        "etf_name": "机械ETF富国",
-        "weight_in_sleeve": 0.1199,
+        "name": "基础化工",
+        "etf_code": "516020",
+        "etf_name": "化工ETF华宝",
+        "weight_in_sleeve": 0.19021902190219023,
         "portfolio_weight": null,
-        "entry_open": 0.726
+        "entry_open": 0.678
       },
       {
-        "name": "建筑材料",
-        "etf_code": "159745",
-        "etf_name": "建材ETF国泰",
-        "weight_in_sleeve": 0.1172,
+        "name": "电力设备",
+        "etf_code": "516850",
+        "etf_name": "新能源ETF华夏",
+        "weight_in_sleeve": 0.13601360136013602,
         "portfolio_weight": null,
-        "entry_open": 0.496
-      },
-      {
-        "name": "传媒",
-        "etf_code": "512980",
-        "etf_name": "传媒ETF广发",
-        "weight_in_sleeve": 0.1172,
-        "portfolio_weight": null,
-        "entry_open": 0.768
-      },
-      {
-        "name": "国防军工",
-        "etf_code": "512660",
-        "etf_name": "军工ETF国泰",
-        "weight_in_sleeve": 0.1029,
-        "portfolio_weight": null,
-        "entry_open": 0.962
-      },
-      {
-        "name": "商贸零售",
-        "etf_code": "159928",
-        "etf_name": "消费ETF汇添富",
-        "weight_in_sleeve": 0.0834,
-        "portfolio_weight": null,
-        "entry_open": 0.709
+        "entry_open": 0.675
       }
     ],
     "min_hold_days": 3,
@@ -1164,18 +1150,10 @@
     "take_profit": 0.04,
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
-    "status": "TRIGGERED",
-    "event_type": "STOP_LOSS",
-    "close_code": "LOCAL_STOP_LOSS",
-    "action_cn": "卫星篮子止损",
-    "trigger_date": "2026-11-20",
-    "execution_date": "2026-11-23",
-    "execution_status": "PENDING",
-    "execution_bar_complete": false,
-    "trigger_return": -0.053214012481633155,
-    "trigger_threshold": -0.03,
-    "days_held": 3,
-    "checked_through": "2026-11-20",
-    "reason_cn": "固定卫星篮子持有第 3 日 EOD 收益首次低于止损线"
+    "status": "CLEAR",
+    "checked_through": "2026-11-25",
+    "latest_return": -0.013959051171684611,
+    "days_held": 1,
+    "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
