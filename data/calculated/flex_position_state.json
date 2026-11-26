@@ -1,28 +1,32 @@
 {
-  "as_of": "2026-11-25",
+  "as_of": "2026-11-26",
   "mode": "aggressive",
   "core": {
-    "status": "flat",
-    "entry_signal_date": null,
-    "entry_date": null,
-    "exit_due_date": null,
-    "days_held": 0,
-    "days_remaining": 0,
-    "stage_id": null,
-    "names": [],
-    "weights": {},
-    "etf_code": null,
+    "status": "open",
+    "entry_signal_date": "2026-11-25",
+    "entry_date": "2026-11-26",
+    "exit_due_date": "2026-12-02",
+    "days_held": 1,
+    "days_remaining": 4,
+    "stage_id": "CSI300_CORE_BUY",
+    "names": [
+      "沪深300"
+    ],
+    "weights": {
+      "沪深300": 1.0
+    },
+    "etf_code": "510300",
     "execution_mode": "T_PLUS_1_OPEN",
     "entry_price_type": "open",
-    "planned_hold_days": null
+    "planned_hold_days": 5
   },
   "satellite": {
     "status": "open",
     "entry_signal_date": "2026-11-24",
     "entry_date": "2026-11-25",
     "exit_due_date": "2026-12-04",
-    "days_held": 1,
-    "days_remaining": 7,
+    "days_held": 2,
+    "days_remaining": 6,
     "stage_id": "FALLING_HARD",
     "names": [
       "有色金属",
@@ -1151,9 +1155,9 @@
     "transaction_cost_bps_one_way": 1.0,
     "return_formula": "sum(weight * close / entry_open) / (1 + entry_cost_rate) - 1",
     "status": "CLEAR",
-    "checked_through": "2026-11-25",
-    "latest_return": -0.013959051171684611,
-    "days_held": 1,
+    "checked_through": "2026-11-26",
+    "latest_return": -0.0022182026917170194,
+    "days_held": 2,
     "reason_cn": "截至共同 EOD 尚未触发卫星止盈止损"
   }
 }
