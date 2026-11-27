@@ -54,7 +54,7 @@
     "hs300_dd60": -0.121516010729314,
     "regime": "PANIC",
     "regime_cn": "恐慌区",
-    "quality": "OK_CROSSCHECKED|WARN_QVIX_MISSING",
+    "quality": "WARN_QVIX_MISSING",
     "model_confidence": 86.5
   },
   "active_stage_ids": [
